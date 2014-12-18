@@ -31,7 +31,8 @@ Read [the contribution guide](CONTRIBUTING.md) for more details.
 ### License & Copyright
 [GPLv2](https://www.gnu.org/licenses/gpl-2.0.html)
 
-Copyright 2009 Lobo Project
-Copyright 2014 Uproot Labs India Pvt Ltd
+ * Copyright 2009 Lobo Project
+ * Copyright 2014 Uproot Labs India Pvt Ltd
 
-
+### Pre-History
+The history of all commits that take lobo code to gngr code is available in [a separate repository](https://github.com/UprootLabs/gngrPreHistoric).
