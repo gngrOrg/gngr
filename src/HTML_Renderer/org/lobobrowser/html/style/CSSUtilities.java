@@ -95,10 +95,6 @@ public class CSSUtilities {
     return is;
   }
 
-  /* public static CSSOMParser mkParser() {
-    return new CSSOMParser(new SACParserCSS3());
-  } */
-
   public static StyleSheet jParseStyleSheet(final org.w3c.dom.Node ownerNode, final String baseURI, final String stylesheetStr) {
     return jParseCSS2(ownerNode, baseURI, stylesheetStr);
   }

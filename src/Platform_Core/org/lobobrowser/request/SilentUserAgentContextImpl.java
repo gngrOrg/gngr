@@ -122,7 +122,8 @@ public class SilentUserAgentContextImpl implements UserAgentContext {
 
   public void setCookie(final java.net.URL url, final String cookieSpec) {
     // Requires privileges.
-    RequestEngine.getInstance().setCookie(url, cookieSpec);
+    // Changed for issue #78
+    RequestEngine.getInstance().setCookie(url, cookieSpec, this);
   }
 
   public Policy getSecurityPolicy() {

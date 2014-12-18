@@ -34,6 +34,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.Proxy;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -128,11 +129,14 @@ public final class RequestEngine {
     return cookieText.toString();
   }
 
-  public void setCookie(final URL url, final String cookieSpec) {
-    try {
-      this.cookieStore.saveCookie(url.toURI(), cookieSpec);
-    } catch (final URISyntaxException e) {
-      throw new RuntimeException(e);
+  public void setCookie(final URL url, final String cookieSpec, final UserAgentContext uaContext) {
+    // changed for issue #78
+    if (uaContext.isRequestPermitted(new Request(url, RequestKind.Cookie))) {
+      try {
+        this.cookieStore.saveCookie(url.toURI(), cookieSpec);
+      } catch (final URISyntaxException e) {
+        throw new RuntimeException(e);
+      }
     }
   }
 
@@ -176,7 +180,7 @@ public final class RequestEngine {
 
   private void postData(final URLConnection connection, final ParameterInfo pinfo, final String altPostData) throws IOException {
     final BooleanSettings boolSettings = this.booleanSettings;
-    final String encoding = pinfo.getEncoding();
+    final String encoding = pinfo != null ? pinfo.getEncoding() : NORMAL_FORM_ENCODING;
     if ((encoding == null) || NORMAL_FORM_ENCODING.equalsIgnoreCase(encoding)) {
       final ByteArrayOutputStream bufOut = new ByteArrayOutputStream();
       if (pinfo != null) {
@@ -671,8 +675,12 @@ public final class RequestEngine {
     }
     addRequestProperties(connection, request, cacheInfo, method, connectionUrl, rhandler);
 
-    // TODO: Consider adding cookies here?
     addRequestedHeadersToRequest(connection, rhandler);
+
+    // Moved add cookies here since connection is initiated in this method for POST requests.
+    // And we can't add headers after the connection is made.
+    addCookiesToRequest(connection, rhandler);
+    // dumpRequestInfo(connection);
 
     // Allow extensions to modify the connection object.
     // Doing it after addRequestProperties() to allow such
@@ -685,10 +693,16 @@ public final class RequestEngine {
     // POST data if we need to.
     if (isPost) {
       final ParameterInfo pinfo = rhandler instanceof RedirectRequestHandler ? null : request.getParameterInfo();
-      if (pinfo == null) {
-        throw new IllegalStateException("POST has no parameter information");
+      final String altPostData = rhandler instanceof RedirectRequestHandler ? null : request.getAltPostData();
+      System.out.println("Posting to: " + connectionUrl);
+      System.out.println("  pinfo: " + pinfo);
+      System.out.println("  alt post data: " + altPostData);
+      if ((pinfo == null) && (altPostData == null)) {
+        // throw new IllegalStateException("POST has no parameter information");
+        logger.warning("POST has no parameter information");
+      } else {
+        this.postData(connection, pinfo, altPostData);
       }
-      this.postData(connection, pinfo, request.getAltPostData());
     }
     return connection;
   }
@@ -744,7 +758,8 @@ public final class RequestEngine {
       final CacheInfo cacheInfo = getCacheInfo(rhandler, connectionUrl, isGet);
       try {
         URLConnection connection = this.getURLConnection(connectionUrl, request, protocol, method, rhandler, cacheInfo);
-        addCookiesToRequest(connection, rhandler);
+        // addCookiesToRequest(connection, rhandler);
+
         // This causes exceptions sometimes (when the connection is already open)
         // dumpRequestInfo(connection);
 
@@ -762,13 +777,18 @@ public final class RequestEngine {
           rhandler.handleProgress(ProgressType.CONNECTING, url, method, 0, -1);
           // Handle response
           boolean isContentCached = (cacheInfo != null) && cacheInfo.isCacheConnection(connection);
+
+          if (isContentCached) {
+            System.out.println("URL Cached: " + url);
+          }
+
           boolean isCacheable = false;
           if ((connection instanceof HttpURLConnection) && !isContentCached) {
             final HttpURLConnection hconnection = (HttpURLConnection) connection;
             hconnection.setInstanceFollowRedirects(false);
             final int responseCode = hconnection.getResponseCode();
             logInfo("run(): ResponseCode=" + responseCode + " for url=" + connectionUrl);
-            dumpResponseInfo(connection);
+            // dumpResponseInfo(connection);
             handleCookies(connectionUrl, hconnection, rhandler);
 
             if (responseCode == HttpURLConnection.HTTP_OK) {
@@ -897,10 +917,16 @@ public final class RequestEngine {
       final String protocol = connection.getURL().getProtocol();
       if ("http".equalsIgnoreCase(protocol) || "https".equalsIgnoreCase(protocol)) {
         final URL url = connection.getURL();
-        if (rhandler.getContext().isRequestPermitted(new Request(url, RequestKind.Cookie))) {
-          final Map<String, List<String>> cookieHeaders = cookieHandler.get(url.toURI(), null);
-          addCookieHeaderToRequest(connection, cookieHeaders, "Cookie");
-          // addCookieHeaderToRequest(connection, cookieHeaders, "Cookie2");
+        final URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(),
+            url.getRef());
+        // TODO: optimization #1: list is not required if we directly call our CookieHandler implementation
+        // TODO: optimization #2: even if we use the CookieHandler interface, we can avoid the joining of List entries, since our impl always returns a single element list
+        final Map<String, List<String>> cookieHeaders = cookieHandler.get(uri, null);
+        if (!cookieHeaders.isEmpty()) {
+          if (rhandler.getContext().isRequestPermitted(new Request(url, RequestKind.Cookie))) {
+            addCookieHeaderToRequest(connection, cookieHeaders, "Cookie");
+            // addCookieHeaderToRequest(connection, cookieHeaders, "Cookie2");
+          }
         }
       }
     } catch (IOException | URISyntaxException e) {

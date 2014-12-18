@@ -123,6 +123,9 @@ class ElementFactory {
     final HTMLElementBuilder builder = this.builders.get(normalName);
     if (builder == null) {
       // TODO: IE would assume name is html text here?
+      // TODO: ^^ Other browsers throw an exception if there are illegal characters in the name.
+      //          But am not sure what the legal character set is. Characters like angle-brackets
+      //          do throw an exception in Chromium and Firefox. - hrj
       final HTMLElementImpl element = new HTMLElementImpl(name);
       element.setOwnerDocument(document);
       return element;

@@ -234,6 +234,10 @@ class InputImageControl extends BaseInputControl implements ImageListener {
     }
   }
 
+  public void imageAborted() {
+    // do nothing
+  }
+
   public void resetInput() {
     // NOP
   }

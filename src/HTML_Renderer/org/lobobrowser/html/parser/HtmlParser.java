@@ -622,7 +622,7 @@ public class HtmlParser {
    */
   private final int parseToken(final Node parent, final LineNumberReader reader, final Set<String> stopTags,
       final LinkedList<String> ancestors)
-      throws IOException, StopException, SAXException {
+          throws IOException, StopException, SAXException {
     final Document doc = this.document;
     final StringBuffer textSb = this.readUpToTagBegin(reader);
     if (textSb == null) {
@@ -852,7 +852,7 @@ public class HtmlParser {
    */
   private final int parseForEndTag(final Node parent, final LineNumberReader reader, final String tagName, final boolean addTextNode,
       final boolean decodeEntities)
-      throws IOException, SAXException {
+          throws IOException, SAXException {
     final Document doc = this.document;
     int intCh;
     StringBuffer sb = new StringBuffer();

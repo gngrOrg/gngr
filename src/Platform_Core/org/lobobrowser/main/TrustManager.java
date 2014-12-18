@@ -25,7 +25,7 @@ public final class TrustManager {
     final String hardDefaultPath = System.getProperty("java.home") + sep + "lib" + sep + "security" + sep + "cacerts";
     final String defaultStorePath = System.getProperty("javax.net.ssl.trustStore", hardDefaultPath);
     try (
-        final FileInputStream defaultIS = new FileInputStream(defaultStorePath)) {
+      final FileInputStream defaultIS = new FileInputStream(defaultStorePath)) {
 
       final KeyStore defKeyStore = KeyStore.getInstance(KeyStore.getDefaultType());
       defKeyStore.load(defaultIS, "changeit".toCharArray());

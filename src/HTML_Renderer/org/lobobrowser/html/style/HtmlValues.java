@@ -39,7 +39,7 @@ import org.w3c.dom.css.CSS2Properties;
 public class HtmlValues {
   public static final Map<String, FontInfo> SYSTEM_FONTS = new HashMap<>();
   private static final Logger logger = Logger.getLogger(HtmlValues.class.getName());
-  public static final float DEFAULT_FONT_SIZE = 14.0f;
+  public static final float DEFAULT_FONT_SIZE = 16.0f;
   public static final int DEFAULT_FONT_SIZE_INT = (int) DEFAULT_FONT_SIZE;
   public static final Float DEFAULT_FONT_SIZE_BOX = new Float(DEFAULT_FONT_SIZE);
   public static final int DEFAULT_BORDER_WIDTH = 2;
