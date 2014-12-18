@@ -1,7 +1,7 @@
 # Contributing to gngr
 
 ### Avoid +1s on issues
-Please avoid spamming issues with `+1`s. Unfortunately, Github doesn't have a way to vote for a feature. Shoot a mail to
+Please avoid spamming issues with `+1`s. Unfortunately, Github doesn't have a way to vote on an issue. Shoot a mail to
 [them](mailto:support@github.com) if you agree that ability to vote on an issue is essential.
 
 ### Testing and reporting issues
