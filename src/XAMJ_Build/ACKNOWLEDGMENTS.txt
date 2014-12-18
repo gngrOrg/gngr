@@ -1,0 +1,45 @@
+The following open source externals are used by this project:
+
+* [izforge.com] IzPack Installer (Apache License 2.0)
+  That's how we build the Warrior installer. 
+
+* [http://sourceforge.net/projects/jregistrykey/] 
+  jRegistryKey (LGPL).
+  We use it to create file associations in Windows.
+  Previously used for .xamj files. Currently not used
+  just because we're no longer creating associations but
+  should be used in the future. Binaries are 
+  redistributed unmodified.
+  
+* [http://www.mozilla.org/rhino/] Rhino - Javascript for Java 
+  (Dual MPL/GPL license).
+  We are using Rhino to process Javascript embedded in HTML 
+  documents. Rhino binaries are redistributed unmodified.
+  
+* [http://cssparser.sourceforge.net/] Cssparser (LGPL)
+  We use it to parse CSS code. Source code is modified, and
+  available in CVS and in the Cobra distribution.
+
+* [http://java.sun.com] Java(TM) Look and Feel Graphics Repository 1.0 
+  We use images from the repository. Sun releases these images under 
+  a generic license that grants redistribution permission. Binaries
+  are distributed unmodified.
+  
+* [https://openjfx-compiler.dev.java.net/] JavaFX Compiler (GPL)
+  and Runtime. We are using it to compile JavaFX. We 
+  also use the Java compiler shipped with it, if the browser
+  is run under a JRE and not a JDK. Binary JARs are distributed 
+  unmodified.
+
+Previously used:
+
+* [jakarta.apache.org] log4j logging API (Apache Software License)
+  Used before v0.97.
+
+* [eclipse.org] JDT Core Library (Common Public License)
+  We were using the JDT Java compiler and some images
+  in the XAMJ engine before v0.97. 
+
+* [extreme.indiana.edu] XmlPullParser (Indiana University 
+  Extreme! Lab Software License Version 1.1.1)
+  Used before v0.98.4

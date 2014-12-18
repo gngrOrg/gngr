@@ -1,0 +1,138 @@
+<?xml version="1.0"?>
+<!-- ====================================================================== 
+May 29, 2005 1:42:43 PM                                                        
+
+Cobra HTML Toolkit Project
+Author: J. H. S.
+====================================================================== -->
+<project name="project" default="default" basedir="/opt/XAMJ_Project">
+	<property name="cobra.version" value="0.98.5"/>
+    <property name="cobra.name" value="cobra-${cobra.version}"/>	
+	
+    <description>
+     	Cobra HTML Toolkit
+    </description>
+
+    <target name="default" depends="cobra_zip">
+    </target>
+	
+	<target name="cobra_zip" depends="cobra_jar,public_api_doc">
+		<zip destfile="/tmp/${cobra.name}.zip">
+		   <zipfileset dir="/tmp" includes="cobra.jar" prefix="${cobra.name}/lib"/>
+  		   <zipfileset dir="XAMJ_Build/ext" includes="js.jar" prefix="${cobra.name}/lib"/>
+  		   <zipfileset dir="HTML_Renderer" includes="COBRA-README.txt" prefix="${cobra.name}"/>
+  		   <zipfileset dir="HTML_Renderer" includes="COBRA-ACK.txt" prefix="${cobra.name}"/>
+	 	   <zipfileset dir="HTML_Renderer" includes="LICENSE.txt" prefix="${cobra.name}"/>
+		   <zipfileset dir="HTML_Renderer" includes="org/**/*.java,org/**/*.xml,org/**/*.html" prefix="${cobra.name}/src"/>
+		   <zipfileset dir="Common" includes="org/**/*.java,org/**/*.xml,org/**/*.html" prefix="${cobra.name}/src"/>
+		   <zipfileset dir="cssparser/src" includes="org/**/*.java,org/**/*.xml,org/**/*.html" prefix="${cobra.name}/src"/>
+		   <zipfileset dir="cssparser/src" includes="com/**/*.java,com/**/*.xml,com/**/*.html" prefix="${cobra.name}/src"/>
+		   <zipfileset dir="/opt/html_xamjwg_org/cobra-api/" includes="**/*.html,**/*.css,**/*.gif" prefix="${cobra.name}/doc/api"/>
+		   <zipfileset dir="HTML_Renderer/docs" includes="**/*.html,**/*.gif" prefix="${cobra.name}/doc"/>
+		</zip>
+	</target>
+	
+    <target name="cobra_jar" depends="cobra_classfiles">
+    	<jar destfile="/tmp/cobra.jar">
+    		<fileset dir="/tmp/cobra-build" includes="**/*.class,**/*.xml,**/*.gif,**/*.png,**/*.jpg"/>
+    	</jar>	
+    </target>
+
+	<target name="cobra_classfiles">		
+		<mkdir dir="/tmp/cobra-build"/>
+		<delete>
+			<fileset dir="/tmp/cobra-build">
+			    <include name="**/*.class"/>
+			</fileset>
+	    </delete>
+
+		<javac srcdir="Common"
+         destdir="/tmp/cobra-build"
+         classpath=""
+         debug="on"
+			target="1.4"
+			source="1.4"
+		/>        
+		<javac srcdir="cssparser/src"
+         destdir="/tmp/cobra-build"
+         classpath=""
+         debug="on"
+			target="1.4"
+			source="1.4"
+		/>        
+		<javac srcdir="HTML_Renderer"
+         destdir="/tmp/cobra-build"
+         classpath="/tmp/cobra-build:XAMJ_Build/ext/js.jar"
+         debug="on"
+			target="1.4"
+			source="1.4"
+		/>        
+    </target>
+
+	<target name="public_api_doc">
+		<javadoc
+			classpath="XAMJ_Build/ext/js.jar:/tmp/cobra-build"
+			sourcepath="HTML_Renderer"
+			packagenames="org.lobobrowser.html,org.lobobrowser.html.parser,org.lobobrowser.html.gui,org.lobobrowser.html.test,org.lobobrowser.html.renderer,,org.lobobrowser.html.domimpl"
+			destdir="/opt/html_xamjwg_org/cobra-api/"
+			author="false"
+			version="true"
+			use="true"
+			nohelp="true"
+			windowTitle="Cobra ${cobra.version} - Java HTML Toolkit - API Documentation">
+
+			<doctitle><![CDATA[
+				<!-- google_ad_section_start(weight=ignore) -->
+				<h1>Cobra API Documentation</h1>
+		    	<script type='text/javascript'><!--
+				document.iSkipCornerAd = true;
+		    	google_ad_client = 'pub-9179280249786862';
+		    	google_ad_width = 728;
+		    	google_ad_height = 90;
+		    	google_ad_format = '728x90_as';
+		    	google_ad_type = 'text_image';
+		    	//2007-10-31: Cobra JavaDoc Top
+		    	google_ad_channel = '3219947991';
+		    	//-->
+		    	</script>
+		    	<script type='text/javascript'
+		    	  src='http://pagead2.googlesyndication.com/pagead/show_ads.js'>
+		    	</script>
+				<!-- google_ad_section_end -->
+				]]>
+			</doctitle>
+				
+		    <bottom><![CDATA[
+		    	<a href='http://sourceforge.net' target='_top'><img align='right' hspace='4' src='http://sourceforge.net/sflogo.php?group_id=139023&amp;type=4' width='125' height='37' border='0' alt='SourceForge.net Logo'/></a><i>Copyright &#169; 2005-2009 The Lobo Project. All Rights Reserved.</i><br>[<a href='http://lobobrowser.org/cobra.jsp' target='_top'>Cobra Project Home</a>]
+		    	
+		    	<div id='adbox' style='position: absolute; top: 6.0em; right: 8px; display: none; background: white; border: #100030 solid 2px; padding: 4px; background-color: #FFFF90'>
+                <!-- adsense start -->
+		    	<form action="http://lobobrowser.org/api-searchresults.jsp" id="cse-search-box" target="_top">
+		    	  <div>
+		    	    <input type="hidden" name="cx" value="partner-pub-9179280249786862:aa7aazd6e58" />
+		    	    <input type="hidden" name="cof" value="FORID:10" />
+		    	    <input type="hidden" name="ie" value="ISO-8859-1" />
+		    	    <input type="text" name="q" size="10" />
+		    	    <input type="submit" name="sa" value="Search" />
+		    	  </div>
+		    	</form>
+		    	<script type="text/javascript" src="http://www.google.com/coop/cse/brand?form=cse-search-box&amp;lang=en"></script>		       
+                <!-- adsense end -->		     
+		        </div>
+
+		    	<script><!--
+		    	  if(!document.iSkipCornerAd) {
+		    		var iAdBox = document.getElementById('adbox');
+		    	  	iAdBox.style.display = 'block';
+		    	  }
+		    	  //-->
+		    	</script>
+		    	]]>
+		    </bottom>
+			<tag name="todo" scope="all" description="TO DO:"/>
+		    <link offline="true" href="http://java.sun.com/products/j2se/1.5/docs/api/" packagelistLoc="C:\program files\java\jre1.5.0_01\docs\api\"/>
+		</javadoc>
+	</target>
+		
+</project>
+

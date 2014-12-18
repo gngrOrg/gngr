@@ -1,0 +1,370 @@
+<?xml version="1.0"?>
+<!-- ====================================================================== 
+May 29, 2005 1:42:43 PM                                                        
+
+The Lobo Project
+Author: J. H. S.
+====================================================================== -->
+<project name="project" default="default" basedir="/opt/XAMJ_Project">
+    <taskdef name="izpack" classpath="/opt/IzPack/lib/compiler.jar" 
+	     classname="com.izforge.izpack.ant.IzPackTask"/>
+
+	<property name="lobo.version" value="0.98.5"/>
+	<property name="build.dir" value="/tmp/lobo-build/"/>
+	<property name="lobo.dir" value="${build.dir}/lobo-${lobo.version}"/>
+	<!-- Install IzPack under /opt/ directory -->
+	<property name="izpack.home" value="/opt/IzPack/"/>
+	
+    <description>
+    	Lobo Project
+    </description>
+
+    <target name="default" depends="builddir,distros">
+    </target>
+
+	<target name="distros" depends="cobra,installer,lobo_zip,javadocs"/>
+	
+	<target name="builddir">
+	   <mkdir dir="${build.dir}"/>
+	</target>
+		
+	<target name="installer" depends="izpackext_jar,directory_structure">
+		<copy todir="${build.dir}">
+			<fileset dir="XAMJ_Build" includes="jRegistryKey.jar"/>
+		</copy>
+		<copy todir="${izpack.home}/bin/panels">
+			<fileset dir="${build.dir}" includes="RegistryPanel.jar"/>
+		</copy>
+		<izpack input="/opt/XAMJ_Project/XAMJ_Build/install.xml"
+			    output="${build.dir}/install-lobo-${lobo.version}.jar"
+			    installerType="standard"
+				basedir="${lobo.dir}"
+			    izPackDir="${izpack.home}"
+		/>			    
+	</target>
+	
+	<target name="lobo_zip" depends="directory_structure">
+    	<zip destfile="${build.dir}/lobo-distro-${lobo.version}.zip">
+ 		   <zipfileset dir="${lobo.dir}" includes="**" prefix="lobo-distro-${lobo.version}"/>
+    	</zip>
+	</target>
+
+	<target name="directory_structure" depends="cobra_no_commons,primary_extension,jweb_extension,lobo_jar,public_jar,javadocs">
+		<mkdir dir="${lobo.dir}"/>
+		<delete>
+			<fileset dir="${lobo.dir}">
+			    <include name="**"/>
+			</fileset>
+	    </delete>
+		<copy todir="${lobo.dir}">
+			<fileset dir="XAMJ_Build" includes="LICENSE.txt,ACKNOWLEDGMENTS.txt,README.txt,*.xml,*.ico,*.gif,*.png,*.jpg,*.htln"/>
+			<fileset dir="${build.dir}" includes="lobo.jar,lobo-pub.jar"/>
+		</copy>
+		<copy todir="${lobo.dir}/ext">
+	 		<fileset dir="XAMJ_Build/ext" includes="*.jar"/>
+	 		<fileset dir="${build.dir}" includes="cobra-no-commons.jar"/>
+	 		<fileset dir="${build.dir}" includes="primary.jar"/>
+	 		<fileset dir="${build.dir}" includes="jweb-ext.jar"/>
+		</copy>				
+		<copy todir="${lobo.dir}/doc/platform-api">
+			 <fileset dir="/opt/html_xamjwg_org/platform-api/" includes="**/*.html,**/*.css,**/*.gif"/>
+		</copy>
+		<copy todir="${lobo.dir}/doc/public-api">
+			 <fileset dir="/opt/html_xamjwg_org/public-api/" includes="**/*.html,**/*.css,**/*.gif"/>
+		</copy>
+		<copy todir="${lobo.dir}/doc">
+			 <fileset dir="XAMJ_Build/lobo-docs" includes="**/*.html,**/*.css,**/*.gif"/>
+		</copy>
+	</target>
+
+	<target name="cobra_no_commons" depends="html_classfiles,css_classfiles">
+    	<jar  destfile="${build.dir}/cobra-no-commons.jar"
+    		 basedir="HTML_Renderer"
+    		 includes="**/*.class,**/*.xml,**/*.xamj,**/.xami,**/*.gif,**/*.png,**/*.jpg"
+    	/>
+    	<jar destfile="${build.dir}/cobra-no-commons.jar"
+    		 basedir="cssparser/src"
+    		 includes="**/*.class,**/*.xml,**/*.xamj,**/.xami,**/*.gif,**/*.png,**/*.jpg"
+    		 update="true"
+    	/>				
+	</target>
+	
+	<target name="primary_extension" depends="primary_extension_classfiles">
+    	<jar  destfile="${build.dir}/primary.jar"
+    		 basedir="Primary_Extension"
+    		 includes="**/*.class,**/*.xml,**/*.xamj,**/.xami,**/*.gif,**/*.png,**/*.jpg,**/*.properties"
+    	/>
+	</target>
+
+	<target name="jweb_extension" depends="jweb_classfiles">
+    	<jar  destfile="${build.dir}/jweb-ext.jar"
+    		 basedir="JWebContentExtension"
+    		 includes="**/*.class,**/*.xml,**/*.xamj,**/.xami,**/*.gif,**/*.png,**/*.jpg,**/*.properties"
+    	/>
+	</target>
+
+    <target name="public_jar" depends="public_classfiles">
+    	<jar destfile="${build.dir}/lobo-pub.jar"
+ 		 basedir="Platform_Public_API"
+    		 includes="**/*.class,**/*.xml,**/*.xamj,**/.xami,**/*.gif,**/*.png,**/*.jpg"
+    	/>
+    </target>
+
+	<target name="public_classfiles">
+		<javac srcdir="Platform_Public_API"
+		 source="1.5"
+         destdir="Platform_Public_API"
+         classpath=""
+         debug="on"
+		/>        
+    </target>
+
+	<target name="primary_extension_classfiles">
+		<javac srcdir="Primary_Extension"
+		 source="1.5"
+         destdir="Primary_Extension"
+         classpath=""
+         debug="on"
+		/>        
+    </target>
+
+	<target name="jweb_classfiles">
+		<javac srcdir="JWebContentExtension"
+		 source="1.5"
+         destdir="JWebContentExtension"
+         classpath=""
+         debug="on"
+		/>        
+    </target>
+
+    <target name="lobo_jar" depends="lobo_classfiles,common_classfiles">
+    	<jar  destfile="${build.dir}/lobo.jar"
+    		 basedir="Platform_Core"
+    		 includes="**/*.class,**/*.xml,**/*.xamj,**/.xami,**/*.gif,**/*.png,**/*.jpg,**/*.properties"
+    		 manifest="XAMJ_Build/re_manifest.mf"
+    	/>
+    	<jar destfile="${build.dir}/lobo.jar"
+    		 basedir="Common"
+    		 includes="**/*.class,**/*.xml,**/*.xamj,**/.xami,**/*.gif,**/*.png,**/*.jpg"
+    		 update="true"
+    	/>		
+    </target>
+
+   	<target name="lobo_classfiles" depends="public_classfiles,common_classfiles">
+		<javac srcdir="Platform_Core"
+		 source="1.5"
+         destdir="Platform_Core"
+         classpath="Common:Platform_Public_API"
+         debug="on"
+		/>        
+    </target>
+	
+   	<target name="common_classfiles" depends="">
+		<javac srcdir="Common"
+	     source="1.4"
+         destdir="Common"
+         classpath=""
+         debug="on"
+		/>        
+    </target>
+	
+   	<target name="html_classfiles" depends="common_classfiles,css_classfiles">
+		<javac srcdir="HTML_Renderer"
+	     source="1.4"
+         destdir="HTML_Renderer"
+         classpath="Common:cssparser/src:XAMJ_Build/ext/js.jar"
+         debug="on"
+		/>        
+    </target>
+
+   	<target name="css_classfiles">
+		<javac srcdir="cssparser/src"
+		 source="1.4"
+         destdir="cssparser/src"
+         classpath=""
+         debug="on"
+		/>        
+    </target>
+
+	<target name="console_jar" depends="console_classfiles">
+    	<jar destfile="XAMJ_Build/console.jar"
+    		 basedir="Console"
+    		 includes="**/*.class,**/*.xml,**/*.xamj,**/.xami,**/*.gif,**/*.png,**/*.jpg"
+    		 manifest="XAMJ_Build/console_manifest.mf"
+    	/>
+    </target>
+
+   	<target name="console_classfiles">
+		<javac srcdir="Console"
+		 source="1.5"
+         destdir="Console"
+         classpath="XAMJ_Reference_Engine:XAMJ_Security"
+         debug="on"
+		/>        
+    </target>
+
+	<target name="detect_jar" depends="detect_classfiles">
+    	<jar destfile="XAMJ_Build/lobo-detect.jar"
+    		 basedir="Detect_Ext"
+    		 includes="**/*.class,**/*.xml,**/*.xamj,**/.xami,**/*.gif,**/*.png,**/*.jpg"
+    	/>
+    </target>
+
+   	<target name="detect_classfiles">
+		<javac srcdir="Detect_Ext"
+		  source="1.5"
+         destdir="Detect_Ext"
+         classpath=""
+         debug="on"
+		/>        
+    </target>
+	
+	<target name="izpackext_jar" depends="izpackext_classfiles">
+    	<jar destfile="${build.dir}/RegistryPanel.jar"
+ 		 basedir="IzPack_RegistryPanel"
+    		 includes="**/*.class,**/*.xml,**/*.xamj,**/.xami,**/*.gif,**/*.png,**/*.jpg"
+    	/>
+    </target>
+
+	<target name="izpackext_classfiles">
+		<javac srcdir="IzPack_RegistryPanel"
+	     source="1.5"
+         destdir="IzPack_RegistryPanel"
+         classpath=""
+         debug="on"
+		/>        
+    </target>
+	
+	<target name="cobra">		
+		<ant antfile="HTML_Renderer/build.xml" target="default"/>
+	</target>
+	
+	<target name="javadocs">
+		<javadoc
+			sourcepath="Platform_Public_API"
+			packagenames="org.lobobrowser.ua,org.lobobrowser.io,org.lobobrowser.clientlet"
+			destdir="/opt/html_xamjwg_org/public-api/"
+			author="false"
+			version="true"
+			use="true"
+			nohelp="true"
+			windowTitle="Lobo ${lobo.version} - Java Browser - Clientlet and Extensions API Documentation">
+
+			<doctitle><![CDATA[
+				<!-- google_ad_section_start(weight=ignore) -->
+				<h1>Lobo Clientlet and Extensions API Documentation</h1>
+		    	<script type='text/javascript'><!--
+				document.iSkipCornerAd = true;
+		    	google_ad_client = 'pub-9179280249786862';
+		    	google_ad_width = 728;
+		    	google_ad_height = 90;
+		    	google_ad_format = '728x90_as';
+		    	google_ad_type = 'text_image';
+		    	google_ad_channel = '7864170456';
+		    	//-->
+		    	</script>
+		    	<script type='text/javascript'
+		    	  src='http://pagead2.googlesyndication.com/pagead/show_ads.js'>
+		    	</script>
+				<!-- google_ad_section_end -->
+				]]></doctitle>
+		    <bottom><![CDATA[
+		    	<a href='http://sourceforge.net' target='_top'><img align='right' hspace='4' src='http://sourceforge.net/sflogo.php?group_id=139023&amp;type=4' width='125' height='37' border='0' alt='SourceForge.net Logo'/></a><i>Copyright &#169; 2005-2009 The Lobo Project. All Rights Reserved.</i><br>[<a href='http://lobobrowser.org/java-browser.jsp' target='_top'>Lobo Home</a>]
+		    	
+		    	<div id='adbox' style='position: absolute; top: 6.0em; right: 8px; display: none; background: white; border: #100030 solid 2px; padding: 4px; background-color: #FFFF90'>
+                <!-- adsense start -->
+		    	<form action="http://lobobrowser.org/api-searchresults.jsp" id="cse-search-box" target="_top">
+		    	  <div>
+		    	    <input type="hidden" name="cx" value="partner-pub-9179280249786862:aa7aazd6e58" />
+		    	    <input type="hidden" name="cof" value="FORID:10" />
+		    	    <input type="hidden" name="ie" value="ISO-8859-1" />
+		    	    <input type="text" name="q" size="10" />
+		    	    <input type="submit" name="sa" value="Search" />
+		    	  </div>
+		    	</form>
+		    	<script type="text/javascript" src="http://www.google.com/coop/cse/brand?form=cse-search-box&amp;lang=en"></script>		       
+                <!-- adsense end -->		     
+		        </div>
+
+		    	<script><!--
+		    	  if(!document.iSkipCornerAd) {
+		    		var iAdBox = document.getElementById('adbox');
+		    	  	iAdBox.style.display = 'block';
+		    	  }
+		    	  //-->
+		    	</script>
+
+		    	]]></bottom>
+			
+			<tag name="todo" scope="all" description="TO DO:"/>
+		    <link offline="true" href="http://java.sun.com/products/j2se/1.5/docs/api/" packagelistLoc="C:\program files\java\jre1.5.0_01\docs\api\"/>
+
+		</javadoc>
+
+		<javadoc
+			sourcepath="Platform_Core:Platform_Public_API:Common"
+			packagenames="org.lobobrowser.main,org.lobobrowser.gui,org.lobobrowser.settings"
+			destdir="/opt/html_xamjwg_org/platform-api/"
+			author="false"
+			version="true"
+			use="true"
+			nohelp="true"
+			windowTitle="Lobo ${lobo.version} - Java Browser - API Documentation">
+
+			<doctitle><![CDATA[
+				<!-- google_ad_section_start(weight=ignore) -->
+				<h1>Lobo Browser API Documentation</h1>
+		    	<script type='text/javascript'><!--
+				document.iSkipCornerAd = true;
+		    	google_ad_client = 'pub-9179280249786862';
+		    	google_ad_width = 728;
+		    	google_ad_height = 90;
+		    	google_ad_format = '728x90_as';
+		    	google_ad_type = 'text_image';
+		    	google_ad_channel = '7864170456';
+		    	//-->
+		    	</script>
+		    	<script type='text/javascript'
+		    	  src='http://pagead2.googlesyndication.com/pagead/show_ads.js'>
+		    	</script>
+				<!-- google_ad_section_end -->
+				]]></doctitle>
+			<bottom><![CDATA[
+				<a href='http://sourceforge.net' target='_top'><img align='right' hspace='4' src='http://sourceforge.net/sflogo.php?group_id=139023&amp;type=4' width='125' height='37' border='0' alt='SourceForge.net Logo'/></a><i>Copyright &#169; 2005-2009 The Lobo Project. All Rights Reserved.</i><br>[<a href='http://lobobrowser.org/java-browser.jsp' target='_top'>Lobo Home</a>]
+				
+		    	<div id='adbox' style='position: absolute; top: 6.0em; right: 8px; display: none; background: white; border: #100030 solid 2px; padding: 4px; background-color: #FFFF90'>
+                <!-- adsense start -->
+		    	<form action="http://lobobrowser.org/api-searchresults.jsp" id="cse-search-box" target="_top">
+		    	  <div>
+		    	    <input type="hidden" name="cx" value="partner-pub-9179280249786862:aa7aazd6e58" />
+		    	    <input type="hidden" name="cof" value="FORID:10" />
+		    	    <input type="hidden" name="ie" value="ISO-8859-1" />
+		    	    <input type="text" name="q" size="10" />
+		    	    <input type="submit" name="sa" value="Search" />
+		    	  </div>
+		    	</form>
+		    	<script type="text/javascript" src="http://www.google.com/coop/cse/brand?form=cse-search-box&amp;lang=en"></script>		       
+                <!-- adsense end -->		     
+		        </div>
+
+		    	<script><!--
+		    	  if(!document.iSkipCornerAd) {
+		    		var iAdBox = document.getElementById('adbox');
+		    	  	iAdBox.style.display = 'block';
+		    	  }
+		    	  //-->
+		    	</script>
+
+				]]></bottom>
+			<tag name="todo" scope="all" description="TO DO:"/>
+		    <link offline="true" href="http://html.xamjwg.org/public-api/" packagelistLoc="c:\opt\html_xamjwg_org\public-api\"/>
+		    <link offline="true" href="http://html.xamjwg.org/cobra-api/" packagelistLoc="c:\opt\html_xamjwg_org\cobra-api\"/>
+		    <link offline="true" href="http://java.sun.com/products/j2se/1.5/docs/api/" packagelistLoc="C:\program files\java\jre1.5.0_01\docs\api\"/>
+
+		</javadoc>
+	</target>
+	
+	
+
+</project>
+

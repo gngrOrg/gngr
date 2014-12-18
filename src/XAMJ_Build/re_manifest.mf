@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Created-By: The Lobo Project
+Main-Class: org.lobobrowser.main.EntryPoint
+Class-Path: lobo-pub.jar
+Sealed: true

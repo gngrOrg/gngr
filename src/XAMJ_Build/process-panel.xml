@@ -1,0 +1,9 @@
+<processing>
+  <job name="Run Lobo">
+    <os family="windows" />
+    <executefile name="java.exe">
+    	<arg>-jar</arg>
+    	<arg>$INSTALL_PATH/lobo.jar</arg>
+    </executefile>
+  </job>
+</processing>

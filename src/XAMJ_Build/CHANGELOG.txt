@@ -1,0 +1,1869 @@
+Version 0.98.5
+--------------
+
+- Updated to work with Java 7.
+
+- Added means to disable internal CSS
+  (STYLE elements). See UserAgentContext. 
+  
+CSS Parser changes:
+
+- Fixed stack overflow error on some 
+  invalid rule declarations.
+
+Version 0.98.4
+--------------
+
+- Note: Renamed NavigatorListener to 
+  NavigatorErrorListener.  
+
+- Updated JavaFX support so it's 1.0 
+  compliant. 
+
+- Added methods getContentObject() and 
+  getCurrentMimeType() to FramePanel and
+  BrowserPanel. getContentObject() should
+  return HTMLDocumentImpl instances if HTML
+  is showing.
+  
+- Added navigation listener, content 
+  listener and response listener capabilities
+  to FramePanel and BrowserPanel. Navigation
+  events have a linkObject property that 
+  should be of type HTMLElement for HTML
+  clicks.
+
+- Added navigation listeners to extensions. 
+
+- Added connection pre- and post-processors
+  to extensions. 
+  
+- Added a FramePanelFactory capability. 
+  The factory that the browser uses to create
+  FramePanel instances (e.g. for IFRAMEs)
+  can be set with FramePanelFactorySource. 
+
+- Fixed a security issue that prevented
+  some windows from being opened programmatically.
+
+- Implemented status URLs on link hover.
+
+- Added insertProvider and removeProvider
+  permissions to security policy for local
+  code.
+
+- Fixed a general issue with Javascript operations
+  on windows that aren't yet open.
+  
+- Allowing cancellation of window open when
+  progress window gets disposed of.
+     
+- Patch [ 2339649 ] Remove special 'U' character; 
+  causes errors in some env's. Affects compilation
+  of source code. (Thanks Derrick Rice - 
+  derrick_rice).  
+
+- Fixed error in unquoting of content-type
+  charset. 
+
+- Fixed charset of cached documents.
+
+Cobra changes:
+
+- Implemented CSS child (>) and sibling (+)
+  selectors.
+
+- Bug [ 2351217 ] Link target as frame identifier 
+  no longer working. Name lookups of HTML 
+  collections were not working, except when
+  elements defined ID attributes instead of
+  NAME attributes.
+
+- Bug [ 2045717 ] Implement margin collapsing.  
+  Paragraph spacing works based on margin
+  collapsing. 
+  
+- Fixed layout issue with large right floats
+  overflowing to the left and getting cut off.
+  
+- Note: Did a new refactoring of layout engine. 
+  We're no longer using adjust() calls. An
+  annoying issue with the layout getting clobbered,
+  typically on mouse hover, has been addressed.
+  
+- Fixed nowrap layout issue affecting
+  contiguous spans.
+
+- Implemented known ways to set the BODY
+  margin and scrolling.
+  
+- Implemented overflow-x and overflow-y. 
+  (This is really a CSS3 feature).
+  
+- Implemented IFRAME frameborder, marginwidth
+  and marginheight attributes. Additionally,
+  overflow, overflow-x and overflow-y CSS
+  properties now work with IFRAMEs.
+
+- Implemented a box layout optimization.
+
+- Implemented window.history. Cobra has 
+  a blank implementation. Fully-functional 
+  in Lobo. This happens to fix AdSense ads.
+
+- Patch [ 2273159 ] Makes font fallback work 
+  properly. This fixes an long-standing issue
+  with some international fonts, particularly
+  Chinese. (Thanks Trejkaz - trejkaz).
+  
+- Patch [ 2102369 ] BugFix in text-transform CSS 
+  property handling. (Thanks Anonymous).
+  
+- Patch [ 2149273 ] Javascript implementation of 
+  scrollTo(x,y), resizeTo(w,h). (Thanks Joerg 
+  Ruethschilling - jr8).
+
+- Patch [ 2208172 ] Eclipse Project Fix. 
+  (Thanks Vinay Agarwal - vinaykagarwal).
+
+- Patch [ 2183864 ] addHeader function added to 
+  HTMLTableRowElementImpl. It's actually
+  insertHeader. Non-standard method. (Thanks 
+  Anonymous).
+
+- Bug [ 2098924 ] font element ignores style 
+  attribute. 
+  
+- Fixed font size "em" units used with certain
+  elements like H1.
+
+- setTimeout() timers no longer keep a 
+  hard reference to Window instances.
+  
+- Fixed so that boolean attributes are true
+  whenever the attribute is present, with
+  any value.
+
+- Fixed so that attributes with a blank value
+  are not set to null.
+  
+- Fixed processing of innerText for SCRIPT,
+  STYLE, and H elements.
+
+- Added a 'text' property setter to OPTION.
+
+- Added Window.open() method that only needs
+  one parameter: the URL.
+  
+- Instead of setting default BODY padding,
+  we set default BODY margin now: 8px.
+  
+- Implemented align="center" in tables.
+
+Version 0.98.3
+--------------
+  
+- Fixed retrieval of serialiazable LRUCache
+  affecting HTTP authentication.
+  
+- Bug [ 2034543 ] Incorrect Operating System 
+  User Agent.
+  
+- Bug [ 1980845 ] Lobo apparently duplicates 
+  cookies. Lobo was sending both cached
+  (transient) and persistent cookies with
+  the same name.
+
+- Bug [ 2051468 ] Greek characters 
+  recognition problem in www.yahoo.gr.
+  The charset provided with a 
+  Content-Type header must take
+  precedence over HTTP-EQUIV.
+
+- Added support for "See Other" 303 redirects.
+
+Cobra changes:
+
+- Added protected currentConnection field to
+  SimpleHtmlRendererContext. 
+  
+- Fixed so that elements can have both ID and
+  name attributes and both can be looked up by
+  ID.
+    
+- Patch [ 2003933 ] fix for the 1805733.
+  Implements SUB and SUP. Patch contributed
+  by Andrey Chorniy.
+
+- Patch [ 1998778 ] Fix NullPointer in 
+  TableMatrix.getWidthLength. Patch contributed
+  by anonymous user. 
+
+- Fixed so that LINK elements are considered
+  active stylesheets only if rel="stylesheet".
+  
+- Bug [ 2038801 ] Alternate style sheets 
+  and style sheet switching do not work.
+
+- Bug [ 2022584 ] Problem with image positioning.
+  ROWSPAN cannot go beyond last row.
+    
+- Bug [ 2009105 ] CSS List Rendering Issues.
+  No processing of list-style: none.
+  
+- Bug [ 1911217 ] document.body.offsetWidth 
+  not implemented. Changed it so it uses 
+  renderer dimensions. It still requires
+  rendering to have taken place, so it doesn't
+  work during parsing. 
+  
+- Bug [ 1911233 ] list item rendering.
+  Fixed so OL counter starts at 1. 
+  
+- Bug [ 1911245 ] meu captions not displayed.
+  Fixed display of elements with both
+  float and relative properties.
+  
+- Fixed so that image aspect ratio is 
+  maintained when either width or height
+  properties/attributes are not specified. 
+
+- [ 1928758 ] Element IDs need to be 
+  Javascript variables in context.
+
+- Allowing Window.length property to be
+  set. 
+
+- Changed parser to treat anchor end 
+  elements as optional, for consistency
+  with behavior of other browsers.
+  (Requested by user panzer_kavalier).
+    
+- Bug [ 1939192 ] Handling of < and > 
+  characters.    
+  
+- Bug [ 1994562 ] Screen does not work 
+  in headless mode. Changed Screen JS
+  object so it doesn't throw exceptions
+  in headless mode.  
+  
+- [ 2000696 ] Refresh tag error. META
+  refresh was reloading even after you
+  navigate away from page.   
+  
+- [ 2004283 ] getInnerHTML. Inner HTML
+  was always encoding special characters,
+  even when that shouldn't be done.   
+  
+- [ 2047122 ] Implement display:none 
+  for TR.
+
+- Moved getInnerText() up to NodeImpl
+  level.
+
+- Bug [ 2074376 ] OL list numbers not 
+  affected by CSS color.
+
+CssParser changes:
+
+- Bug [ 1935452 ] Incorrect error handling 
+  of star-property hack. Fixed so that 
+  erroneous tokens in a style rule declaration 
+  cause the declaration to be skipped, instead 
+  of the entire block.
+  
+- Catching hex color number format exceptions. 
+  See bug #2075667.
+    
+Version 0.98.2
+--------------
+
+- Added Scenario-*.jar to platform classpath
+  of JavaFX sources.
+
+- Improved caching of compiled Java or JavaFX
+  code so that java.lang.Class objects are
+  not retained and more compilation results
+  can be cached in main memory.
+  
+- Added sourcelist and classlist directives
+  which should be used instead of listing.xml.
+
+- HTML clientlet now checks Content-Language
+  header and sets document locales (a new
+  Cobra feature) accordingly.
+  
+- Changed Linux/Unix desktop launcher so it
+  runs "java -jar lobo.jar".
+  
+- Added toString() to URLJavaFileObject, which
+  fixes names of source files shown in some
+  compiler error messages.
+  
+- Added warning mechanisms to make it easier
+  to discover how to run Lobo from source.
+  
+Cobra changes:
+
+- Fixed NPE in updateGUIComponents() as
+  suggested by user vtec. 
+  
+- Bug [ 1911517 ] select control -- multiple 
+  attribute. Implemented multiple attribute
+  and corresponding Javascript property.
+  
+- Bug [ 1879945 ] No line breaks when using 
+  copy and paste.
+  
+- Implemented onchange event of SELECT
+  elements.
+
+- Patch [ 1933093 ] Text-Transform CSS 
+  property. (Patch contributed by user
+  vtec.)
+
+- Fixed processing of background-position
+  style property.
+
+- Bug [ 1925638 ] Ampersands in textarea 
+  body. HTML entities are now decoded in
+  textarea body.
+
+- Implemented CSS property priorities
+  (!important).
+
+- Changed RBlockViewport so that unknown elements
+  also get their style properties processed.
+
+- The background and foreground colors of input 
+  buttons can now be changed.
+
+- Changed the way document modification
+  notifications are handled in HtmlBlockPanel
+  in order to avoid potential recursion
+  and to allow multiple layout changes
+  initiated in the GUI thread to be processed
+  simultaneously.
+
+- Improved font-size and length
+  calculations.
+
+- Patch [ 1961128 ] Unmappable character. 
+  Affects lsquo and rsquo. (Suggested by
+  user gchii).
+
+CssParser changes:
+ 
+- Fixed an issue with repeat CSS property
+  values after a color. Bug introduced recently.
+  
+- Fixed missing color values in some 
+  properties. Bug introduced recently and
+  it typically affects border properties.
+
+Version 0.98.1 (Cobra Only)
+---------------------------
+
+- Note: HtmlParser constructors now take
+  Document instances as opposed to just 
+  HTMLDocument ones.
+
+- Note: Made onContextMenu() callback return 
+  a boolean.
+  
+- Added setLocales() and getLocales() methods
+  to HTMLDocumentImpl. The locale is used
+  to determine if a font can display text 
+  in the locale language. When the document 
+  locale is null, the default platform locale 
+  is used.
+
+- Provided implementations of getCookie() and
+  setCookie() in SimpleUserAgentContext, based
+  on the default CookieHandler, if there is one
+  available.
+
+- Patch #1916821: Window.setInterval 
+  implementation. (Contributed by user
+  gwallet).
+
+- Added callback methods in HtmlRendererContext
+  for click and doubleclick events.
+  
+- Added setters for most of the state in
+  SimpleUserAgentContext, which means it's not
+  necessary to extend it most of the time.
+  
+- Added AbstractHtmlRendererContext, containing
+  blank method implementations.
+
+- In order to comply with the InputSource docs,
+  DocumentBuilderImpl now opens a stream from 
+  the URI provided, if neither a stream or 
+  reader are provided. (Issue noted by Jivko 
+  Sabev.)
+
+- Added isImageLoadingEnabled() method to
+  HtmlRendererContext.
+  
+Version 0.98
+------------
+
+- Note: NavigatorWindow.getAwtFrame() method
+  has been replaced with getAwtWindow(). 
+  ClientletContext.getClientletFrame() is now
+  getNavigatorFrame(). AbstractClientletContent
+  changed a bit. Recommended API initialization
+  has changed. There are other changes like 
+  this aimed to improve the Lobo APIs.
+
+- Implemented loading of Java and JavaFX
+  source code in the browser. They are
+  rendered much like HTML is.
+
+- A new project logo was contributed by
+  Oswaldo Danta. 
+
+- Fixed some erroneous security restrictions 
+  disallowing XMLHttpRequest. It also requires 
+  send() now.
+
+- Fixed alert and prompt dialogs so they
+  don't show an "Applet Window" status message
+  due to security restrictions.
+
+- Added ClientletAccess class, which provides
+  a utility method to obtain the ClientletContext
+  of the current thread.
+
+- Fixed BrowserPanel so that parent window
+  title is not set automatically when the
+  current document changes. There is a
+  new getDocumentTitle() method. If there's
+  a need to set the window title, this
+  can be triggered off of a navigation event.
+  
+- Implemented transient (main memory) caching, 
+  with APIs to add cache decoration objects, 
+  both transient and persistent. In general,
+  caching is more robust and efficient.
+  
+- Implemented addPrivilegedPermission() method
+  in PlatformInit so that permissions otherwise
+  missing from the security policy installed
+  by init() for application code can be added.
+  
+- Added warning for case when no extensions
+  are found. This is a setup error likely
+  encountered by Lobo API users.  
+  
+- Fixed a deadlock that could occur after 
+  opening the Console window.
+  
+- Added BrowserPanel.setCloseWindowOnDispose()
+  that can be used to control whether the 
+  parent window is closed when the BrowserPanel
+  is disposed by a File/Exit action.
+
+- Fixed so that clicking in browser launcher
+  icon brings new window to front.
+
+- Fixed copy/paste in error page.
+
+- Upgraded installer to IzPack 3.11.0.
+
+Cobra changes:
+
+- Note: SimpleHttpRequest.openSync() has
+  been removed, so it can no longer be
+  overridden. Please override sendSync()
+  instead.
+  
+- Note: Added structureInvalidated() method
+  to DocumentNotificationListener.
+  
+- Note: Removed unused listNesting parameter
+  from HtmlBlockPanel constructors.
+
+- Fixed issue with hover effects (and
+  other relayout triggers) causing inputs
+  to lose focus.
+
+- Fixed XMLHttpRequest to support send()
+  method and to properly report readyState
+  changes. The send() method now needs
+  to be called after open(), which is
+  how XMLHttpRequest is normally used
+  in Mozilla browsers.
+
+- Bug #1877923: HTMLSelectElementImpl 
+  not calling super implementation. 
+  Fixed this along with other selection
+  issues in the SELECT element.
+
+- Bug #1877254: visibility not supported.
+  The CSS2 visibility property has been
+  implemented. 
+
+- RFE #1899831: Anchors support. 
+  URL Refs/Anchors have been implemented.
+
+- Optimized HTML collections, which is
+  particularly relevant to those of 
+  SELECT options.
+
+- Reimplemented the way generic CSS properties
+  such as padding, margin, border, background
+  and font are handled. Setting them 
+  causes sub-properties to get automatically
+  set. (User guenze suggested this, and this
+  is how CSS properties work in IE and Mozilla.)
+
+- As a side-effect of the above, CSS properties
+  border-top, border-left, border-bottom and
+  border-right are now supported.
+  
+- Patch #1908245: Support for ProcessingInstructions 
+  in Cobra. (Patch contributed by user vtec.)
+
+- Fixed so that pseudo-elements ('hover' only
+  at the moment) can be placed in any simple
+  selector of a complex selector, e.g.
+  div:hover span a { text-decoration: underline; }
+
+- Fixed scrolling back to top on hover that
+  occurred with some pages (wikipedia.org).
+
+- Implemented scrolling methods in HtmlPanel,
+  HtmlBlockPanel and SimpleHtmlRendererContext.
+
+- Implemented method to retrieve the bounds
+  of a DOM node from HtmlBlockPanel.
+
+- Fixed so that anchors without an href
+  attribute don't show as hyperlinks.
+  
+- Implemented window.getComputedStyle() method, 
+  equivalent to Mozilla's. Note that elements
+  still support the IE counterpart property, 
+  currentStyle.
+
+- Implemented document.defaultView property.
+
+- Changed submitted TEXTAREA text values so
+  they have lines ending in CR+LF. (SourceForge
+  is particular about it.)
+
+- Patch #1867969: ColorFactory missing 
+  colornames. Added even more color 
+  names. (Patch addendum contributed by 
+  user guenze.)
+
+- Changed to treat normally inline elements
+  as blocks if they have an absolute or
+  fixed position, or float positioning. 
+  (This fixes SourceForge logo.)
+
+- Fixed text-indent line width issue.
+
+- Fixed issue with hover failing to trigger
+  in vertically aligned table cells. (Cause
+  of the bug brought to our attention by
+  user vtec.)
+
+- Bug #1875130: HeadlessException in 
+  HtmlValues. (Fixed as suggested in
+  bug report.)
+  
+- Bug #1870876: HeadlessException in 
+  HtmlBlockPanel. (Fixed as suggested
+  in bug report.) 
+  
+- Implemented isNavigationAsynchronous()
+  method in SimpleHtmlRendererContext,
+  so that there's a way to make navigation
+  synchronous.
+
+- Fixed SimpleHtmlRendererContext.submitForm()
+  so that lowercase request methods work.
+
+- Fixed SimpleHtmlRendererContext.submitForm()
+  so that GET requests with form inputs 
+  change the request URL as needed.
+
+- Added SimpleHtmlRendererContext.createDocument()
+  so that it can be overriden to provide a 
+  specialized document on navigation or 
+  form submission.
+
+- Made HTMLDocumentImpl.loadImage() method
+  protected. Allows providing an alternate
+  mechanism to load images by extending
+  the document class.
+
+- Moved getInnerHTML to the NodeImpl level.
+  This means the method may be invoked on
+  a HTMLDocumentImpl instance to get the
+  source of the entire document.
+
+- Fixed an issue with the setting of an
+  input element's value before the 
+  GUI component is created.
+
+- Fixed XMLHttpRequest to accept relative
+  URLs.
+
+- Made XMLHttpRequest.onreadystatechange
+  handler execute in the request thread 
+  as opposed to the GUI thread, so that
+  the readyState value is consistent 
+  with the state of the request.
+
+- Added vendor and product properties to
+  navigator object.
+
+- Better determination of charset default 
+  in SimpleHttpRequest and 
+  SimpleHtmlRendererContext.
+
+CssParser changes:
+
+- Bug #1870765: does not read stylesheet 
+  or maybe dynamic.
+  Fixes StringIndexOutOfBoundsException
+  in SACParserTokenManager.trimUrl.
+
+- Fixed so that background property value 
+  with a hex color followed by a URI works.
+    
+- Fixed so that MS values like 
+  'alpha(opacity=50)' don't halt the
+  parser.
+  
+- Allowing property names that start with
+  an underscore.
+
+- Fixed so that double-slash at the end of a 
+  CSS document doesn't cause parser to fail.
+  (SourceForge has apparently been testing
+  double-slashes at the end of CSS documents.)
+
+Version 0.97.5
+--------------
+
+- Added a BrowserPanel class, which contains
+  a FramePanel in addition to an optional
+  toolbar, address bar, status bar and
+  menu bar.
+
+- Patch #1856452: data protocol. Includes
+  implementation of "data" scheme plus 
+  a DomViewerWindow class. (Contributed by
+  user guenze.)
+
+- Fixed locale of cookie dates so it's
+  always US.
+ 
+- Fixed window.open() to understand "yes"
+  as a feature value, and to make
+  features false by default if width
+  and height are requested. 
+ 
+Cobra changes:
+
+- Provided rudimentary implementation of 
+  submitForm in SimpleHtmlRendererContext.
+  
+- Implemented BR attribute: clear.
+
+- Refactored block layout primarily to
+  fix an issue with nested blocks expanding
+  floats.
+  
+- Fixed so that floats are placed in the
+  next line.
+
+- Fixed layout of blocks with relative
+  positioning.
+
+- Fixed layout of tables in the presence
+  of float bounds.
+  
+- Fixed float wrapping.
+
+- Patch #1857157: Patch for [ 1835051 ] 
+  Problem with Named Entities. (Contributed
+  by user guenze.)
+
+- Bug #1827730: Page breaks scrolling.
+  Certain types of tables could cause
+  the renderer to throw 
+  IndexOutOfBoundsException, causing 
+  the page to appear blank.
+
+- Patch #1864257: document.styleSheets.
+  Implemented styleSheets collection
+  and set ownerNode on each style sheet.
+  (Patch contributed by user guenze
+  was modified.)
+
+- Patch #1868002: css2propertiesimpl.
+  Fixes missing and mispelled style
+  properties. (Contributed by user
+  guenze.)
+
+- Patch #1867969: ColorFactory missing 
+  colornames. (Contributed by user
+  guenze.)
+
+- Fixed Javascript calls on Java methods
+  that have a String argument, passing
+  a Scriptable object. (This is related
+  to patch #1865112 contributed by user
+  guenze.)
+  
+- Fixed string representation of 
+  "undefined".
+  
+- Fixed string representation of
+  anchors; usually expected to be
+  same as href.
+
+- Fixed document.URL property.
+
+- Clearing window state when a new
+  document is loaded.
+
+- Provided overridable getDocumentCharset
+  method in SimpleHtmlRendererContext.
+
+- Removed HtmlParserContext, previously
+  deprecated.  
+  
+- Fixed document.links collection to
+  return elements of type HTMLLinkElement,
+  rather than LINK elements.
+
+- Implemented a rudimentary window.open()
+  method in the Cobra Test Tool.
+
+Version 0.97.4
+--------------
+
+- Changed to allow META http-equiv elements
+  to be placed in HTML tag and not just the
+  HEAD tag.
+
+- Optimized checking of META http-equiv
+  so that scripts are not processed twice.
+
+- Changed cookie date formats to allow
+  2-digit years. (Allows permanent login
+  at FreshMeat.)
+
+Cobra changes:
+
+- NOTE: Moved isMedia() method to 
+  UserAgentContext so it can be used 
+  by parser-only code.
+
+- Fixed so that layout revalidation does
+  not cause inputs to be cleared.
+
+- Optimized so that hovering over certain
+  elements that do not have a hover
+  style declaration does not cause a layout
+  revalidation.  
+
+- Fixed so that some styles of images and
+  inputs are functional, e.g. border and
+  margins.
+  
+- Implemented image border, hspace and vspace
+  attributes.
+
+- Fixed Javascript scoping issue that was
+  noticed when BODY tag with an onload
+  handler was written using document.write().
+
+- Fixed relative URLs in CSS.
+
+- Implemented CSS @media rules.
+
+- RFE #1816542: Add Proxy Method. Added
+  protected getProxy() method to
+  SimpleUserAgentContext and 
+  SimpleHtmlRendererContext.
+
+- Fixed parser so that comments can end
+  with more than two dashes, e.g. --->.
+
+- Fixed so that blanks at the end of a
+  line don't expand its width. This addresses
+  some tables that force a horizontal 
+  scrollbar.
+  
+- Fixed positioning of list bullets.
+    
+CssParser changes:
+
+- Reversed order of lookup of property
+  values in CSS declarations.
+
+Version 0.97.3
+--------------
+
+- Fixed missing security permissions causing 
+  JFileChooser to throw an exception in
+  Java 6.
+  
+- Fixed so that window bounds are not
+  persisted if the window got its bounds 
+  from an open() call.
+  
+Cobra changes:
+
+- Implemented onmouseover and onmouseout.
+
+- Implemented HtmlRendererContext methods
+  onMouseOver and onMouseOut to receive
+  corresponding callbacks.
+  
+- Implemented support for pseudo-elements.
+  In particular, implemented :hover.
+
+- Implemented oncontextmenu and corresponding
+  HtmlRendererContext method.
+
+- Bug #1785701: Lobo Not Repainting correctly 
+  on style change (particularly, change
+  to style.display.)
+
+- RFE #1803819: HtmlRendrerContext.navigate: 
+  receive original raw url. (Added 
+  HtmlRendererContext.linkClicked method
+  that gets passed the HTML anchor element.)
+
+- Implemented dashed border style.
+
+- Fixed so that indexing methods such as
+  item() are visible in Javascript objects,
+  primarily collections.  
+
+- Fixed so that NOWRAP takes no effect if
+  table cell has an absolute width declared.
+  
+Version 0.97.2
+--------------
+
+- Added LoggingPermission to security policy.
+
+- Fixed issue with relative URLs.
+
+- Implemented BASE tag.
+
+- Changed so that floats are not propagated up
+  through elements with relative positioning.
+  (Wikipedia login form now shows, and it also
+  fixes some Wikipedia article images).
+
+- Fixed positioning of some left floats. 
+  (Wikipedia main page was not showing 
+  in 0.97.1).
+
+- Fixed access and functioning of some HTML 
+  collections, such as document.forms. (Fixes
+  HotBot search form).
+  
+- Fixed exception due to submit inputs with 
+  no name.
+  
+- Added Connection Settings checkbox to
+  disable proxy for local addresses.  
+
+- Added support for -1 index in table.insertRow.
+
+- Implemented row.insertCell and deleteCell.
+
+- Fixed cloneNode.
+
+- Allowed getting contentWindow and 
+  contentDocument from frame before it
+  is rendered, but they are null then.
+  
+- Allowed using "file" URLs with query
+  strings in browser.
+  
+- Fixed so that browser frame does not
+  have to implement BrowserFrame 
+  necessarily.
+
+Version 0.97.1
+--------------
+
+- Chaged so that POSTs with multipart encoding
+  set a Content-Length instead of using chunked
+  encoding by default. (This fixes Wikimedia 
+  article editing - Monobook skin).
+
+- Fixed issue with settings/bookmark persistence 
+  in JRE 1.6.x.
+
+- Fixed META refresh when the URL is relative.
+  
+- Changed manner in which absolute URLs are
+  created given a relative URL, when the relative
+  URL has slashes. This is to match behavior
+  of major browsers.
+  
+- Implemented Referer header and 
+  document.referrer property.
+    
+- Temporarily removed all Windows registry 
+  associations made by the installer.
+
+- Added Uninstaller to program group.
+
+- Added Lobo launch step to installer.
+
+- Fixed startup directory determination.
+
+- Fixed "arial black" and other fonts.
+  
+Cobra changes:
+
+- Rewrote float logic. This fixes a number
+  of layout problems.
+
+- Fixed scoping issue, e.g. location vs. 
+  this.location or window.location. (Thanks
+  to Marc Guillemot of the HtmlUnit project
+  for pointing out what the error was).
+
+- Fixed exception that occured when a table
+  element is not of type HTMLTableElementImpl,
+  such as DIVs with display:table. (This 
+  fixes Google search results page).
+  
+- Fixed so that absolutely positioned blocks
+  that are descendents of absolutely positioned
+  tables are shown.
+
+- Implemented Javascript Event objects.
+  
+- Fixed an issue with tables becoming wider than
+  they should, forcing a horizontal scrollbar.
+
+- Fixed "align" attribute of table element.
+
+- Added Javascript objects Select and Option.
+
+- Implemented frame.contentWindow.
+
+- Fixed NullPointerException trying to get
+  selectedIndex from a SELECT element before
+  it's rendered.
+
+- Fixed rendering updates triggered by setting
+  style.display and other properties. (Google
+  popup menu opens, albeit not in the usual
+  location).
+  
+Cobra changes:
+
+- Bug #1785701: Lobo Not Repainting correctly 
+  on style change (specifically, changes to
+  style.display).
+
+Version 0.97
+------------
+
+- The Warrior browser has been renamed 'Lobo' 
+  and significant refactoring of code has occurred.
+
+- An extensions (plugins) API has been implemented.
+  Look for the Extensions and Clientlets API 
+  Documentation and the HOWTO page.  
+
+- The following new browser features have been
+  implemented: Open cloned or blank window, 
+  back-to and forward-to lists, recent hosts
+  list, page services such as Wayback Machine,
+  a different type of bookmarks system (with
+  tags and search), a separate directory menu, 
+  a search engines feature, more preferences, 
+  a new an improved download dialog, etc.
+
+- The HTML engine and others are
+  part of what is called the "primary extension".
+
+- The XAMJ language effort is now inactive and 
+  all code related to it has been moved to
+  module XAMJ_Extension.
+  
+- ClientletContext is now a simplified inteface
+  that has a ClientletFrame, which contains much
+  of the prior functionality of ClientletContext.
+
+- Incremental rendering implemented in HTML 
+  clientlet.
+  
+- Implemented HTTP authentication dialog.
+
+- Implemented META http-equiv elements, including
+  charset and refresh.
+    
+- Implemented window title in the expected way.
+
+- Worked around cookie date format issue. That
+  allowed Amazon cart to be persist across runs.
+  
+- Fixed to allow cookie domains that don't start
+  with a dot.
+
+- Fixed user-agent string.
+
+- Implemented POST with encoding 
+  multipart/form-data.  
+  
+- Fixed redirect on POST.
+
+- Implemented cookie path.
+
+- Implemented global cookie handler that 
+  applies to java.net.URL in general.
+
+- Implemented new and improved download 
+  window.
+
+- Now processing Set-Cookie2 header.
+
+- Implemented Max-Age cookie attribute.
+
+- Replaced log4j with java.util.logging.
+ 
+Cobra changes:
+
+- Note: For consistency with other project
+  changes, all Cobra package names have been 
+  renamed to have a prefix of "org.lobobrowser." 
+  instead of "org.xamjwg." 
+
+- Note: Simplified FormInput so that values
+  are of either type text or type file. 
+
+- Note: No longer using HtmlParserContext
+  interface, which is deprecated. Cookie
+  methods used to implement document.cookie
+  property have been moved to UserAgentContext.
+  
+- Note: No longer using context interface
+  logging methods, for consistency. Logging
+  should be controlled via java.util.logging
+  only.
+  
+- Note: Deprecated HtmlRendererContext open()
+  method that takes a String and replaced
+  with one that takes a URL.
+  
+- Fixed issue with document background 
+  color, introduced in 0.96.5.
+
+- Fixed issue with weak references:
+  Javascript object could be garbage
+  collected even if its Java delegate
+  was not. This resulted in new instances
+  of Javascript proxies being created
+  unnecessarily.
+
+- Fixed so that CSS selectors with commas are
+  processed properly.
+  
+- Implemented isScriptingEnabled() in
+  UserAgentContext, including support for
+  NOSCRIPT element. (Feature requested by
+  a couple users).
+
+- Fixed so that NOSCRIPT element is 
+  processed during parsing, i.e. child
+  nodes are not created at all.
+  
+- Fixed IFRAME functionality.
+
+- Fixed absolute positioning implementation 
+  (e.g. absolute positioned in absolute or
+  fixed, but not in static).
+
+- Fixed so that vertical alignment of table
+  cell is not inherited by blocks.
+
+- Implemented input types "file", "button"
+  and "reset".
+  
+- Implemented BUTTON element.
+
+- Fixed so that input type "image" still
+  works when input name is missing.
+
+- Fixed values of checkbox and radio
+  inputs.
+
+- Fixed so that "on" is used when radio
+  or checkbox value attribute missing.
+  
+- Fixed so that document does not scroll
+  back up while it's rendered.
+  
+- Implemented JavaScript security 
+  controller. There is a new 
+  UserAgentContext method named 
+  getSecurityPolicy().
+  
+- Implemented UserAgentContext method
+  getScriptingOptimizationLevel().
+
+- Fixed rare IllegalStateException while
+  rendering Amazon.com.
+  
+- Implemented deprecated document.<name>
+  accessor.
+
+- Implemented Window onload and onunload 
+  event handlers.
+
+- Fixed getDefaultValue() for Number hint.
+
+- Fixed so that element's className property
+  never returns null.
+
+- Fixed so that setTimeout can be called with
+  both a function and string arguments.  
+
+- Fixed so that nested boxes aren't clipped
+  when painted.
+
+- Added reload() method to HtmlRendererContext
+  and implemented Location.reload() with it.
+  
+- Fixed Location.search to include the question
+  mark.
+  
+- Application of left/right margins/padding
+  to inline elements.
+
+- Fixed clicking through transparent boxes.
+ 
+- Tweaked SimpleHtmlRendererContext so that
+  file URLs are loaded ignoring the query
+  string of the URL.
+    
+- Implemented Node's children property.
+
+- Changed getTextContent() to return text
+  content of node and its descendents, as
+  specified by W3C.
+  
+- Implemented setting document.title as 
+  document is loaded.
+  
+- Fixed issue with font-size as percent.
+
+- Added HtmlPanel.createHtmlBlockPanel()
+  and createFrameSetPanel() so that it's
+  easier to extend the Cobra GUI.
+  
+- Added some support for style properties
+  in tables, including absolute positioning.
+
+- Fixed so that Text nodes created by
+  setTextContent and other methods have 
+  correct document and parent instances set.
+  
+- Tweaked CSS parser to allow properties
+  that start with a dash (given that
+  Wikipedia uses some).
+  
+Version 0.96.5R2 (Cobra only)
+-----------------------------
+
+- Note: Quick bugfix release.
+
+- Fixed issue with text areas and selects
+  missing in form parameters.
+
+Version 0.96.5 (Cobra only)
+---------------------------
+
+- Note: Some of the following fixes allow
+  the new Google link bar to render. Also,
+  Amazon.com rendering is now pretty close,
+  with some minor issues remaining.
+
+- Note: We are now using Rhino 1.6R5, which
+  is released under a dual MPL/GPL license.
+
+- Fixed ArrayStoreException related to 
+  selection listener. (Reported by user
+  ulifu).
+    
+- Implemented innerHTML property and added
+  setter for innerText.
+
+- Input type "image" was implemented. (You
+  will notice that in the Yahoo! page served
+  to Cobra and in the Amazon.com page).
+
+- Fixed so that selection node is not null
+  when selection does not include text. 
+  (Problem noted by user ulifu).
+
+- Implemented Image class functionality, 
+  including onload event.
+
+- Optimized image loading, particularly
+  when there are duplicate images.
+  
+- Fixed some table layout bugs, e.g. DIVs
+  nested in a table would expand the table.
+  
+- Fixed some horizontal alignment issues
+  in the presence of floats.
+
+- Added the following methods to HtmlPanel:
+  setHtml, hasSelection.
+
+- Fixed parameter type casting from 
+  Javascript to Java.
+
+- Fixed bug: Case sensitivity of element 
+  name in ID selector in CSS.
+
+- Implemented white-space style property
+  and NOWRAP attribute.
+
+- Implemented text-indent style property.
+
+- Implemented media types for LINK, STYLE
+  and @import rules.
+
+- Fixed bug: Background image not showing 
+  sometimes.
+
+- Added currentStyle property to elements,
+  and fixed style property to only include
+  local style attribute state.  
+  
+- Implemented BODY vlink and link attributes,
+  provided isVisitedLink() is implemented
+  in HtmlRendererContext.
+
+- Modified CSS parser to allow class names
+  that start with a number (given that
+  YouTube uses such a class name).
+  
+- Modified CSS parser to allow class names
+  with the underscore character. (First
+  reported by user dadvir).
+
+- Implemented BODY onload event. (UNTESTED)
+  
+- Implemented preferred size for HtmlPanel.
+  Method setPreferredWidth() must be called
+  first. This is useful when the caller needs
+  the panel to be sized depending on the 
+  HTML content. (Feature requested by user
+  kyank).
+  
+- Implemented element attributes offsetLeft,
+  offsetTop, offsetWidth and offsetHeight.
+  (A major refactoring of the way RenderState
+  is handled was done to implement this).
+  
+- Changed background color rendering so that
+  it matches FireFox behavior.
+
+- Allowing resolution of URLs (e.g. href in
+  anchor tags) when the document URL is 
+  malformed.  
+
+Version 0.96.4 (Cobra only)
+---------------------------
+
+- Note: Added UserAgentContext interface which now
+  contains some of the methods previously in 
+  HtmlParserContext. Note that createHttpRequest()
+  has moved to UserAgentContext.
+
+- Fixed a nested table sizing bug.
+
+- Fixed a background image repeat bug.
+
+- Fixed processing of "font" CSS property.
+
+- Fixed a bug with text background color in table
+  cells.
+  
+- Fixed "bgcolor" attribute of BODY tag.
+
+- Implemented definition lists (DL, DT, DD).
+
+- Implemented BLOCKQUOTE.
+
+- Made RList and RListItem subclasses of RBlock.
+  As a result, borders, padding and so on now work
+  with lists.
+  
+- Implemented start attribute of OL, and added
+  support for more type attribute values. 
+  Implemented list-style-type and list-type 
+  properties to a limited extent.
+
+Version 0.96.3
+--------------
+
+- Implemented IFRAME (untested), SELECT, 
+  OPTION, BIG, SMALL, FONT and FONTBASE
+  elements.
+
+- Implemented Location Javascript object.
+
+- Implemented some HtmlRendererContext
+  methods so that frame navigation works.
+  JavaDoc FRAMESETs are now functional in
+  the Cobra test tool.
+  
+- Fixed incremental rendering bug 
+  introduced in 0.96.2: Tables, FRAMESETs 
+  and aligned unsized images could 
+  be partially rendered or not rendered
+  depending on timing.
+  
+- Optimized background image painting. 
+  A background image with repeat was
+  enough to make the renderer do a lot
+  of paint work on every repaint (and
+  appear to "hang") as other images were 
+  loaded.
+
+- Fixed some parser bugs.
+
+- Fixed rendering of vertical values 
+  of image "align" attribute.
+  
+- Fixed font caching performance bug.
+
+- Implemented means to register custom
+  fonts (in class not currently in the
+  API docs). Look for package org.xamjwg.gui,
+  class FontFactory (a singleton), method
+  registerFont. (UNTESTED)
+
+Version 0.96.2 
+--------------
+
+- Implemented XMLHttpRequest class for use
+  in Javascript. (This is what is often referred
+  to as "AJAX"). Currently allows requests
+  on any host, but note that this will certainly
+  be restricted in future versions.
+
+- Implemented incremental rendering.
+  The test tool now uses a simple incremental
+  rendering routine as part of the 
+  navigate() method.
+
+- Implemented "position" style property.
+  Supports absolute, relative and static.
+  (Absolute DIV in absolute DIV works;
+  rules need to be complied with in other 
+  scenarios).
+  
+- Implemented "z-index" style property.
+  (UNTESTED)
+    
+- Implemented "overflow" style property. 
+  It supports values scroll, auto, hide
+  and visible.
+  
+- Replaced top-level JScrollPane with a
+  block that has a default property similar
+  to "overflow: auto". This in turn fixed
+  some problems with JScrollPane layout,
+  such as relayout after resizing.
+  
+- Implemented "float" style property. Works 
+  with DIVs, images, and elements that 
+  support the "display" property.
+
+- Added means to allow "plugging in" a handler
+  for OBJECT, EMBED and APPLET tags. Look
+  for HtmlRendererContext.getHtmlObject().
+ 
+- Fixed attributes without an explicit
+  value (such as "checked" in radio buttons).
+
+- Implemented "screen" variable of Window.
+  
+- Changed Window.setTimeout() functionality so 
+  timeout events are delivered in GUI thread.
+  (UNTESTED)
+  
+- Fixed issue with Javascript objects wrapping
+  Java objects using weak references.
+  
+- "Fixed" so that TDs that don't have parent
+  TRs are also rendered.
+
+- Parser is now aware of SPACER elements, which
+  allows Yahoo! home page to render (but the
+  page Yahoo! gives Cobra is not the regular
+  home page).
+
+- Did some general refactoring of rendering
+  code to make it more robust. Fixed many
+  known and unknown layout bugs in the process.
+  
+Version 0.96.1 (Cobra only)
+---------------------------
+
+- NOTE: Requiring Java 5 for Cobra now.
+
+- Fixed unintentional retention (memory
+  leak) of objects wrapped so they can be
+  used in Javascript.
+  
+- Added support for common event attributes.
+  Functional: onclick, ondblclick, onmouseup, 
+  onmousedown. Elements: a, anchor, i, b, 
+  span, div, input, etc.
+  
+- Fixed "hidden fields not submitted" bug. 
+  Fix contributed by user NetherBen.
+  
+- Added getSelectionNode() method, requested
+  by a few users. (UNTESTED)
+
+- Added support for CSS display property.
+  Values supported: block, inline, none.
+  Elements where it's supported: span,
+  div, b, i, em, strong, u, a, anchor.
+
+- Fixed: property values from element style 
+  attribute should precede stylesheet.
+  
+- Implemented innerText property for
+  elements, requested by user. (UNTESTED)
+  
+- Ensured all created graphic contexts 
+  are disposed of.
+
+- Changed graphic context creation to 
+  translation in most cases.
+  
+- Fixed word selection paint bug revealed
+  by the above.
+  
+- Fixed so that original element name
+  case is preserved in DOM.
+  
+- Implemented missing methods in 
+  CharacterDataImpl.
+  
+- Fixed case sensitivity bugs in methods
+  such as getElementsByTagName. Reported
+  by user dadvir. (UNTESTED)
+  
+- Changed architecture so that renderer
+  node always points to its corresponding
+  DOM node (called a ModelNode).
+
+- Fix: Images were being loaded synchronously
+  in SimpleHtmlRendererContext. 
+  
+- Fix: Scripts that fail to load over HTTP
+  no longer cause parser to throw exception
+  and exit.
+  
+- Switched Cobra to java.util.logging.
+
+Version 0.96
+------------
+
+- Added text selection capability. Ctrl-C copies
+  to clipboard.
+  
+- Added getSelectionText() and addSelectionListener()
+  methods to HtmlPanel.
+
+- Fixed bug in Javascript evaluation of instance
+  variables.  
+
+- Fixed bug in clicking of "top" links in frames.
+
+- Fixed animated images.
+
+- Fixed security so that HTTPS protocol works.
+
+- Fixed table height attribute issue.
+
+- Implemented warning dialog for SSL host name
+  mismatches.
+
+- Implemented image clientlet so Warrior can
+  display JPG, GIF and PNG URLs.
+  
+- Implemented Javascript Window.navigator object.
+
+- Fixed Javascript processing so that function 
+  names are allowed to be used as variables.
+
+- Deprecated some InputSourceImpl constructors to 
+  encourage use of those with URIs.
+  
+Version 0.95.4 (Cobra only)
+---------------------------
+
+- Fixed @import relative URL context.
+
+- Fixed split of CSS property multi-values (e.g. background
+  attribute with rgb(...) color specs).
+
+- Fixed DIV width and height parsing.
+
+- Fixed font-size pc, cm and mm units.
+
+- Fixed so that document.open() does not close current web 
+  or file stream. (This allows blogger.com to render).
+  
+- Fixed DocumentBuilderImpl so that it allows Readers and not
+  just InputStreams from InputSource.
+ 
+- Fixed DocumentBuilderImpl so that charset from InputSource
+  can be null.
+
+Version 0.95.3
+--------------
+
+- Added support for most character entities (including
+  &ndash; and so on).
+
+- Updated IzPack installer to verion 3.8.1. (Should fix
+  RedHat launcher icons).
+
+- Fixed XAMJ error calling context.alert().
+
+- Fixed issue with table column width calculation when 
+  colspan > 1.
+  
+- Implemented HR.
+
+- Fixed issue with text input size due to text font.
+
+- Parser checks if the InputSource's InputStream is unset,
+  and throws an exception. (Previously it would give a
+  NullPointerException).  
+
+- Fixed extra blank line under left- or right-aligned
+  blocks.
+
+- Implemented CSS @import rules
+
+Version 0.95.2
+--------------
+
+- Fixed security error launching local XAMJ files.
+
+Version 0.95.1
+--------------
+
+- Implemented DIV and a most of the CSS2 box model.
+
+- Improved support for font-size property.
+
+- Fixed an issue with special characters in cookie values.
+
+- Fixed support for CSS selectors and CSS cascading.
+
+- Implemented some rendering performance optimizations.
+
+- Added support for H1... H6, CITE, TT, and CODE.
+
+- Fixed issue with Javascript security.
+
+- Fixed issues with input value attribute and initial text area text.
+
+- Fixed issue with ostg.com crashing the browser.
+
+- Fixed issue with NullPointerException when input has no name.
+
+- Fixed link URLs with &amp; and other entitiy references.
+
+Version 0.95
+------------
+
+- This has our first release of the pure Java HTML
+  renderer. This is work in progress. It is able
+  to render some pages (including our HTML-based site)
+  but it still has a number of limitations which will
+  be addressed in future versions.
+  
+- There are some minimal changes to the XAMJ and Clientlet API.
+  
+- The license was changed from BSD to LGPL.
+
+- Fixed tutorial Update button bug.
+
+Version 0.94.1:
+---------------
+
+- Fixed security exception on DocumentBuilder.
+
+Version 0.94:
+-------------
+
+- Did a significant refactoring of the API
+  which involved decoupling clientlets from
+  XAMJ. The main change is that XAMJ documents
+  now have access to a local 'context' variable
+  which contains members previously available
+  via the 'document' variable. This can break
+  some existing documents.
+  
+- Added method in platform API to add clientlet
+  selectors (essentially new content type 
+  handlers.)
+  
+- Added a way to set clientlet content using a
+  lightweight AWT or Swing component.
+  
+Version 0.93.2:
+---------------
+
+- Implemented platform API.
+
+- Implemented workaround for JRE
+  bug 5086348 (NullPointerException
+  on URL.openConnection) which affects
+  JRE versions prior to 1.5.0_1.
+  
+- Fixed bug loading resources from archive
+  class loader (used by archive element.)
+
+Version 0.93.1:
+---------------
+
+- Fixed bug preventing file paths to
+  be recognized as URLs.
+
+Version 0.93:
+-------------
+
+- Implemented managed client-side storage
+  with size quota per host.
+  
+- New implicit import: org.xamjwg.io.*
+  
+- Added support for &nbsp; entity.
+
+- Fixed View/Source bug.
+
+- Fixed XML entities bug.
+
+- Added several new methods to existing 
+  elements.
+  
+- Added combo-box attribute maximumRowCount.
+
+- Added menu-item attribute armed.
+
+- Added password-field attribute echoChar.
+
+- Added split-box attributes dividerLocation
+  and proportionalDividerLocation.
+
+- Expression scriptlets are being
+  evaluated in CDATA sections, as
+  a consequence of the entities fix.
+  We'll evaluate if this needs to
+  be addressed.
+  
+Version 0.92.3 (Development Snapshot):
+--------------------------------------
+
+- Implemented grids (new elements: grid, 
+  column, row and grid-item.)
+  
+- Added mnemonic and accelerator attributes
+  to menu-item and derived elements.
+
+- Deprecated tree-box in favor of tree.
+
+Version 0.92.2 (Development Snapshot):
+--------------------------------------
+
+- Connection/proxy settings have been
+  implemented. (Username/password must
+  be set in the preferences dialog, because
+  an interactive prompt has not been 
+  implemented yet.)
+
+- Added clientlet for text/plain. Using
+  it for text/xml too for now.
+  
+- Improved attribute assignment generation
+  by taking advantage of auto-boxing.
+
+- Fixed bad window flickering issue introduced 
+  in 0.92.1.
+  
+- Fixed another widget hierarchy
+  enabling/disabling issue.
+  
+- Fixed so that URL of internal error page
+  isn't shown to user (except for malformed
+  URL errors.)
+
+- Throwing MalformedURLException for URLs with
+  blanks (Java doesn't do that by itself and
+  servers give 505.)
+
+Version 0.92.1 (Development Snapshot):
+--------------------------------------
+
+- Switched to developing with Eclipse 3.1.
+
+- Moved XAMJ event classes to package
+  org.xamjwg.event, which is now also an
+  implicit import.
+  
+- Events are now based on generics.
+
+- XamjEvaluatable now uses generics as well.
+
+- Fixed some issues with enabling/disabling
+  widget hierarchy.
+
+- Fixed so that clicking on a .htln from HTML
+  always brings window to front.
+  
+- Fixed so that progress splash window is
+  shown for links clicked from HTML (and in
+  general when navigating outside the Warrior
+  browser frame.)
+
+Version 0.92:
+-------------
+
+- Added mechanism to link from HTML. It consists of
+  using a file with mime-type application/x-htln+xml 
+  with a root element which has an href attribute. 
+  (We will also be providing a mechanism thru our 
+  website to make this easier.) This is passed to 
+  Warrior as a file, which in turns opens the 
+  target URL. (A XAMJ document over http runs 
+  in a secure sandbox.)
+
+- Added archive element, which goes below head.
+  Each archive element specifies one JAR archive to 
+  load.
+
+- Now caching XAMJ and other content. Very noticeable
+  the second time you launch Warrior.
+  
+- Now reusing JVM if running. Very noticeable if
+  you launch Warrior or an app while another is 
+  running.
+
+- Added a standard I/O console, which may be accessed
+  from the View menu and also from the Program Group.
+  This works since the JVM is now shared.
+
+- Added on-paint event to box/vbox/hbox which can 
+  be used to paint on an AWT Graphics/Graphics2D object.
+
+- Added href attribute to all button elements,
+  including menu items.
+
+- Added property attribute to on-property-change 
+  element.
+
+- Added param element for use with do-navigate.
+
+- Added do-open action element to open content in a 
+  new window. Similar to do-navigate.
+
+- Added do-set action element to set element properties.
+  May be used in conjunction with on-property-change.
+
+- Fixed issues with .xamj file association title, icon 
+  and mime type.
+
+- Fixed getSelectedButton method in XButtonGroupElement.
+
+- Added markup style attributes paragraphBreakBefore and
+  lineBreakBefore. Fixed <h> tag accordingly.
+  
+- Added expression scriptlet of the form (%: expr %) which
+  is short for (%= ((XElement) expr).getElementValue() %).
+  Should be typically used with param and do-set.
+  
+- Changed default width/height of boxes to sum preferred
+  width/height of children.
+  
+- Fixed so it cancels ongoing requests when nagivating to
+  new page.
+  
+- Method XElement.getName changed to XElement.getNodeName.  
+
+Version 0.91:
+-------------
+
+- Windows: Now adding .xamj file mapping during installation of
+  Warrior. This allows Windows users to double-click .xamj files
+  directly (works just as if it were an interpreted language,
+  even though it's compiled -- we just need to add caching
+  to make it fast.) Note, however, that clicking on .xamj links
+  in Internet Explorer causes the .xamj file to be downloaded by IE,
+  then passed to Warrior as a file, which will break relative URLs
+  contained in the .xamj file. We might have to add another kind of
+  file, such as .xamjlnk that contains the actual .xamj URL,
+  to allow effective linking from IE and other browsers. If
+  anyone knows a better way to achieve this, please email
+  info AT xamjwg DOT org.
+  
+- Changed mime-type to application/x-xamj+xml.
+
+- Fixed issue with split-box orientation.
+
+- Fixed issue with tree-node sizing after icon added.
+
+- Fixed issue with on-demand content loading not repainting sometimes.
+	
+- Added support for widget elements radio-button, check-box,
+  toggle-button, radio-button-menu-item, check-box-menu-item,
+  and button-group.
+
+- Added support for document-disposition element below head,
+  whose text value may be frame, window, or auto. The default is 
+  frame, which causes the document to be rendered in the Warrior
+  frame. Use window for standalone applications. The auto
+  value means that it depends on how it's invoked.
+
+- Warrior now runs in Mac OS X after fixing compiler bootclasspath.
+  (Thanks to Carlos Solorzano for reporting the issue and helping test
+  changes.)
+	
+- Added vbox and hbox abbreviations, like XUL.
+
+- Added validation of element parent types.
+
+- Changed tab attribute title to text.
+
+- Fixed issue with on-click event in nested markup elements.
+
+- Fixed issue with output stream not getting closed in download dialog.
+	
+Version 0.90:
+-------------
+
+Initial public announcement.

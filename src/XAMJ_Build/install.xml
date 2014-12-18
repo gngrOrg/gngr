@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="yes" ?>
+
+<installation version="1.0">
+    <info>
+        <appname>Lobo</appname>
+        <appversion>0.98.5</appversion>
+        <authors>
+            <author name="The Lobo Project" email="lobochief@users.sourceforge.net"/>
+        </authors>
+        <url>http://www.lobobrowser.org/</url>
+		<javaversion>1.5</javaversion>
+    </info>
+    
+    <!-- 
+        The gui preferences indication.
+        Sets the installer window to 640x480. It will not be able to change the size.
+    -->
+    <guiprefs width="640" height="480" resizable="no"/>
+    
+    <!-- 
+        The locale section.
+    -->
+    <locale>
+        <langpack iso3="eng"/>
+    </locale>
+    
+    <!-- 
+        The resources section.
+        The ids must be these ones if you want to use the LicencePanel and/or the InfoPanel.
+    -->
+    <resources>
+        <res id="LicencePanel.licence" src="LICENSE.txt"/>
+        <res id="Unix_shortcutSpec.xml" src="default-shortcut-spec.xml"/>
+        <res id="shortcutSpec.xml" src="windows-shortcut-spec.xml"/>
+        <res id="ProcessPanel.Spec.xml" src="process-panel.xml"/>
+    </resources>
+    
+    <!-- 
+        The panels section.
+        We indicate here which panels we want to use. The order will be respected.
+    -->
+    <panels>
+        <panel classname="HelloPanel"/>
+        <panel classname="LicencePanel"/>
+        <panel classname="TargetPanel"/> 
+        <panel classname="InstallPanel"/>
+        <panel classname="ShortcutPanel"/>
+        <panel classname="RegistryPanel"/>
+        <panel classname="SimpleFinishPanel"/>
+    </panels>
+    
+    <!-- 
+        The packs section.
+        We specify here our packs.
+    -->
+    <packs>
+        <pack name="Lobo Files" required="yes">
+            <description>The base files</description>
+            <file src="LICENSE.txt" targetdir="$INSTALL_PATH"/>
+            <file src="ACKNOWLEDGMENTS.txt" targetdir="$INSTALL_PATH"/>
+            <file src="README.txt" targetdir="$INSTALL_PATH"/>
+            <file src="lobo.ico" targetdir="$INSTALL_PATH" os="windows"/>
+            <file src="lobo.png" targetdir="$INSTALL_PATH"/>
+            <file src="lobo-pub.jar" targetdir="$INSTALL_PATH"/>
+            <file src="ext/js.jar" targetdir="$INSTALL_PATH/ext"/>
+            <file src="ext/cobra-no-commons.jar" targetdir="$INSTALL_PATH/ext"/>
+            <file src="ext/primary.jar" targetdir="$INSTALL_PATH/ext"/>
+            <file src="ext/jweb-ext.jar" targetdir="$INSTALL_PATH/ext"/>
+            <file src="ext/jlfgr-1_0.jar" targetdir="$INSTALL_PATH/ext"/>
+            <file src="ext/javafxc.jar" targetdir="$INSTALL_PATH/ext"/>
+            <file src="ext/javafxrt.jar" targetdir="$INSTALL_PATH/ext"/>
+            <file src="ext/Scenario.jar" targetdir="$INSTALL_PATH/ext"/>
+            <file src="ext/javafx-swing.jar" targetdir="$INSTALL_PATH/ext"/>
+            <file src="ext/jmc.jar" targetdir="$INSTALL_PATH/ext"/>
+            <file src="ext/websvc.jar" targetdir="$INSTALL_PATH/ext"/>
+            <file src="ext/javafxgui.jar" targetdir="$INSTALL_PATH/ext"/>
+            <file src="lobo.jar" targetdir="$INSTALL_PATH"/>
+            <executable targetfile="$INSTALL_PATH/lobo.jar"/>
+        </pack>
+    </packs>
+    
+    <!-- Needed for shortcuts -->
+    <native type="izpack" name="ShellLink.dll" os="windows"/>
+    
+    <!-- Needed for registry -->
+    <!-- (not currently used)
+    <native type="3rdparty" name="jRegistryKey.dll" os="windows"/>
+    <jar src="../jRegistryKey.jar" os="windows"/>
+    -->
+    <jar src="../RegistryPanel.jar"/>
+</installation>

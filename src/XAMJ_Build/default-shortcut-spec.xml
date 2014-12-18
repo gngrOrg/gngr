@@ -1,0 +1,27 @@
+<shortcuts>
+	<skipIfNotSupported/>
+	<programGroup defaultName="Lobo" location="applications"/>
+	<shortcut
+		workingDirectory="$INSTALL_PATH"
+		name="Lobo"
+		type="Application"
+		target="java -jar $INSTALL_PATH/lobo.jar"
+		description="Runs Lobo, the pure Java web browser"
+		iconFile="$INSTALL_PATH/lobo.png"
+		initialState="normal"
+		programGroup="yes"
+		desktop="yes"
+	/>
+	<shortcut
+		workingDirectory="$INSTALL_PATH"
+		name="Uninstaller"
+		type="Application"
+		target="java -jar $INSTALL_PATH/Uninstaller/uninstaller.jar"
+		description="Uninstalls Lobo"
+		initialState="normal"
+		programGroup="yes"
+		desktop="no"
+	/>
+</shortcuts>
+		
+	

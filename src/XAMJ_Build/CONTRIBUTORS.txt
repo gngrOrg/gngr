@@ -1,0 +1,42 @@
+
+Contributors to the Lobo Project appear
+below, roughly in order of arrival to the
+project:
+
+- Jose H. Solorzano (lobochief)
+  Started the Lobo project (originally
+  as the XAMJ Project). Project lead
+  and main developer.
+  
+- Roger Toenz (guenze)
+  Has contributed several patches.
+
+- Oswaldo Dantas 
+  Contributed new Lobo logo.
+  
+- V??k Cvachou?ek (vtec)
+  Has contributed several patches.
+
+- Guillaume WALLET (gwallet)
+  Contributed Window.setInterval()
+  patch.
+  
+- Andrey Chorniy (andrey_chorniy)
+  Contributed implementation of SUB
+  and SUP. 
+  
+- Trejkaz (trejkaz)
+  Font fallback patch - fixes Chinese
+  characters. 
+  
+- Joerg Ruethschilling (jr8)
+  scrollTo and resizeTo patch. 
+  
+- Vinay Agarwal (vinaykagarwal)
+  An Eclipse project tweak. 
+
+- James Dempsey (jdempsey)
+  Java 7 fix.
+  
+- Thanks also to many anonymous
+  contributors. 
