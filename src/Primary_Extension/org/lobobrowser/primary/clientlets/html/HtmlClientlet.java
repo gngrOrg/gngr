@@ -405,9 +405,9 @@ public final class HtmlClientlet implements Clientlet {
       document.removeDocumentNotificationListener(this);
       java.awt.EventQueue.invokeLater(() -> {
         // Should have nicer effect (less flicker) in GUI thread.
-          htmlPanel.setDocument(document, rcontext);
-          ccontext.setResultingContent(content);
-        });
+        htmlPanel.setDocument(document, rcontext);
+        ccontext.setResultingContent(content);
+      });
     }
 
     private Map<String, String> getHttpEquivData() {

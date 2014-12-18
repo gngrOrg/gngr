@@ -452,9 +452,11 @@ public class RBlock extends BaseElementRenderable {
     // Expected to be invoked in the GUI thread.
     // TODO: Not necessary to do full layout if only expandWidth or
     // expandHeight change (specifically in tables).
-    RenderState rs = renderState;
+    final RenderState rs = renderState;
     if (rs == null) {
-      rs = new BlockRenderState(null);
+      // Doesn't seem to be null ever
+      throw new IllegalStateException("rs was null");
+      // rs = new BlockRenderState(null);
     }
 
     // // Clear adjust() cache.

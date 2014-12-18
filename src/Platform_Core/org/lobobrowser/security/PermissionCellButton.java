@@ -62,7 +62,7 @@ public class PermissionCellButton extends JButton implements MouseMotionListener
     final Insets borderInsets = grow(marginInsets, BORDER_PADDING);
     final Border emptyBorder =
         BorderFactory
-        .createEmptyBorder(borderInsets.top, borderInsets.left, borderInsets.bottom, borderInsets.right);
+            .createEmptyBorder(borderInsets.top, borderInsets.left, borderInsets.bottom, borderInsets.right);
     final Border defaultColorBorder = BorderFactory.createDashedBorder(GREY_TRANSPARENT);
     final CompoundBorder plainBorder = BorderFactory.createCompoundBorder(defaultColorBorder, emptyBorder);
     setBorder(plainBorder);

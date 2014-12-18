@@ -94,6 +94,7 @@ public class Location extends AbstractScriptableDelegate {
   }
 
   public void setHref(final String uri) {
+    System.out.println("Setting location to : " + uri);
     final HtmlRendererContext rcontext = this.window.getHtmlRendererContext();
     if (rcontext != null) {
       try {

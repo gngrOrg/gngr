@@ -223,8 +223,8 @@ public class Strings {
       final byte b = result[i];
       final int lo4 = b & 0x0F;
       final int hi4 = (b & 0xF0) >> 4;
-    resChars[i * 2] = HEX_CHARS.charAt(hi4);
-    resChars[(i * 2) + 1] = HEX_CHARS.charAt(lo4);
+      resChars[i * 2] = HEX_CHARS.charAt(hi4);
+      resChars[(i * 2) + 1] = HEX_CHARS.charAt(lo4);
     }
     return new String(resChars);
   }

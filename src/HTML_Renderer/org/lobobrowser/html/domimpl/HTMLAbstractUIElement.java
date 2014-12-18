@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.logging.Level;
 
 import org.lobobrowser.html.js.Executor;
+import org.lobobrowser.html.js.Window;
 import org.lobobrowser.js.JavaScript;
 import org.lobobrowser.ua.UserAgentContext;
 import org.mozilla.javascript.Context;
@@ -18,7 +19,7 @@ import org.w3c.dom.Document;
  */
 public class HTMLAbstractUIElement extends HTMLElementImpl {
   private Function onfocus, onblur, onclick, ondblclick, onmousedown, onmouseup, onmouseover, onmousemove, onmouseout, onkeypress,
-  onkeydown, onkeyup, oncontextmenu;
+      onkeydown, onkeyup, oncontextmenu;
 
   public HTMLAbstractUIElement(final String name) {
     super(name);
@@ -170,7 +171,8 @@ public class HTMLAbstractUIElement extends HTMLElementImpl {
           if (doc == null) {
             throw new IllegalStateException("Element does not belong to a document.");
           }
-          final Context ctx = Executor.createContext(this.getDocumentURL(), uac);
+          final Window window = ((HTMLDocumentImpl) doc).getWindow();
+          final Context ctx = Executor.createContext(this.getDocumentURL(), uac, window.windowFactory);
           try {
             final Scriptable scope = (Scriptable) doc.getUserData(Executor.SCOPE_KEY);
             if (scope == null) {

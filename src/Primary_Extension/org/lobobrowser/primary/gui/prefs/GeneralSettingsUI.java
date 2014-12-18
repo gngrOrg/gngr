@@ -68,7 +68,7 @@ public class GeneralSettingsUI extends AbstractSettingsUI {
             "<br/>" +
             "<p>The welcome page has important warnings about this release and we would like the user to be aware of them.</p>" +
             "<br/>" +
-            "<p>We will enable this setting in a future release.</p></html>"));
+        "<p>We will enable this setting in a future release.</p></html>"));
 
     this.add(Box.createRigidArea(new Dimension(8, 8)));
     // this.add(this.getUserAgentGroupBox());

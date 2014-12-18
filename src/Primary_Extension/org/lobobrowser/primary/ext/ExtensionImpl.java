@@ -34,6 +34,7 @@ import org.lobobrowser.clientlet.JavaVersionException;
 import org.lobobrowser.clientlet.NavigatorVersionException;
 import org.lobobrowser.html.HtmlRendererContext;
 import org.lobobrowser.html.gui.HtmlPanel;
+import org.lobobrowser.js.JavaScript;
 import org.lobobrowser.main.PlatformInit;
 import org.lobobrowser.primary.clientlets.PrimaryClientletSelector;
 import org.lobobrowser.primary.clientlets.html.HtmlContent;
@@ -64,6 +65,7 @@ public class ExtensionImpl implements NavigatorExtension {
         showError(event.getNavigatorFrame(), event.getResponse(), event.getException());
       }
     });
+    JavaScript.init();
   }
 
   public void windowClosing(final NavigatorWindow wcontext) {
@@ -200,13 +202,13 @@ public class ExtensionImpl implements NavigatorExtension {
     if (exception instanceof org.lobobrowser.clientlet.JavaVersionException) {
       final JavaVersionException jve = (JavaVersionException) exception;
       return "This exception is thrown when the content expects the user's Java Virtual Machine "
-      + "to be more up to date than it currently is. In this case the content is " + "expecting version " + jve.getExpectingVersion()
-      + " whereas the version running " + "the browser is " + System.getProperty("java.version") + ".";
+          + "to be more up to date than it currently is. In this case the content is " + "expecting version " + jve.getExpectingVersion()
+          + " whereas the version running " + "the browser is " + System.getProperty("java.version") + ".";
     } else if (exception instanceof NavigatorVersionException) {
       final NavigatorVersionException nve = (NavigatorVersionException) exception;
       return "This exception is thrown when the content expects the browser version "
-      + "to be more up to date than it currently is. In this case the content is " + "expecting version " + nve.getExpectingVersion()
-      + " whereas the user agent " + "version is " + UserAgentImpl.getInstance().getVersion() + ".";
+          + "to be more up to date than it currently is. In this case the content is " + "expecting version " + nve.getExpectingVersion()
+          + " whereas the user agent " + "version is " + UserAgentImpl.getInstance().getVersion() + ".";
     } else {
       Throwable cause = exception;
       if (exception instanceof ClientletException) {

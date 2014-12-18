@@ -42,10 +42,10 @@ public class NamedNodeMapImpl extends AbstractScriptableDelegate implements Name
   public NamedNodeMapImpl(final Element owner, final Map<String, String> attribs) {
     attribs.forEach((name, value) -> {
       // TODO: "specified" attributes
-        final Attr attr = new AttrImpl(name, value, true, owner, "ID".equals(name));
-        this.attributes.put(name, attr);
-        this.attributeList.add(attr);
-      });
+      final Attr attr = new AttrImpl(name, value, true, owner, "ID".equals(name));
+      this.attributes.put(name, attr);
+      this.attributeList.add(attr);
+    });
   }
 
   public int getLength() {

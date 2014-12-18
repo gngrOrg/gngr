@@ -123,7 +123,7 @@ public class AboutURLConnection extends URLConnection {
 
   private static String getWelcomeMessage() {
     return
-    "<div style='max-width:900px;margin:0 auto;text-align:center;'>"
+        "<div style='max-width:900px;margin:0 auto;text-align:center;'>"
         +
         "<h1>Welcome to gngr</h1>"
         +

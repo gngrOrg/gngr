@@ -98,7 +98,9 @@ public class PlatformInit {
    * @see #addPrivilegedPermission(Permission)
    */
   public void initSecurity() {
+
     // Set security policy and manager (essential)
+    // TODO: WHoa
     Policy.setPolicy(LocalSecurityPolicy.getInstance());
     System.setSecurityManager(new LocalSecurityManager());
   }
@@ -116,6 +118,7 @@ public class PlatformInit {
     // HttpsURLConnection.setDefaultSSLSocketFactory(sslSocketFactory);
     okHttpClient.setSslSocketFactory(sslSocketFactory);
     okHttpClient.setFollowRedirects(false);
+    okHttpClient.setFollowSslRedirects(false);
     factory.addFactory(new OkUrlFactory(okHttpClient));
     factory.addFactory(new LocalStreamHandlerFactory());
   }
@@ -162,7 +165,7 @@ public class PlatformInit {
     if (this.isCodeLocationDirectory()) {
       // Should only be shown when running from Eclipse.
       oldOut
-      .println("WARNING: initConsole(): Switching standard output and standard error to application console. If running EntryPoint, pass -debug to avoid this.");
+          .println("WARNING: initConsole(): Switching standard output and standard error to application console. If running EntryPoint, pass -debug to avoid this.");
     }
   }
 

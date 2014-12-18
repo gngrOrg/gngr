@@ -27,13 +27,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.lobobrowser.html.js.Executor;
+import org.lobobrowser.html.js.Window;
+import org.lobobrowser.html.js.Window.JSRunnableTask;
 import org.lobobrowser.ua.NetworkRequest;
 import org.lobobrowser.ua.UserAgentContext;
 import org.lobobrowser.ua.UserAgentContext.Request;
 import org.lobobrowser.ua.UserAgentContext.RequestKind;
 import org.lobobrowser.util.SecurityUtil;
 import org.mozilla.javascript.Context;
-import org.mozilla.javascript.EcmaError;
 import org.mozilla.javascript.Scriptable;
 import org.w3c.dom.Document;
 import org.w3c.dom.html.HTMLScriptElement;
@@ -144,14 +145,14 @@ public class HTMLScriptElementImpl extends HTMLElementImpl implements HTMLScript
           SecurityUtil.doPrivileged(() -> {
             // Code might have restrictions on accessing
             // items from elsewhere.
-            try {
-              request.open("GET", scriptURI, false);
-              request.send(null, new Request(scriptURL, RequestKind.JavaScript));
-            } catch (final java.io.IOException thrown) {
-              logger.log(Level.WARNING, "processScript()", thrown);
-            }
-            return null;
-          });
+              try {
+                request.open("GET", scriptURI, false);
+                request.send(null, new Request(scriptURL, RequestKind.JavaScript));
+              } catch (final java.io.IOException thrown) {
+                logger.log(Level.WARNING, "processScript()", thrown);
+              }
+              return null;
+            });
           final int status = request.getStatus();
           if ((status != 200) && (status != 0)) {
             this.warn("Script at [" + scriptURI + "] failed to load; HTTP status: " + status + ".");
@@ -166,32 +167,44 @@ public class HTMLScriptElementImpl extends HTMLElementImpl implements HTMLScript
         }
         baseLineNumber = 1;
       }
-      final Context ctx = Executor.createContext(this.getDocumentURL(), bcontext);
-      try {
-        final Scriptable scope = (Scriptable) doc.getUserData(Executor.SCOPE_KEY);
-        if (scope == null) {
-          throw new IllegalStateException("Scriptable (scope) instance was expected to be keyed as UserData to document using "
-              + Executor.SCOPE_KEY);
-        }
-        try {
-          final long time1 = liflag ? System.currentTimeMillis() : 0;
-          if (text != null) {
-            ctx.evaluateString(scope, text, scriptURI, baseLineNumber, null);
 
-            if (liflag) {
-              final long time2 = System.currentTimeMillis();
-              logger.info("addNotify(): Evaluated (or attempted to evaluate) Javascript in " + (time2 - time1) + " ms.");
+      final Window window = ((HTMLDocumentImpl) doc).getWindow();
+      if (text != null) {
+        final String textSub = text.substring(0, Math.min(50, text.length())).replaceAll("\n", "");
+        window.addJSTaskUnchecked(new JSRunnableTask(0, "script: " + textSub, new Runnable() {
+          public void run() {
+            // final Context ctx = Executor.createContext(HTMLScriptElementImpl.this.getDocumentURL(), bcontext);
+            final Context ctx = Executor.createContext(HTMLScriptElementImpl.this.getDocumentURL(), bcontext, window.windowFactory);
+            try {
+              final Scriptable scope = (Scriptable) doc.getUserData(Executor.SCOPE_KEY);
+              if (scope == null) {
+                throw new IllegalStateException("Scriptable (scope) instance was expected to be keyed as UserData to document using "
+                    + Executor.SCOPE_KEY);
+              }
+              try {
+                final long time1 = liflag ? System.currentTimeMillis() : 0;
+                if (text != null) {
+                  ctx.evaluateString(scope, text, scriptURI, baseLineNumber, null);
+
+                  if (liflag) {
+                    final long time2 = System.currentTimeMillis();
+                    logger.info("addNotify(): Evaluated (or attempted to evaluate) Javascript in " + (time2 - time1) + " ms.");
+                  }
+                }
+                // Why catch this?
+                // } catch (final EcmaError ecmaError) {
+                // logger.log(Level.WARNING,
+                // "Javascript error at " + ecmaError.sourceName() + ":" + ecmaError.lineNumber() + ": " + ecmaError.getMessage(),
+                // ecmaError);
+              } catch (final Throwable err) {
+                logger.log(Level.WARNING, "Unable to evaluate Javascript code", err);
+              }
+            } finally {
+              Context.exit();
+              ((HTMLDocumentImpl) HTMLScriptElementImpl.this.document).markJobsFinished(1);
             }
           }
-        } catch (final EcmaError ecmaError) {
-          logger.log(Level.WARNING,
-              "Javascript error at " + ecmaError.sourceName() + ":" + ecmaError.lineNumber() + ": " + ecmaError.getMessage(),
-              ecmaError);
-        } catch (final Throwable err) {
-          logger.log(Level.WARNING, "Unable to evaluate Javascript code", err);
-        }
-      } finally {
-        Context.exit();
+        }));
       }
     }
   }

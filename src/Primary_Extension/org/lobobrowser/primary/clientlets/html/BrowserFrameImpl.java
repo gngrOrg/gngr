@@ -32,6 +32,7 @@ import java.util.logging.Logger;
 import org.lobobrowser.html.BrowserFrame;
 import org.lobobrowser.html.HtmlRendererContext;
 import org.lobobrowser.ua.NavigatorFrame;
+import org.lobobrowser.ua.ParameterInfo;
 import org.lobobrowser.ua.RequestType;
 import org.lobobrowser.ua.TargetType;
 
@@ -77,5 +78,10 @@ public class BrowserFrameImpl implements BrowserFrame {
 
   public void setDefaultOverflowY(final int overflowY) {
     this.frame.setProperty("defaultOverflowY", overflowY);
+  }
+
+  // Trying out a way for a frame's target to be set to an iframe. for issue #96
+  public void navigate(final URL url, final String method, final ParameterInfo pinfo, final TargetType targetType, final RequestType form) {
+    frame.navigate(url, method, pinfo, targetType, form);
   }
 }

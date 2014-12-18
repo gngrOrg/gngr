@@ -164,14 +164,14 @@ public class ExtensionManager {
         logger.warning("createExtensions(): Directory '" + extDir + "' not found.");
         if (PlatformInit.getInstance().isCodeLocationDirectory()) {
           logger
-          .warning("createExtensions(): The application code location is a directory, which means the application is probably being run from an IDE. Additional setup is required. Please refer to README.txt file.");
+              .warning("createExtensions(): The application code location is a directory, which means the application is probably being run from an IDE. Additional setup is required. Please refer to README.txt file.");
         }
         continue;
       }
       if (extDir.isFile()) {
         // Check if it is a jar. We will load jars from inside this jar.
         try (
-            final JarFile jf = new JarFile(extDir);) {
+          final JarFile jf = new JarFile(extDir);) {
           // We can't close jf, because the class loader will load files lazily.
           for (final JarEntry jarEntry : (Iterable<JarEntry>) jf.stream()::iterator) {
             if (!jarEntry.isDirectory() && jarEntry.getName().endsWith(".jar")) {
@@ -256,7 +256,7 @@ public class ExtensionManager {
   }*/
 
   private static URL makeZipEntryURL(final String dirName, final InputStream jfIS, final String entryName) throws IOException,
-  MalformedURLException {
+      MalformedURLException {
     final String urlSpec = ZIPENTRY_PROTOCOL + "://" + dirName + "/" + entryName + "!/";
     final URL libURL = new URL(null, urlSpec, new ZipEntryHandler(new ZipInputStream(jfIS)));
     return libURL;
@@ -411,17 +411,17 @@ public class ExtensionManager {
     EventQueue.invokeLater(() -> {
       final Collection<Extension> ext = extensions;
       // Call all plugins once to see if they can select the response.
-      boolean dispatched = false;
-      for (final Extension ei : ext) {
-        if (ei.handleError(event)) {
-          dispatched = true;
+        boolean dispatched = false;
+        for (final Extension ei : ext) {
+          if (ei.handleError(event)) {
+            dispatched = true;
+          }
         }
-      }
-      if (!dispatched && logger.isLoggable(Level.INFO)) {
-        logger.log(Level.WARNING, "No error handlers found for error that occurred while processing response=[" + response + "].",
-            exception);
-      }
-    });
+        if (!dispatched && logger.isLoggable(Level.INFO)) {
+          logger.log(Level.WARNING, "No error handlers found for error that occurred while processing response=[" + response + "].",
+              exception);
+        }
+      });
   }
 
   public void dispatchBeforeNavigate(final NavigationEvent event) throws NavigationVetoException {

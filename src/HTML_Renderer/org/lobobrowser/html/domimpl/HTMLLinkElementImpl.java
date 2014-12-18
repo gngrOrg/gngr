@@ -22,10 +22,12 @@ package org.lobobrowser.html.domimpl;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.lobobrowser.html.HtmlRendererContext;
+import org.lobobrowser.html.js.Window;
 import org.lobobrowser.html.style.CSSUtilities;
 import org.lobobrowser.ua.UserAgentContext;
 import org.lobobrowser.util.Urls;
@@ -142,26 +144,108 @@ public class HTMLLinkElementImpl extends HTMLAbstractUIElement implements HTMLLi
     }
   }
 
+  /*private Optional<URL> getAbsoluteURL() {
+    final HtmlRendererContext rcontext = this.getHtmlRendererContext();
+    if (rcontext != null) {
+      final String href = this.getHref();
+      if (href != null && href.length() > 0) {
+        if (href.startsWith("javascript:")) {
+          return Optional.empty();
+        } else {
+          try {
+            return Optional.ofNullable(this.getFullURL(href));
+          } catch (final MalformedURLException mfu) {
+            this.warn("Malformed URI: [" + href + "].", mfu);
+          }
+        }
+      }
+    }
+    return Optional.empty();
+  }*/
+
+  // simplified version
+  private Optional<URL> getAbsoluteURL() {
+    final String href = this.getHref();
+    if (href.startsWith("javascript:")) {
+      return Optional.empty();
+    } else {
+      try {
+        return Optional.ofNullable(this.getFullURL(href));
+      } catch (final MalformedURLException mfu) {
+        this.warn("Malformed URI: [" + href + "].", mfu);
+      }
+    }
+    return Optional.empty();
+  }
+
   public String getAbsoluteHref() {
+    // TODO: Use Either in getAbsoluteURL and use the branch type for javascript
+    return getAbsoluteURL().map(u -> u.toExternalForm()).orElse(getHref());
+
+    /*
     final HtmlRendererContext rcontext = this.getHtmlRendererContext();
     if (rcontext != null) {
       final String href = this.getHref();
       if ((href != null) && (href.length() > 0)) {
-        try {
-          final URL url = this.getFullURL(href);
-          return url == null ? null : url.toExternalForm();
-        } catch (final MalformedURLException mfu) {
-          this.warn("Malformed URI: [" + href + "].", mfu);
+        if (href.startsWith("javascript:")) {
+          return href;
+        } else {
+          try {
+            final URL url = this.getFullURL(href);
+            return url == null ? null : url.toExternalForm();
+          } catch (final MalformedURLException mfu) {
+            this.warn("Malformed URI: [" + href + "].", mfu);
+          }
         }
       }
     }
-    return null;
+    return null; */
   }
 
-  public void navigate() {
-    if (this.disabled) {
-      return;
+  // TODO: Hide from JS
+  // TODO: Should HTMLLinkElement actually support navigation? The Link element seems to be conflated with <a> elements
+  public boolean navigate() {
+
+    // If there is no href attribute, chromium only dispatches the handlers without starting a navigation
+    final String hrefAttr = this.getAttribute("href");
+    if (hrefAttr == null) {
+      // final boolean eventResult = dispatchEvent(new Event("click", this));
+      // System.out.println("event result: " + eventResult);
+      return false;
     }
+
+    if (this.disabled) {
+      return false;
+    }
+    System.out.println("Consider Navigating to: " + getHref());
+    // final String href = getAbsoluteHref();
+    final String href = getHref();
+    if (href.startsWith("#")) {
+      // TODO: Scroll to the element. Issue #101
+    } else if (href.startsWith("javascript:")) {
+
+      final String script = href.substring(11);
+      System.out.println("Evaling script: " + script);
+
+      // evalInScope adds the JS task
+      ((Window) (((HTMLDocumentImpl) document).getDefaultView())).evalInScope(script);
+
+      /*
+      ((Window) (((HTMLDocumentImpl) document).getDefaultView())).addJSTask(new JSRunnableTask(0, () -> {
+       Executor.executeFunction(this, f, null);
+      }));*/
+    } else {
+      final Optional<URL> urlOpt = getAbsoluteURL();
+      if (urlOpt.isPresent()) {
+        final HtmlRendererContext rcontext = this.getHtmlRendererContext();
+        final String target = this.getTarget();
+        rcontext.linkClicked(this, urlOpt.get(), target);
+        return true;
+
+      }
+    }
+    return false;
+    /*
     final HtmlRendererContext rcontext = this.getHtmlRendererContext();
     if (rcontext != null) {
       final String href = this.getHref();
@@ -178,7 +262,7 @@ public class HTMLLinkElementImpl extends HTMLAbstractUIElement implements HTMLLi
           this.warn("Malformed URI: [" + href + "].", mfu);
         }
       }
-    }
+    }*/
   }
 
   /*
@@ -223,7 +307,9 @@ public class HTMLLinkElementImpl extends HTMLAbstractUIElement implements HTMLLi
   public String toString() {
     // Javascript code often depends on this being exactly href. See js9.html.
     // To change, perhaps add method to AbstractScriptableDelegate.
-    return this.getHref();
+    // Chromium 37 and FF 32 both return the full url
+    // return this.getHref();
+    return getAbsoluteHref();
   }
 
   /**
@@ -291,39 +377,47 @@ public class HTMLLinkElementImpl extends HTMLAbstractUIElement implements HTMLLi
   }
 
   private void processLink() {
-    final UserAgentContext uacontext = this.getUserAgentContext();
-    if (uacontext.isExternalCSSEnabled()) {
-      final HTMLDocumentImpl doc = (HTMLDocumentImpl) this.getOwnerDocument();
-      try {
-        final boolean liflag = loggableInfo;
-        final long time1 = liflag ? System.currentTimeMillis() : 0;
+    final HTMLDocumentImpl doc = (HTMLDocumentImpl) this.getOwnerDocument();
+    try {
+      final UserAgentContext uacontext = this.getUserAgentContext();
+      if (uacontext.isExternalCSSEnabled()) {
         try {
-          final String href = this.getHref();
-          final StyleSheet jSheet = CSSUtilities.jParse(this, href, doc, doc.getBaseURI(), false);
-          if (this.styleSheet != null) {
-            this.styleSheet.setJStyleSheet(jSheet);
-          } else {
-            final JStyleSheetWrapper styleSheet = new JStyleSheetWrapper(jSheet, this.getMedia(), href, this.getType(), this.getTitle(),
-                this, doc.styleSheetManager.bridge);
-            this.styleSheet = styleSheet;
+          final boolean liflag = loggableInfo;
+          final long time1 = liflag ? System.currentTimeMillis() : 0;
+          try {
+            final String href = this.getHref();
+            final StyleSheet jSheet = CSSUtilities.jParse(this, href, doc, doc.getBaseURI(), false);
+            if (this.styleSheet != null) {
+              this.styleSheet.setJStyleSheet(jSheet);
+            } else {
+              final JStyleSheetWrapper styleSheet = new JStyleSheetWrapper(jSheet, this.getMedia(), href, this.getType(), this.getTitle(),
+                  this, doc.styleSheetManager.bridge);
+              this.styleSheet = styleSheet;
+            }
+            this.styleSheet.setDisabled(this.isAltStyleSheet() | this.disabled);
+            doc.styleSheetManager.invalidateStyles();
+          } finally {
+            if (liflag) {
+              final long time2 = System.currentTimeMillis();
+              logger.info("processLink(): Loaded and parsed CSS (or attempted to) at URI=[" + this.getHref() + "] in " + (time2 - time1)
+                  + " ms.");
+            }
           }
-          this.styleSheet.setDisabled(this.isAltStyleSheet() | this.disabled);
-          doc.styleSheetManager.invalidateStyles();
-        } finally {
-          if (liflag) {
-            final long time2 = System.currentTimeMillis();
-            logger.info("processLink(): Loaded and parsed CSS (or attempted to) at URI=[" + this.getHref() + "] in " + (time2 - time1)
-                + " ms.");
-          }
+        } catch (final MalformedURLException mfe) {
+          this.detachStyleSheet();
+          this.warn("Will not parse CSS. URI=[" + this.getHref() + "] with BaseURI=[" + doc.getBaseURI()
+              + "] does not appear to be a valid URI.");
+        } catch (final Throwable err) {
+          this.warn("Unable to parse CSS. URI=[" + this.getHref() + "].", err);
         }
-      } catch (final MalformedURLException mfe) {
-        this.detachStyleSheet();
-        this.warn("Will not parse CSS. URI=[" + this.getHref() + "] with BaseURI=[" + doc.getBaseURI()
-            + "] does not appear to be a valid URI.");
-      } catch (final Throwable err) {
-        this.warn("Unable to parse CSS. URI=[" + this.getHref() + "].", err);
       }
+    } finally {
+      doc.markJobsFinished(1);
     }
+  }
+
+  private void deferredProcess() {
+    processLinkHelper(true);
   }
 
   private void processLinkHelper(final boolean defer) {
@@ -343,6 +437,9 @@ public class HTMLLinkElementImpl extends HTMLAbstractUIElement implements HTMLLi
       }
     } else {
       this.detachStyleSheet();
+      if (!defer) {
+        doc.markJobsFinished(1);
+      }
     }
   }
 
@@ -358,7 +455,7 @@ public class HTMLLinkElementImpl extends HTMLAbstractUIElement implements HTMLLi
 
   @Override
   protected void handleDocumentAttachmentChanged() {
-    this.processLinkHelper(true);
+    deferredProcess();
   }
 
   @Override
