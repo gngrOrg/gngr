@@ -53,17 +53,17 @@ public class AsyncResultImpl<TResult> implements AsyncResult<TResult> {
           final Throwable exception = this.exception;
           EventQueue.invokeLater(() -> {
             // Invoke holding no locks
-            final AsyncResultEvent<Throwable> are = new AsyncResultEvent<>(AsyncResultImpl.this, exception);
-            listener.exceptionReceived(are);
-          });
+              final AsyncResultEvent<Throwable> are = new AsyncResultEvent<>(AsyncResultImpl.this, exception);
+              listener.exceptionReceived(are);
+            });
 
         } else {
           final TResult result = this.result;
           EventQueue.invokeLater(() -> {
             // Invoke holding no locks
-            final AsyncResultEvent<TResult> are = new AsyncResultEvent<>(AsyncResultImpl.this, result);
-            listener.resultReceived(are);
-          });
+              final AsyncResultEvent<TResult> are = new AsyncResultEvent<>(AsyncResultImpl.this, result);
+              listener.resultReceived(are);
+            });
         }
       }
       evtResult.addListener(new EventListenerWrapper<>(listener));
@@ -93,17 +93,17 @@ public class AsyncResultImpl<TResult> implements AsyncResult<TResult> {
           final Throwable exception = this.exception;
           EventQueue.invokeLater(() -> {
             // Invoke holding no locks
-            final AsyncResultEvent<Throwable> are = new AsyncResultEvent<>(AsyncResultImpl.this, exception);
-            evtResult.fireEvent(are);
-          });
+              final AsyncResultEvent<Throwable> are = new AsyncResultEvent<>(AsyncResultImpl.this, exception);
+              evtResult.fireEvent(are);
+            });
 
         } else {
           final TResult result = this.result;
           EventQueue.invokeLater(() -> {
             // Invoke holding no locks
-            final AsyncResultEvent<TResult> are = new AsyncResultEvent<>(AsyncResultImpl.this, result);
-            evtResult.fireEvent(are);
-          });
+              final AsyncResultEvent<TResult> are = new AsyncResultEvent<>(AsyncResultImpl.this, result);
+              evtResult.fireEvent(are);
+            });
         }
       }
     }

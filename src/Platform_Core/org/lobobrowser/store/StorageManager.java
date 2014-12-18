@@ -222,9 +222,9 @@ public class StorageManager implements Runnable {
     }
     final File file = new File(dir, name);
     try (
-        final OutputStream out = new FileOutputStream(file);
-        final BufferedOutputStream bos = new BufferedOutputStream(out);
-        final ObjectOutputStream oos = new ObjectOutputStream(bos);) {
+      final OutputStream out = new FileOutputStream(file);
+      final BufferedOutputStream bos = new BufferedOutputStream(out);
+      final ObjectOutputStream oos = new ObjectOutputStream(bos);) {
       oos.writeObject(data);
       oos.flush();
     }
@@ -240,9 +240,9 @@ public class StorageManager implements Runnable {
       return null;
     }
     try (
-        final InputStream in = new FileInputStream(file);
-        final BufferedInputStream bin = new BufferedInputStream(in);
-        final ObjectInputStream ois = new ClassLoaderObjectInputStream(bin, classLoader);) {
+      final InputStream in = new FileInputStream(file);
+      final BufferedInputStream bin = new BufferedInputStream(in);
+      final ObjectInputStream ois = new ClassLoaderObjectInputStream(bin, classLoader);) {
       return (Serializable) ois.readObject();
     } catch (final InvalidClassException ice) {
       ice.printStackTrace();

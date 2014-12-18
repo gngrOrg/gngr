@@ -211,11 +211,17 @@ class ImgControl extends BaseControl implements ImageListener {
     // Implementation of ImageListener. Invoked in a request thread most likely.
     final Image image = event.image;
     this.image = image;
-    final int width = image.getWidth(this);
-    final int height = image.getHeight(this);
-    if ((width != -1) && (height != -1)) {
-      this.imageUpdate(image, width, height);
+    if (image != null) {
+      final int width = image.getWidth(this);
+      final int height = image.getHeight(this);
+      if ((width != -1) && (height != -1)) {
+        this.imageUpdate(image, width, height);
+      }
     }
+  }
+
+  public void imageAborted() {
+    // do nothing
   }
 
   @Override

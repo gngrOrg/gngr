@@ -115,8 +115,8 @@ public final class RestrictedStore implements QuotaSource, ManagedStore {
       final File sizeFile = new File(this.baseDirectory, SIZE_FILE_NAME);
 
       try (
-          final FileOutputStream out = new FileOutputStream(sizeFile);
-          final DataOutputStream dout = new DataOutputStream(out);) {
+        final FileOutputStream out = new FileOutputStream(sizeFile);
+        final DataOutputStream dout = new DataOutputStream(out);) {
         dout.writeLong(totalSize);
         dout.flush();
       }
@@ -381,8 +381,8 @@ public final class RestrictedStore implements QuotaSource, ManagedStore {
   public Object retrieveObject(final String path, final ClassLoader classLoader) throws IOException, ClassNotFoundException {
     final ManagedFile file = this.getManagedFile(path);
     try (
-        final InputStream in = file.openInputStream();
-        final ObjectInputStream oin = new ClassLoaderObjectInputStream(in, classLoader)) {
+      final InputStream in = file.openInputStream();
+      final ObjectInputStream oin = new ClassLoaderObjectInputStream(in, classLoader)) {
       return oin.readObject();
     } catch (final FileNotFoundException err) {
       return null;

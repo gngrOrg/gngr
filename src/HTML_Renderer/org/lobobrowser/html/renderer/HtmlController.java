@@ -2,6 +2,7 @@ package org.lobobrowser.html.renderer;
 
 import java.awt.Cursor;
 import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -9,8 +10,11 @@ import java.util.logging.Logger;
 
 import org.lobobrowser.html.FormInput;
 import org.lobobrowser.html.HtmlRendererContext;
+import org.lobobrowser.html.domimpl.ElementImpl;
 import org.lobobrowser.html.domimpl.HTMLAbstractUIElement;
 import org.lobobrowser.html.domimpl.HTMLButtonElementImpl;
+import org.lobobrowser.html.domimpl.HTMLDocumentImpl;
+import org.lobobrowser.html.domimpl.HTMLElementImpl;
 import org.lobobrowser.html.domimpl.HTMLInputElementImpl;
 import org.lobobrowser.html.domimpl.HTMLLinkElementImpl;
 import org.lobobrowser.html.domimpl.HTMLSelectElementImpl;
@@ -18,8 +22,13 @@ import org.lobobrowser.html.domimpl.ModelNode;
 import org.lobobrowser.html.domimpl.NodeImpl;
 import org.lobobrowser.html.js.Event;
 import org.lobobrowser.html.js.Executor;
+import org.lobobrowser.html.js.Window;
+import org.lobobrowser.html.js.Window.JSRunnableTask;
 import org.lobobrowser.html.style.RenderState;
+import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Function;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 class HtmlController {
   private static final Logger logger = Logger.getLogger(HtmlController.class.getName());
@@ -44,25 +53,70 @@ class HtmlController {
     return false;
   }
 
+  // Quick hack
+  private ContextFactory getWindowFactory(final ElementImpl e) {
+    final HTMLDocumentImpl doc = (HTMLDocumentImpl) e.getOwnerDocument();
+    return doc.getWindow().windowFactory;
+  }
+
+  // Quick hack
+  private static boolean runFunction(final ElementImpl e, final Function f, final Event event) {
+    final HTMLDocumentImpl doc = (HTMLDocumentImpl) e.getOwnerDocument();
+    final Window window = doc.getWindow();
+    window.addJSTask(new JSRunnableTask(0, "function from HTMLController", () -> {
+      Executor.executeFunction(e, f, event, window.windowFactory);
+    }));
+    return false;
+  }
+
+  public boolean onMouseClick(final ModelNode node, final MouseEvent event, final int x, final int y) {
+    return onMouseClick(node, event, x, y, false);
+  }
+
   /**
    * @return True to propagate further and false if the event was consumed.
    */
-  public boolean onMouseClick(final ModelNode node, final MouseEvent event, final int x, final int y) {
+  public boolean onMouseClick(final ModelNode node, final MouseEvent event, final int x, final int y, boolean eventDispatched) {
     if (logger.isLoggable(Level.INFO)) {
       logger.info("onMouseClick(): node=" + node + ",class=" + node.getClass().getName());
     }
+    // System.out.println("HtmlController.onMouseClick(): " + node + " already dispatched: " + eventDispatched);
+
+    // Get the node which is a valid Event target
+    /*{
+      NodeImpl target = (NodeImpl)node;
+      while(target.getParentNode() != null) {
+        if (target instanceof Element || target instanceof Document) { //  TODO || node instanceof Window) {
+          break;
+        }
+        target = (NodeImpl) target.getParentNode();
+      }
+      final Event jsEvent = new Event("click", target, event, x, y);
+      target.dispatchEvent(jsEvent);
+    }*/
+
     if (node instanceof HTMLAbstractUIElement) {
       final HTMLAbstractUIElement uiElement = (HTMLAbstractUIElement) node;
 
       final Event jsEvent = new Event("click", uiElement, event, x, y);
-      uiElement.dispatchEvent(jsEvent);
+      // System.out.println("Ui element: " + uiElement.getId());
+      // uiElement.dispatchEvent(jsEvent);
 
       final Function f = uiElement.getOnclick();
+      /* TODO: This is the original code which would return immediately if f returned false. */
       if (f != null) {
-        if (!Executor.executeFunction(uiElement, f, jsEvent)) {
+        // Changing argument to uiElement instead of event
+        if (!Executor.executeFunction(uiElement, f, jsEvent, getWindowFactory(uiElement))) {
+          // if (!Executor.executeFunction(uiElement, f, uiElement, getWindowFactory(uiElement))) {
           return false;
         }
       }
+      /*
+      // Alternate JS Task version:
+      if (f != null) {
+        runFunction(uiElement, f, jsEvent);
+      }*/
+
       final HtmlRendererContext rcontext = uiElement.getHtmlRendererContext();
       if (rcontext != null) {
         if (!rcontext.onMouseClick(uiElement, event)) {
@@ -71,8 +125,10 @@ class HtmlController {
       }
     }
     if (node instanceof HTMLLinkElementImpl) {
-      ((HTMLLinkElementImpl) node).navigate();
-      return false;
+      final boolean navigated = ((HTMLLinkElementImpl) node).navigate();
+      if (navigated) {
+        return false;
+      }
     } else if (node instanceof HTMLButtonElementImpl) {
       final HTMLButtonElementImpl button = (HTMLButtonElementImpl) node;
       final String rawType = button.getAttribute("type");
@@ -91,18 +147,41 @@ class HtmlController {
           formInputs = new FormInput[] { new FormInput(name, button.getValue()) };
         }
         button.submitForm(formInputs);
+        return false;
       } else if ("reset".equals(type)) {
         button.resetForm();
+        return false;
+      } else if ("button".equals(type)) {
+        System.out.println("Button TODO;");
       } else {
         // NOP for "button"!
       }
-      return false;
     }
+    if (!eventDispatched) {
+      // Get the node which is a valid Event target
+      if ((node instanceof Element) || (node instanceof Document)) { //  TODO || node instanceof Window) {
+        // System.out.println("Click accepted on " + node);
+        final NodeImpl target = (NodeImpl) node;
+        final Event jsEvent = new Event("click", target, event, x, y);
+        target.dispatchEvent(jsEvent);
+        eventDispatched = true;
+      }
+    }
+    // } else {
+    // System.out.println("Bumping click to parent");
     final ModelNode parent = node.getParentModelNode();
     if (parent == null) {
       return true;
     }
-    return this.onMouseClick(parent, event, x, y);
+    return this.onMouseClick(parent, event, x, y, eventDispatched);
+    // }
+    // return false;
+    /*
+    final ModelNode parent = node.getParentModelNode();
+    if (parent == null) {
+      return true;
+    }
+    return this.onMouseClick(parent, event, x, y);*/
   }
 
   public boolean onContextMenu(final ModelNode node, final MouseEvent event, final int x, final int y) {
@@ -114,7 +193,7 @@ class HtmlController {
       final Function f = uiElement.getOncontextmenu();
       if (f != null) {
         final Event jsEvent = new Event("contextmenu", uiElement, event, x, y);
-        if (!Executor.executeFunction(uiElement, f, jsEvent)) {
+        if (!Executor.executeFunction(uiElement, f, jsEvent, getWindowFactory(uiElement))) {
           return false;
         }
       }
@@ -148,7 +227,7 @@ class HtmlController {
           final Function f = uiElement.getOnmouseover();
           if (f != null) {
             final Event jsEvent = new Event("mouseover", uiElement, event, x, y);
-            Executor.executeFunction(uiElement, f, jsEvent);
+            Executor.executeFunction(uiElement, f, jsEvent, getWindowFactory(uiElement));
           }
           final HtmlRendererContext rcontext = uiElement.getHtmlRendererContext();
           if (rcontext != null) {
@@ -174,7 +253,7 @@ class HtmlController {
           final HtmlRendererContext rcontext = uiElement.getHtmlRendererContext();
           final RenderState rs = uiElement.getRenderState();
           final Optional<Cursor> cursorOpt = rs.getCursor();
-          if (cursorOpt.isPresent()) {
+          if (cursorOpt.isPresent() && (rcontext != null)) {
             rcontext.setCursor(cursorOpt);
             break;
           } else {
@@ -204,7 +283,7 @@ class HtmlController {
           final Function f = uiElement.getOnmouseout();
           if (f != null) {
             final Event jsEvent = new Event("mouseout", uiElement, event, x, y);
-            Executor.executeFunction(uiElement, f, jsEvent);
+            Executor.executeFunction(uiElement, f, jsEvent, getWindowFactory(uiElement));
           }
           final HtmlRendererContext rcontext = uiElement.getHtmlRendererContext();
           if (rcontext != null) {
@@ -241,7 +320,9 @@ class HtmlController {
       final NodeImpl uiElement = (NodeImpl) nodeStart;
       final HtmlRendererContext rcontext = uiElement.getHtmlRendererContext();
       // rcontext.setCursor(Optional.empty());
-      rcontext.setCursor(foundCursorOpt);
+      if (rcontext != null) {
+        rcontext.setCursor(foundCursorOpt);
+      }
     }
   }
 
@@ -257,7 +338,7 @@ class HtmlController {
       final Function f = uiElement.getOndblclick();
       if (f != null) {
         final Event jsEvent = new Event("dblclick", uiElement, event, x, y);
-        if (!Executor.executeFunction(uiElement, f, jsEvent)) {
+        if (!Executor.executeFunction(uiElement, f, jsEvent, getWindowFactory(uiElement))) {
           return false;
         }
       }
@@ -300,7 +381,7 @@ class HtmlController {
       final Function f = uiElement.getOnmousedown();
       if (f != null) {
         final Event jsEvent = new Event("mousedown", uiElement, event, x, y);
-        pass = Executor.executeFunction(uiElement, f, jsEvent);
+        pass = Executor.executeFunction(uiElement, f, jsEvent, getWindowFactory(uiElement));
       }
     }
     if (node instanceof HTMLLinkElementImpl) {
@@ -327,7 +408,7 @@ class HtmlController {
       final Function f = uiElement.getOnmouseup();
       if (f != null) {
         final Event jsEvent = new Event("mouseup", uiElement, event, x, y);
-        pass = Executor.executeFunction(uiElement, f, jsEvent);
+        pass = Executor.executeFunction(uiElement, f, jsEvent, getWindowFactory(uiElement));
       }
     }
     if (node instanceof HTMLLinkElementImpl) {
@@ -359,7 +440,7 @@ class HtmlController {
       final Function f = uiElement.getOnclick();
       if (f != null) {
         final Event jsEvent = new Event("click", uiElement, event, x, y);
-        if (!Executor.executeFunction(uiElement, f, jsEvent)) {
+        if (!Executor.executeFunction(uiElement, f, jsEvent, getWindowFactory(uiElement))) {
           return false;
         }
       }
@@ -385,6 +466,11 @@ class HtmlController {
         hie.resetForm();
       }
     }
+    if (node instanceof HTMLElementImpl) {
+      final HTMLElementImpl htmlElem = (HTMLElementImpl) node;
+      final Event evt = new Event("click", htmlElem, event, x, y);
+      htmlElem.dispatchEvent(evt);
+    }
     // No propagate
     return false;
   }
@@ -395,12 +481,32 @@ class HtmlController {
       final Function f = uiElement.getOnchange();
       if (f != null) {
         final Event jsEvent = new Event("change", uiElement);
-        if (!Executor.executeFunction(uiElement, f, jsEvent)) {
+        if (!Executor.executeFunction(uiElement, f, jsEvent, getWindowFactory(uiElement))) {
           return false;
         }
       }
     }
     // No propagate
     return false;
+  }
+
+  public boolean onKeyUp(final ModelNode node, final KeyEvent ke) {
+    boolean pass = true;
+    if (node instanceof NodeImpl) {
+      final NodeImpl uiElement = (NodeImpl) node;
+      final Event jsEvent = new Event("keyup", uiElement, ke);
+      pass = uiElement.dispatchEvent(jsEvent);
+      System.out.println("Dispatch result: " + pass);
+    }
+    /*
+    if (node instanceof HTMLAbstractUIElement) {
+      final HTMLAbstractUIElement uiElement = (HTMLAbstractUIElement) node;
+      final Function f = uiElement.getOnmouseup();
+      if (f != null) {
+        final Event jsEvent = new Event("keyup", uiElement, ke);
+        pass = Executor.executeFunction(uiElement, f, jsEvent);
+      }
+    }*/
+    return pass;
   }
 }

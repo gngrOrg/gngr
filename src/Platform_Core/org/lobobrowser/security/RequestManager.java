@@ -41,6 +41,7 @@ public final class RequestManager {
   private final NavigatorFrame frame;
 
   public RequestManager(final NavigatorFrame frame) {
+    System.out.println("Creating req mgr for: " + frame);
     this.frame = frame;
   }
 
@@ -76,11 +77,15 @@ public final class RequestManager {
 
   private Optional<NavigationEntry> getFrameNavigationEntry() {
     final NavigationEntry currentNavigationEntry = frame.getCurrentNavigationEntry();
+    // System.out.println("  frame nav entry:  " + currentNavigationEntry);
     return Optional.ofNullable(currentNavigationEntry);
   }
 
   private Optional<String> getFrameHost() {
-    return getFrameNavigationEntry().map(e -> e.getUrl().getHost().toLowerCase());
+    return getFrameNavigationEntry().map(e -> {
+      final String host = e.getUrl().getHost();
+      return host == null ? "" : host.toLowerCase();
+    });
   }
 
   private Optional<URL> getFrameURL() {
@@ -101,12 +106,14 @@ public final class RequestManager {
   }
 
   public boolean isRequestPermitted(final Request request) {
+    // System.out.println("Checking request: " + request);
     final Request finalRequest = rewriteRequest(request);
 
     if (permissionSystemOpt.isPresent()) {
       final Boolean permitted = permissionSystemOpt.map(p -> p.isRequestPermitted(finalRequest)).orElse(false);
       updateCounter(finalRequest);
       // dumpCounters();
+      // System.out.println("  Permitted: " + permitted);
       return permitted;
     } else {
       logger.severe("Unexpected permission system state. Request without context!");

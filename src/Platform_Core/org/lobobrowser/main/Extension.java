@@ -103,7 +103,7 @@ public class Extension implements Comparable<Object>, NavigatorExtensionContext 
       return propsFile.exists();
     } else {
       try (
-          final JarFile jarFile = new JarFile(root)) {
+        final JarFile jarFile = new JarFile(root)) {
         final JarEntry jarEntry = jarFile.getJarEntry(EXTENSION_PROPERTIES_FILE);
         return jarEntry != null;
       } catch (final IOException e) {
@@ -192,7 +192,7 @@ public class Extension implements Comparable<Object>, NavigatorExtensionContext 
   private NavigatorExtension platformExtension;
 
   public void initClassLoader(final ClassLoader parentClassLoader) throws java.net.MalformedURLException, ClassNotFoundException,
-  IllegalAccessException, InstantiationException {
+      IllegalAccessException, InstantiationException {
     ClassLoader classLoader;
     if (extRoot != null) {
       final URL url = this.extRoot.toURI().toURL();
@@ -278,14 +278,14 @@ public class Extension implements Comparable<Object>, NavigatorExtensionContext 
     final ClassLoader prevClassLoader = currentThread.getContextClassLoader();
     final ClassLoader loader = this.classLoader;
     if (loader != null) {
-      currentThread.setContextClassLoader(loader);
+      // currentThread.setContextClassLoader(loader);
     }
     try {
       return r.call();
     } catch (final Exception e) {
       throw new Error(e);
     } finally {
-      currentThread.setContextClassLoader(prevClassLoader);
+      // currentThread.setContextClassLoader(prevClassLoader);
     }
   }
 

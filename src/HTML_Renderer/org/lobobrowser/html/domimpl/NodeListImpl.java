@@ -27,16 +27,21 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.lobobrowser.js.AbstractScriptableDelegate;
+import org.lobobrowser.js.JavaScript;
+import org.lobobrowser.util.Objects;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+// TODO: This needs to be live (dynamic) not a static store of nodes.
 public class NodeListImpl extends AbstractScriptableDelegate implements NodeList {
   // Note: class must be public for reflection to work.
-  private final ArrayList<Node> nodeList = new ArrayList<>();
+  private final ArrayList<Node> nodeList;
 
+  // TODO: Add more constructors that take arrays for example
   public NodeListImpl(final Collection<Node> collection) {
     super();
-    nodeList.addAll(collection);
+    nodeList = new ArrayList<>(collection);
   }
 
   public int getLength() {
@@ -49,5 +54,40 @@ public class NodeListImpl extends AbstractScriptableDelegate implements NodeList
     } catch (final IndexOutOfBoundsException iob) {
       return null;
     }
+  }
+
+  /* Quick hack to get w3c tests working. This function very likely needs to
+   * be included for every JS object. */
+  public boolean hasOwnProperty(final Object obj) {
+    System.out.println("Checking " + obj);
+    if (Objects.isAssignableOrBox(obj, Integer.TYPE)) {
+      // if (obj instanceof Integer) {
+      final Integer i = (Integer) JavaScript.getInstance().getJavaObject(obj, Integer.TYPE);
+      // final Integer i = (Integer) obj;
+      return i < getLength();
+    } else {
+      return false;
+    }
+  }
+
+  /* Described here: http://www.w3.org/TR/dom/#dom-htmlcollection-nameditem. This actually needs to be in a separate class that implements HTMLCollection */
+  public Node namedItem(final String key) {
+    final int length = getLength();
+    for (int i = 0; i < length; i++) {
+      final Node n = item(0);
+      if (n instanceof Element) {
+        final Element element = (Element) n;
+        if (key.equals(element.getAttribute("id")) || key.equals(element.getAttribute("name"))) {
+          return n;
+        }
+      }
+
+    }
+    return null;
+  }
+
+  @Override
+  public String toString() {
+    return nodeList.toString();
   }
 }

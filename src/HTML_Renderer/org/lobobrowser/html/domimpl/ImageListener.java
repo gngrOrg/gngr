@@ -24,4 +24,6 @@ public interface ImageListener extends java.util.EventListener {
   public static final ImageListener[] EMPTY_ARRAY = new ImageListener[0];
 
   public void imageLoaded(ImageEvent event);
+
+  public void imageAborted();
 }

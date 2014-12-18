@@ -171,8 +171,8 @@ public class CacheInfo {
       }
 
       try (
-          final InputStream in = new ByteArrayInputStream(content);
-          final ObjectInputStream oin = new ClassLoaderObjectInputStream(in, classLoader);) {
+        final InputStream in = new ByteArrayInputStream(content);
+        final ObjectInputStream oin = new ClassLoaderObjectInputStream(in, classLoader);) {
         return oin.readObject();
       }
     } catch (final IOException ioe) {

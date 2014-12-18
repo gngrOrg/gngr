@@ -24,4 +24,10 @@ public class HTMLButtonElementImpl extends HTMLBaseInputElement {
   public HTMLButtonElementImpl(final String name) {
     super(name);
   }
+
+  public void click() {
+    // TODO: see issue #95
+    System.out.println("Button clicked. TODO");
+    // inputContext.click();
+  }
 }
