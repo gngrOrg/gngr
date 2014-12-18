@@ -1,4 +1,4 @@
-gngr [![Gitter](https://badges.gitter.im/UprootLabs/swing-htabs.png)](https://gitter.im/UprootLabs/gngr?utm_source=badge)
+gngr
 ====
 
 This is the source code of [gngr](https://gngr.info), a new cross-platform browser that champions privacy.
@@ -7,7 +7,7 @@ This is the source code of [gngr](https://gngr.info), a new cross-platform brows
 This is a very early prototype; a mere proof-of-concept. It is useable with very simple websites. Use at your own risk;
 there is no warranty, implied or specified.
 
-Security-wise, the code isn't hardened *at all*! Use the current version:
+Security-wise, the code isn't hardened *at all!* Use the current version:
  * with [app level sandboxing](https://github.com/UprootLabs/gngr/wiki/App-Sandboxing) 
  * with simple trusted web-sites only
  * periodically [clear the browser cache and data](https://github.com/UprootLabs/gngr/wiki/Clearing-cache-and-data).
