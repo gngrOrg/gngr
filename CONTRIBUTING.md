@@ -7,7 +7,7 @@ Please avoid spamming issues with `+1`s. Unfortunately, Github doesn't have a wa
 ### Testing and reporting issues
 This is the simplest way of contributing to `gngr`: use `gngr` and when you find bugs shoot us an issue report on GitHub.
 
-We also need help in running systematic tests (such as tests from W3C). We wil write more about that later.
+We also need help in running systematic tests (such as tests from W3C). We will write more about that later.
 
 ### Triaging
 When an issue is reported by a user, we need help in diagnosing the root cause and breaking it down to a small
