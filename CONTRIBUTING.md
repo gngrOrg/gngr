@@ -23,3 +23,5 @@ Please [search for issues with the `need-advice` label](https://github.com/Uproo
 ### Code
 At the moment we are not prepared for code contributions since there are major architectual changes afoot. If you would
 like to contribute code discuss with us first to avoid wasted efforts.
+
+If you really desire to contribute some code, please contribute to our [upstream projects](https://gngr.info/doc/credits.html).
