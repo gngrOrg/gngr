@@ -189,7 +189,7 @@ class RLine extends BaseRCollection {
       this.addWord((RWord) renderable);
     } else if (renderable instanceof RBlank) {
       this.addBlank((RBlank) renderable);
-    } else if (renderable instanceof RUIControl) {
+    } else if (renderable instanceof RElement) {
       this.addElement((RElement) renderable);
     } else if (renderable instanceof RSpacing) {
       this.addSpacing((RSpacing) renderable);

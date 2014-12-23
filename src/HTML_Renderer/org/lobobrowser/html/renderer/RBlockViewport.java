@@ -2262,8 +2262,7 @@ public class RBlockViewport extends BaseRCollection {
         bodyLayout.layoutRTable(markupElement);
         break;
       case DISPLAY_INLINE_BLOCK:
-        // TODO
-        bodyLayout.layoutMarkup(markupElement);
+        bodyLayout.layoutRInlineBlock(markupElement);
         break;
       default:
         // Assume INLINE
@@ -2277,10 +2276,10 @@ public class RBlockViewport extends BaseRCollection {
     return false;
   }
 
-  public void layoutRInlineBLock(final HTMLElementImpl markupElement) {
-    // TODO: Render display:inline-block correctly
-    // layoutMarkup(markupElement);
-    layoutRBlock(markupElement);
+  private void layoutRInlineBlock(final HTMLElementImpl markupElement) {
+    final RInlineBlock inlineBlock = new RInlineBlock(container, markupElement, userAgentContext, rendererContext, frameContext);
+    inlineBlock.doLayout(availContentWidth, availContentHeight, sizeOnly);
+    addRenderableToLine(inlineBlock);
   }
 
   @Override
