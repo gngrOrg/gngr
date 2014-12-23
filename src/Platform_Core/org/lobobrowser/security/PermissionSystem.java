@@ -62,9 +62,14 @@ public class PermissionSystem {
   }
 
   public boolean isRequestPermitted(final Request request) {
-    final boolean requestPermitted = getLastBoard().isRequestPermitted(request);
-    // System.out.println("" + requestPermitted + ": " + request);
-    return requestPermitted;
+    final String protocol = request.url.getProtocol();
+    if ("http".equals(protocol) || "https".equals(protocol) || "data".equals(protocol)) {
+      return getLastBoard().isRequestPermitted(request);
+    } else {
+      // Constrain all other protocols. Especially worrying is the file:// protocol
+      // ... for issue #18
+      return false;
+    }
   }
 
   public List<PermissionBoard> getBoards() {
