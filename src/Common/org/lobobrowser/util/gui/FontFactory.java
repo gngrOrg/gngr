@@ -90,7 +90,7 @@ public class FontFactory {
    */
   public void registerFont(final String fontName, final int fontFormat, final java.io.InputStream fontStream)
       throws java.awt.FontFormatException,
-  java.io.IOException {
+      java.io.IOException {
     final Font f = Font.createFont(fontFormat, fontStream);
     synchronized (this) {
       this.registeredFonts.put(fontName.toLowerCase(), f);

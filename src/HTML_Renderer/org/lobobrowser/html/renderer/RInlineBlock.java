@@ -34,7 +34,8 @@ import org.lobobrowser.util.CollectionUtilities;
 public class RInlineBlock extends BaseElementRenderable {
   private final RBlock child;
 
-  public RInlineBlock(final RenderableContainer container, final HTMLElementImpl modelNode, final UserAgentContext uacontext, final HtmlRendererContext rendererContext, final FrameContext frameContext) {
+  public RInlineBlock(final RenderableContainer container, final HTMLElementImpl modelNode, final UserAgentContext uacontext,
+      final HtmlRendererContext rendererContext, final FrameContext frameContext) {
     super(container, modelNode, uacontext);
     final RBlock child = new RBlock(modelNode, 0, userAgentContext, rendererContext, frameContext, this);
     child.setOriginalParent(this);
@@ -75,6 +76,7 @@ public class RInlineBlock extends BaseElementRenderable {
     return this.child.onMouseReleased(event, x, y);
   }
 
+  @Override
   public void paint(final Graphics g) {
     this.child.paint(g);
   }

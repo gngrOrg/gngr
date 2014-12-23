@@ -502,27 +502,27 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
             if (img != null) {
               BaseElementRenderable.this.backgroundImage = img;
               // Cause observer to be called
-          final int w = img.getWidth(BaseElementRenderable.this);
-          final int h = img.getHeight(BaseElementRenderable.this);
-          // Maybe image already done...
-          if ((w != -1) && (h != -1)) {
-            BaseElementRenderable.this.repaint();
+              final int w = img.getWidth(BaseElementRenderable.this);
+              final int h = img.getHeight(BaseElementRenderable.this);
+              // Maybe image already done...
+              if ((w != -1) && (h != -1)) {
+                BaseElementRenderable.this.repaint();
+              }
+            }
           }
         }
-      }
-    }
-  })  ;
+      })  ;
 
       SecurityUtil.doPrivileged(() -> {
         // Code might have restrictions on accessing items from elsewhere.
-          try {
-            request.open("GET", imageURL);
-            request.send(null, new Request(imageURL, RequestKind.Image));
-          } catch (final java.io.IOException thrown) {
-            logger.log(Level.WARNING, "loadBackgroundImage()", thrown);
-          }
-          return null;
-        });
+        try {
+          request.open("GET", imageURL);
+          request.send(null, new Request(imageURL, RequestKind.Image));
+        } catch (final java.io.IOException thrown) {
+          logger.log(Level.WARNING, "loadBackgroundImage()", thrown);
+        }
+        return null;
+      });
     }
   }
 

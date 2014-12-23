@@ -72,7 +72,7 @@ public final class OkHostnameVerifier implements HostnameVerifier {
   public static boolean verify(final String host, final X509Certificate certificate) {
     return verifyAsIpAddress(host)
         ? verifyIpAddress(host, certificate)
-            : verifyHostName(host, certificate);
+        : verifyHostName(host, certificate);
   }
 
   static boolean verifyAsIpAddress(final String host) {

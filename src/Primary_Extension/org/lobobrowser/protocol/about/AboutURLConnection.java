@@ -123,7 +123,7 @@ public class AboutURLConnection extends URLConnection {
 
   private static String getWelcomeMessage() {
     return
-    "<div style='max-width:900px;margin:0 auto;text-align:center;'>"
+        "<div style='max-width:900px;margin:0 auto;text-align:center;'>"
         +
         "<h1>Welcome to gngr</h1>"
         +
@@ -131,14 +131,16 @@ public class AboutURLConnection extends URLConnection {
         +
         "<p>It is currently a proof-of-concept, and not very stable or secure.</p>"
         +
-        "<div style='text-align:left;padding:1em;margin:1em auto; width:50em;background:#ffd;border:1px solid #bbb'>" +
-        "<p>We recommend that you use this version for casual browsing only and follow the project's <a href='https://blog.gngr.info'>blog</a> to stay abreast of changes.</p>" +
+        "<div style='text-align:left;padding:1em;margin:1em auto; width:50em;background:#ffd;border:1px solid #bbb'>"
+        +
+        "<p>We recommend that you use this version for casual browsing only and follow the project's <a href='https://blog.gngr.info'>blog</a> to stay abreast of changes.</p>"
+        +
         "<p>Other ways of reaching us:</p>" +
-        "<ul>"+
-        "<li>#gngr and #gngr-dev on Freenode IRC</li>"+
-        "<li><a href='https://reddit.com/r/gngr'>/r/gngr</a> on Reddit</li>"+
-        "<li><a href='https://twitter.com/gngrInfo'>@gngrInfo</a> on Twitter</li>"+
-        "</ul>"+
+        "<ul>" +
+        "<li>#gngr and #gngr-dev on Freenode IRC</li>" +
+        "<li><a href='https://reddit.com/r/gngr'>/r/gngr</a> on Reddit</li>" +
+        "<li><a href='https://twitter.com/gngrInfo'>@gngrInfo</a> on Twitter</li>" +
+        "</ul>" +
         "</div>"
         +
         "<div style='padding:1em;border:1px solid #bbb;background:#efe;width:50em;margin:0 auto'>" +

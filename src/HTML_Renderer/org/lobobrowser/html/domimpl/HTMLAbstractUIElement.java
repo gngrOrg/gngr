@@ -18,7 +18,7 @@ import org.w3c.dom.Document;
  */
 public class HTMLAbstractUIElement extends HTMLElementImpl {
   private Function onfocus, onblur, onclick, ondblclick, onmousedown, onmouseup, onmouseover, onmousemove, onmouseout, onkeypress,
-  onkeydown, onkeyup, oncontextmenu;
+      onkeydown, onkeyup, oncontextmenu;
 
   public HTMLAbstractUIElement(final String name) {
     super(name);
