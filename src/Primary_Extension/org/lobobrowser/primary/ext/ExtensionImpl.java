@@ -134,28 +134,26 @@ public class ExtensionImpl implements NavigatorExtension {
     final Writer swriter = new StringWriter();
     final PrintWriter writer = new PrintWriter(swriter);
     writer.println("<html><body>");
-    writer.println("<dl style='background-color: #FFB0B0; border: solid red 2px; padding: 2px;'>");
+    writer.println("<dl style='background-color: #FFE0E0; border: 1px solid red; padding: 1em;'>");
     writer.println("  <big>An <strong>error</strong> occurred trying to process a request.</big>");
     writer.println("  <br>");
     if (url != null) {
-      writer.println("  <dt><strong>URL</strong>:</dt>");
+      writer.println("  <h3>URL:</h3>");
       writer.println("  <dd>" + getErrorUrlText(url, method) + "</dd>");
     }
-    writer.println("  <dt><strong>Exception</strong>:</dt>");
-    writer.println("  <dd>" + exception.getClass().getName() + "</dd>");
-    writer.println("  <dt><strong>Meaning</strong>:</dt>");
-    writer.println("  <dd>" + getExceptionMeaning(url, exception) + "</dd>");
-    writer.println("  <dt><strong>Message</strong>:</dt>");
-    writer.println("  <dd>" + Html.textToHTML(exception.getMessage()) + "</dd>");
+    writer.println("  <h3>Exception:</h3>");
+    writer.println("  <p>" + exception.getClass().getName() + "</p>");
+    writer.println("  <h3>Meaning</h3>");
+    writer.println("  <div>" + getExceptionMeaning(url, exception) + "</div>");
+    writer.println("  <h3>Message:</h3>");
+    writer.println("  <div>" + Html.textToHTML(exception.getMessage()) + "</div>");
     writer.println("</dl>");
     writer.println("<p></p>");
 
     if (PlatformInit.getInstance().debugOn) {
-      writer.println("<table border='1' width='100%' style='background-color: #B0B0FF; bolder: solid red 2px;'>");
-      writer.println("  <tr><th>");
-      writer.println("  Details");
-      writer.println("  </th></tr>");
-      writer.println("  <tr><td>");
+      writer.println("<table border='1' width='100%' style='background-color: #E0E0FF; bolder: solid red 2px;'>");
+      writer.println("  <tr><th style='padding:.2em'>Details</th></tr>");
+      writer.println("  <tr><td style='padding:.2em'>");
 
       final StringWriter sw = new StringWriter();
       final PrintWriter pw = new PrintWriter(sw);
@@ -220,6 +218,9 @@ public class ExtensionImpl implements NavigatorExtension {
       }
       if (cause instanceof java.net.MalformedURLException) {
         return "A URL or URI was not formatted correctly.";
+      } else if (cause instanceof javax.net.ssl.SSLHandshakeException) {
+        return "<p>This is most likely caused due to a JVM with crippled cipher suites.</p>" +
+               "<p>We are actively working on this. Please see https://github.com/UprootLabs/gngr/wiki/SSL-Handshake-Failures</p>";
       } else if (cause instanceof java.net.UnknownHostException) {
         return "The host named '" + ((java.net.UnknownHostException) cause).getMessage()
             + "' could not be found by the Domain Name Service (DNS).";
