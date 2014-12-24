@@ -486,7 +486,7 @@ public final class RequestEngine {
         final byte[] byteArray = fileOut.toByteArray();
         if (byteArray.length == 0) {
           logger
-          .log(Level.WARNING, "cache(): Serialized content has zero bytes for persistent object " + altPersistentObject + ".");
+              .log(Level.WARNING, "cache(): Serialized content has zero bytes for persistent object " + altPersistentObject + ".");
         }
         CacheManager.putPersistent(url, byteArray, true);
       } catch (final Exception err) {
@@ -921,10 +921,10 @@ public final class RequestEngine {
   }
 
   private void handleCookies(final URL url, final HttpURLConnection hconnection, final RequestHandler rhandler) throws URISyntaxException,
-  IOException {
+      IOException {
     final Map<String, List<String>> headerFields = hconnection.getHeaderFields();
     final boolean cookieSetterExists = headerFields.keySet().stream().anyMatch(key ->
-    "Set-Cookie".equalsIgnoreCase(key) // || "Set-Cookie2".equalsIgnoreCase(key)
+        "Set-Cookie".equalsIgnoreCase(key) // || "Set-Cookie2".equalsIgnoreCase(key)
         );
     if (cookieSetterExists) {
       if (rhandler.getContext().isRequestPermitted(new Request(url, RequestKind.Cookie))) {
@@ -977,7 +977,7 @@ public final class RequestEngine {
   }
 
   private static URL makeCompleteURL(final URL baseURL, final ParameterInfo pinfo, final boolean isGet) throws Exception,
-  MalformedURLException {
+      MalformedURLException {
     if (isGet && (pinfo != null)) {
       final String ref = baseURL.getRef();
       final String noRefForm = Urls.getNoRefForm(baseURL);

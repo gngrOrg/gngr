@@ -115,9 +115,9 @@ public class CookieStore {
     if (expiresLongOpt.isPresent()) {
       final DSLContext userDB = StorageManager.getInstance().getDB();
       userDB
-      .mergeInto(Cookies.COOKIES)
-      .values(domainTL, name, cookieValue.getValue(), cookieValue.getPath(), true, true, cookieValue.getCreationTime(),
-          cookieValue.getExpires().orElse(null))
+          .mergeInto(Cookies.COOKIES)
+          .values(domainTL, name, cookieValue.getValue(), cookieValue.getPath(), true, true, cookieValue.getCreationTime(),
+              cookieValue.getExpires().orElse(null))
           .execute();
     }
   }

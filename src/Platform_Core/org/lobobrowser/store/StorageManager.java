@@ -117,10 +117,10 @@ public class StorageManager implements Runnable {
     // TODO: https://stackoverflow.com/questions/24741761/how-to-check-if-a-table-exists-in-jooq
     final int tableCount =
         userDB
-        .selectCount()
-        .from("INFORMATION_SCHEMA.TABLES")
-        .where("TABLE_SCHEMA = 'PUBLIC'")
-        .fetchOne().value1();
+            .selectCount()
+            .from("INFORMATION_SCHEMA.TABLES")
+            .where("TABLE_SCHEMA = 'PUBLIC'")
+            .fetchOne().value1();
     return tableCount;
   }
 

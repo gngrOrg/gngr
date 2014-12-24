@@ -32,14 +32,14 @@ public class CSSNorm
    * Defines a standard HTML style sheet defining the basic style of the
    * individual elements. It corresponds to the CSS2.1 recommendation (Appendix
    * D).
-   * 
+   *
    * @return the style string
    */
   //TODO refer issue #89
   public static String stdStyleSheet()
   {
     return
-    "html, address," +
+        "html, address," +
         "blockquote," +
         "body, dd, div," +
         "dl, dt, fieldset, form," +
@@ -136,25 +136,25 @@ public class CSSNorm
       h4, h5, h6    { page-break-after: avoid }
       ul, ol, dl    { page-break-before: avoid }
     }
-    */
+     */
   }
 
   /**
    * A style sheet defining the additional basic style not covered by the CSS
    * recommendation.
-   * 
+   *
    * @return The style string
    */
   public static String userStyleSheet()
   {
     return
-    // reason for commenting out body sytle
-    // test case - http://test.csswg.org/suites/css2.1/20110323/html4/c5526c-display-000.htm
-    // if html's color is set then body should be able to inherit it.
-    // "body   { color: black; background-color: #fafafa;}"+
+        // reason for commenting out body sytle
+        // test case - http://test.csswg.org/suites/css2.1/20110323/html4/c5526c-display-000.htm
+        // if html's color is set then body should be able to inherit it.
+        // "body   { color: black; background-color: #fafafa;}"+
 
-    // makes sure that a links do not inherit cursor, they should have a default value
-    "a[href]{ cursor: pointer; color: blue; text-decoration: underline; }" +
+        // makes sure that a links do not inherit cursor, they should have a default value
+        "a[href]{ cursor: pointer; color: blue; text-decoration: underline; }" +
         "label{cursor:default}" +
         "script { display: none; }" +
         "style  { display: none; }" +
@@ -176,13 +176,13 @@ public class CSSNorm
    * A style sheet defining a basic style of form fields. This style sheet may
    * be used for a simple rendering of form fields when their functionality is
    * not implemented in another way.
-   * 
+   *
    * @return The style string
    */
   public static String formsStyleSheet()
   {
     return
-    "input, textarea, select { " +
+        "input, textarea, select { " +
         "  font-size: 80%;" +
         "  color: black;" +
         "  white-space: pre;" +

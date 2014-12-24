@@ -164,7 +164,7 @@ public class ExtensionManager {
         logger.warning("createExtensions(): Directory '" + extDir + "' not found.");
         if (PlatformInit.getInstance().isCodeLocationDirectory()) {
           logger
-          .warning("createExtensions(): The application code location is a directory, which means the application is probably being run from an IDE. Additional setup is required. Please refer to README.txt file.");
+              .warning("createExtensions(): The application code location is a directory, which means the application is probably being run from an IDE. Additional setup is required. Please refer to README.txt file.");
         }
         continue;
       }
@@ -256,7 +256,7 @@ public class ExtensionManager {
   }*/
 
   private static URL makeZipEntryURL(final String dirName, final InputStream jfIS, final String entryName) throws IOException,
-  MalformedURLException {
+      MalformedURLException {
     final String urlSpec = ZIPENTRY_PROTOCOL + "://" + dirName + "/" + entryName + "!/";
     final URL libURL = new URL(null, urlSpec, new ZipEntryHandler(new ZipInputStream(jfIS)));
     return libURL;
