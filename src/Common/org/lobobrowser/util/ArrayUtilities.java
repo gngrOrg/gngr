@@ -52,19 +52,15 @@ public class ArrayUtilities {
    * is a static zero sized array
    */
   public static <T> T[] copySynched(final Collection<T> collection, final Object syncObj, final T[] initArray) {
-    T[] result;
     synchronized (syncObj) {
-      result = collection.toArray(initArray);
+      return collection.toArray(initArray);
     }
-    return result;
   }
 
   public static <T> T[] copySynched(final Collection<T> collection, final Object syncObj, final Class<T> clazz) {
-    T[] result;
     synchronized (syncObj) {
-      result = copy(collection, clazz);
+      return copy(collection, clazz);
     }
-    return result;
   }
 
   /**
