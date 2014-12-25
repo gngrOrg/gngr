@@ -390,12 +390,12 @@ public class LocalSecurityPolicy extends Policy {
         permissions.add(new PropertyPermission("line.separator", "read"));
         permissions.add(new RuntimePermission("getClassLoader"));
 
-      } else if (path.endsWith("okhttp-urlconnection-2.0.0.jar")) {
+      } else if (path.endsWith("okhttp-urlconnection-2.1.1-SNAPSHOT.jar")) {
         permissions.add(new NetPermission("getProxySelector"));
         permissions.add(new NetPermission("getCookieHandler"));
         permissions.add(new PropertyPermission("http.*", "read"));
         permissions.add(new SocketPermission("*", "connect,resolve,listen,accept"));
-      } else if (path.endsWith("okhttp-2.0.1-SNAPSHOT.jar")) {
+      } else if (path.endsWith("okhttp-2.1.1-SNAPSHOT.jar")) {
         permissions.add(new NetPermission("getProxySelector"));
         permissions.add(new NetPermission("getCookieHandler"));
         permissions.add(new PropertyPermission("http.*", "read"));
