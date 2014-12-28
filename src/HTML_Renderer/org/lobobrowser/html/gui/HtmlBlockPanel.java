@@ -975,6 +975,6 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
   @Override
   public Insets getInsetsMarginBorder(final boolean hscroll, final boolean vscroll) {
     throw new UnsupportedOperationException(
-        "Method added while fixing #20. Not implemented yet.");
+        "Method added while fixing #32. Not implemented yet.");
   }
 }
