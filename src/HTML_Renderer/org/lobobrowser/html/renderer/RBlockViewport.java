@@ -1705,7 +1705,7 @@ public class RBlockViewport extends BaseRCollection {
         } else if (r instanceof RBlock) {
           final RBlock block = (RBlock) r;
           if (block.getHeight() > 0) {
-            final Insets insets = block.getInsets(false, false);
+            final Insets insets = block.getInsetsMarginBorder(false, false);
             final Insets paddingInsets = this.paddingInsets;
             return block.getFirstBaselineOffset() + insets.top + (paddingInsets == null ? 0 : paddingInsets.top);
           }

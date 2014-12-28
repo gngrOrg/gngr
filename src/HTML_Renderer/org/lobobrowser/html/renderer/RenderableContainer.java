@@ -64,14 +64,15 @@ public interface RenderableContainer {
   public int getY();
 
   public Insets getInsets(final boolean hscroll, final boolean vscroll);
+  public Insets getInsetsMarginBorder(final boolean hscroll, final boolean vscroll);
 
   default public int getInnerWidth() {
-    final Insets insets = getInsets(false, false);
+    final Insets insets = getInsetsMarginBorder(false, false);
     return getWidth() - (insets.left + insets.right);
   }
 
   default public int getInnerHeight() {
-    final Insets insets = getInsets(false, false);
+    final Insets insets = getInsetsMarginBorder(false, false);
     return getHeight() - (insets.top + insets.bottom);
   }
 

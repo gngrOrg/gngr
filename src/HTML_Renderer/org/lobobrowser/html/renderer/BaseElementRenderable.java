@@ -761,10 +761,22 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
   }
 
   /**
-   * Gets insets of content area. It includes margin, borders and scrollbars,
-   * but not padding.
+   * Gets insets of content area. It includes margin, borders, padding and scrollbars.
    */
   public Insets getInsets(final boolean hscroll, final boolean vscroll) {
+    return getInsets(hscroll, vscroll, true, true, true);
+  }
+
+  /**
+   * Gets insets of content area. It includes margin, borders, and scrollbars but excludes padding.
+   */
+  public Insets getInsetsMarginBorder(final boolean hscroll, final boolean vscroll) {
+    return getInsets(hscroll, vscroll, true, true, false);
+  }
+
+  // TODO: This method maybe inlined for performance
+  private Insets getInsets(final boolean hscroll, final boolean vscroll,
+      final boolean includeMI, final boolean includeBI, final boolean includePI) {
     final Insets mi = this.marginInsets;
     final Insets bi = this.borderInsets;
     final Insets pi = this.paddingInsets;
@@ -772,19 +784,19 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
     int bottom = 0;
     int left = 0;
     int right = 0;
-    if (mi != null) {
+    if (includeMI && mi != null) {
       top += mi.top;
       left += mi.left;
       bottom += mi.bottom;
       right += mi.right;
     }
-    if (bi != null) {
+    if (includeBI && bi != null) {
       top += bi.top;
       left += bi.left;
       bottom += bi.bottom;
       right += bi.right;
     }
-    if (pi != null) {
+    if (includePI && pi != null) {
       top += pi.top;
       left += pi.left;
       bottom += pi.bottom;

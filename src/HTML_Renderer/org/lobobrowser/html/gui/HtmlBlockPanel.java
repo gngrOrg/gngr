@@ -971,4 +971,10 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
     throw new UnsupportedOperationException(
         "Method added while implementing absolute positioned elements inside relative elements. But not implemented yet.");
   }
+
+  @Override
+  public Insets getInsetsMarginBorder(final boolean hscroll, final boolean vscroll) {
+    throw new UnsupportedOperationException(
+        "Method added while fixing #20. Not implemented yet.");
+  }
 }

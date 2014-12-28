@@ -131,7 +131,7 @@ public class RBlock extends BaseElementRenderable {
       final boolean vscroll = this.hasVScrollBar;
       final int origX = bodyLayout.x;
       final int origY = bodyLayout.y;
-      final Insets insets = this.getInsets(hscroll, vscroll);
+      final Insets insets = this.getInsetsMarginBorder(hscroll, vscroll);
       if (hscroll) {
         if (point.x < insets.left) {
           bodyLayout.x += (insets.left - point.x);
@@ -229,7 +229,7 @@ public class RBlock extends BaseElementRenderable {
     final long time2 = linfo ? System.currentTimeMillis() : 0;
     long time3 = 0;
     try {
-      final Insets insets = this.getInsets(this.hasHScrollBar, this.hasVScrollBar);
+      final Insets insets = this.getInsetsMarginBorder(this.hasHScrollBar, this.hasVScrollBar);
       final RBlockViewport bodyLayout = this.bodyLayout;
       if (bodyLayout != null) {
         final int overflowX = this.overflowX;
@@ -467,7 +467,7 @@ public class RBlock extends BaseElementRenderable {
     final RBlockViewport bodyLayout = this.bodyLayout;
     final NodeImpl node = (NodeImpl) this.modelNode;
     if ((node == null) || (bodyLayout == null)) {
-      final Insets insets = this.getInsets(false, false);
+      final Insets insets = this.getInsetsMarginBorder(false, false);
       return new LayoutValue(insets.left + insets.right, insets.bottom + insets.top, false, false);
     }
 
@@ -499,7 +499,7 @@ public class RBlock extends BaseElementRenderable {
     final boolean hauto = overflowX == RenderState.OVERFLOW_AUTO;
     boolean vscroll = overflowY == RenderState.OVERFLOW_SCROLL;
 
-    Insets insets = this.getInsets(hscroll, vscroll);
+    Insets insets = this.getInsetsMarginBorder(hscroll, vscroll);
     int insetsTotalWidth = insets.left + insets.right;
     int insetsTotalHeight = insets.top + insets.bottom;
     int actualAvailWidth = availWidth - paddingTotalWidth - insetsTotalWidth;
@@ -570,12 +570,12 @@ public class RBlock extends BaseElementRenderable {
       // Getting this exception means that we need to add a vertical scrollbar.
       // Wee need to relayout and adjust insets and widths for scrollbar.
       vscroll = true;
-      insets = this.getInsets(hscroll, vscroll);
+      insets = this.getInsetsMarginBorder(hscroll, vscroll);
       insetsTotalWidth = insets.left + insets.right;
       actualAvailWidth = availWidth - paddingTotalWidth - insetsTotalWidth;
       dw = this.getDeclaredWidth(renderState, actualAvailWidth);
       declaredWidth = dw == null ? -1 : dw.intValue();
-      desiredViewportWidth = tentativeWidth - insetsTotalWidth;
+      desiredViewportWidth = tentativeWidth - paddingTotalWidth - insetsTotalWidth;
       if (blockFloatBounds != null) {
         viewportFloatBounds = new ShiftedFloatingBounds(blockFloatBounds, -insets.left, -insets.right, -insets.top);
       }
@@ -594,7 +594,7 @@ public class RBlock extends BaseElementRenderable {
     // Adjust insets and other dimensions base on overflow-y=auto.
     if (hauto && (((adjDeclaredWidth != -1) && (prelimBlockWidth > adjDeclaredWidth)) || (prelimBlockWidth > tentativeWidth))) {
       hscroll = true;
-      insets = this.getInsets(hscroll, vscroll);
+      insets = this.getInsetsMarginBorder(hscroll, vscroll);
       insetsTotalHeight = insets.top + insets.bottom;
       prelimBlockHeight = bodyHeight + insetsTotalHeight;
     }
@@ -982,7 +982,7 @@ public class RBlock extends BaseElementRenderable {
     try {
       final RBlockViewport bodyLayout = this.bodyLayout;
       if (bodyLayout != null) {
-        final Insets insets = this.getInsets(this.hasHScrollBar, this.hasVScrollBar);
+        final Insets insets = this.getInsetsMarginBorder(this.hasHScrollBar, this.hasVScrollBar);
         final JScrollBar vsb = this.vScrollBar;
         if (vsb != null) {
           final int newValue = insets.top - bodyLayout.y;
@@ -1018,7 +1018,7 @@ public class RBlock extends BaseElementRenderable {
   public boolean paintSelection(final Graphics g, final boolean inSelection, final RenderableSpot startPoint, final RenderableSpot endPoint) {
     final Graphics newG = g.create();
     try {
-      final Insets insets = this.getInsets(this.hasHScrollBar, this.hasVScrollBar);
+      final Insets insets = this.getInsetsMarginBorder(this.hasHScrollBar, this.hasVScrollBar);
       // Just clip, don't translate.
       newG.clipRect(insets.left, insets.top, this.width - insets.left - insets.right, this.height - insets.top - insets.bottom);
       return super.paintSelection(newG, inSelection, startPoint, endPoint);
@@ -1076,7 +1076,7 @@ public class RBlock extends BaseElementRenderable {
   public RenderableSpot getLowestRenderableSpot(final int x, final int y) {
     final RBlockViewport bodyLayout = this.bodyLayout;
     if (bodyLayout != null) {
-      final Insets insets = this.getInsets(this.hasHScrollBar, this.hasVScrollBar);
+      final Insets insets = this.getInsetsMarginBorder(this.hasHScrollBar, this.hasVScrollBar);
       if ((x > insets.left) && (x < (this.width - insets.right)) && (y > insets.top) && (y < (this.height - insets.bottom))) {
         return bodyLayout.getLowestRenderableSpot(x - bodyLayout.x, y - bodyLayout.y);
       } else {
@@ -1312,7 +1312,7 @@ public class RBlock extends BaseElementRenderable {
     final boolean hscroll = this.hasHScrollBar;
     final boolean vscroll = this.hasVScrollBar;
     if (hscroll || vscroll) {
-      final Insets insets = this.getInsets(hscroll, vscroll);
+      final Insets insets = this.getInsetsMarginBorder(hscroll, vscroll);
       if (hscroll) {
         final JScrollBar hsb = this.hScrollBar;
         if (hsb != null) {
@@ -1333,7 +1333,7 @@ public class RBlock extends BaseElementRenderable {
   public void scrollHorizontalTo(final int newX) {
     final RBlockViewport bodyLayout = this.bodyLayout;
     if (bodyLayout != null) {
-      final Insets insets = this.getInsets(this.hasHScrollBar, this.hasVScrollBar);
+      final Insets insets = this.getInsetsMarginBorder(this.hasHScrollBar, this.hasVScrollBar);
       final int viewPortX = newX;
       if (viewPortX > insets.left) {
         bodyLayout.x = insets.left;
@@ -1351,7 +1351,7 @@ public class RBlock extends BaseElementRenderable {
   public void scrollVerticalTo(final int newY) {
     final RBlockViewport bodyLayout = this.bodyLayout;
     if (bodyLayout != null) {
-      final Insets insets = this.getInsets(this.hasHScrollBar, this.hasVScrollBar);
+      final Insets insets = this.getInsetsMarginBorder(this.hasHScrollBar, this.hasVScrollBar);
       final int viewPortY = newY;
       if (viewPortY > insets.top) {
         bodyLayout.y = insets.top;
@@ -1405,7 +1405,7 @@ public class RBlock extends BaseElementRenderable {
     final boolean vscroll = this.hasVScrollBar;
     if (hscroll || vscroll) {
       final RBlockViewport bv = this.bodyLayout;
-      final Insets insets = this.getInsets(hscroll, vscroll);
+      final Insets insets = this.getInsetsMarginBorder(hscroll, vscroll);
       final int vpheight = this.height - insets.top - insets.bottom;
       final int vpwidth = this.width - insets.left - insets.right;
       final int tentativeX = insets.left - bounds.x;
@@ -1426,7 +1426,7 @@ public class RBlock extends BaseElementRenderable {
   }
 
   private void scrollToSBValue(final int orientation, final int value) {
-    final Insets insets = this.getInsets(this.hasHScrollBar, this.hasVScrollBar);
+    final Insets insets = this.getInsetsMarginBorder(this.hasHScrollBar, this.hasVScrollBar);
     switch (orientation) {
     case Adjustable.HORIZONTAL:
       final int xOrigin = insets.left - value;
@@ -1478,7 +1478,7 @@ public class RBlock extends BaseElementRenderable {
     if (info == null) {
       return null;
     }
-    final Insets insets = this.getInsets(this.hasHScrollBar, this.hasVScrollBar);
+    final Insets insets = this.getInsetsMarginBorder(this.hasHScrollBar, this.hasVScrollBar);
     return new FloatingInfo(info.shiftX + insets.left, info.shiftY + insets.top, info.floats);
   }
 
