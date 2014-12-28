@@ -25,6 +25,7 @@ package org.lobobrowser.html.renderer;
 
 import java.awt.Adjustable;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Insets;
@@ -643,6 +644,14 @@ public class RBlock extends BaseElementRenderable {
         bodyLayout.alignY(alignmentYPercent, canvasHeight, paddingInsets);
       }
     }
+
+    final Dimension changes = this.applyAutoStyles(availWidth - resultingWidth, availHeight - resultingHeight);
+    if (changes != null) {
+      resultingWidth += changes.width;
+      resultingHeight += changes.height;
+    }
+    insets = getInsetsMarginBorder(hscroll, vscroll);
+
     if (vscroll) {
       final JScrollBar sb = this.getVScrollBar();
       this.addComponent(sb);
@@ -667,6 +676,8 @@ public class RBlock extends BaseElementRenderable {
     } else {
       bodyLayout.x = insets.left;
       bodyLayout.y = insets.top;
+      this.width = resultingWidth;
+      this.height = resultingHeight;
     }
 
     return new LayoutValue(resultingWidth, resultingHeight, hscroll, vscroll);
