@@ -1072,9 +1072,6 @@ public class RBlockViewport extends BaseRCollection {
     final RElement block = (RElement) newBlock;
     final int ccm = this.currentCollapsibleMargin;
     final int topMargin = block.getMarginTop();
-    if ((topMargin == 0) && (ccm == 0)) {
-      return expectedY;
-    }
     return expectedY - Math.min(topMargin, ccm);
   }
 
@@ -1705,7 +1702,7 @@ public class RBlockViewport extends BaseRCollection {
         } else if (r instanceof RBlock) {
           final RBlock block = (RBlock) r;
           if (block.getHeight() > 0) {
-            final Insets insets = block.getInsets(false, false);
+            final Insets insets = block.getInsetsMarginBorder(false, false);
             final Insets paddingInsets = this.paddingInsets;
             return block.getFirstBaselineOffset() + insets.top + (paddingInsets == null ? 0 : paddingInsets.top);
           }

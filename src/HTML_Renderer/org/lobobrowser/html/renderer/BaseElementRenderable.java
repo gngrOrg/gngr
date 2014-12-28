@@ -22,6 +22,7 @@ package org.lobobrowser.html.renderer;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Image;
@@ -434,15 +435,8 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
           - tentativeMarginInsets.top - tentativeMarginInsets.bottom;
       final Integer declaredWidth = this.getDeclaredWidth(rs, actualAvailWidth);
       final Integer declaredHeight = this.getDeclaredHeight(rs, actualAvailHeight);
+      // TODO: Get rid of autoMarginX and autoMarginY. They will be always zero
       int autoMarginX = 0, autoMarginY = 0;
-      if (declaredWidth != null) {
-        autoMarginX = (availWidth - declaredWidth.intValue() - (borderInsets == null ? 0 : borderInsets.left - borderInsets.right) - (paddingInsets == null ? 0
-            : paddingInsets.left - paddingInsets.right)) / 2;
-      }
-      if (declaredHeight != null) {
-        autoMarginY = (availHeight - declaredHeight.intValue() - (borderInsets == null ? 0 : borderInsets.top - borderInsets.bottom) - (paddingInsets == null ? 0
-            : paddingInsets.top - paddingInsets.bottom)) / 2;
-      }
       this.borderInsets = borderInsets;
       if (isRootBlock) {
         // In the root block, the margin behaves like an extra padding.
@@ -487,6 +481,60 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
     }
 
     // Check if background image needs to be loaded
+  }
+
+  protected Dimension applyAutoStyles(final int availWidth, final int availHeight) {
+    final Object rootNode = this.modelNode;
+    HTMLElementImpl rootElement;
+    boolean isRootBlock;
+    if (rootNode instanceof HTMLDocumentImpl) {
+      isRootBlock = true;
+      final HTMLDocumentImpl doc = (HTMLDocumentImpl) rootNode;
+      // Need to get BODY tag, for bgcolor, etc.
+      rootElement = (HTMLElementImpl) doc.getBody();
+    } else {
+      isRootBlock = false;
+      rootElement = (HTMLElementImpl) rootNode;
+    }
+    if (rootElement == null) {
+      return null;
+    }
+    Dimension changes = new Dimension();
+    final RenderState rs = rootElement.getRenderState();
+    if (rs == null) {
+      throw new IllegalStateException("Element without render state: " + rootElement + "; parent=" + rootElement.getParentNode());
+    }
+    final HtmlInsets minsets = rs.getMarginInsets();
+    if (minsets != null) {
+
+      final Integer declaredWidth = this.getDeclaredWidth(rs, availWidth);
+      final Integer declaredHeight = this.getDeclaredHeight(rs, availHeight);
+      if (declaredWidth != null) {
+        // TODO: Consider the case when only one is auto
+        final int autoMarginX = availWidth / 2;
+        if (minsets.leftType == HtmlInsets.TYPE_AUTO) {
+          this.marginInsets.left = autoMarginX;
+          changes.width += autoMarginX;
+        }
+        if (minsets.rightType == HtmlInsets.TYPE_AUTO) {
+          this.marginInsets.right = autoMarginX;
+          changes.width += autoMarginX;
+        }
+      }
+      if (declaredHeight != null) {
+        // TODO: Consider the case when only one is auto
+        final int autoMarginY = availHeight / 2;
+        if (minsets.topType == HtmlInsets.TYPE_AUTO) {
+          this.marginInsets.top = autoMarginY;
+          changes.height += autoMarginY;
+        }
+        if (minsets.bottomType == HtmlInsets.TYPE_AUTO) {
+          this.marginInsets.bottom = autoMarginY;
+          changes.height += autoMarginY;
+        }
+      }
+    }
+    return changes;
   }
 
   protected void loadBackgroundImage(final java.net.URL imageURL) {
@@ -761,10 +809,22 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
   }
 
   /**
-   * Gets insets of content area. It includes margin, borders and scrollbars,
-   * but not padding.
+   * Gets insets of content area. It includes margin, borders, padding and scrollbars.
    */
   public Insets getInsets(final boolean hscroll, final boolean vscroll) {
+    return getInsets(hscroll, vscroll, true, true, true);
+  }
+
+  /**
+   * Gets insets of content area. It includes margin, borders, and scrollbars but excludes padding.
+   */
+  public Insets getInsetsMarginBorder(final boolean hscroll, final boolean vscroll) {
+    return getInsets(hscroll, vscroll, true, true, false);
+  }
+
+  // TODO: This method maybe inlined for performance
+  private Insets getInsets(final boolean hscroll, final boolean vscroll,
+      final boolean includeMI, final boolean includeBI, final boolean includePI) {
     final Insets mi = this.marginInsets;
     final Insets bi = this.borderInsets;
     final Insets pi = this.paddingInsets;
@@ -772,19 +832,19 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
     int bottom = 0;
     int left = 0;
     int right = 0;
-    if (mi != null) {
+    if (includeMI && mi != null) {
       top += mi.top;
       left += mi.left;
       bottom += mi.bottom;
       right += mi.right;
     }
-    if (bi != null) {
+    if (includeBI && bi != null) {
       top += bi.top;
       left += bi.left;
       bottom += bi.bottom;
       right += bi.right;
     }
-    if (pi != null) {
+    if (includePI && pi != null) {
       top += pi.top;
       left += pi.left;
       bottom += pi.bottom;
