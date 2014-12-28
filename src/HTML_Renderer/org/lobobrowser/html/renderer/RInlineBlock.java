@@ -108,4 +108,9 @@ public class RInlineBlock extends BaseElementRenderable {
     this.container.addComponent(component);
     return super.addComponent(component);
   }
+
+  @Override
+  protected void doLayout(int availWidth, int availHeight, boolean expand, boolean sizeOnly) {
+    this.child.doLayout(availWidth, availHeight, expand, expand, null, 0, 0, sizeOnly, true);
+  }
 }

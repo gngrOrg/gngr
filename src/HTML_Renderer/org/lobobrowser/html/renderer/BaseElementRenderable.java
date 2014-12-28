@@ -248,7 +248,23 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
     }
   }
 
+  /**
+   * Lays out children, and deals with "valid" state. Override doLayout method
+   * instead of this one.
+   */
+  public final void layout(final int availWidth, final int availHeight, final boolean expandWidth, final boolean sizeOnly) {
+    // Must call doLayout regardless of validity state.
+    try {
+      this.doLayout(availWidth, availHeight, expandWidth, sizeOnly);
+    } finally {
+      this.layoutUpTreeCanBeInvalidated = true;
+      this.layoutDeepCanBeInvalidated = true;
+    }
+  }
+
   protected abstract void doLayout(int availWidth, int availHeight, boolean sizeOnly);
+
+  protected abstract void doLayout(int availWidth, int availHeight, boolean expand, boolean sizeOnly);
 
   protected final void sendGUIComponentsToParent() {
     // Ensures that parent has all the components

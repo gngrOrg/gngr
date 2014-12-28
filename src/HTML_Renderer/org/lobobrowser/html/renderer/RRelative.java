@@ -141,4 +141,10 @@ public class RRelative extends BaseRCollection {
   public void paint(final Graphics g) {
     this.child.paintTranslated(g);
   }
+
+
+  public void layout(int availWidth, int availHeight, boolean sizeOnly) {
+    child.layout(availWidth, availHeight, false, sizeOnly);
+    assignDimension();
+  }
 }

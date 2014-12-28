@@ -1610,6 +1610,12 @@ public class RBlockViewport extends BaseRCollection {
       } else if (renderable instanceof RElement) {
         final RElement e = (RElement) renderable;
         e.layout(availWidth, availHeight, this.sizeOnly);
+      } else if (renderable instanceof RRelative) {
+        RRelative rRelative = (RRelative) renderable;
+        rRelative.layout(availWidth, availHeight, this.sizeOnly);
+      } else {
+        // TODO Check other types of renderabls
+        System.err.println("TODO: Unhandled renderable type");
       }
     }
     final RFloatInfo floatInfo = new RFloatInfo(renderable.getModelNode(), renderable, leftFloat);
