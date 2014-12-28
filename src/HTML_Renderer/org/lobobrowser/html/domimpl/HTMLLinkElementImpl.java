@@ -295,27 +295,17 @@ public class HTMLLinkElementImpl extends HTMLAbstractUIElement implements HTMLLi
     if (uacontext.isExternalCSSEnabled()) {
       final HTMLDocumentImpl doc = (HTMLDocumentImpl) this.getOwnerDocument();
       try {
-        final boolean liflag = loggableInfo;
-        final long time1 = liflag ? System.currentTimeMillis() : 0;
-        try {
-          final String href = this.getHref();
-          final StyleSheet jSheet = CSSUtilities.jParse(this, href, doc, doc.getBaseURI(), false);
-          if (this.styleSheet != null) {
-            this.styleSheet.setJStyleSheet(jSheet);
-          } else {
-            final JStyleSheetWrapper styleSheet = new JStyleSheetWrapper(jSheet, this.getMedia(), href, this.getType(), this.getTitle(),
-                this, doc.styleSheetManager.bridge);
-            this.styleSheet = styleSheet;
-          }
-          this.styleSheet.setDisabled(this.isAltStyleSheet() | this.disabled);
-          doc.styleSheetManager.invalidateStyles();
-        } finally {
-          if (liflag) {
-            final long time2 = System.currentTimeMillis();
-            logger.info("processLink(): Loaded and parsed CSS (or attempted to) at URI=[" + this.getHref() + "] in " + (time2 - time1)
-                + " ms.");
-          }
+        final String href = this.getHref();
+        final StyleSheet jSheet = CSSUtilities.jParse(this, href, doc, doc.getBaseURI(), false);
+        if (this.styleSheet != null) {
+          this.styleSheet.setJStyleSheet(jSheet);
+        } else {
+          final JStyleSheetWrapper styleSheet = new JStyleSheetWrapper(jSheet, this.getMedia(), href, this.getType(), this.getTitle(),
+              this, doc.styleSheetManager.bridge);
+          this.styleSheet = styleSheet;
         }
+        this.styleSheet.setDisabled(this.isAltStyleSheet() | this.disabled);
+        doc.styleSheetManager.invalidateStyles();
       } catch (final MalformedURLException mfe) {
         this.detachStyleSheet();
         this.warn("Will not parse CSS. URI=[" + this.getHref() + "] with BaseURI=[" + doc.getBaseURI()

@@ -158,7 +158,6 @@ public final class HtmlClientlet implements Clientlet {
       document.addDocumentNotificationListener(listener);
       // Set resulting content before parsing
       // to enable incremental rendering.
-      final long time1 = System.currentTimeMillis();
       // The load() call starts parsing.
       try {
         document.load(false);
@@ -170,13 +169,6 @@ public final class HtmlClientlet implements Clientlet {
         // than one level deep.
         this.processImpl(cc, retry.getHttpEquivData(), rin);
         return;
-      }
-      final long time2 = System.currentTimeMillis();
-      if (logger.isLoggable(Level.INFO)) {
-        logger.info("process(): Parse elapsed=" + (time2 - time1) + " ms.");
-        if (logger.isLoggable(Level.FINE)) {
-          logger.fine("process(): HTML follows:\r\n" + content.getSourceCode());
-        }
       }
       // We're done parsing, but let's make sure
       // the listener actually renderered the document.
