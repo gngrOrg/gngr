@@ -80,7 +80,6 @@ import org.lobobrowser.ua.UserAgentContext;
 import org.lobobrowser.util.Nodes;
 import org.lobobrowser.util.Objects;
 import org.lobobrowser.util.gui.ColorFactory;
-import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 /**
@@ -610,15 +609,7 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
     }
     final RBlock block = this.rblock;
     if (block != null) {
-      final boolean liflag = loggableInfo;
-      final long time1 = liflag ? System.currentTimeMillis() : 0;
       block.paint(g);
-      if (liflag) {
-        final long time2 = System.currentTimeMillis();
-        final Node rootNode = this.getRootNode();
-        final String uri = rootNode instanceof Document ? ((Document) rootNode).getDocumentURI() : "";
-        logger.info("paintComponent(): URI=[" + uri + "]. Block paint elapsed: " + (time2 - time1) + " ms.");
-      }
 
       // Paint FrameContext selection
 
@@ -634,26 +625,14 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
   public void doLayout() {
     try {
       final Dimension size = this.getSize();
-      final boolean liflag = loggableInfo;
-      long time1 = 0;
-      if (liflag) {
-        time1 = System.currentTimeMillis();
-      }
       this.clearComponents();
       final RBlock block = this.rblock;
       if (block != null) {
-        final ModelNode rootNode = block.getModelNode();
         block.layout(size.width, size.height, true, true, null, false);
         // Only set origin
         block.setOrigin(0, 0);
         block.updateWidgetBounds(0, 0);
         this.updateGUIComponents();
-        if (liflag) {
-          final long time2 = System.currentTimeMillis();
-          final String uri = rootNode instanceof Document ? ((Document) rootNode).getDocumentURI() : "";
-          logger.info("doLayout(): URI=[" + uri + "]. Block layout elapsed: " + (time2 - time1) + " ms. Component count: "
-              + this.getComponentCount() + ".");
-        }
       } else {
         if (this.getComponentCount() > 0) {
           this.removeAll();

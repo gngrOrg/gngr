@@ -40,7 +40,6 @@ import org.w3c.dom.html.HTMLScriptElement;
 
 public class HTMLScriptElementImpl extends HTMLElementImpl implements HTMLScriptElement {
   private static final Logger logger = Logger.getLogger(HTMLScriptElementImpl.class.getName());
-  private static final boolean loggableInfo = logger.isLoggable(Level.INFO);
 
   public HTMLScriptElementImpl() {
     super("SCRIPT", true);
@@ -121,7 +120,6 @@ public class HTMLScriptElementImpl extends HTMLElementImpl implements HTMLScript
       if (!(doc instanceof HTMLDocumentImpl)) {
         throw new IllegalStateException("no valid document");
       }
-      final boolean liflag = loggableInfo;
       if (src == null) {
         final Request request = new Request(((HTMLDocumentImpl) doc).getDocumentURL(), RequestKind.JavaScript);
         if (bcontext.isRequestPermitted(request)) {
@@ -137,33 +135,25 @@ public class HTMLScriptElementImpl extends HTMLElementImpl implements HTMLScript
         this.informExternalScriptLoading();
         final java.net.URL scriptURL = ((HTMLDocumentImpl) doc).getFullURL(src);
         scriptURI = scriptURL == null ? src : scriptURL.toExternalForm();
-        final long time1 = liflag ? System.currentTimeMillis() : 0;
-        try {
-          // Perform a synchronous request
-          final NetworkRequest request = bcontext.createHttpRequest();
-          SecurityUtil.doPrivileged(() -> {
-            // Code might have restrictions on accessing
-            // items from elsewhere.
-            try {
-              request.open("GET", scriptURI, false);
-              request.send(null, new Request(scriptURL, RequestKind.JavaScript));
-            } catch (final java.io.IOException thrown) {
-              logger.log(Level.WARNING, "processScript()", thrown);
-            }
-            return null;
-          });
-          final int status = request.getStatus();
-          if ((status != 200) && (status != 0)) {
-            this.warn("Script at [" + scriptURI + "] failed to load; HTTP status: " + status + ".");
-            return;
+        // Perform a synchronous request
+        final NetworkRequest request = bcontext.createHttpRequest();
+        SecurityUtil.doPrivileged(() -> {
+          // Code might have restrictions on accessing
+          // items from elsewhere.
+          try {
+             request.open("GET", scriptURI, false);
+             request.send(null, new Request(scriptURL, RequestKind.JavaScript));
+          } catch (final java.io.IOException thrown) {
+            logger.log(Level.WARNING, "processScript()", thrown);
           }
-          text = request.getResponseText();
-        } finally {
-          if (liflag) {
-            final long time2 = System.currentTimeMillis();
-            logger.info("processScript(): Loaded external Javascript from URI=[" + scriptURI + "] in " + (time2 - time1) + " ms.");
-          }
+          return null;
+        });
+        final int status = request.getStatus();
+        if ((status != 200) && (status != 0)) {
+          this.warn("Script at [" + scriptURI + "] failed to load; HTTP status: " + status + ".");
+          return;
         }
+        text = request.getResponseText();
         baseLineNumber = 1;
       }
       final Context ctx = Executor.createContext(this.getDocumentURL(), bcontext);
@@ -174,14 +164,8 @@ public class HTMLScriptElementImpl extends HTMLElementImpl implements HTMLScript
               + Executor.SCOPE_KEY);
         }
         try {
-          final long time1 = liflag ? System.currentTimeMillis() : 0;
           if (text != null) {
             ctx.evaluateString(scope, text, scriptURI, baseLineNumber, null);
-
-            if (liflag) {
-              final long time2 = System.currentTimeMillis();
-              logger.info("addNotify(): Evaluated (or attempted to evaluate) Javascript in " + (time2 - time1) + " ms.");
-            }
           }
         } catch (final EcmaError ecmaError) {
           logger.log(Level.WARNING,

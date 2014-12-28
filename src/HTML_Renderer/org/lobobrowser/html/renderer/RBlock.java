@@ -38,7 +38,6 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.JScrollBar;
@@ -64,7 +63,6 @@ import org.w3c.dom.html.HTMLBodyElement;
  */
 public class RBlock extends BaseElementRenderable {
   protected static final Logger logger = Logger.getLogger(RBlock.class.getName());
-  private static final boolean loggableInfo = logger.isLoggable(Level.INFO);
   private static final int MAX_CACHE_SIZE = 10;
 
   protected final FrameContext frameContext;
@@ -224,11 +222,7 @@ public class RBlock extends BaseElementRenderable {
       // Just don't paint it.
       return;
     }
-    final boolean linfo = loggableInfo;
-    final long time1 = linfo ? System.currentTimeMillis() : 0;
     this.prePaint(g);
-    final long time2 = linfo ? System.currentTimeMillis() : 0;
-    long time3 = 0;
     try {
       final Insets insets = this.getInsetsMarginBorder(this.hasHScrollBar, this.hasVScrollBar);
       final RBlockViewport bodyLayout = this.bodyLayout;
@@ -261,9 +255,6 @@ public class RBlock extends BaseElementRenderable {
           }
         }
 
-        if (linfo) {
-          time3 = System.currentTimeMillis();
-        }
       } else {
         // nop
       }
@@ -302,13 +293,6 @@ public class RBlock extends BaseElementRenderable {
     } finally {
       // Must always call super implementation
       super.paint(g);
-    }
-    if (linfo) {
-      final long time4 = System.currentTimeMillis();
-      if ((time4 - time1) > 100) {
-        logger.info("paint(): Elapsed: " + (time4 - time1) + " ms. Prepaint: " + (time2 - time1) + " ms. Viewport: " + (time3 - time2)
-            + " ms. RBlock: " + this + ".");
-      }
     }
   }
 
