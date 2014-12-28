@@ -419,4 +419,10 @@ class RTable extends BaseElementRenderable {
     }
   }
 
+  @Override
+  protected void doLayout(int availWidth, int availHeight, boolean expand, boolean sizeOnly) {
+    // TODO: Is it okay to ignore `expand`?
+    doLayout(availWidth, availHeight, sizeOnly);
+  }
+
 }
