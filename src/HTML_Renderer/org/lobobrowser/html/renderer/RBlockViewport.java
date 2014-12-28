@@ -1072,9 +1072,6 @@ public class RBlockViewport extends BaseRCollection {
     final RElement block = (RElement) newBlock;
     final int ccm = this.currentCollapsibleMargin;
     final int topMargin = block.getMarginTop();
-    if ((topMargin == 0) && (ccm == 0)) {
-      return expectedY;
-    }
     return expectedY - Math.min(topMargin, ccm);
   }
 

@@ -566,8 +566,6 @@ public class RBlock extends BaseElementRenderable {
     try {
       bodyLayout.layout(desiredViewportWidth, desiredViewportHeight, paddingInsets, maxY, viewportFloatBounds, sizeOnly);
     } catch (final SizeExceededException see) {
-      // TODO: Nobody throws this exception!
-
       // Getting this exception means that we need to add a vertical scrollbar.
       // Wee need to relayout and adjust insets and widths for scrollbar.
       vscroll = true;
