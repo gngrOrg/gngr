@@ -2629,7 +2629,7 @@ public class RBlockViewport extends BaseRCollection {
         }
         break;
       }
-      if (boxWidth <= (desiredWidth - rightOffset - leftOffset)) {
+      if ((desiredWidth <= 0) || boxWidth <= (desiredWidth - rightOffset - leftOffset)) {
         // Size is fine.
         break;
       }
