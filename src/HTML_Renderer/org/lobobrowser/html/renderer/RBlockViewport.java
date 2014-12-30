@@ -1584,10 +1584,7 @@ public class RBlockViewport extends BaseRCollection {
       return paddingInsets.right;
     }
     final int right = floatBounds.getRight(newLineY);
-    if (right < paddingInsets.right) {
-      return paddingInsets.right;
-    }
-    return right;
+    return Math.max(right, paddingInsets.right);
   }
 
   private static final SizeExceededException SEE = new SizeExceededException();
@@ -2629,7 +2626,7 @@ public class RBlockViewport extends BaseRCollection {
         }
         break;
       }
-      if (boxWidth <= (desiredWidth - rightOffset - leftOffset)) {
+      if ((desiredWidth <= 0) || boxWidth <= (desiredWidth - rightOffset - leftOffset)) {
         // Size is fine.
         break;
       }
