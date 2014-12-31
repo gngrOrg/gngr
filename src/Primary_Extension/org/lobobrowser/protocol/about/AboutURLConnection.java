@@ -35,6 +35,7 @@ import java.util.Collection;
 import java.util.Properties;
 import java.util.TreeSet;
 
+import org.lobobrowser.main.PlatformInit;
 import org.lobobrowser.primary.ext.BookmarkInfo;
 import org.lobobrowser.primary.ext.BookmarksHistory;
 import org.lobobrowser.primary.ext.HistoryEntry;
@@ -122,11 +123,14 @@ public class AboutURLConnection extends URLConnection {
   }
 
   private static String getWelcomeMessage() {
+    final Properties relProps = PlatformInit.getInstance().relProps;
+
     return
         "<div style='max-width:900px;margin:0 auto;text-align:center;'>"
         +
-        "<h1>Welcome to gngr</h1>"
-        +
+        "<h1>Welcome to gngr</h1>" +
+        "<p>Version: " + relProps.getProperty(PlatformInit.RELEASE_VERSION_STRING) + "<br/>" +
+        "Published on: " + relProps.getProperty(PlatformInit.RELEASE_VERSION_RELEASE_DATE) + "</p>" +
         "<p><b>gngr</b> is a browser that cares deeply about privacy.</p>"
         +
         "<p>It is currently a proof-of-concept, and not very stable or secure.</p>"
