@@ -1533,7 +1533,7 @@ public class RBlockViewport extends BaseRCollection {
       return new InputTextControl(markupElement);
     }
     type = type.toLowerCase();
-    if ("text".equals(type) || (type.length() == 0)) {
+    if ("text".equals(type) || "url".equals(type) || (type.length() == 0)) {
       return new InputTextControl(markupElement);
     } else if ("hidden".equals(type)) {
       return null;
