@@ -288,18 +288,21 @@ public class PlatformInit {
     initExtensions();
   }
 
+  public final Properties relProps = new Properties();
+  public static final String RELEASE_VERSION_RELEASE_DATE = "version.releaseDate";
+  public static final String RELEASE_VERSION_STRING = "version.string";
+
   private void checkReleaseDate() {
     final InputStream relStream = getClass().getResourceAsStream("/properties/release.properties");
-    final Properties relProps = new Properties();
     try {
       relProps.load(relStream);
-      final String dateStr = relProps.getProperty("version.releaseDate");
+      final String dateStr = relProps.getProperty(RELEASE_VERSION_RELEASE_DATE);
       final SimpleDateFormat yyyyMMDDFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
       final Date releaseDate = yyyyMMDDFormat.parse(dateStr);
       final Date releaseDatePlus30Days = new Date(releaseDate.getTime() + THIRTY_DAYS_MILLIS);
       final Date currDate = new Date(System.currentTimeMillis());
       if (releaseDatePlus30Days.before(currDate)) {
-        final String version = relProps.getProperty("version.string");
+        final String version = relProps.getProperty(RELEASE_VERSION_STRING);
         final String checkForUpdatesMessage = "<html><h3><center>This version of gngr is old</center></h3><p>gngr "
             + version
             + "</p><p>Released on: "
