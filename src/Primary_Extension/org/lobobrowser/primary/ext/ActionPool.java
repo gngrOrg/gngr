@@ -25,6 +25,7 @@ import java.awt.event.KeyEvent;
 import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,6 +33,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JFileChooser;
 
+import org.lobobrowser.main.PlatformInit;
 import org.lobobrowser.primary.gui.SearchDialog;
 import org.lobobrowser.primary.gui.prefs.PreferencesDialog;
 import org.lobobrowser.primary.settings.ToolsSettings;
@@ -292,9 +294,12 @@ public class ActionPool {
   }
 
   class AboutAction extends AbstractAction {
+    final Properties relProps = PlatformInit.getInstance().relProps;
     public void actionPerformed(final ActionEvent e) {
       window.getTopFrame().alert(
           "gngr, a pure java web browser.\r\n"
+              + "Version " + relProps.getProperty(PlatformInit.RELEASE_VERSION_STRING) + "\r\n"
+              + "Published on: " + relProps.getProperty(PlatformInit.RELEASE_VERSION_RELEASE_DATE) + "\r\n"
               + "copyright (c) 2014  Uproot Labs\r\n"
               + "copyright (c) 2005, 2008 The Lobo Project.\r\n"
               + window.getUserAgent().getInfoUrl());
