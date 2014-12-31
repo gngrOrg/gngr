@@ -31,7 +31,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.lobobrowser.js.AbstractScriptableDelegate;
+import org.lobobrowser.js.JavaScript;
 import org.lobobrowser.util.Nodes;
+import org.lobobrowser.util.Objects;
 import org.w3c.dom.Node;
 import org.w3c.dom.html.HTMLCollection;
 
@@ -113,6 +115,31 @@ public class DescendentHTMLCollection extends AbstractScriptableDelegate impleme
       } catch (final java.lang.IndexOutOfBoundsException iob) {
         return null;
       }
+    }
+  }
+
+  public Node item(final Object obj) {
+    // Assuming that non integer calls are supposed to be treated as zero, as per this test:
+    // https://github.com/w3c/web-platform-tests/blob/master/dom/nodes/Element-children.html#L10
+    // Reported bug https://github.com/w3c/web-platform-tests/issues/1264
+    if (obj instanceof Integer) {
+      final Integer index = (Integer) obj;
+      return item((int) index);
+    }
+    return item(0);
+  }
+
+  /* Quick hack to get w3c tests working. This function very likely needs to
+   * be included for every JS object. */
+  public boolean hasOwnProperty(final Object obj) {
+    System.out.println("Checking " + obj);
+    if (Objects.isAssignableOrBox(obj, Integer.TYPE)) {
+      // if (obj instanceof Integer) {
+      final Integer i = (Integer) JavaScript.getInstance().getJavaObject(obj, Integer.TYPE);
+      // final Integer i = (Integer) obj;
+      return i < getLength();
+    } else {
+      return false;
     }
   }
 

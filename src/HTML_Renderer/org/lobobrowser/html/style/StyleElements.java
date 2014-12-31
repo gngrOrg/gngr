@@ -23,10 +23,11 @@ public class StyleElements {
       //Analyze HTML attributes
       String attrs = "";
       final String tagName = el.getTagName();
-      if ("table".equals(tagName)) {
+      // Converting to uppercase because getTagName() is now returning upper case
+      if ("TABLE".equals(tagName)) {
         //setting table and cell borders
         attrs = getTableElementStyle(el, attrs);
-      } else if ("font".equals(tagName)) {
+      } else if ("FONT".equals(tagName)) {
         //Text properties
         attrs = getFontElementStyle(el, attrs);
       }

@@ -129,6 +129,9 @@ public class NetworkRequestImpl implements NetworkRequest {
   private volatile RequestHandler currentRequestHandler;
 
   public void abort() {
+    this.readyState = NetworkRequest.STATE_ABORTED;
+    this.READY_STATE_CHANGE.fireEvent(new NetworkRequestEvent(this, this.readyState));
+
     final RequestHandler rhToDelete = this.currentRequestHandler;
     if (rhToDelete != null) {
       RequestEngine.getInstance().cancelRequest(rhToDelete);
@@ -202,6 +205,8 @@ public class NetworkRequestImpl implements NetworkRequest {
       } catch (final Exception err) {
         logger.log(Level.SEVERE, "open()", err);
       }
+    } else {
+      abort();
     }
   }
 
@@ -213,81 +218,93 @@ public class NetworkRequestImpl implements NetworkRequest {
     });
   }
 
+  public boolean isAsnyc() {
+    return isAsynchronous;
+  }
+
   private void changeReadyState(final int newState) {
     this.readyState = newState;
     this.READY_STATE_CHANGE.fireEvent(new NetworkRequestEvent(this, newState));
   }
 
   private void setResponse(final ClientletResponse response) {
-    if (response.isFromCache()) {
-      final Object cachedResponse = response.getTransientCachedObject();
-      if (cachedResponse instanceof CacheableResponse) {
-        // It can be of a different type.
-        final CacheableResponse cr = (CacheableResponse) cachedResponse;
-        this.changeReadyState(NetworkRequest.STATE_LOADING);
-        this.localResponse = cr.newLocalResponse(response);
-        this.changeReadyState(NetworkRequest.STATE_LOADED);
-        this.changeReadyState(NetworkRequest.STATE_INTERACTIVE);
-        this.changeReadyState(NetworkRequest.STATE_COMPLETE);
-        return;
-      }
-    }
-    try {
-      this.changeReadyState(NetworkRequest.STATE_LOADING);
-      final LocalResponse newResponse = new LocalResponse(response);
-      this.localResponse = newResponse;
-      this.changeReadyState(NetworkRequest.STATE_LOADED);
-      final int cl = response.getContentLength();
-      final InputStream in = response.getInputStream();
-      final int bufferSize = cl == -1 ? 8192 : Math.min(cl, 8192);
-      final byte[] buffer = new byte[bufferSize];
-      int numRead;
-      int readSoFar = 0;
-      boolean firstTime = true;
-      final ClientletContext threadContext = ClientletAccess.getCurrentClientletContext();
-      NavigatorProgressEvent prevProgress = null;
-      if (threadContext != null) {
-        prevProgress = threadContext.getProgressEvent();
+    final Runnable runnable = () -> {
+      if (response.isFromCache()) {
+        final Object cachedResponse = response.getTransientCachedObject();
+        if (cachedResponse instanceof CacheableResponse) {
+          // It can be of a different type.
+          final CacheableResponse cr = (CacheableResponse) cachedResponse;
+          this.changeReadyState(NetworkRequest.STATE_LOADING);
+          this.localResponse = cr.newLocalResponse(response);
+          this.changeReadyState(NetworkRequest.STATE_LOADED);
+          this.changeReadyState(NetworkRequest.STATE_INTERACTIVE);
+          this.changeReadyState(NetworkRequest.STATE_COMPLETE);
+          return;
+        }
       }
       try {
-        long lastProgress = 0;
-        while ((numRead = in.read(buffer)) != -1) {
-          if (numRead == 0) {
-            if (logger.isLoggable(Level.INFO)) {
-              logger.info("setResponse(): Read zero bytes from " + response.getResponseURL());
-            }
-            break;
-          }
-          readSoFar += numRead;
-          if (threadContext != null) {
-            final long currentTime = System.currentTimeMillis();
-            if ((currentTime - lastProgress) > 500) {
-              lastProgress = currentTime;
-              threadContext.setProgressEvent(ProgressType.CONTENT_LOADING, readSoFar, cl, response.getResponseURL());
-            }
-          }
-          newResponse.writeBytes(buffer, 0, numRead);
-          if (firstTime) {
-            firstTime = false;
-            this.changeReadyState(NetworkRequest.STATE_INTERACTIVE);
-          }
-        }
-      } finally {
+        this.changeReadyState(NetworkRequest.STATE_LOADING);
+        final LocalResponse newResponse = new LocalResponse(response);
+        this.localResponse = newResponse;
+        this.changeReadyState(NetworkRequest.STATE_LOADED);
+        final int cl = response.getContentLength();
+        final InputStream in = response.getInputStream();
+        final int bufferSize = cl == -1 ? 8192 : Math.min(cl, 8192);
+        final byte[] buffer = new byte[bufferSize];
+        int numRead;
+        int readSoFar = 0;
+        boolean firstTime = true;
+        final ClientletContext threadContext = ClientletAccess.getCurrentClientletContext();
+        NavigatorProgressEvent prevProgress = null;
         if (threadContext != null) {
-          threadContext.setProgressEvent(prevProgress);
+          prevProgress = threadContext.getProgressEvent();
         }
+        try {
+          long lastProgress = 0;
+          while ((numRead = in.read(buffer)) != -1) {
+            if (numRead == 0) {
+              if (logger.isLoggable(Level.INFO)) {
+                logger.info("setResponse(): Read zero bytes from " + response.getResponseURL());
+              }
+              break;
+            }
+            readSoFar += numRead;
+            if (threadContext != null) {
+              final long currentTime = System.currentTimeMillis();
+              if ((currentTime - lastProgress) > 500) {
+                lastProgress = currentTime;
+                threadContext.setProgressEvent(ProgressType.CONTENT_LOADING, readSoFar, cl, response.getResponseURL());
+              }
+            }
+            newResponse.writeBytes(buffer, 0, numRead);
+            if (firstTime) {
+              firstTime = false;
+              this.changeReadyState(NetworkRequest.STATE_INTERACTIVE);
+            }
+          }
+        } finally {
+          if (threadContext != null) {
+            threadContext.setProgressEvent(prevProgress);
+          }
+        }
+        newResponse.setComplete(true);
+        // The following should return non-null if the response is complete.
+        final CacheableResponse cacheable = newResponse.getCacheableResponse();
+        if (cacheable != null) {
+          response.setNewTransientCachedObject(cacheable, cacheable.getEstimatedSize());
+        }
+        this.changeReadyState(NetworkRequest.STATE_COMPLETE);
+      } catch (final IOException ioe) {
+        logger.log(Level.WARNING, "setResponse()", ioe);
+        this.localResponse = null;
+        this.changeReadyState(NetworkRequest.STATE_COMPLETE);
       }
-      newResponse.setComplete(true);
-      // The following should return non-null if the response is complete.
-      final CacheableResponse cacheable = newResponse.getCacheableResponse();
-      if (cacheable != null) {
-        response.setNewTransientCachedObject(cacheable, cacheable.getEstimatedSize());
-      }
-      this.changeReadyState(NetworkRequest.STATE_COMPLETE);
-    } catch (final IOException ioe) {
-      logger.log(Level.WARNING, "setResponse()", ioe);
-      this.localResponse = null;
-      this.changeReadyState(NetworkRequest.STATE_COMPLETE);
+    };
+    if (isAsynchronous) {
+      // TODO: Use the JS queue to schedule this
+      runnable.run();
+    } else {
+      runnable.run();
     }
   }
 

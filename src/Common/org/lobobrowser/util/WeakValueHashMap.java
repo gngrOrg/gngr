@@ -109,8 +109,8 @@ public class WeakValueHashMap<K, V> implements Map<K, V> {
     checkQueue();
     final Stream<V> m =
         this.map.values().stream()
-            .map(t -> t == null ? null : t.get())
-            .filter(t -> t != null);
+        .map(t -> t == null ? null : t.get())
+        .filter(t -> t != null);
     return m.collect(Collectors.toList());
   }
 

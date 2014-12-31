@@ -13,8 +13,10 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.lobobrowser.html.js.Window.JSRunnableTask;
 import org.lobobrowser.js.AbstractScriptableDelegate;
 import org.lobobrowser.js.JavaScript;
+import org.lobobrowser.security.StoreHostPermission;
 import org.lobobrowser.ua.NetworkRequest;
 import org.lobobrowser.ua.UserAgentContext;
 import org.lobobrowser.ua.UserAgentContext.Request;
@@ -36,11 +38,15 @@ public class XMLHttpRequest extends AbstractScriptableDelegate {
   private final Scriptable scope;
   private final java.net.URL codeSource;
 
-  public XMLHttpRequest(final UserAgentContext pcontext, final java.net.URL codeSource, final Scriptable scope) {
+  // TODO: This is a quick hack
+  private final Window window;
+
+  public XMLHttpRequest(final UserAgentContext pcontext, final java.net.URL codeSource, final Scriptable scope, final Window window) {
     this.request = pcontext.createHttpRequest();
     this.pcontext = pcontext;
     this.scope = scope;
     this.codeSource = codeSource;
+    this.window = window;
   }
 
   public void abort() {
@@ -114,21 +120,38 @@ public class XMLHttpRequest extends AbstractScriptableDelegate {
   }
 
   public void send(final String content) throws IOException {
+    System.out.println(" Sending " + content);
     final Optional<URL> urlOpt = request.getURL();
     if (urlOpt.isPresent()) {
       final URL url = urlOpt.get();
       if (isSameOrigin(url, codeSource)) {
         final URLPermission urlPermission = new URLPermission(url.toExternalForm());
         final SocketPermission socketPermission = new SocketPermission(url.getHost() + ":" + Urls.getPort(url), "connect,resolve");
-        final PrivilegedExceptionAction<Object> action = () -> {
-          request.send(content, new Request(url, RequestKind.XHR));
-          return null;
+        final StoreHostPermission storeHostPermission = StoreHostPermission.forURL(url);
+        final PrivilegedExceptionAction<Object> action = new PrivilegedExceptionAction<Object>() {
+          @Override
+          public Object run() throws Exception {
+            request.send(content, new Request(url, RequestKind.XHR));
+            return null;
+          }
         };
+        // if (request.isAsnyc()) {
+        // window.addJSTask(new JSRunnableTask(0, "xhr async request", () -> {
+        // try {
+        // // AccessController.doPrivileged(action, null, urlPermission, socketPermission, storeHostPermission);
+        // AccessController.doPrivileged(action);
+        // } catch (final PrivilegedActionException e) {
+        // e.printStackTrace();
+        // }
+        // }));
+        // } else {
         try {
-          AccessController.doPrivileged(action, null, urlPermission, socketPermission);
+          // AccessController.doPrivileged(action, null, urlPermission, socketPermission, storeHostPermission);
+          AccessController.doPrivileged(action);
         } catch (final PrivilegedActionException e) {
           throw (IOException) e.getCause();
         }
+        // }
       } else {
         final String msg = String.format("Failed to execute 'send' on 'XMLHttpRequest': Failed to load '%s'", url.toExternalForm());
         // TODO: The code 19 is being hard-coded here to match Chromium's code. Better to declare a static constant in a subclass of DOMException.
@@ -163,48 +186,84 @@ public class XMLHttpRequest extends AbstractScriptableDelegate {
     }
   }
 
+  private Function onLoad;
+  private boolean listenerAddedLoad;
+
+  public void setOnload(final Function value) {
+    System.out.println("Setting onload: " + value);
+    synchronized (this) {
+      this.onLoad = value;
+      if ((value != null) && !this.listenerAdded) {
+        this.request.addNetworkRequestListener(netEvent -> executeReadyStateChange());
+        this.listenerAdded = true;
+      }
+    }
+  }
+
   private void executeReadyStateChange() {
+    System.out.println(" Ready state: " + request.getReadyState());
     // Not called in GUI thread to ensure consistency of readyState.
     try {
       final Function f = XMLHttpRequest.this.getOnreadystatechange();
       if (f != null) {
-        final Context ctx = Executor.createContext(this.codeSource, this.pcontext);
+        // window.addJSTask(new JSRunnableTask(0, "xhr ready state changed: " + request.getReadyState(), () -> {
+        final Context ctx = Executor.createContext(this.codeSource, this.pcontext, window.windowFactory);
         try {
           final Scriptable newScope = (Scriptable) JavaScript.getInstance().getJavascriptObject(XMLHttpRequest.this, this.scope);
           f.call(ctx, newScope, newScope, new Object[0]);
         } finally {
           Context.exit();
         }
+        // }));
       }
     } catch (final Exception err) {
       logger.log(Level.WARNING, "Error processing ready state change.", err);
+    }
+
+    if (request.getReadyState() == NetworkRequest.STATE_COMPLETE) {
+      try {
+        final Function f = this.onLoad;
+        if (f != null) {
+          window.addJSTaskUnchecked(new JSRunnableTask(0, "xhr on load : ", () -> {
+            final Context ctx = Executor.createContext(this.codeSource, this.pcontext, window.windowFactory);
+            try {
+              final Scriptable newScope = (Scriptable) JavaScript.getInstance().getJavascriptObject(XMLHttpRequest.this, this.scope);
+              f.call(ctx, newScope, newScope, new Object[0]);
+            } finally {
+              Context.exit();
+            }
+          }));
+        }
+      } catch (final Exception err) {
+        logger.log(Level.WARNING, "Error processing ready state change.", err);
+      }
     }
   }
 
   // This list comes from https://dvcs.w3.org/hg/xhr/raw-file/tip/Overview.html#the-setrequestheader()-method
   // It has been lower-cased for faster comparison
   private static String[] prohibitedHeaders = {
-    "accept-charset",
-    "accept-encoding",
-    "access-control-request-headers",
-    "access-control-request-method",
-    "connection",
-    "content-length",
-    "cookie",
-    "cookie2",
-    "date",
-    "dnt",
-    "expect",
-    "host",
-    "keep-alive",
-    "origin",
-    "referer",
-    "te",
-    "trailer",
-    "transfer-encoding",
-    "upgrade",
-    "user-agent",
-    "via"
+      "accept-charset",
+      "accept-encoding",
+      "access-control-request-headers",
+      "access-control-request-method",
+      "connection",
+      "content-length",
+      "cookie",
+      "cookie2",
+      "date",
+      "dnt",
+      "expect",
+      "host",
+      "keep-alive",
+      "origin",
+      "referer",
+      "te",
+      "trailer",
+      "transfer-encoding",
+      "upgrade",
+      "user-agent",
+      "via"
   };
 
   private static boolean isProhibited(final String header) {

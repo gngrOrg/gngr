@@ -80,8 +80,8 @@ public class ReuseManager {
         // Look for running VM
         int port = -1;
         try (
-            final InputStream in = new FileInputStream(portFile);
-            final DataInputStream din = new DataInputStream(in);) {
+          final InputStream in = new FileInputStream(portFile);
+          final DataInputStream din = new DataInputStream(in);) {
           port = din.readInt();
         } catch (final java.io.EOFException eofe) {
           eofe.printStackTrace(System.err);
@@ -91,11 +91,11 @@ public class ReuseManager {
         }
         if (port != -1) {
           try (
-              final Socket s = new Socket(bindHost, port);) {
+            final Socket s = new Socket(bindHost, port);) {
             s.setTcpNoDelay(true);
             try (
-                final OutputStream out = s.getOutputStream();
-                final OutputStreamWriter writer = new OutputStreamWriter(out);) {
+              final OutputStream out = s.getOutputStream();
+              final OutputStreamWriter writer = new OutputStreamWriter(out);) {
               boolean hadPath = false;
               for (final String arg : args) {
                 final String url = arg;
@@ -136,8 +136,8 @@ public class ReuseManager {
         }
 
         try (
-            final OutputStream out = new FileOutputStream(portFile);
-            final DataOutputStream dout = new DataOutputStream(out);) {
+          final OutputStream out = new FileOutputStream(portFile);
+          final DataOutputStream dout = new DataOutputStream(out);) {
           dout.writeInt(port);
           dout.flush();
         }

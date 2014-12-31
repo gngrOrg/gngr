@@ -624,8 +624,9 @@ public final class ComputedJStyleProperties extends JStyleProperties {
     throw new UnsupportedOperationException();
   }
 
+  // TODO: Temporary made public
   @Override
-  protected NodeData getNodeData() {
+  public NodeData getNodeData() {
     return this.nodeData;
   }
 }
