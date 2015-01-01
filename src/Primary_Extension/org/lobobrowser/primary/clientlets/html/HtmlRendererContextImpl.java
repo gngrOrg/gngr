@@ -362,8 +362,31 @@ public class HtmlRendererContextImpl implements HtmlRendererContext {
       popupMenu.addSeparator();
     }
 
-    popupMenu.add("Go Back (TODO)");
-    popupMenu.add("Go Forward (TODO)");
+    final boolean prevPresent = getPreviousURL().isPresent();
+    final boolean nextPresent = getNextURL().isPresent();
+    {
+      final JMenuItem menuItem = new JMenuItem("Back");
+      menuItem.addActionListener(e -> {
+        HtmlRendererContextImpl.this.back();
+      });
+      menuItem.setEnabled(prevPresent);
+      popupMenu.add(menuItem);
+    }
+    {
+      final JMenuItem menuItem = new JMenuItem("Reload");
+      menuItem.addActionListener(e -> {
+        HtmlRendererContextImpl.this.reload();
+      });
+      popupMenu.add(menuItem);
+    }
+    {
+      final JMenuItem menuItem = new JMenuItem("Forward");
+      menuItem.addActionListener(e -> {
+        HtmlRendererContextImpl.this.forward();
+      });
+      menuItem.setEnabled(nextPresent);
+      popupMenu.add(menuItem);
+    }
   }
 
   public void onMouseOut(final HTMLElement element, final MouseEvent event) {
