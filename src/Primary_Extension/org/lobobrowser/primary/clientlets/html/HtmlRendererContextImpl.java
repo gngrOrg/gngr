@@ -27,6 +27,7 @@ import java.awt.Cursor;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.lang.ref.WeakReference;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 import java.util.Optional;
@@ -35,12 +36,16 @@ import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+
 import org.lobobrowser.html.BrowserFrame;
 import org.lobobrowser.html.FormInput;
 import org.lobobrowser.html.HtmlObject;
 import org.lobobrowser.html.HtmlRendererContext;
 import org.lobobrowser.html.domimpl.FrameNode;
 import org.lobobrowser.html.domimpl.HTMLDocumentImpl;
+import org.lobobrowser.html.domimpl.HTMLImageElementImpl;
 import org.lobobrowser.html.domimpl.HTMLLinkElementImpl;
 import org.lobobrowser.html.gui.HtmlPanel;
 import org.lobobrowser.request.DomainValidation;
@@ -318,7 +323,47 @@ public class HtmlRendererContextImpl implements HtmlRendererContext {
   }
 
   public boolean onContextMenu(final HTMLElement element, final MouseEvent event) {
+    final JPopupMenu popupMenu = new JPopupMenu();
+    if (popupMenu.isPopupTrigger(event)) {
+      populatePopup(element, popupMenu);
+
+      popupMenu.show(event.getComponent(), event.getX(), event.getY());
+      return false;
+    }
     return true;
+  }
+
+  private void populatePopup(final HTMLElement element, final JPopupMenu popupMenu) {
+    boolean componentEntriesAdded = false;
+    if (element instanceof HTMLLinkElementImpl) {
+      final HTMLLinkElementImpl link = (HTMLLinkElementImpl) element;
+      final JMenuItem menuItem = new JMenuItem("Open link in new window");
+      menuItem.addActionListener(e -> {
+        HtmlRendererContextImpl.this.open(link.getAbsoluteHref(), "new window", null, false);
+      });
+      popupMenu.add(menuItem);
+      componentEntriesAdded = true;
+    } else if (element instanceof HTMLImageElementImpl) {
+      final HTMLImageElementImpl img = (HTMLImageElementImpl) element;
+      try {
+        final URL srcUrl = img.getFullURL(img.getSrc());
+        final JMenuItem menuItem = new JMenuItem("Open image in new window");
+        menuItem.addActionListener(e -> {
+          HtmlRendererContextImpl.this.open(srcUrl, "new window", null, false);
+        });
+        popupMenu.add(menuItem);
+        componentEntriesAdded = true;
+      } catch (MalformedURLException e) {
+        logger.log(Level.INFO, "Couldn't get Image URL", e);
+      }
+    }
+
+    if (componentEntriesAdded) {
+      popupMenu.addSeparator();
+    }
+
+    popupMenu.add("Go Back (TODO)");
+    popupMenu.add("Go Forward (TODO)");
   }
 
   public void onMouseOut(final HTMLElement element, final MouseEvent event) {
