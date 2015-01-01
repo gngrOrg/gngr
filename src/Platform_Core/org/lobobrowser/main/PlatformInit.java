@@ -48,6 +48,7 @@ import java.util.logging.Logger;
 import javax.net.ssl.SSLSocketFactory;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
 
 import org.lobobrowser.gui.ConsoleModel;
 import org.lobobrowser.gui.DefaultWindowFactory;
@@ -139,7 +140,22 @@ public class PlatformInit {
    */
   public void initLookAndFeel() throws Exception {
     // Set appropriate Swing L&F
-    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+    boolean nimbusApplied = false;
+    try {
+      for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+        if ("Nimbus".equals(info.getName())) {
+          UIManager.setLookAndFeel(info.getClassName());
+          nimbusApplied = true;
+          break;
+        }
+      }
+    } catch (final Exception e) {
+      e.printStackTrace();
+    }
+
+    if (!nimbusApplied) {
+      UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+    }
   }
 
   public boolean isCodeLocationDirectory() {
