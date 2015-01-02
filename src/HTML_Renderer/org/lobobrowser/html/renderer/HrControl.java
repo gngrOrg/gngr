@@ -23,29 +23,14 @@
  */
 package org.lobobrowser.html.renderer;
 
-import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FontMetrics;
 import java.awt.Graphics;
 
 import org.lobobrowser.html.domimpl.HTMLElementImpl;
-import org.lobobrowser.html.style.RenderState;
 
 class HrControl extends BaseControl {
   public HrControl(final HTMLElementImpl modelNode) {
     super(modelNode);
-  }
-
-  @Override
-  public void paintComponent(final Graphics g) {
-    super.paintComponent(g);
-    final Dimension size = this.getSize();
-    final int offset = 8;
-    final int x = offset;
-    final int y = (size.height / 2) - 1;
-    final int width = size.width - (offset * 2);
-    g.setColor(Color.black);
-    g.drawRect(x, y, width, 2);
   }
 
   public boolean paintSelection(final Graphics g, final boolean inSelection, final RenderableSpot startPoint, final RenderableSpot endPoint) {
@@ -61,8 +46,6 @@ class HrControl extends BaseControl {
 
   @Override
   public Dimension getPreferredSize() {
-    final RenderState rs = this.controlElement.getRenderState();
-    final FontMetrics fm = rs.getFontMetrics();
-    return new Dimension(this.availWidth, fm.getHeight());
+    return new Dimension(this.availWidth, 0);
   }
 }
