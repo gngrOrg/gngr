@@ -334,29 +334,7 @@ public class HtmlRendererContextImpl implements HtmlRendererContext {
   }
 
   private void populatePopup(final HTMLElement element, final JPopupMenu popupMenu) {
-    boolean componentEntriesAdded = false;
-    if (element instanceof HTMLLinkElementImpl) {
-      final HTMLLinkElementImpl link = (HTMLLinkElementImpl) element;
-      final JMenuItem menuItem = new JMenuItem("Open link in new window");
-      menuItem.addActionListener(e -> {
-        HtmlRendererContextImpl.this.open(link.getAbsoluteHref(), "new window", null, false);
-      });
-      popupMenu.add(menuItem);
-      componentEntriesAdded = true;
-    } else if (element instanceof HTMLImageElementImpl) {
-      final HTMLImageElementImpl img = (HTMLImageElementImpl) element;
-      try {
-        final URL srcUrl = img.getFullURL(img.getSrc());
-        final JMenuItem menuItem = new JMenuItem("Open image in new window");
-        menuItem.addActionListener(e -> {
-          HtmlRendererContextImpl.this.open(srcUrl, "new window", null, false);
-        });
-        popupMenu.add(menuItem);
-        componentEntriesAdded = true;
-      } catch (MalformedURLException e) {
-        logger.log(Level.INFO, "Couldn't get Image URL", e);
-      }
-    }
+    final boolean componentEntriesAdded = populatePopupForElement(element, popupMenu);
 
     if (componentEntriesAdded) {
       popupMenu.addSeparator();
@@ -387,6 +365,33 @@ public class HtmlRendererContextImpl implements HtmlRendererContext {
       menuItem.setEnabled(nextPresent);
       popupMenu.add(menuItem);
     }
+  }
+
+  private boolean populatePopupForElement(final HTMLElement element, final JPopupMenu popupMenu) {
+    boolean componentEntriesAdded = false;
+    if (element instanceof HTMLLinkElementImpl) {
+      final HTMLLinkElementImpl link = (HTMLLinkElementImpl) element;
+      final JMenuItem menuItem = new JMenuItem("Open link in new window");
+      menuItem.addActionListener(e -> {
+        HtmlRendererContextImpl.this.open(link.getAbsoluteHref(), "new window", null, false);
+      });
+      popupMenu.add(menuItem);
+      componentEntriesAdded = true;
+    } else if (element instanceof HTMLImageElementImpl) {
+      final HTMLImageElementImpl img = (HTMLImageElementImpl) element;
+      try {
+        final URL srcUrl = img.getFullURL(img.getSrc());
+        final JMenuItem menuItem = new JMenuItem("Open image in new window");
+        menuItem.addActionListener(e -> {
+          HtmlRendererContextImpl.this.open(srcUrl, "new window", null, false);
+        });
+        popupMenu.add(menuItem);
+        componentEntriesAdded = true;
+      } catch (final MalformedURLException e) {
+        logger.log(Level.INFO, "Couldn't get Image URL", e);
+      }
+    }
+    return componentEntriesAdded;
   }
 
   public void onMouseOut(final HTMLElement element, final MouseEvent event) {
