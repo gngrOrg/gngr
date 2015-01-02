@@ -58,6 +58,7 @@ import org.lobobrowser.ua.RequestType;
 import org.lobobrowser.ua.TargetType;
 import org.lobobrowser.ua.UserAgentContext;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.w3c.dom.html.HTMLCollection;
 import org.w3c.dom.html.HTMLElement;
 import org.w3c.dom.html.HTMLLinkElement;
@@ -368,30 +369,35 @@ public class HtmlRendererContextImpl implements HtmlRendererContext {
   }
 
   private boolean populatePopupForElement(final HTMLElement element, final JPopupMenu popupMenu) {
-    boolean componentEntriesAdded = false;
-    if (element instanceof HTMLLinkElementImpl) {
-      final HTMLLinkElementImpl link = (HTMLLinkElementImpl) element;
-      final JMenuItem menuItem = new JMenuItem("Open link in new window");
-      menuItem.addActionListener(e -> {
-        HtmlRendererContextImpl.this.open(link.getAbsoluteHref(), "new window", null, false);
-      });
-      popupMenu.add(menuItem);
-      componentEntriesAdded = true;
-    } else if (element instanceof HTMLImageElementImpl) {
-      final HTMLImageElementImpl img = (HTMLImageElementImpl) element;
-      try {
-        final URL srcUrl = img.getFullURL(img.getSrc());
-        final JMenuItem menuItem = new JMenuItem("Open image in new window");
+    boolean linkEntryAdded = false;
+    boolean imageEntryAdded = false;
+    Node currElement = element;
+    while (currElement != null) {
+      if ((!linkEntryAdded) && currElement instanceof HTMLLinkElementImpl) {
+        final HTMLLinkElementImpl link = (HTMLLinkElementImpl) currElement;
+        final JMenuItem menuItem = new JMenuItem("Open link in new window");
         menuItem.addActionListener(e -> {
-          HtmlRendererContextImpl.this.open(srcUrl, "new window", null, false);
+          HtmlRendererContextImpl.this.open(link.getAbsoluteHref(), "new window", null, false);
         });
         popupMenu.add(menuItem);
-        componentEntriesAdded = true;
-      } catch (final MalformedURLException e) {
-        logger.log(Level.INFO, "Couldn't get Image URL", e);
+        linkEntryAdded = true;
+      } else if ((!imageEntryAdded) && currElement instanceof HTMLImageElementImpl) {
+        final HTMLImageElementImpl img = (HTMLImageElementImpl) currElement;
+        try {
+          final URL srcUrl = img.getFullURL(img.getSrc());
+          final JMenuItem menuItem = new JMenuItem("Open image in new window");
+          menuItem.addActionListener(e -> {
+            HtmlRendererContextImpl.this.open(srcUrl, "new window", null, false);
+          });
+          popupMenu.add(menuItem);
+          imageEntryAdded = true;
+        } catch (final MalformedURLException e) {
+          logger.log(Level.INFO, "Couldn't get Image URL", e);
+        }
       }
+      currElement = currElement.getParentNode();
     }
-    return componentEntriesAdded;
+    return linkEntryAdded || imageEntryAdded;
   }
 
   public void onMouseOut(final HTMLElement element, final MouseEvent event) {
