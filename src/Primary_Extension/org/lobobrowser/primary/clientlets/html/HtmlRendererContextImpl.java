@@ -24,6 +24,9 @@ GNU GENERAL PUBLIC LICENSE
 package org.lobobrowser.primary.clientlets.html;
 
 import java.awt.Cursor;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -375,21 +378,37 @@ public class HtmlRendererContextImpl implements HtmlRendererContext {
     while (currElement != null) {
       if ((!linkEntryAdded) && currElement instanceof HTMLLinkElementImpl) {
         final HTMLLinkElementImpl link = (HTMLLinkElementImpl) currElement;
-        final JMenuItem menuItem = new JMenuItem("Open link in new window");
-        menuItem.addActionListener(e -> {
+        final JMenuItem openLinkMenuItem = new JMenuItem("Open link in new window");
+        openLinkMenuItem.addActionListener(e -> {
           HtmlRendererContextImpl.this.open(link.getAbsoluteHref(), "new window", null, false);
         });
-        popupMenu.add(menuItem);
+        popupMenu.add(openLinkMenuItem);
+
+        final JMenuItem copyLinkMenuItem = new JMenuItem("Copy link");
+        copyLinkMenuItem.addActionListener(e -> {
+          final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+          clipboard.setContents(new StringSelection(link.getAbsoluteHref()), null);
+        });
+        popupMenu.add(copyLinkMenuItem);
+
         linkEntryAdded = true;
       } else if ((!imageEntryAdded) && currElement instanceof HTMLImageElementImpl) {
         final HTMLImageElementImpl img = (HTMLImageElementImpl) currElement;
         try {
           final URL srcUrl = img.getFullURL(img.getSrc());
-          final JMenuItem menuItem = new JMenuItem("Open image in new window");
-          menuItem.addActionListener(e -> {
+          final JMenuItem openImageMenuItem = new JMenuItem("Open image in new window");
+          openImageMenuItem.addActionListener(e -> {
             HtmlRendererContextImpl.this.open(srcUrl, "new window", null, false);
           });
-          popupMenu.add(menuItem);
+          popupMenu.add(openImageMenuItem);
+
+          final JMenuItem copyImageURLMenuItem = new JMenuItem("Copy Image URL");
+          copyImageURLMenuItem.addActionListener(e -> {
+            final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            clipboard.setContents(new StringSelection(srcUrl.toExternalForm()), null);
+          });
+          popupMenu.add(copyImageURLMenuItem);
+
           imageEntryAdded = true;
         } catch (final MalformedURLException e) {
           logger.log(Level.INFO, "Couldn't get Image URL", e);
