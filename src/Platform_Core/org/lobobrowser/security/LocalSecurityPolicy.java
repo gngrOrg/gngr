@@ -33,12 +33,14 @@ import java.net.URL;
 import java.net.URLPermission;
 import java.security.AccessControlException;
 import java.security.AccessController;
+import java.security.AllPermission;
 import java.security.CodeSource;
 import java.security.Permission;
 import java.security.PermissionCollection;
 import java.security.Permissions;
 import java.security.Policy;
 import java.security.PrivilegedAction;
+import java.security.ProtectionDomain;
 import java.security.SecurityPermission;
 import java.util.Arrays;
 import java.util.Collection;
@@ -47,6 +49,8 @@ import java.util.PropertyPermission;
 import java.util.StringTokenizer;
 
 import javax.net.ssl.SSLPermission;
+
+import jdk.net.NetworkPermission;
 
 import org.lobobrowser.main.ExtensionManager;
 import org.lobobrowser.main.PlatformInit;
@@ -58,6 +62,9 @@ public class LocalSecurityPolicy extends Policy {
   private static final String JAVA_HOME = System.getProperty("java.home");
   private static final String JAVA_CLASS_PATH = System.getProperty("java.class.path");
   private static final String PATH_SEPARATOR = System.getProperty("path.separator");
+
+  // For js debugger
+  private static final String USER_HOME = System.getProperty("user.home");
 
   /**
    * Directory where gngr should save files. Any files saved here have
@@ -137,6 +144,13 @@ public class LocalSecurityPolicy extends Policy {
     CORE_PERMISSIONS.add(new SecurityPermission("removeProvider.*"));
     CORE_PERMISSIONS.add(new java.util.logging.LoggingPermission("control", null));
     CORE_PERMISSIONS.add(GenericLocalPermission.EXT_GENERIC);
+
+    // For stopping JS Scheduler
+    CORE_PERMISSIONS.add(new RuntimePermission("stopThread"));
+
+    // For JS Debugger
+    // CORE_PERMISSIONS.add(new PropertyPermission("user.home", "read"));
+    // CORE_PERMISSIONS.add(new FilePermission(System.getProperty("user.home") + recursiveSuffix, "read"));
 
     copyPermissions(EXTENSION_PERMISSIONS, CORE_PERMISSIONS);
     addStoreDirectoryPermissions(CORE_PERMISSIONS);
@@ -245,6 +259,9 @@ public class LocalSecurityPolicy extends Policy {
           } catch (final java.io.IOException ioe) {
             ioe.printStackTrace(System.err);
             return false;
+
+            // Temp for js debugger, but most probably not right and doesn't work
+            // return true;
           }
         }
       });
@@ -287,6 +304,14 @@ public class LocalSecurityPolicy extends Policy {
     }
   }
 
+  @Override
+  public PermissionCollection getPermissions(final ProtectionDomain domain) {
+    // System.out.println("Permissions for protection domain: " + domain.getCodeSource());
+    // System.out.println("  principals: " + domain.getPrincipals());
+    // System.out.println("  loader: " + domain.getClassLoader());
+    return super.getPermissions(domain);
+  }
+
   /*
    * (non-Javadoc)
    *
@@ -295,14 +320,17 @@ public class LocalSecurityPolicy extends Policy {
   @Override
   public PermissionCollection getPermissions(final CodeSource codesource) {
     if (codesource == null) {
-      throw new AccessControlException("codesource was null");
+      // throw new AccessControlException("codesource was null");
+      final Permissions permissions = new Permissions();
+      permissions.add(new AllPermission()); // TODO: Whoa! all permissions?
+      return permissions;
     }
 
     if (PlatformInit.getInstance().debugOn) {
       System.out.println("Codesource: " + codesource.getLocation());
-      if (codesource.getCodeSigners() != null) {
-        System.out.println("  signers: " + codesource.getCodeSigners().length);
-      }
+      // if (codesource.getCodeSigners() != null) {
+      // System.out.println("  signers: " + codesource.getCodeSigners().length);
+      // }
     }
 
     // TODO: Important: This was required after switching to JDK Rhino. This
@@ -332,6 +360,14 @@ public class LocalSecurityPolicy extends Policy {
     final boolean isLocal = isLocal(location);
 
     final Permissions permissions = new Permissions();
+
+    // TODO: for js debugger
+    permissions.add(new PropertyPermission("user.home", "read"));
+    permissions.add(new FilePermission(USER_HOME, "read"));
+    permissions.add(new FilePermission(USER_HOME + recursiveSuffix, "read"));
+    permissions.add(new NetworkPermission("getProxySelector"));
+    permissions.add(new AWTPermission("*"));
+
     if (isLocal) {
       final String path = location.getPath();
       // System.out.println("Path: " + path);
@@ -390,6 +426,11 @@ public class LocalSecurityPolicy extends Policy {
         permissions.add(new PropertyPermission("line.separator", "read"));
         permissions.add(new RuntimePermission("getClassLoader"));
 
+        // Extra for debugger:
+        // permissions.add(new PropertyPermission("user.home", "read"));
+        // permissions.add(new FilePermission(System.getProperty("user.home"), "read"));
+        // permissions.add(new SocketPermission("*", "connect,resolve"));
+
       } else if (path.endsWith("okhttp-urlconnection-2.1.1-SNAPSHOT.jar")) {
         permissions.add(new NetPermission("getProxySelector"));
         permissions.add(new NetPermission("getCookieHandler"));
@@ -431,7 +472,7 @@ public class LocalSecurityPolicy extends Policy {
     }
 
     if (PlatformInit.getInstance().debugOn) {
-      System.out.println("Returning permissions: " + permissions);
+      // System.out.println("Returning permissions: " + permissions);
     }
 
     return permissions;

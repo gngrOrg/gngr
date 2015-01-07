@@ -35,4 +35,11 @@ public class BackgroundInfo {
   public static final int BR_NO_REPEAT = 1;
   public static final int BR_REPEAT_X = 2;
   public static final int BR_REPEAT_Y = 3;
+
+  @Override
+  public String toString() {
+    return "BackgroundInfo [color=" + backgroundColor + ", img=" + backgroundImage + ", xposAbs="
+        + backgroundXPositionAbsolute + ", xpos=" + backgroundXPosition + ", yposAbs="
+        + backgroundYPositionAbsolute + ", ypos=" + backgroundYPosition + ", repeat=" + backgroundRepeat + "]";
+  }
 }
