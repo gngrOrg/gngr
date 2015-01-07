@@ -142,7 +142,7 @@ public class PlatformInit {
     // Set appropriate Swing L&F
     boolean nimbusApplied = false;
     try {
-      for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+      for (final LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
         if ("Nimbus".equals(info.getName())) {
           UIManager.setLookAndFeel(info.getClassName());
           nimbusApplied = true;

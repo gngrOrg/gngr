@@ -325,7 +325,8 @@ public class RBlock extends BaseElementRenderable {
     this.doLayout(availWidth, availHeight, true, false, null, this.defaultOverflowX, this.defaultOverflowY, sizeOnly);
   }
 
-  public void doLayout(int availWidth, int availHeight, boolean expand, boolean sizeOnly) {
+  @Override
+  public void doLayout(final int availWidth, final int availHeight, final boolean expand, final boolean sizeOnly) {
     this.doLayout(availWidth, availHeight, expand, expand, null, this.defaultOverflowX, this.defaultOverflowY, sizeOnly);
   }
 

@@ -376,7 +376,7 @@ public class HtmlRendererContextImpl implements HtmlRendererContext {
     boolean imageEntryAdded = false;
     Node currElement = element;
     while (currElement != null) {
-      if ((!linkEntryAdded) && currElement instanceof HTMLLinkElementImpl) {
+      if ((!linkEntryAdded) && (currElement instanceof HTMLLinkElementImpl)) {
         final HTMLLinkElementImpl link = (HTMLLinkElementImpl) currElement;
         final JMenuItem openLinkMenuItem = new JMenuItem("Open link in new window");
         openLinkMenuItem.addActionListener(e -> {
@@ -392,7 +392,7 @@ public class HtmlRendererContextImpl implements HtmlRendererContext {
         popupMenu.add(copyLinkMenuItem);
 
         linkEntryAdded = true;
-      } else if ((!imageEntryAdded) && currElement instanceof HTMLImageElementImpl) {
+      } else if ((!imageEntryAdded) && (currElement instanceof HTMLImageElementImpl)) {
         final HTMLImageElementImpl img = (HTMLImageElementImpl) currElement;
         try {
           final URL srcUrl = img.getFullURL(img.getSrc());

@@ -452,7 +452,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
       final Integer declaredWidth = this.getDeclaredWidth(rs, actualAvailWidth);
       final Integer declaredHeight = this.getDeclaredHeight(rs, actualAvailHeight);
       // TODO: Get rid of autoMarginX and autoMarginY. They will be always zero
-      int autoMarginX = 0, autoMarginY = 0;
+      final int autoMarginX = 0, autoMarginY = 0;
       this.borderInsets = borderInsets;
       if (isRootBlock) {
         // In the root block, the margin behaves like an extra padding.
@@ -515,7 +515,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
     if (rootElement == null) {
       return null;
     }
-    Dimension changes = new Dimension();
+    final Dimension changes = new Dimension();
     final RenderState rs = rootElement.getRenderState();
     if (rs == null) {
       throw new IllegalStateException("Element without render state: " + rootElement + "; parent=" + rootElement.getParentNode());
@@ -848,19 +848,19 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
     int bottom = 0;
     int left = 0;
     int right = 0;
-    if (includeMI && mi != null) {
+    if (includeMI && (mi != null)) {
       top += mi.top;
       left += mi.left;
       bottom += mi.bottom;
       right += mi.right;
     }
-    if (includeBI && bi != null) {
+    if (includeBI && (bi != null)) {
       top += bi.top;
       left += bi.left;
       bottom += bi.bottom;
       right += bi.right;
     }
-    if (includePI && pi != null) {
+    if (includePI && (pi != null)) {
       top += pi.top;
       left += pi.left;
       bottom += pi.bottom;

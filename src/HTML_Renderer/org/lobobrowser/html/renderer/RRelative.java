@@ -143,7 +143,7 @@ public class RRelative extends BaseRCollection {
   }
 
 
-  public void layout(int availWidth, int availHeight, boolean sizeOnly) {
+  public void layout(final int availWidth, final int availHeight, final boolean sizeOnly) {
     child.layout(availWidth, availHeight, false, sizeOnly);
     assignDimension();
   }

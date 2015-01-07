@@ -1602,7 +1602,7 @@ public class RBlockViewport extends BaseRCollection {
         final RElement e = (RElement) renderable;
         e.layout(availWidth, availHeight, this.sizeOnly);
       } else if (renderable instanceof RRelative) {
-        RRelative rRelative = (RRelative) renderable;
+        final RRelative rRelative = (RRelative) renderable;
         rRelative.layout(availWidth, availHeight, this.sizeOnly);
       } else {
         // TODO Check other types of renderabls
@@ -2620,7 +2620,7 @@ public class RBlockViewport extends BaseRCollection {
         }
         break;
       }
-      if ((desiredWidth <= 0) || boxWidth <= (desiredWidth - rightOffset - leftOffset)) {
+      if ((desiredWidth <= 0) || (boxWidth <= (desiredWidth - rightOffset - leftOffset))) {
         // Size is fine.
         break;
       }
