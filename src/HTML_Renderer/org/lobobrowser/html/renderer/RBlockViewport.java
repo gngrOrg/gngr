@@ -1565,10 +1565,7 @@ public class RBlockViewport extends BaseRCollection {
       return paddingInsets.left;
     }
     final int left = floatBounds.getLeft(newLineY);
-    if (left < paddingInsets.left) {
-      return paddingInsets.left;
-    }
-    return left;
+    return Math.max(left, paddingInsets.left);
   }
 
   /**
