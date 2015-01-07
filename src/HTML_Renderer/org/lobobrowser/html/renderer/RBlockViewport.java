@@ -1263,12 +1263,9 @@ public class RBlockViewport extends BaseRCollection {
           lastCharSlashR = true;
           break;
         case '\n':
-          final int llen = line.length();
-          if (llen > 0) {
-            final RWord rword = new RWord(textNode, line.toString(), container, fm, descent, ascentPlusLeading, wordHeight, textTransform);
-            this.addWordToLine(rword);
-            line.delete(0, line.length());
-          }
+          final RWord rword = new RWord(textNode, line.toString(), container, fm, descent, ascentPlusLeading, wordHeight, textTransform);
+          this.addWordToLine(rword);
+          line.delete(0, line.length());
           final RLine prevLine = this.currentLine;
           prevLine.setLineBreak(new LineBreak(LineBreak.NONE));
           this.addLine(textNode, prevLine, prevLine.y + prevLine.height);
@@ -1568,10 +1565,7 @@ public class RBlockViewport extends BaseRCollection {
       return paddingInsets.left;
     }
     final int left = floatBounds.getLeft(newLineY);
-    if (left < paddingInsets.left) {
-      return paddingInsets.left;
-    }
-    return left;
+    return Math.max(left, paddingInsets.left);
   }
 
   /**

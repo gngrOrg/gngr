@@ -24,9 +24,13 @@ GNU GENERAL PUBLIC LICENSE
 package org.lobobrowser.primary.clientlets.html;
 
 import java.awt.Cursor;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.lang.ref.WeakReference;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 import java.util.Optional;
@@ -35,12 +39,16 @@ import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+
 import org.lobobrowser.html.BrowserFrame;
 import org.lobobrowser.html.FormInput;
 import org.lobobrowser.html.HtmlObject;
 import org.lobobrowser.html.HtmlRendererContext;
 import org.lobobrowser.html.domimpl.FrameNode;
 import org.lobobrowser.html.domimpl.HTMLDocumentImpl;
+import org.lobobrowser.html.domimpl.HTMLImageElementImpl;
 import org.lobobrowser.html.domimpl.HTMLLinkElementImpl;
 import org.lobobrowser.html.gui.HtmlPanel;
 import org.lobobrowser.request.DomainValidation;
@@ -53,6 +61,7 @@ import org.lobobrowser.ua.RequestType;
 import org.lobobrowser.ua.TargetType;
 import org.lobobrowser.ua.UserAgentContext;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.w3c.dom.html.HTMLCollection;
 import org.w3c.dom.html.HTMLElement;
 import org.w3c.dom.html.HTMLLinkElement;
@@ -318,7 +327,96 @@ public class HtmlRendererContextImpl implements HtmlRendererContext {
   }
 
   public boolean onContextMenu(final HTMLElement element, final MouseEvent event) {
+    final JPopupMenu popupMenu = new JPopupMenu();
+    if (popupMenu.isPopupTrigger(event)) {
+      populatePopup(element, popupMenu);
+
+      popupMenu.show(event.getComponent(), event.getX(), event.getY());
+      return false;
+    }
     return true;
+  }
+
+  private void populatePopup(final HTMLElement element, final JPopupMenu popupMenu) {
+    final boolean componentEntriesAdded = populatePopupForElement(element, popupMenu);
+
+    if (componentEntriesAdded) {
+      popupMenu.addSeparator();
+    }
+
+    final boolean prevPresent = getPreviousURL().isPresent();
+    final boolean nextPresent = getNextURL().isPresent();
+    {
+      final JMenuItem menuItem = new JMenuItem("Back");
+      menuItem.addActionListener(e -> {
+        HtmlRendererContextImpl.this.back();
+      });
+      menuItem.setEnabled(prevPresent);
+      popupMenu.add(menuItem);
+    }
+    {
+      final JMenuItem menuItem = new JMenuItem("Reload");
+      menuItem.addActionListener(e -> {
+        HtmlRendererContextImpl.this.reload();
+      });
+      popupMenu.add(menuItem);
+    }
+    {
+      final JMenuItem menuItem = new JMenuItem("Forward");
+      menuItem.addActionListener(e -> {
+        HtmlRendererContextImpl.this.forward();
+      });
+      menuItem.setEnabled(nextPresent);
+      popupMenu.add(menuItem);
+    }
+  }
+
+  private boolean populatePopupForElement(final HTMLElement element, final JPopupMenu popupMenu) {
+    boolean linkEntryAdded = false;
+    boolean imageEntryAdded = false;
+    Node currElement = element;
+    while (currElement != null) {
+      if ((!linkEntryAdded) && currElement instanceof HTMLLinkElementImpl) {
+        final HTMLLinkElementImpl link = (HTMLLinkElementImpl) currElement;
+        final JMenuItem openLinkMenuItem = new JMenuItem("Open link in new window");
+        openLinkMenuItem.addActionListener(e -> {
+          HtmlRendererContextImpl.this.open(link.getAbsoluteHref(), "new window", null, false);
+        });
+        popupMenu.add(openLinkMenuItem);
+
+        final JMenuItem copyLinkMenuItem = new JMenuItem("Copy link");
+        copyLinkMenuItem.addActionListener(e -> {
+          final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+          clipboard.setContents(new StringSelection(link.getAbsoluteHref()), null);
+        });
+        popupMenu.add(copyLinkMenuItem);
+
+        linkEntryAdded = true;
+      } else if ((!imageEntryAdded) && currElement instanceof HTMLImageElementImpl) {
+        final HTMLImageElementImpl img = (HTMLImageElementImpl) currElement;
+        try {
+          final URL srcUrl = img.getFullURL(img.getSrc());
+          final JMenuItem openImageMenuItem = new JMenuItem("Open image in new window");
+          openImageMenuItem.addActionListener(e -> {
+            HtmlRendererContextImpl.this.open(srcUrl, "new window", null, false);
+          });
+          popupMenu.add(openImageMenuItem);
+
+          final JMenuItem copyImageURLMenuItem = new JMenuItem("Copy Image URL");
+          copyImageURLMenuItem.addActionListener(e -> {
+            final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            clipboard.setContents(new StringSelection(srcUrl.toExternalForm()), null);
+          });
+          popupMenu.add(copyImageURLMenuItem);
+
+          imageEntryAdded = true;
+        } catch (final MalformedURLException e) {
+          logger.log(Level.INFO, "Couldn't get Image URL", e);
+        }
+      }
+      currElement = currElement.getParentNode();
+    }
+    return linkEntryAdded || imageEntryAdded;
   }
 
   public void onMouseOut(final HTMLElement element, final MouseEvent event) {

@@ -59,6 +59,7 @@ import java.util.logging.Logger;
 
 import javax.swing.JComponent;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 
 import org.lobobrowser.html.HtmlRendererContext;
 import org.lobobrowser.html.domimpl.HTMLElementImpl;
@@ -523,9 +524,11 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
       final Point point = event.getPoint();
       final int rx = point.x;
       final int ry = point.y;
-      if (event.getButton() == MouseEvent.BUTTON1) {
+      if (SwingUtilities.isLeftMouseButton(event)) {
         // TODO: This will be raised twice on a double-click.
         block.onMouseClick(event, rx, ry);
+      } else if (SwingUtilities.isRightMouseButton(event)) {
+        block.onRightClick(event, rx, ry);
       }
       block.onMouseReleased(event, rx, ry);
       final BoundableRenderable oldTarget = this.mousePressTarget;
