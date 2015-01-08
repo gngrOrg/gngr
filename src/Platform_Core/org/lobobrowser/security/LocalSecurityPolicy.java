@@ -27,9 +27,11 @@ import java.awt.AWTPermission;
 import java.io.File;
 import java.io.FilePermission;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.NetPermission;
 import java.net.SocketPermission;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.net.URLPermission;
 import java.security.AccessControlException;
 import java.security.AccessController;
@@ -75,7 +77,14 @@ public class LocalSecurityPolicy extends Policy {
   private static final Collection<Permission> CORE_PERMISSIONS = new LinkedList<>();
   private static final Collection<Permission> EXTENSION_PERMISSIONS = new LinkedList<>();
 
+  private static String JAVA_HOME_URL;
+
   static {
+    try {
+      JAVA_HOME_URL = new File(JAVA_HOME).toURI().toURL().toExternalForm();
+    } catch (MalformedURLException e) {
+      throw new RuntimeException("Couldn't parse Java Home path: " + JAVA_HOME);
+    }
     final File homeDir = new File(System.getProperty("user.home"));
     final File settingsDir = Files.joinPaths(homeDir, STORE_DIR_NAME, DEFAULT_PROFILE);
     STORE_DIRECTORY = settingsDir;
@@ -333,8 +342,8 @@ public class LocalSecurityPolicy extends Policy {
 
     final Permissions permissions = new Permissions();
     if (isLocal) {
-      final String path = location.getPath();
-      // System.out.println("Path: " + path);
+      final String path = location.toExternalForm();
+
       if (path.endsWith("h2-1.4.180.jar")) {
         final String userDBPath = StorageManager.getInstance().userDBPath;
         permissions.add(new FilePermission(STORE_DIRECTORY_CANONICAL, "read"));
@@ -400,7 +409,7 @@ public class LocalSecurityPolicy extends Policy {
         permissions.add(new NetPermission("getCookieHandler"));
         permissions.add(new PropertyPermission("http.*", "read"));
         permissions.add(new SocketPermission("*", "connect,resolve,listen,accept"));
-      } else if (path.startsWith(JAVA_HOME)) {
+      } else if (path.startsWith(JAVA_HOME_URL)) {
         // This is to allow libraries to be loaded by JDK classes. Required for SSL libraries for example.
         permissions.add(new FilePermission(JAVA_HOME + recursiveSuffix, "read,execute"));
 
