@@ -193,4 +193,14 @@ public class FileWithHeadersURLConnection extends HttpURLConnection {
   public boolean usingProxy() {
     return false;
   }
+
+  // Response code was not being set
+  // Not sure if this is the best way to change it
+  @Override
+  public int getResponseCode() throws IOException {
+    if (this.connected) {
+      return 200;
+    }
+    return super.getResponseCode();
+  }
 }

@@ -20,15 +20,20 @@
  */
 package org.lobobrowser.js;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.lobobrowser.html.js.Window;
 import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.WrappedException;
+import org.mozilla.javascript.arrays.ExternalArray;
 
 public class JavaObjectWrapper extends ScriptableObject {
   private static final Logger logger = Logger.getLogger(JavaObjectWrapper.class.getName());
@@ -38,6 +43,11 @@ public class JavaObjectWrapper extends ScriptableObject {
 
   @Override
   public void setParentScope(final Scriptable m) {
+    // Don't allow Window's parent scope to be changed. Fixes GH #29
+    if (classWrapper.getCanonicalClassName().equals(Window.class.getCanonicalName())) {
+      return;
+    }
+
     if (m == this) {
       // TODO: This happens when running jQuery 2
       super.setParentScope(null);
@@ -53,6 +63,7 @@ public class JavaObjectWrapper extends ScriptableObject {
     // and weak values.
     final Object delegate = this.classWrapper.newInstance();
     this.delegate = delegate;
+    setupProperties();
   }
 
   public JavaObjectWrapper(final JavaClassWrapper classWrapper, final Object delegate) {
@@ -64,6 +75,70 @@ public class JavaObjectWrapper extends ScriptableObject {
     // that the object wrapper map uses weak keys
     // and weak values.
     this.delegate = delegate;
+    setupProperties();
+  }
+
+  private void setupProperties() {
+    final PropertyInfo integerIndexer = classWrapper.getIntegerIndexer();
+    if (integerIndexer != null) {
+      setExternalArray(new ExternalArray() {
+
+        @Override
+        public int getLength() {
+          try {
+            // TODO: Some length() methods are returning integer while others return length. A good test case is http://web-platform.test:8000/dom/nodes/Element-classlist.html
+            //       Check if length() methods can be converted to return a single type.
+            final Object lengthObj = classWrapper.getProperty("length").getGetter().invoke(delegate, (Object[]) null);
+            if (lengthObj instanceof Long) {
+
+              final long lengthLong = (long) lengthObj;
+              final int lengthInt = (int) lengthLong;
+              // TODO: Check for overflow when casting to int and throw an exception
+              return lengthInt;
+            } else if (lengthObj instanceof Integer) {
+              return (int) lengthObj;
+            } else {
+              // TODO: Throw exception
+              throw new RuntimeException("Can't represent length as an integer type");
+            }
+          } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return 0;
+          }
+        }
+
+        @Override
+        protected Object getElement(final int index) {
+          try {
+            final Object result = JavaScript.getInstance().getJavascriptObject(
+                integerIndexer.getGetter().invoke(delegate, new Object[] { index }), null);
+            return result;
+          } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+            throw new RuntimeException("Error accessing a indexed element");
+          }
+        }
+
+        @Override
+        protected void putElement(final int index, final Object value) {
+          // TODO: Can this be supported? Needs a setter.
+          throw new UnsupportedOperationException("Writing to an indexed object");
+        }
+      });
+    }
+    classWrapper.getProperties().forEach((name, property) -> {
+      // System.out.println("In " + classWrapper.getClassName() + " Defining " + name + " : " + property);
+      // TODO: Don't setup properties if getter is null? Are write-only properties supported in JS?
+        defineProperty(name, null, property.getGetter(), property.getSetter(), 0);
+      });
+    classWrapper.getStaticFinalProperties().forEach((name, field) -> {
+      // System.out.println("In " + classWrapper.getClassName() + " Defining " + name + " : " + property);
+        try {
+          defineProperty(name, field.get(null), READONLY);
+        } catch (final Exception e) {
+          throw new RuntimeException(e);
+        }
+      });
   }
 
   /**
@@ -81,33 +156,35 @@ public class JavaObjectWrapper extends ScriptableObject {
     return this.classWrapper.getClassName();
   }
 
+  /*
   @Override
   public Object get(final int index, final Scriptable start) {
-    final PropertyInfo pinfo = this.classWrapper.getIntegerIndexer();
-    if (pinfo == null) {
-      return super.get(index, start);
-    } else {
-      try {
-        final Method getter = pinfo.getGetter();
-        if (getter == null) {
-          throw new EvaluatorException("Indexer is write-only");
-        }
-        // Cannot retain delegate with a strong reference.
-        final Object javaObject = this.getJavaObject();
-        if (javaObject == null) {
-          throw new IllegalStateException("Java object (class=" + this.classWrapper + ") is null.");
-        }
-        final Object raw = getter.invoke(javaObject, new Object[] { new Integer(index) });
-        if (raw == null) {
-          // Return this instead of null.
-          return Scriptable.NOT_FOUND;
-        }
-        return JavaScript.getInstance().getJavascriptObject(raw, this.getParentScope());
-      } catch (final Exception err) {
-        throw new WrappedException(err);
+  System.out.println("indexing " + index + " into " + classWrapper.getClassName());
+  final PropertyInfo pinfo = this.classWrapper.getIntegerIndexer();
+  if (pinfo == null) {
+    return super.get(index, start);
+  } else {
+    try {
+      final Method getter = pinfo.getGetter();
+      if (getter == null) {
+        throw new EvaluatorException("Indexer is write-only");
       }
+      // Cannot retain delegate with a strong reference.
+      final Object javaObject = this.getJavaObject();
+      if (javaObject == null) {
+        throw new IllegalStateException("Java object (class=" + this.classWrapper + ") is null.");
+      }
+      final Object raw = getter.invoke(javaObject, new Object[] { new Integer(index) });
+      if (raw == null) {
+        // Return this instead of null.
+        return Scriptable.NOT_FOUND;
+      }
+      return JavaScript.getInstance().getJavascriptObject(raw, this.getParentScope());
+    } catch (final Exception err) {
+      throw new WrappedException(err);
     }
   }
+  }*/
 
   @Override
   public Object get(final String name, final Scriptable start) {
@@ -117,17 +194,27 @@ public class JavaObjectWrapper extends ScriptableObject {
       if (getter == null) {
         throw new EvaluatorException("Property '" + name + "' is not readable");
       }
-      try {
-        // Cannot retain delegate with a strong reference.
-        final Object javaObject = this.getJavaObject();
-        if (javaObject == null) {
-          throw new IllegalStateException("Java object (class=" + this.classWrapper + ") is null.");
-        }
-        final Object val = getter.invoke(javaObject, (Object[]) null);
-        return JavaScript.getInstance().getJavascriptObject(val, start.getParentScope());
-      } catch (final Exception err) {
-        throw new WrappedException(err);
+      // try {
+      // Cannot retain delegate with a strong reference.
+      final Object javaObject = this.getJavaObject();
+      if (javaObject == null) {
+        throw new IllegalStateException("Java object (class=" + this.classWrapper + ") is null.");
       }
+      final Object val = AccessController.doPrivileged(new PrivilegedAction<Object>() {
+
+        public Object run() {
+          try {
+            return getter.invoke(javaObject, (Object[]) null);
+          } catch (final Exception err) {
+            throw new WrappedException(err);
+          }
+        }
+      });
+      // final Object val = getter.invoke(javaObject, (Object[]) null);
+      return JavaScript.getInstance().getJavascriptObject(val, start.getParentScope());
+      // } catch (final Exception err) {
+      // throw new WrappedException(err);
+      // }
     } else {
       final Function f = this.classWrapper.getFunction(name);
       if (f != null) {
@@ -283,4 +370,10 @@ public class JavaObjectWrapper extends ScriptableObject {
       return super.hasInstance(instance);
     }
   }
+
+  /*
+  @Override
+  public Object[] getIds() {
+    return getAllIds();
+  }*/
 }

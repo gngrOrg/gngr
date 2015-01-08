@@ -27,9 +27,9 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Node;
 
-public class DocumentFragmentImpl extends NodeImpl implements DocumentFragment {
+public class DocumentFragmentImpl extends ElementImpl implements DocumentFragment {
   public DocumentFragmentImpl() {
-    super();
+    super("#document-fragment");
   }
 
   @Override

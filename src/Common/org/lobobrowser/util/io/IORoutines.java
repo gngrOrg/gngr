@@ -75,7 +75,7 @@ public class IORoutines {
       throw new IOException("File '" + file.getName() + "' too big");
     }
     try (
-      final InputStream in = new FileInputStream(file)) {
+        final InputStream in = new FileInputStream(file)) {
       return loadExact(in, (int) fileLength);
     }
   }
@@ -137,7 +137,7 @@ public class IORoutines {
     }
 
     try (
-      final InputStream in = new FileInputStream(file);) {
+        final InputStream in = new FileInputStream(file);) {
       final byte[] fileContent = loadExact(in, (int) length);
       return java.util.Arrays.equals(content, fileContent);
     }
@@ -145,7 +145,7 @@ public class IORoutines {
 
   public static void save(final File file, final byte[] content) throws IOException {
     try (
-      final FileOutputStream out = new FileOutputStream(file);) {
+        final FileOutputStream out = new FileOutputStream(file);) {
       out.write(content);
     }
   }
@@ -179,9 +179,9 @@ public class IORoutines {
 
   public static void saveStrings(final File file, final Collection<String> list) throws IOException {
     try (
-      final FileOutputStream fout = new FileOutputStream(file);
-      final BufferedOutputStream bout = new BufferedOutputStream(fout);
-      final PrintWriter writer = new PrintWriter(bout)) {
+        final FileOutputStream fout = new FileOutputStream(file);
+        final BufferedOutputStream bout = new BufferedOutputStream(fout);
+        final PrintWriter writer = new PrintWriter(bout)) {
       list.forEach(text -> writer.println(text));
       writer.flush();
     }
@@ -189,8 +189,8 @@ public class IORoutines {
 
   public static java.util.List<String> loadStrings(final File file) throws IOException {
     try (
-      final InputStream in = new FileInputStream(file);
-      final BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
+        final InputStream in = new FileInputStream(file);
+        final BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
       return reader.lines().collect(Collectors.toList());
     }
   }

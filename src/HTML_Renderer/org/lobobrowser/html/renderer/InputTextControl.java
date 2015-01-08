@@ -25,6 +25,8 @@ package org.lobobrowser.html.renderer;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 import javax.swing.JTextField;
 import javax.swing.text.JTextComponent;
@@ -35,8 +37,25 @@ class InputTextControl extends BaseInputTextControl {
   public InputTextControl(final HTMLBaseInputElement modelNode) {
     super(modelNode);
     final JTextField w = (JTextField) this.widget;
+    w.addKeyListener(new KeyListener() {
+      @Override
+      public void keyTyped(final KeyEvent e) {
+        // System.out.println("typed: " + e);
+      }
+
+      @Override
+      public void keyReleased(final KeyEvent e) {
+        HtmlController.getInstance().onKeyUp(modelNode, e);
+      }
+
+      @Override
+      public void keyPressed(final KeyEvent e) {
+        // System.out.println("pressed: " + e);
+      }
+    });
     w.addActionListener(new ActionListener() {
       public void actionPerformed(final ActionEvent event) {
+        System.out.println("Action performed: " + event);
         HtmlController.getInstance().onEnterPressed(modelNode, null);
       }
     });

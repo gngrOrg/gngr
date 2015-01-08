@@ -139,10 +139,10 @@ public class ElementImpl extends NodeImpl implements Element {
 
   public final String getAttribute(final String name) {
     final String normalName = normalizeAttributeName(name);
-    synchronized (this) {
-      final Map<String, String> attributes = this.attributes;
-      return attributes == null ? null : attributes.get(normalName);
-    }
+    // synchronized (this) {
+    final Map<String, String> attributes = this.attributes;
+    return attributes == null ? null : attributes.get(normalName);
+    // }
   }
 
   private Attr getAttr(final String normalName, final String value) {
@@ -171,6 +171,7 @@ public class ElementImpl extends NodeImpl implements Element {
     return node.getNodeName().equalsIgnoreCase(name);
   }
 
+  @Override
   public NodeList getElementsByTagName(final String name) {
     final boolean matchesAll = "*".equals(name);
     final List<Node> descendents = new LinkedList<>();
@@ -206,15 +207,18 @@ public class ElementImpl extends NodeImpl implements Element {
   }
 
   public String getTagName() {
-    return this.getNodeName();
+    // In HTML, tag names are supposed to be returned in upper-case, but in XHTML they are returned in original case
+    // as per https://developer.mozilla.org/en-US/docs/Web/API/Element.tagName
+    return this.getNodeName().toUpperCase();
   }
 
   public boolean hasAttribute(final String name) {
     final String normalName = normalizeAttributeName(name);
-    synchronized (this) {
-      final Map<String, String> attributes = this.attributes;
-      return attributes == null ? false : attributes.containsKey(normalName);
-    }
+    // This was causing deadlocks, hence removed the sync
+    // synchronized (this) {
+    final Map<String, String> attributes = this.attributes;
+    return attributes == null ? false : attributes.containsKey(normalName);
+    // }
   }
 
   public boolean hasAttributeNS(final String namespaceURI, final String localName) throws DOMException {
@@ -238,6 +242,8 @@ public class ElementImpl extends NodeImpl implements Element {
   }
 
   protected void assignAttributeField(final String normalName, final String value) {
+    // Not sure why id and name were conflated in this code: they are orthogonal.
+
     // Note: overriders assume that processing here is only done after
     // checking attribute names, i.e. they may not call the super
     // implementation if an attribute is already taken care of.
@@ -530,5 +536,42 @@ public class ElementImpl extends NodeImpl implements Element {
         ((HTMLDocumentImpl) document).setElementById(newIdValue, this);
       }
     }
+  }
+
+  // TODO: Need to implement these for Document and DocumentFragment as well as per https://developer.mozilla.org/en-US/docs/Web/API/ParentNode
+  public Element getFirstElementChild() {
+    final ArrayList<Node> nl = this.nodeList;
+    for (final Node n : nl) {
+      if (n instanceof Element) {
+        return (Element) n;
+      }
+    }
+
+    return null;
+  }
+
+  public Element getLastElementChild() {
+    final ArrayList<Node> nl = this.nodeList;
+    final int N = nl.size();
+    for (int i = N - 1; i >= 0; i--) {
+      final Node n = nl.get(i);
+      if (n instanceof Element) {
+        return (Element) n;
+      }
+    }
+
+    return null;
+  }
+
+  public int getChildElementCount() {
+    final ArrayList<Node> nl = this.nodeList;
+    int count = 0;
+    for (final Node n : nl) {
+      if (n instanceof Element) {
+        count++;
+      }
+    }
+
+    return count;
   }
 }
