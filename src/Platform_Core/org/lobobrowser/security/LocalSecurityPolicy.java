@@ -415,9 +415,6 @@ public class LocalSecurityPolicy extends Policy {
 
         permissions.add(new RuntimePermission("loadLibrary.sunec"));
 
-        // Added for issue #10 on GH
-        permissions.add(new RuntimePermission("loadLibrary.sunmscapi"));
-
         permissions.add(new RuntimePermission("accessClassInPackage.*"));
         permissions.add(new SecurityPermission("putProviderProperty.*"));
       }
