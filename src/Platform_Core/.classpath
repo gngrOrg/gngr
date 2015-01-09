@@ -3,13 +3,13 @@
 	<classpathentry excluding="lib/*" kind="src" path=""/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/javatuples-1.2.jar"/>
-	<classpathentry kind="lib" path="lib/okhttp-urlconnection-2.1.1-SNAPSHOT.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Platform_Public_API"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Common"/>
 	<classpathentry kind="lib" path="lib/jooq-3.4.2.jar"/>
 	<classpathentry kind="lib" path="lib/h2-1.4.180.jar"/>
 	<classpathentry kind="lib" path="lib/public-suffix-list_0.1.jar"/>
-	<classpathentry kind="lib" path="lib/okhttp-2.1.1-SNAPSHOT.jar"/>
-	<classpathentry kind="lib" path="lib/okio-1.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/okhttp-2.2.0.jar"/>
+	<classpathentry kind="lib" path="lib/okhttp-urlconnection-2.2.0.jar"/>
+	<classpathentry kind="lib" path="lib/okio-1.2.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
