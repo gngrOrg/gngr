@@ -31,7 +31,6 @@ import java.net.MalformedURLException;
 import java.net.NetPermission;
 import java.net.SocketPermission;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.net.URLPermission;
 import java.security.AccessControlException;
 import java.security.AccessController;
