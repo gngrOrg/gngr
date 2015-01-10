@@ -1275,7 +1275,24 @@ public class RBlockViewport extends BaseRCollection {
             line.append('\r');
             lastCharSlashR = false;
           }
-          line.append(ch);
+          if (ch == '\t') {
+            /* Tabs are not recognized as advancing width in FontMetrics. There are two approaches possible:
+               1. Convert to spaces. Simple, but when copying selection spaces are copied.
+               2. Define a new class call RTab, that manages tabs.
+               3. Modify the width calculation logic of RWord to account for tab character.
+            */
+
+            // TODO: The number of spaces is hard-coded right now. But when CSS `tab-size` property is supported, it could be made variable.
+            final int NUM_SPACES = 8;
+
+            // Solution 1.
+            // line.append("        ");
+
+            // Solution 2.
+            addWordToLine(new RTab(textNode, container, fm, descent, ascentPlusLeading, wordHeight, NUM_SPACES));
+          } else {
+            line.append(ch);
+          }
           break;
         }
       }
