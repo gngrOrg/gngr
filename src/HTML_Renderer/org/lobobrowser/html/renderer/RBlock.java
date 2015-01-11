@@ -492,18 +492,22 @@ public class RBlock extends BaseElementRenderable {
     Insets insets = this.getInsetsMarginBorder(hscroll, vscroll);
     int insetsTotalWidth = insets.left + insets.right;
     int insetsTotalHeight = insets.top + insets.bottom;
-    int actualAvailWidth = availWidth - paddingTotalWidth - insetsTotalWidth;
-    final int actualAvailHeight = availHeight - paddingTotalHeight - insetsTotalHeight;
-    Integer dw = this.getDeclaredWidth(renderState, actualAvailWidth);
+    int tentativeAvailWidth = availWidth - paddingTotalWidth - insetsTotalWidth;
+    int tentativeAvailHeight = availHeight - paddingTotalHeight - insetsTotalHeight;
+
+    final Integer declaredMaxWidth = getDeclaredMaxWidth(renderState, tentativeAvailWidth);
+    final Integer declaredMaxHeight = getDeclaredMaxHeight(renderState, tentativeAvailHeight);
+    if (declaredMaxWidth != null) {
+      tentativeAvailWidth = Math.min(tentativeAvailWidth, declaredMaxWidth);
+    }
+
+    int actualAvailWidth = tentativeAvailWidth;
+
+    final int actualAvailHeight = tentativeAvailHeight;
+    final Integer dw = this.getDeclaredWidth(renderState, actualAvailWidth);
     final Integer dh = this.getDeclaredHeight(renderState, actualAvailHeight);
-    int declaredWidth = -1;
-    int declaredHeight = -1;
-    if (dw != null) {
-      declaredWidth = dw.intValue();
-    }
-    if (dh != null) {
-      declaredHeight = dh.intValue();
-    }
+    int declaredWidth = dw == null ? -1 : dw.intValue();
+    int declaredHeight = dh == null ? -1 : dh.intValue();
 
     // Remove all GUI components previously added by descendents
     // The RBlockViewport.layout() method is expected to add all of them
@@ -549,6 +553,9 @@ public class RBlock extends BaseElementRenderable {
       blockFloatBounds = blockFloatBoundsSource.getChildBlockFloatingBounds(tentativeWidth);
       viewportFloatBounds = new ShiftedFloatingBounds(blockFloatBounds, -insets.left, -insets.right, -insets.top);
     }
+    if (declaredMaxWidth != null) {
+      tentativeWidth = Math.min(tentativeWidth, declaredMaxWidth + insetsTotalWidth + paddingTotalWidth);
+    }
     int desiredViewportWidth = tentativeWidth - insetsTotalWidth;
     final int desiredViewportHeight = tentativeHeight - insets.top - insets.bottom;
     final int maxY = vauto ? (declaredHeight == -1 ? availHeight : declaredHeight + paddingInsets.top) : -1;
@@ -561,8 +568,8 @@ public class RBlock extends BaseElementRenderable {
       insets = this.getInsetsMarginBorder(hscroll, vscroll);
       insetsTotalWidth = insets.left + insets.right;
       actualAvailWidth = availWidth - paddingTotalWidth - insetsTotalWidth;
-      dw = this.getDeclaredWidth(renderState, actualAvailWidth);
-      declaredWidth = dw == null ? -1 : dw.intValue();
+      final Integer dwNew = this.getDeclaredWidth(renderState, actualAvailWidth);
+      declaredWidth = dwNew == null ? -1 : dwNew.intValue();
       desiredViewportWidth = tentativeWidth - paddingTotalWidth - insetsTotalWidth;
       if (blockFloatBounds != null) {
         viewportFloatBounds = new ShiftedFloatingBounds(blockFloatBounds, -insets.left, -insets.right, -insets.top);
@@ -632,11 +639,21 @@ public class RBlock extends BaseElementRenderable {
       }
     }
 
+    if (declaredMaxWidth != null) {
+      resultingWidth = Math.min(resultingWidth, declaredMaxWidth + paddingTotalWidth + insetsTotalWidth);
+    }
+
+    if (declaredMaxHeight != null) {
+      resultingHeight = Math.min(resultingHeight, declaredMaxHeight + paddingTotalHeight + insetsTotalHeight);
+    }
+
     final Dimension changes = this.applyAutoStyles(availWidth - resultingWidth, availHeight - resultingHeight);
     if (changes != null) {
       resultingWidth += changes.width;
       resultingHeight += changes.height;
     }
+
+
     insets = getInsetsMarginBorder(hscroll, vscroll);
 
     if (vscroll) {
