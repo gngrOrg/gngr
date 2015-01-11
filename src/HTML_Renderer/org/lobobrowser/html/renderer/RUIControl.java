@@ -253,6 +253,10 @@ class RUIControl extends BaseElementRenderable {
     }
     if (layoutValue == null) {
       this.applyStyle(availWidth, availHeight);
+
+      final UIControl widget = this.widget;
+      widget.reset(availWidth, availHeight);
+
       final RenderState renderState = this.modelNode.getRenderState();
       Insets paddingInsets = this.paddingInsets;
       if (paddingInsets == null) {
@@ -266,6 +270,7 @@ class RUIControl extends BaseElementRenderable {
       if (marginInsets == null) {
         marginInsets = RBlockViewport.ZERO_INSETS;
       }
+
       final int actualAvailWidth = availWidth - paddingInsets.left - paddingInsets.right - borderInsets.left - borderInsets.right
           - marginInsets.left - marginInsets.right;
       final int actualAvailHeight = availHeight - paddingInsets.top - paddingInsets.bottom - borderInsets.top - borderInsets.bottom
@@ -277,8 +282,6 @@ class RUIControl extends BaseElementRenderable {
       this.declaredWidth = declaredWidth;
       this.declaredHeight = declaredHeight;
 
-      final UIControl widget = this.widget;
-      widget.reset(availWidth, availHeight);
       final Insets insets = this.getInsets(false, false);
       int finalWidth = declaredWidth == -1 ? -1 : declaredWidth + insets.left + insets.right;
       int finalHeight = declaredHeight == -1 ? -1 : declaredHeight + insets.top + insets.bottom;
