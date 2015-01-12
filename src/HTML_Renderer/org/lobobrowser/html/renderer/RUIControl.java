@@ -389,4 +389,12 @@ class RUIControl extends BaseElementRenderable {
     // TODO: Is it okay to ignore `expand`?
     doLayout(availWidth, availHeight, sizeOnly);
   }
+
+  protected boolean isWidthConstrained() {
+    return declaredWidth != -1;
+  }
+
+  protected boolean isHeightConstrained() {
+    return declaredHeight != -1;
+  }
 }
