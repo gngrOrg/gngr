@@ -140,18 +140,22 @@ public class NavigatorWindowImpl implements NavigatorWindow, WindowCallback {
     return this.framePanel;
   }
 
+  private void showWindow() {
+    final AbstractBrowserWindow window = this.browserWindow;
+    if (!window.isVisible()) {
+      window.setVisible(true);
+    }
+    window.toFront();
+  }
+
   void resetAsNavigator(final Properties overridingProperties) {
     // Invoke in GUI thread
     if (this.launched) {
       return;
     }
     this.launched = true;
-    final AbstractBrowserWindow window = this.browserWindow;
-    if (!window.isVisible()) {
-      window.setVisible(true);
-    }
-    window.toFront();
 
+    final AbstractBrowserWindow window = this.browserWindow;
     // Come up with combination properties object
     if (overridingProperties != null) {
       Properties original = this.requestedProperties;
@@ -177,11 +181,8 @@ public class NavigatorWindowImpl implements NavigatorWindow, WindowCallback {
         ((Frame) window).setTitle(title);
       }
     }
-    // Make visible and bring to front
-    if (!window.isVisible()) {
-      window.setVisible(true);
-    }
-    window.toFront();
+
+    showWindow();
   }
 
   public void close() {

@@ -880,21 +880,7 @@ public class FramePanel extends JPanel implements NavigatorFrame {
 
     final UserAgentContext uaContext = new SilentUserAgentContextImpl(newFrame);
     final ClientletRequestHandler handler = new ClientletRequestHandler(request, wcontext, newFrame, uaContext);
-    handler.evtProgress.addListener(new org.lobobrowser.util.GenericEventListener() {
-      public void processEvent(final java.util.EventObject event) {
-        // Assumed to execute in GUI thread.
-        final NavigatorProgressEvent pe = (NavigatorProgressEvent) event;
-        if ((pe == null) || (pe.getProgressType() == ProgressType.DONE)) {
-          SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-              wcontext.resetAsNavigator(handler.getContextWindowProperties());
-            }
-          });
-          // We don't want to reset as navigator twice.
-          handler.evtProgress.removeListener(this);
-        }
-      }
-    });
+    SwingUtilities.invokeLater(() -> wcontext.resetAsNavigator(handler.getContextWindowProperties()));
 
     SecurityUtil.doPrivileged(() -> {
       // Justification: While requests by untrusted code are generally only allowed on certain hosts,
