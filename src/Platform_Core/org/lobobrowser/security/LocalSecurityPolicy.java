@@ -49,6 +49,7 @@ import java.util.StringTokenizer;
 
 import javax.net.ssl.SSLPermission;
 
+import org.h2.engine.Constants;
 import org.lobobrowser.main.ExtensionManager;
 import org.lobobrowser.main.PlatformInit;
 import org.lobobrowser.request.DomainValidation;
@@ -343,16 +344,19 @@ public class LocalSecurityPolicy extends Policy {
     if (isLocal) {
       final String path = location.toExternalForm();
 
-      if (path.endsWith("h2-1.4.180.jar")) {
+      if (path.endsWith("h2-1.4.184.jar")) {
         final String userDBPath = StorageManager.getInstance().userDBPath;
         permissions.add(new FilePermission(STORE_DIRECTORY_CANONICAL, "read"));
         // TODO: Request h2 to provide this list
         final String[] h2Suffixes = new String[] {
-            org.h2.engine.Constants.SUFFIX_LOCK_FILE,
-            org.h2.engine.Constants.SUFFIX_PAGE_FILE,
-            org.h2.engine.Constants.SUFFIX_MV_FILE,
-            org.h2.engine.Constants.SUFFIX_TEMP_FILE,
-            org.h2.engine.Constants.SUFFIX_TRACE_FILE,
+            Constants.SUFFIX_LOCK_FILE,
+            Constants.SUFFIX_PAGE_FILE,
+            Constants.SUFFIX_MV_FILE,
+            Constants.SUFFIX_TEMP_FILE,
+            Constants.SUFFIX_TRACE_FILE,
+            Constants.SUFFIX_MV_FILE + Constants.SUFFIX_MV_STORE_NEW_FILE,
+            Constants.SUFFIX_MV_FILE + Constants.SUFFIX_MV_STORE_TEMP_FILE,
+            Constants.SUFFIX_DB_FILE,
             ".data.db",
         };
         for (final String suffix : h2Suffixes) {

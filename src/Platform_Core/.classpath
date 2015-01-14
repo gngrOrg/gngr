@@ -6,10 +6,10 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/Platform_Public_API"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Common"/>
 	<classpathentry kind="lib" path="lib/jooq-3.4.2.jar"/>
-	<classpathentry kind="lib" path="lib/h2-1.4.180.jar"/>
 	<classpathentry kind="lib" path="lib/public-suffix-list_0.1.jar"/>
 	<classpathentry kind="lib" path="lib/okhttp-2.2.0.jar"/>
 	<classpathentry kind="lib" path="lib/okhttp-urlconnection-2.2.0.jar"/>
 	<classpathentry kind="lib" path="lib/okio-1.2.0.jar"/>
+	<classpathentry kind="lib" path="lib/h2-1.4.184.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
