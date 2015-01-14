@@ -1447,8 +1447,6 @@ public class RBlockViewport extends BaseRCollection {
     // Try to find in other renderables with z-index >= 0 first.
     int index = 0;
     if (size != 0) {
-      final int px = pointx;
-      final int py = pointy;
       // Must go in reverse order
       for (index = size; --index >= 0;) {
         final PositionedRenderable pr = otherArray[index];
@@ -1459,7 +1457,7 @@ public class RBlockViewport extends BaseRCollection {
         if (r instanceof BoundableRenderable) {
           final BoundableRenderable br = r;
           final Rectangle rbounds = br.getBounds();
-          if (rbounds.contains(px, py)) {
+          if (rbounds.contains(pointx, pointy)) {
             if (result == null) {
               result = new LinkedList<>();
             }
