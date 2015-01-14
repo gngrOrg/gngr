@@ -117,6 +117,7 @@ public class PlatformInit {
     // HttpsURLConnection.setDefaultSSLSocketFactory(sslSocketFactory);
     okHttpClient.setSslSocketFactory(sslSocketFactory);
     okHttpClient.setFollowRedirects(false);
+    okHttpClient.setFollowSslRedirects(false);
     factory.addFactory(new OkUrlFactory(okHttpClient));
     factory.addFactory(new LocalStreamHandlerFactory());
   }
