@@ -370,6 +370,9 @@ public class ComponentSource implements NavigatorWindowListener {
     if ("GET".equals(event.getMethod()) && isHistoryRequest(event.getRequestType())) {
       NavigationHistory.getInstance().addAsRecent(url, null);
     }
+    if (this.window.getTopFrame() == event.getNavigatorFrame()) {
+      this.addressField.setUrl(url);
+    }
   }
 
   public void documentRendering(final NavigatorWindowEvent event) {
@@ -377,8 +380,6 @@ public class ComponentSource implements NavigatorWindowListener {
       logger.info("documentRendering(): event=" + event);
     }
     if (this.window.getTopFrame() == event.getNavigatorFrame()) {
-      final java.net.URL url = event.getUrl();
-      this.addressField.setUrl(url);
       this.clearState();
       this.actionPool.updateEnabling();
     }
