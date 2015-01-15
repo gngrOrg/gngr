@@ -32,6 +32,7 @@ import java.awt.image.ImageObserver;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.function.Function;
 import java.util.logging.Level;
 
 import org.lobobrowser.html.domimpl.HTMLDocumentImpl;
@@ -164,6 +165,40 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
     return dw;
   }
 
+  protected Integer getDeclaredHelper(final RenderState renderState, final int baseValue, final Function<CSS2Properties, String> propertyGetter) {
+    final Object rootNode = this.modelNode;
+    if (rootNode instanceof HTMLElementImpl) {
+      final HTMLElementImpl element = (HTMLElementImpl) rootNode;
+      final CSS2Properties props = element.getCurrentStyle();
+      if (props == null) {
+        return null;
+      }
+      final String valueText = propertyGetter.apply(props);
+      if ((valueText == null) || "".equals(valueText)) {
+        return null;
+      }
+      return new Integer(HtmlValues.getPixelSize(valueText, renderState, -1, baseValue));
+    } else {
+      return null;
+    }
+  }
+
+  protected Integer getDeclaredMaxWidth(final RenderState renderState, final int actualAvailWidth) {
+    return getDeclaredHelper(renderState, actualAvailWidth, props -> props.getMaxWidth());
+  }
+
+  protected Integer getDeclaredMinWidth(final RenderState renderState, final int actualAvailWidth) {
+    return getDeclaredHelper(renderState, actualAvailWidth, props -> props.getMinWidth());
+  }
+
+  protected Integer getDeclaredMaxHeight(final RenderState renderState, final int actualAvailHeight) {
+    return getDeclaredHelper(renderState, actualAvailHeight, props -> props.getMaxHeight());
+  }
+
+  protected Integer getDeclaredMinHeight(final RenderState renderState, final int actualAvailHeight) {
+    return getDeclaredHelper(renderState, actualAvailHeight, props -> props.getMinHeight());
+  }
+
   public final boolean hasDeclaredWidth() {
     final Integer dw = this.declaredWidth;
     if (dw == INVALID_SIZE) {
@@ -174,7 +209,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
         if (props == null) {
           return false;
         }
-        return !Strings.isBlank(props.getWidth());
+        return !Strings.isBlank(props.getWidth()) || !Strings.isBlank(props.getMaxWidth());
       }
       return false;
     }
@@ -445,12 +480,6 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
       if (tentativeMarginInsets == null) {
         tentativeMarginInsets = RBlockViewport.ZERO_INSETS;
       }
-      final int actualAvailWidth = availWidth - paddingInsets.left - paddingInsets.right - borderInsets.left - borderInsets.right
-          - tentativeMarginInsets.left - tentativeMarginInsets.right;
-      final int actualAvailHeight = availHeight - paddingInsets.top - paddingInsets.bottom - borderInsets.top - borderInsets.bottom
-          - tentativeMarginInsets.top - tentativeMarginInsets.bottom;
-      final Integer declaredWidth = this.getDeclaredWidth(rs, actualAvailWidth);
-      final Integer declaredHeight = this.getDeclaredHeight(rs, actualAvailHeight);
       // TODO: Get rid of autoMarginX and autoMarginY. They will be always zero
       final int autoMarginX = 0, autoMarginY = 0;
       this.borderInsets = borderInsets;
@@ -499,33 +528,28 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
     // Check if background image needs to be loaded
   }
 
+  // TODO: Move to RBlock and make private
   protected Dimension applyAutoStyles(final int availWidth, final int availHeight) {
     final Object rootNode = this.modelNode;
     HTMLElementImpl rootElement;
-    boolean isRootBlock;
     if (rootNode instanceof HTMLDocumentImpl) {
-      isRootBlock = true;
       final HTMLDocumentImpl doc = (HTMLDocumentImpl) rootNode;
       // Need to get BODY tag, for bgcolor, etc.
       rootElement = (HTMLElementImpl) doc.getBody();
     } else {
-      isRootBlock = false;
       rootElement = (HTMLElementImpl) rootNode;
     }
     if (rootElement == null) {
       return null;
     }
-    final Dimension changes = new Dimension();
     final RenderState rs = rootElement.getRenderState();
     if (rs == null) {
       throw new IllegalStateException("Element without render state: " + rootElement + "; parent=" + rootElement.getParentNode());
     }
+    final Dimension changes = new Dimension();
     final HtmlInsets minsets = rs.getMarginInsets();
     if (minsets != null) {
-
-      final Integer declaredWidth = this.getDeclaredWidth(rs, availWidth);
-      final Integer declaredHeight = this.getDeclaredHeight(rs, availHeight);
-      if (declaredWidth != null) {
+      if (availWidth > 1) {
         // TODO: Consider the case when only one is auto
         final int autoMarginX = availWidth / 2;
         if (minsets.leftType == HtmlInsets.TYPE_AUTO) {
@@ -537,7 +561,9 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
           changes.width += autoMarginX;
         }
       }
-      if (declaredHeight != null) {
+      /* auto for margin-top and margin-bottom is supposed to compute to zero, except when parent is a flex box */
+      /*
+      if (availHeight > 1) {
         // TODO: Consider the case when only one is auto
         final int autoMarginY = availHeight / 2;
         if (minsets.topType == HtmlInsets.TYPE_AUTO) {
@@ -548,7 +574,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
           this.marginInsets.bottom = autoMarginY;
           changes.height += autoMarginY;
         }
-      }
+      }*/
     }
     return changes;
   }
@@ -737,7 +763,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
           final int h = image.getHeight(this);
           if ((w != -1) && (h != -1)) {
             final int imageY = getImageY(totalHeight, binfo, h);
-            final int imageX = getImageX(totalHeight, binfo, h);
+            final int imageX = getImageX(totalWidth, binfo, w);
 
             // TODO: optimise this. Although it works fine, it makes an extra `draw` call when imageX or imageY are negative
             final int baseX = ((bkgBounds.x / w) * w) - (w - imageX);

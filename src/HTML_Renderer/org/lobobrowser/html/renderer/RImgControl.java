@@ -20,6 +20,7 @@
  */
 package org.lobobrowser.html.renderer;
 
+import java.awt.Dimension;
 import java.awt.Insets;
 
 import org.lobobrowser.html.domimpl.ModelNode;
@@ -38,5 +39,23 @@ public class RImgControl extends RUIControl {
   @Override
   public Insets getBorderInsets() {
     return getInsets(false, false);
+  }
+
+  @Override
+  public void doLayout(int availWidth, int availHeight, boolean sizeOnly) {
+    super.doLayout(availWidth, availHeight, sizeOnly);
+    final boolean widthConstrained = isWidthConstrained();
+    final boolean heightConstrained = isHeightConstrained();
+    if (!widthConstrained && heightConstrained) {
+      final Dimension prefSize = widget.getPreferredSize();
+      if (prefSize.height != 0) {
+        this.width = (prefSize.width * this.height) / prefSize.height;
+      }
+    } else if (!heightConstrained && widthConstrained) {
+      final Dimension prefSize = widget.getPreferredSize();
+      if (prefSize.width != 0) {
+        this.height = (prefSize.height * this.width) / prefSize.width;
+      }
+    }
   }
 }

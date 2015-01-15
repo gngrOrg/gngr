@@ -31,7 +31,7 @@ import java.awt.event.MouseEvent;
 import org.lobobrowser.html.domimpl.ModelNode;
 import org.lobobrowser.html.style.RenderState;
 
-final class RWord extends BaseBoundableRenderable {
+class RWord extends BaseBoundableRenderable {
   final String shownWord;
   public final FontMetrics fontMetrics;
   public final int descent;

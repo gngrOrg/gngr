@@ -149,7 +149,7 @@ public class HTMLStyleElementImpl extends HTMLElementImpl implements HTMLStyleEl
       final String processedText = CSSUtilities.preProcessCss(text);
       final String baseURI = doc.getBaseURI();
       // TODO if the new StyleSheet contains any @import rules, then we should queue them for further processing
-      final StyleSheet jSheet = CSSUtilities.jParseStyleSheet(this, baseURI, processedText);
+      final StyleSheet jSheet = CSSUtilities.jParseStyleSheet(this, baseURI, processedText, doc.getUserAgentContext());
       return new JStyleSheetWrapper(jSheet, this.getMedia(), null, this.getType(), this.getTitle(), this, doc.styleSheetManager.bridge);
     } catch (final Throwable err) {
       this.warn("Unable to parse style sheet", err);

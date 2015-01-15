@@ -22,10 +22,15 @@
 package org.lobobrowser.html.style;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.AccessController;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -45,6 +50,7 @@ import org.w3c.dom.stylesheets.MediaList;
 import cz.vutbr.web.css.CSSException;
 import cz.vutbr.web.css.CSSFactory;
 import cz.vutbr.web.css.MediaSpecNone;
+import cz.vutbr.web.css.NetworkProcessor;
 import cz.vutbr.web.css.RuleFactory;
 import cz.vutbr.web.css.StyleSheet;
 import cz.vutbr.web.csskit.RuleFactoryImpl;
@@ -95,12 +101,8 @@ public class CSSUtilities {
     return is;
   }
 
-  /* public static CSSOMParser mkParser() {
-    return new CSSOMParser(new SACParserCSS3());
-  } */
-
-  public static StyleSheet jParseStyleSheet(final org.w3c.dom.Node ownerNode, final String baseURI, final String stylesheetStr) {
-    return jParseCSS2(ownerNode, baseURI, stylesheetStr);
+  public static StyleSheet jParseStyleSheet(final org.w3c.dom.Node ownerNode, final String baseURI, final String stylesheetStr, final UserAgentContext bcontext) {
+    return jParseCSS2(ownerNode, baseURI, stylesheetStr, bcontext);
   }
 
   public static StyleSheet jParse(final org.w3c.dom.Node ownerNode, final String href, final HTMLDocumentImpl doc, final String baseUri,
@@ -129,7 +131,7 @@ public class CSSUtilities {
     final String text = request.getResponseText();
     if ((text != null) && !"".equals(text)) {
       final String processedText = considerDoubleSlashComments ? preProcessCss(text) : text;
-      return jParseCSS2(ownerNode, cssURI, processedText);
+      return jParseCSS2(ownerNode, cssURI, processedText, bcontext);
     } else {
       return getEmptyStyleSheet();
     }
@@ -141,21 +143,55 @@ public class CSSUtilities {
     return css;
   }
 
-  private static StyleSheet jParseCSS2(final org.w3c.dom.Node ownerNode, final String cssURI, final String processedText) {
+  private static StyleSheet jParseCSS2(final org.w3c.dom.Node ownerNode, final String cssURI, final String processedText,
+      final UserAgentContext bcontext) {
+
     CSSFactory.setAutoImportMedia(new MediaSpecNone());
     try {
       final URL base = new URL(cssURI);
-      return CSSParserFactory.parse(processedText, null, SourceType.EMBEDDED, base);
+      return CSSParserFactory.parse(processedText, new SafeNetworkProcessor(bcontext), null, SourceType.EMBEDDED, base);
     } catch (IOException | CSSException e) {
       logger.log(Level.SEVERE, "Unable to parse CSS. URI=[" + cssURI + "].", e);
       return getEmptyStyleSheet();
     }
   }
 
+  public static class SafeNetworkProcessor implements NetworkProcessor {
+    final UserAgentContext bcontext;
+
+    public SafeNetworkProcessor(final UserAgentContext bcontext) {
+      this.bcontext = bcontext;
+    }
+
+    @Override
+    public InputStream fetch(final URL url) throws IOException {
+      try {
+        return AccessController.doPrivileged((PrivilegedExceptionAction<InputStream>) () -> {
+          final NetworkRequest request = bcontext.createHttpRequest();
+          request.open("GET", url, false);
+          request.send(null, new Request(url, RequestKind.CSS));
+          final byte[] responseBytes = request.getResponseBytes();
+          if (responseBytes == null) {
+            // This can happen when a request is denied by the request manager.
+            throw new IOException("Empty response");
+          } else {
+            return new ByteArrayInputStream(responseBytes);
+          }
+        });
+      } catch (final PrivilegedActionException e) {
+        if (e.getException() instanceof IOException) {
+          throw (IOException) e.getException();
+        } else {
+          throw new RuntimeException(e);
+        }
+      }
+    }
+  }
+
   public static StyleSheet jParseInlineStyle(final String style, final String encoding,
       final HTMLElementImpl element, final boolean inlinePriority) {
     try {
-      return CSSParserFactory.parse(style, encoding, SourceType.INLINE, element, inlinePriority, element.getDocumentURL());
+      return CSSParserFactory.parse(style, new SafeNetworkProcessor(null), null, SourceType.INLINE, element, inlinePriority, element.getDocumentURL());
     } catch (IOException | CSSException e) {
       logger.log(Level.SEVERE, "Unable to parse CSS. CSS=[" + style + "].", e);
       return getEmptyStyleSheet();

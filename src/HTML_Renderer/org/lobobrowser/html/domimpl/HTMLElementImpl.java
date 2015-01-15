@@ -81,6 +81,10 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
   protected final void forgetLocalStyle() {
     synchronized (this) {
       //TODO to be reconsidered in issue #41
+
+      this.currentStyle = null;
+      this.cachedNodeData = null;
+      //TODO to be removed during code cleanup
       /*
       this.currentStyleDeclarationState = null;
       this.localStyleDeclarationState = null;
@@ -100,6 +104,8 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
       this.isHoverStyle = null;
       this.hasHoverStyleByElement = null;
        */
+      this.currentStyle = null;
+      this.cachedNodeData = null;
       if (deep) {
         final java.util.ArrayList<Node> nl = this.nodeList;
         if (nl != null) {
@@ -115,15 +121,20 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
     }
   }
 
+  private volatile JStyleProperties currentStyle = null;
+
   /**
    * Gets the style object associated with the element. It may return null only
    * if the type of element does not handle stylesheets.
    */
-  // TODO Cache this method
   // TODO hide from JS
   public JStyleProperties getCurrentStyle() {
     synchronized (this) {
-      return new ComputedJStyleProperties(this, getNodeData(null), true);
+      if (currentStyle != null) {
+        return currentStyle;
+      }
+      currentStyle = new ComputedJStyleProperties(this, getNodeData(null), true);
+      return currentStyle;
     }
   }
 
@@ -137,35 +148,43 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
     }
   }
 
-  // TODO Cache this method
+  private NodeData cachedNodeData = null;
+
   private NodeData getNodeData(final Selector.PseudoDeclaration psuedoElement) {
-    final HTMLDocumentImpl doc = (HTMLDocumentImpl) this.document;
-    final List<StyleSheet> jSheets = new ArrayList<>();
-    jSheets.add(recommendedStyle);
-    jSheets.add(userAgentStyle);
-    jSheets.addAll(doc.styleSheetManager.getEnabledJStyleSheets());
+    synchronized (this) {
+      if (cachedNodeData != null) {
+        return cachedNodeData;
+      }
 
-    final StyleSheet attributeStyle = StyleElements.convertAttributesToStyles(this);
-    if (attributeStyle != null) {
-      jSheets.add(attributeStyle);
+      final HTMLDocumentImpl doc = (HTMLDocumentImpl) this.document;
+      final List<StyleSheet> jSheets = new ArrayList<>();
+      jSheets.add(recommendedStyle);
+      jSheets.add(userAgentStyle);
+      jSheets.addAll(doc.styleSheetManager.getEnabledJStyleSheets());
+
+      final StyleSheet attributeStyle = StyleElements.convertAttributesToStyles(this);
+      if (attributeStyle != null) {
+        jSheets.add(attributeStyle);
+      }
+
+      final StyleSheet inlineStyle = this.getInlineJStyle();
+      if (inlineStyle != null) {
+        jSheets.add(inlineStyle);
+      }
+
+      final DirectAnalyzer domAnalyser = new cz.vutbr.web.domassign.DirectAnalyzer(jSheets);
+      domAnalyser.registerMatchCondition(elementMatchCondition);
+
+      final NodeData nodeData = domAnalyser.getElementStyle(this, psuedoElement, "screen");
+      final Node parent = this.parentNode;
+      if ((parent != null) && (parent instanceof HTMLElementImpl)) {
+        final HTMLElementImpl parentElement = (HTMLElementImpl) parent;
+        nodeData.inheritFrom(parentElement.getNodeData(psuedoElement));
+        nodeData.concretize();
+      }
+      cachedNodeData = nodeData;
+      return nodeData;
     }
-
-    final StyleSheet inlineStyle = this.getInlineJStyle();
-    if (inlineStyle != null) {
-      jSheets.add(inlineStyle);
-    }
-
-    final DirectAnalyzer domAnalyser = new cz.vutbr.web.domassign.DirectAnalyzer(jSheets);
-    domAnalyser.registerMatchCondition(elementMatchCondition);
-
-    final NodeData nodeData = domAnalyser.getElementStyle(this, psuedoElement, "screen");
-    final Node parent = this.parentNode;
-    if ((parent != null) && (parent instanceof HTMLElementImpl)) {
-      final HTMLElementImpl parentElement = (HTMLElementImpl) parent;
-      nodeData.inheritFrom(parentElement.getNodeData(psuedoElement));
-      nodeData.concretize();
-    }
-    return nodeData;
   }
 
   /**

@@ -377,6 +377,10 @@ public class HtmlRendererContextImpl implements HtmlRendererContext {
     Node currElement = element;
     while (currElement != null) {
       if ((!linkEntryAdded) && (currElement instanceof HTMLLinkElementImpl)) {
+        if (imageEntryAdded) {
+          popupMenu.addSeparator();
+        }
+
         final HTMLLinkElementImpl link = (HTMLLinkElementImpl) currElement;
         final JMenuItem openLinkMenuItem = new JMenuItem("Open link in new window");
         openLinkMenuItem.addActionListener(e -> {
@@ -393,6 +397,11 @@ public class HtmlRendererContextImpl implements HtmlRendererContext {
 
         linkEntryAdded = true;
       } else if ((!imageEntryAdded) && (currElement instanceof HTMLImageElementImpl)) {
+
+        if (linkEntryAdded) {
+          popupMenu.addSeparator();
+        }
+
         final HTMLImageElementImpl img = (HTMLImageElementImpl) currElement;
         try {
           final URL srcUrl = img.getFullURL(img.getSrc());

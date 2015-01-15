@@ -52,6 +52,7 @@ import org.lobobrowser.ua.NavigatorProgressEvent;
 import org.lobobrowser.ua.NavigatorWindow;
 import org.lobobrowser.ua.NavigatorWindowEvent;
 import org.lobobrowser.ua.NavigatorWindowListener;
+import org.lobobrowser.ua.ProgressType;
 import org.lobobrowser.ua.RequestType;
 import org.lobobrowser.util.Timing;
 
@@ -377,8 +378,6 @@ public class ComponentSource implements NavigatorWindowListener {
       logger.info("documentRendering(): event=" + event);
     }
     if (this.window.getTopFrame() == event.getNavigatorFrame()) {
-      final java.net.URL url = event.getUrl();
-      this.addressField.setUrl(url);
       this.clearState();
       this.actionPool.updateEnabling();
     }
@@ -408,6 +407,11 @@ public class ComponentSource implements NavigatorWindowListener {
   public void progressUpdated(final NavigatorProgressEvent event) {
     if (this.window.getTopFrame() == event.getNavigatorFrame()) {
       this.progressBar.updateProgress(event.getProgressType(), event.getCurrentValue(), event.getMaxValue());
+
+      if (event.getProgressType() == ProgressType.CONNECTING) {
+        final java.net.URL url = event.getUrl();
+        this.addressField.setUrl(url);
+      }
     }
     this.statusMessageComponent.setText(ClientletRequestHandler.getProgressMessage(event.getProgressType(), event.getUrl()));
   }
