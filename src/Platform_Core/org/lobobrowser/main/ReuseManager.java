@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.logging.Level;
@@ -116,11 +117,11 @@ public class ReuseManager {
               writer.flush();
               launched = true;
             }
-          } catch (final IOException ioe) {
+          } catch (final ConnectException ce) {
             // VM must have died. We don't have logging at this point.
             PlatformInit.getInstance().initLogging(false);
             Logger.getLogger(ReuseManager.class.getName()).log(Level.WARNING,
-                "Another instance of the application must have been running but was not shut down properly.", ioe);
+                "Another instance of the application must have been running but was not shut down properly.\nDeleting residues of the last instance and creating a new instance.");
             portFile.delete();
           }
         }
