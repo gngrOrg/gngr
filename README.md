@@ -3,6 +3,8 @@ gngr
 
 This is the source code of [gngr](https://gngr.info), a new cross-platform browser that champions privacy.
 
+![gngr Inception](https://gngr.info/media/img/screens/v035/gngrInception.png)
+
 ### Status
 This is an early prototype; a proof-of-concept. It is useable with very simple websites.
 
