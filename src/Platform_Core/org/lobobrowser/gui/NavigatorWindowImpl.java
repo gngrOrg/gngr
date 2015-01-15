@@ -382,7 +382,8 @@ public class NavigatorWindowImpl implements NavigatorWindow, WindowCallback {
   }
 
   public NavigatorFrame getTopFrame() {
-    return this.framePanel;
+    // TODO: This needs to be checked. In some quick tests like loading reddit, things seem to work fine whether we return framePanel or framePanel.getTopFrame()
+    return this.framePanel.getTopFrame();
   }
 
   public void statusUpdated(final NavigatorFrame clientletFrame, final String value) {

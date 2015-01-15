@@ -72,6 +72,8 @@ public interface NetworkRequest {
    */
   public static final int STATE_COMPLETE = 4;
 
+  public static final int STATE_ABORTED = 5;
+
   /**
    * Gets the state of the request, a value between 0 and 4.
    *
@@ -221,6 +223,8 @@ public interface NetworkRequest {
   public void addNetworkRequestListener(NetworkRequestListener listener);
 
   Optional<URL> getURL();
+
+  public boolean isAsnyc();
 
   public void addRequestedHeader(String header, String value);
 }

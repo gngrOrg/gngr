@@ -34,6 +34,7 @@ import org.lobobrowser.clientlet.JavaVersionException;
 import org.lobobrowser.clientlet.NavigatorVersionException;
 import org.lobobrowser.html.HtmlRendererContext;
 import org.lobobrowser.html.gui.HtmlPanel;
+import org.lobobrowser.js.JavaScript;
 import org.lobobrowser.main.PlatformInit;
 import org.lobobrowser.primary.clientlets.PrimaryClientletSelector;
 import org.lobobrowser.primary.clientlets.html.HtmlContent;
@@ -64,6 +65,7 @@ public class ExtensionImpl implements NavigatorExtension {
         showError(event.getNavigatorFrame(), event.getResponse(), event.getException());
       }
     });
+    JavaScript.init();
   }
 
   public void windowClosing(final NavigatorWindow wcontext) {

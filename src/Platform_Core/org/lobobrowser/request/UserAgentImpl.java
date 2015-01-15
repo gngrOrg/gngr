@@ -42,7 +42,8 @@ public class UserAgentImpl implements UserAgent {
   }
 
   public String getName() {
-    return "gngr";
+    return "";
+    // return "gngr";
   }
 
   public String getMajorVersion() {

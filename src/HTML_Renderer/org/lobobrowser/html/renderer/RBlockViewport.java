@@ -2177,7 +2177,8 @@ public class RBlockViewport extends BaseRCollection {
         final String display = style.getDisplay();
         if (display != null) {
           if ("none".equalsIgnoreCase(display)) {
-            return;
+            /* Dromeao tests use an iframe with display set to none; If we return here, then scripts in the iframe don't load. */
+            // return;
           } else if ("block".equalsIgnoreCase(display)) {
             currMethod = ADD_AS_BLOCK;
           } else if ("inline".equalsIgnoreCase(display)) {
@@ -2245,10 +2246,10 @@ public class RBlockViewport extends BaseRCollection {
           }
         }
       }
+      final UINode node = markupElement.getUINode();
       switch (display) {
       case DISPLAY_NONE:
         // skip it completely.
-        final UINode node = markupElement.getUINode();
         if (node instanceof BaseBoundableRenderable) {
           // This is necessary so that if the element is made
           // visible again, it can be invalidated.
@@ -2257,16 +2258,24 @@ public class RBlockViewport extends BaseRCollection {
         break;
       case DISPLAY_BLOCK:
         //TODO refer issue #87
-        final String tagName = markupElement.getTagName();
-        if ("UL".equalsIgnoreCase(tagName) || "OL".equalsIgnoreCase(tagName)) {
-          bodyLayout.layoutList(markupElement);
+        if (node instanceof RTable) {
+          bodyLayout.layoutRTable(markupElement);
         } else {
           bodyLayout.layoutRBlock(markupElement);
         }
         break;
       case DISPLAY_LIST_ITEM:
-        bodyLayout.layoutListItem(markupElement);
+        final String tagName = markupElement.getTagName();
+        if ("UL".equalsIgnoreCase(tagName) || "OL".equalsIgnoreCase(tagName)) {
+          bodyLayout.layoutList(markupElement);
+        } else {
+          // bodyLayout.layoutRBlock(markupElement);
+          bodyLayout.layoutListItem(markupElement);
+        }
         break;
+        /*case DISPLAY_LIST_ITEM:
+        bodyLayout.layoutListItem(markupElement);
+        break;*/
       case DISPLAY_TABLE:
         bodyLayout.layoutRTable(markupElement);
         break;

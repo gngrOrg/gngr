@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -50,19 +52,25 @@ import org.w3c.css.sac.InputSource;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.events.Event;
+import org.w3c.dom.events.EventException;
+import org.w3c.dom.events.EventListener;
+import org.w3c.dom.events.EventTarget;
 import org.w3c.dom.html.HTMLElement;
 import org.w3c.dom.html.HTMLFormElement;
 
 import cz.vutbr.web.css.CSSException;
 import cz.vutbr.web.css.CSSFactory;
+import cz.vutbr.web.css.CSSProperty;
 import cz.vutbr.web.css.NodeData;
 import cz.vutbr.web.css.Selector;
 import cz.vutbr.web.css.Selector.PseudoDeclaration;
 import cz.vutbr.web.css.StyleSheet;
+import cz.vutbr.web.css.Term;
 import cz.vutbr.web.csskit.MatchConditionOnElements;
 import cz.vutbr.web.domassign.DirectAnalyzer;
 
-public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2PropertiesContext {
+public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2PropertiesContext, EventTarget {
   private final boolean noStyleSheet;
   private static final MatchConditionOnElements elementMatchCondition = new MatchConditionOnElements();
   private static final StyleSheet recommendedStyle = parseStyle(CSSNorm.stdStyleSheet(), StyleSheet.Origin.AGENT);
@@ -91,12 +99,13 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
       this.computedStyles = null;
        */
     }
+
   }
 
   protected final void forgetStyle(final boolean deep) {
     // TODO: OPTIMIZATION: If we had a ComputedStyle map in
     // window (Mozilla model) the map could be cleared in one shot.
-    synchronized (this) {
+    synchronized (treeLock) {
       //TODO to be reconsidered in issue #41
       /*
       this.currentStyleDeclarationState = null;
@@ -291,6 +300,9 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
     } else {
       if ("style".equals(normalName)) {
         this.forgetLocalStyle();
+        // informDocumentInvalid();
+        // informLayoutInvalid();
+        // invalidateDescendentsForHover();
       }
     }
     super.assignAttributeField(normalName, value);
@@ -346,14 +358,51 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
     }
   }
 
+  // TODO: request this feature from upstream
+  private static boolean isSameNodeData(final NodeData a, final NodeData b) {
+    final Collection<String> aProps = a.getPropertyNames();
+    final Collection<String> bProps = b.getPropertyNames();
+    if (aProps.size() == bProps.size()) {
+      for (final String ap : aProps) {
+        final Term<?> aVal = a.getValue(ap, true);
+        final Term<?> bVal = b.getValue(ap, true);
+        if (aVal != null) {
+          if (!aVal.equals(bVal)) {
+            return false;
+          }
+        }
+        final CSSProperty aProp = a.getProperty(ap);
+        final CSSProperty bProp = b.getProperty(ap);
+        if (!aProp.equals(bProp)) {
+          return false;
+        }
+      }
+      return true;
+    }
+    return false;
+  }
+
   //TODO: need to optimize it by checking if there is hover style for the given element
   private boolean hasHoverStyle() {
-    return true;
+    final NodeData newNodeData = getNodeData(null);
+    if (currentStyle != null) {
+      return !isSameNodeData(newNodeData, currentStyle.getNodeData());
+    } else {
+      return newNodeData == null;
+    }
+    // return false;
   }
 
   //TODO: need to optimize it by checking if there is hover style for the given element
   private boolean hasHoverStyle(final HTMLElementImpl ancestor) {
-    return true;
+    /*
+    final NodeData newNodeData = getNodeData(null);
+    if (currentStyle != null) {
+      return !isSameNodeData(newNodeData, currentStyle.getNodeData());
+    } else {
+      return newNodeData == null;
+    }*/
+    return false;
   }
 
   /**
@@ -705,5 +754,112 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
       informInvalid();
     }
     super.handleDocumentAttachmentChanged();
+  }
+
+  public DOMTokenList getClassList() {
+    return new DOMTokenList();
+  }
+
+  // Based on http://www.w3.org/TR/dom/#domtokenlist
+  public final class DOMTokenList {
+
+    private String[] getClasses() {
+      return getAttribute("class").split(" ");
+    }
+
+    private String[] getClasses(final int max) {
+      return getAttribute("class").split(" ", max);
+    }
+
+    public long getLength() {
+      return getClasses().length;
+    }
+
+    public String item(final long index) {
+      final int indexInt = (int) index;
+      return getClasses(indexInt + 1)[0];
+    }
+
+    public boolean contains(final String token) {
+      return Arrays.stream(getClasses()).anyMatch(t -> t.equals(token));
+    }
+
+    public void add(final String token) {
+      add(new String[] { token });
+    }
+
+    public void add(final String[] tokens) {
+      final StringBuilder sb = new StringBuilder();
+      for (final String token : tokens) {
+        if (token.length() == 0) {
+          throw new DOMException(DOMException.SYNTAX_ERR, "empty token");
+        }
+        // TODO: Check for whitespace and throw IllegalCharacterError
+
+        sb.append(' ');
+        sb.append(token);
+      }
+      setAttribute("class", getAttribute("class") + sb.toString());
+    }
+
+    public void remove(final String tokenToRemove) {
+      remove(new String[] { tokenToRemove });
+    }
+
+    public void remove(final String[] tokensToRemove) {
+      final String[] existingClasses = getClasses();
+      final StringBuilder sb = new StringBuilder();
+      for (final String clazz : existingClasses) {
+        if (!Arrays.stream(tokensToRemove).anyMatch(tr -> tr.equals(clazz))) {
+          sb.append(' ');
+          sb.append(clazz);
+        }
+      }
+      setAttribute("class", sb.toString());
+    }
+
+    public boolean toggle(final String tokenToToggle) {
+      final String[] existingClasses = getClasses();
+      for (final String clazz : existingClasses) {
+        if (tokenToToggle.equals(clazz)) {
+          remove(tokenToToggle);
+          return false;
+        }
+      }
+
+      // Not found, hence add
+      add(tokenToToggle);
+      return true;
+    }
+
+    public boolean toggle(final String token, final boolean force) {
+      if (force) {
+        add(token);
+      } else {
+        remove(token);
+      }
+      return force;
+    }
+
+    /* TODO: stringifier; */
+  }
+
+  @Override
+  public void addEventListener(final String type, final EventListener listener, final boolean useCapture) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void removeEventListener(final String type, final EventListener listener, final boolean useCapture) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean dispatchEvent(final Event evt) throws EventException {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException();
+    // return false;
   }
 }

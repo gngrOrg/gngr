@@ -27,13 +27,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.lobobrowser.html.js.Executor;
+import org.lobobrowser.html.js.Window;
+import org.lobobrowser.html.js.Window.JSRunnableTask;
 import org.lobobrowser.ua.NetworkRequest;
 import org.lobobrowser.ua.UserAgentContext;
 import org.lobobrowser.ua.UserAgentContext.Request;
 import org.lobobrowser.ua.UserAgentContext.RequestKind;
 import org.lobobrowser.util.SecurityUtil;
 import org.mozilla.javascript.Context;
-import org.mozilla.javascript.EcmaError;
 import org.mozilla.javascript.Scriptable;
 import org.w3c.dom.Document;
 import org.w3c.dom.html.HTMLScriptElement;
@@ -156,26 +157,37 @@ public class HTMLScriptElementImpl extends HTMLElementImpl implements HTMLScript
         text = request.getResponseText();
         baseLineNumber = 1;
       }
-      final Context ctx = Executor.createContext(this.getDocumentURL(), bcontext);
-      try {
-        final Scriptable scope = (Scriptable) doc.getUserData(Executor.SCOPE_KEY);
-        if (scope == null) {
-          throw new IllegalStateException("Scriptable (scope) instance was expected to be keyed as UserData to document using "
-              + Executor.SCOPE_KEY);
-        }
-        try {
-          if (text != null) {
-            ctx.evaluateString(scope, text, scriptURI, baseLineNumber, null);
+
+      final Window window = ((HTMLDocumentImpl) doc).getWindow();
+      if (text != null) {
+        final String textSub = text.substring(0, Math.min(50, text.length())).replaceAll("\n", "");
+        window.addJSTaskUnchecked(new JSRunnableTask(0, "script: " + textSub, new Runnable() {
+          public void run() {
+            // final Context ctx = Executor.createContext(HTMLScriptElementImpl.this.getDocumentURL(), bcontext);
+            final Context ctx = Executor.createContext(HTMLScriptElementImpl.this.getDocumentURL(), bcontext, window.windowFactory);
+            try {
+              final Scriptable scope = window.getWindowScope();
+              if (scope == null) {
+                throw new IllegalStateException("Scriptable (scope) instance was null");
+              }
+              try {
+                if (text != null) {
+                  ctx.evaluateString(scope, text, scriptURI, baseLineNumber, null);
+                }
+                // Why catch this?
+                // } catch (final EcmaError ecmaError) {
+                // logger.log(Level.WARNING,
+                // "Javascript error at " + ecmaError.sourceName() + ":" + ecmaError.lineNumber() + ": " + ecmaError.getMessage(),
+                // ecmaError);
+              } catch (final Throwable err) {
+                Executor.logJSException(err);
+              }
+            } finally {
+              Context.exit();
+              ((HTMLDocumentImpl) HTMLScriptElementImpl.this.document).markJobsFinished(1);
+            }
           }
-        } catch (final EcmaError ecmaError) {
-          logger.log(Level.WARNING,
-              "Javascript error at " + ecmaError.sourceName() + ":" + ecmaError.lineNumber() + ": " + ecmaError.getMessage(),
-              ecmaError);
-        } catch (final Throwable err) {
-          logger.log(Level.WARNING, "Unable to evaluate Javascript code", err);
-        }
-      } finally {
-        Context.exit();
+        }));
       }
     }
   }
