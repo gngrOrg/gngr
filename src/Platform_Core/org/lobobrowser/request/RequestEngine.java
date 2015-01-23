@@ -176,7 +176,7 @@ public final class RequestEngine {
 
   private void postData(final URLConnection connection, final ParameterInfo pinfo, final String altPostData) throws IOException {
     final BooleanSettings boolSettings = this.booleanSettings;
-    final String encoding = pinfo.getEncoding();
+    final String encoding = pinfo != null ? pinfo.getEncoding() : NORMAL_FORM_ENCODING;
     if ((encoding == null) || NORMAL_FORM_ENCODING.equalsIgnoreCase(encoding)) {
       final ByteArrayOutputStream bufOut = new ByteArrayOutputStream();
       if (pinfo != null) {
