@@ -206,7 +206,9 @@ public class ElementImpl extends NodeImpl implements Element {
   }
 
   public String getTagName() {
-    return this.getNodeName();
+    // In HTML, tag names are supposed to be returned in upper-case, but in XHTML they are returned in original case
+    // as per https://developer.mozilla.org/en-US/docs/Web/API/Element.tagName
+    return this.getNodeName().toUpperCase();
   }
 
   public boolean hasAttribute(final String name) {
