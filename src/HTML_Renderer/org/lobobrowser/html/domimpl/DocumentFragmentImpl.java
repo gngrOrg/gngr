@@ -27,9 +27,12 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Node;
 
-public class DocumentFragmentImpl extends NodeImpl implements DocumentFragment {
+/* TODO: extends ElementImpl as a hack, to get the ParentNode functionality.
+         Better solution would be to extend from NodeImpl and create a ParentNode interface with default methods.
+         Issue #88 */
+public class DocumentFragmentImpl extends ElementImpl implements DocumentFragment {
   public DocumentFragmentImpl() {
-    super();
+    super("#document-fragment");
   }
 
   @Override
