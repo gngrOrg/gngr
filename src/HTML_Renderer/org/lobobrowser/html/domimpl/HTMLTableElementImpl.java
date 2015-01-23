@@ -25,6 +25,7 @@ package org.lobobrowser.html.domimpl;
 
 import java.util.ArrayList;
 
+import org.lobobrowser.html.js.PropertyName;
 import org.lobobrowser.html.style.HtmlLength;
 import org.lobobrowser.html.style.HtmlValues;
 import org.lobobrowser.html.style.JStyleProperties;
@@ -82,6 +83,7 @@ public class HTMLTableElementImpl extends HTMLAbstractUIElement implements HTMLT
     return new DescendentHTMLCollection(this, new NodeNameFilter("TR"), this.treeLock, false);
   }
 
+  @PropertyName("tBodies")
   public HTMLCollection getTBodies() {
     return new DescendentHTMLCollection(this, new NodeNameFilter("TBODY"), this.treeLock, false);
   }
