@@ -347,14 +347,52 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
     }
   }
 
-  //TODO: need to optimize it by checking if there is hover style for the given element
-  private boolean hasHoverStyle() {
-    return true;
+  // TODO: request this feature from upstream
+  private static boolean isSameNodeData(final NodeData a, final NodeData b) {
+    final Collection<String> aProps = a.getPropertyNames();
+    final Collection<String> bProps = b.getPropertyNames();
+    if (aProps.size() == bProps.size()) {
+      for (final String ap : aProps) {
+        final Term<?> aVal = a.getValue(ap, true);
+        final Term<?> bVal = b.getValue(ap, true);
+        if (aVal != null) {
+          if (!aVal.equals(bVal)) {
+            return false;
+          }
+        }
+        final CSSProperty aProp = a.getProperty(ap);
+        final CSSProperty bProp = b.getProperty(ap);
+        if (!aProp.equals(bProp)) {
+          return false;
+        }
+      }
+      return true;
+    }
+    return false;
   }
 
-  //TODO: need to optimize it by checking if there is hover style for the given element
+  //TODO: GH #89 need to optimize it by checking if there is hover style for the given element
+  private boolean hasHoverStyle() {
+    return true;
+    /*
+    final NodeData newNodeData = getNodeData(null);
+    if (currentStyle != null) {
+      return !isSameNodeData(newNodeData, currentStyle.getNodeData());
+    } else {
+      return newNodeData == null;
+    }*/
+  }
+
+  //TODO: GH #89 need to optimize it by checking if there is hover style for the given element
   private boolean hasHoverStyle(final HTMLElementImpl ancestor) {
     return true;
+    /*
+    final NodeData newNodeData = getNodeData(null);
+    if (currentStyle != null) {
+      return !isSameNodeData(newNodeData, currentStyle.getNodeData());
+    } else {
+      return newNodeData == null;
+    }*/
   }
 
   /**
