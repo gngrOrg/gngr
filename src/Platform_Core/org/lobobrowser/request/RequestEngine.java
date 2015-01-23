@@ -671,8 +671,12 @@ public final class RequestEngine {
     }
     addRequestProperties(connection, request, cacheInfo, method, connectionUrl, rhandler);
 
-    // TODO: Consider adding cookies here?
     addRequestedHeadersToRequest(connection, rhandler);
+
+    // Moved add cookies here since connection is initiated in this method for POST requests.
+    // And we can't add headers after the connection is made.
+    addCookiesToRequest(connection, rhandler);
+    // dumpRequestInfo(connection);
 
     // Allow extensions to modify the connection object.
     // Doing it after addRequestProperties() to allow such
@@ -744,7 +748,7 @@ public final class RequestEngine {
       final CacheInfo cacheInfo = getCacheInfo(rhandler, connectionUrl, isGet);
       try {
         URLConnection connection = this.getURLConnection(connectionUrl, request, protocol, method, rhandler, cacheInfo);
-        addCookiesToRequest(connection, rhandler);
+
         // This causes exceptions sometimes (when the connection is already open)
         // dumpRequestInfo(connection);
 
@@ -762,6 +766,7 @@ public final class RequestEngine {
           rhandler.handleProgress(ProgressType.CONNECTING, url, method, 0, -1);
           // Handle response
           boolean isContentCached = (cacheInfo != null) && cacheInfo.isCacheConnection(connection);
+
           boolean isCacheable = false;
           if ((connection instanceof HttpURLConnection) && !isContentCached) {
             final HttpURLConnection hconnection = (HttpURLConnection) connection;
