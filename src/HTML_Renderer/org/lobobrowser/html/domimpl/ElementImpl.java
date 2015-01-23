@@ -533,4 +533,41 @@ public class ElementImpl extends NodeImpl implements Element {
       }
     }
   }
+
+  // TODO: GH #88 Need to implement these for Document and DocumentFragment as part of ParentNode API
+  public Element getFirstElementChild() {
+    final ArrayList<Node> nl = this.nodeList;
+    for (final Node n : nl) {
+      if (n instanceof Element) {
+        return (Element) n;
+      }
+    }
+
+    return null;
+  }
+
+  public Element getLastElementChild() {
+    final ArrayList<Node> nl = this.nodeList;
+    final int N = nl.size();
+    for (int i = N - 1; i >= 0; i--) {
+      final Node n = nl.get(i);
+      if (n instanceof Element) {
+        return (Element) n;
+      }
+    }
+
+    return null;
+  }
+
+  public int getChildElementCount() {
+    final ArrayList<Node> nl = this.nodeList;
+    int count = 0;
+    for (final Node n : nl) {
+      if (n instanceof Element) {
+        count++;
+      }
+    }
+
+    return count;
+  }
 }
