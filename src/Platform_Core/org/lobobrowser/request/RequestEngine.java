@@ -689,10 +689,12 @@ public final class RequestEngine {
     // POST data if we need to.
     if (isPost) {
       final ParameterInfo pinfo = rhandler instanceof RedirectRequestHandler ? null : request.getParameterInfo();
-      if (pinfo == null) {
-        throw new IllegalStateException("POST has no parameter information");
+      final String altPostData = rhandler instanceof RedirectRequestHandler ? null : request.getAltPostData();
+      if ((pinfo == null) && (altPostData == null)) {
+        logger.info("POST has no parameter information");
+      } else {
+        this.postData(connection, pinfo, altPostData);
       }
-      this.postData(connection, pinfo, request.getAltPostData());
     }
     return connection;
   }
