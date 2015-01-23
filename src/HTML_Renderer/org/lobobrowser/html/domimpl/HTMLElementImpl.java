@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -706,4 +707,93 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
     }
     super.handleDocumentAttachmentChanged();
   }
+
+  public DOMTokenList getClassList() {
+    return new DOMTokenList();
+  }
+
+  // Based on http://www.w3.org/TR/dom/#domtokenlist
+  public final class DOMTokenList {
+
+    private String[] getClasses() {
+      return getAttribute("class").split(" ");
+    }
+
+    private String[] getClasses(final int max) {
+      return getAttribute("class").split(" ", max);
+    }
+
+    public long getLength() {
+      return getClasses().length;
+    }
+
+    public String item(final long index) {
+      final int indexInt = (int) index;
+      return getClasses(indexInt + 1)[0];
+    }
+
+    public boolean contains(final String token) {
+      return Arrays.stream(getClasses()).anyMatch(t -> t.equals(token));
+    }
+
+    public void add(final String token) {
+      add(new String[] { token });
+    }
+
+    public void add(final String[] tokens) {
+      final StringBuilder sb = new StringBuilder();
+      for (final String token : tokens) {
+        if (token.length() == 0) {
+          throw new DOMException(DOMException.SYNTAX_ERR, "empty token");
+        }
+        // TODO: Check for whitespace and throw IllegalCharacterError
+
+        sb.append(' ');
+        sb.append(token);
+      }
+      setAttribute("class", getAttribute("class") + sb.toString());
+    }
+
+    public void remove(final String tokenToRemove) {
+      remove(new String[] { tokenToRemove });
+    }
+
+    public void remove(final String[] tokensToRemove) {
+      final String[] existingClasses = getClasses();
+      final StringBuilder sb = new StringBuilder();
+      for (final String clazz : existingClasses) {
+        if (!Arrays.stream(tokensToRemove).anyMatch(tr -> tr.equals(clazz))) {
+          sb.append(' ');
+          sb.append(clazz);
+        }
+      }
+      setAttribute("class", sb.toString());
+    }
+
+    public boolean toggle(final String tokenToToggle) {
+      final String[] existingClasses = getClasses();
+      for (final String clazz : existingClasses) {
+        if (tokenToToggle.equals(clazz)) {
+          remove(tokenToToggle);
+          return false;
+        }
+      }
+
+      // Not found, hence add
+      add(tokenToToggle);
+      return true;
+    }
+
+    public boolean toggle(final String token, final boolean force) {
+      if (force) {
+        add(token);
+      } else {
+        remove(token);
+      }
+      return force;
+    }
+
+    /* TODO: stringifier; */
+  }
+
 }
