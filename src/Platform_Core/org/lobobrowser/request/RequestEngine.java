@@ -902,10 +902,14 @@ public final class RequestEngine {
       final String protocol = connection.getURL().getProtocol();
       if ("http".equalsIgnoreCase(protocol) || "https".equalsIgnoreCase(protocol)) {
         final URL url = connection.getURL();
-        if (rhandler.getContext().isRequestPermitted(new Request(url, RequestKind.Cookie))) {
-          final Map<String, List<String>> cookieHeaders = cookieHandler.get(url.toURI(), null);
-          addCookieHeaderToRequest(connection, cookieHeaders, "Cookie");
-          // addCookieHeaderToRequest(connection, cookieHeaders, "Cookie2");
+        final URI uri = url.toURI();
+        // TODO: optimization #1: list is not required if we directly call our CookieHandler implementation
+        // TODO: optimization #2: even if we use the CookieHandler interface, we can avoid the joining of List entries, since our impl always returns a single element list
+        final Map<String, List<String>> cookieHeaders = cookieHandler.get(uri, null);
+        if (!cookieHeaders.isEmpty()) {
+          if (rhandler.getContext().isRequestPermitted(new Request(url, RequestKind.Cookie))) {
+            addCookieHeaderToRequest(connection, cookieHeaders, "Cookie");
+          }
         }
       }
     } catch (IOException | URISyntaxException e) {
