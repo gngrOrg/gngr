@@ -46,11 +46,6 @@ public interface UserAgent {
   // public String getXamjVersion();
 
   /**
-   * Gets the internal Java runtime version the user agent runs on.
-   */
-  public String getJavaVersion();
-
-  /**
    * Gets the user agent name followed by the version.
    */
   public String getNameAndVersion();
