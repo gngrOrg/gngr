@@ -27,6 +27,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -56,10 +57,12 @@ import org.w3c.dom.html.HTMLFormElement;
 
 import cz.vutbr.web.css.CSSException;
 import cz.vutbr.web.css.CSSFactory;
+import cz.vutbr.web.css.CSSProperty;
 import cz.vutbr.web.css.NodeData;
 import cz.vutbr.web.css.Selector;
 import cz.vutbr.web.css.Selector.PseudoDeclaration;
 import cz.vutbr.web.css.StyleSheet;
+import cz.vutbr.web.css.Term;
 import cz.vutbr.web.csskit.MatchConditionOnElements;
 import cz.vutbr.web.domassign.DirectAnalyzer;
 
