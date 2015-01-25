@@ -94,10 +94,7 @@ public class JavaClassWrapper {
   }
 
   private void updateNameIndexer(final String methodName, final Method method) {
-    boolean getter = true;
-    if (methodName.startsWith("set")) {
-      getter = false;
-    }
+    final boolean getter = !methodName.startsWith("set");
     PropertyInfo indexer = this.nameIndexer;
     if (indexer == null) {
       indexer = new PropertyInfo("$item", Object.class);
@@ -111,10 +108,7 @@ public class JavaClassWrapper {
   }
 
   private void updateIntegerIndexer(final String methodName, final Method method) {
-    boolean getter = true;
-    if (methodName.startsWith("set")) {
-      getter = false;
-    }
+    final boolean getter = !methodName.startsWith("set");
     PropertyInfo indexer = this.integerIndexer;
     if (indexer == null) {
       final Class<?> pt = getter ? method.getReturnType() : method.getParameterTypes()[1];
