@@ -64,21 +64,23 @@ public class JavaClassWrapper {
     final int len = methods.length;
     for (int i = 0; i < len; i++) {
       final Method method = methods[i];
-      final String name = method.getName();
-      if (isPropertyMethod(name, method)) {
-        this.ensurePropertyKnown(name, method);
-      } else {
-        if (isNameIndexer(name, method)) {
-          this.updateNameIndexer(name, method);
-        } else if (isIntegerIndexer(name, method)) {
-          this.updateIntegerIndexer(name, method);
+      if (!method.isAnnotationPresent(HideFromJS.class)) {
+        final String name = method.getName();
+        if (isPropertyMethod(name, method)) {
+          this.ensurePropertyKnown(name, method);
+        } else {
+          if (isNameIndexer(name, method)) {
+            this.updateNameIndexer(name, method);
+          } else if (isIntegerIndexer(name, method)) {
+            this.updateIntegerIndexer(name, method);
+          }
+          JavaFunctionObject f = this.functions.get(name);
+          if (f == null) {
+            f = new JavaFunctionObject(name);
+            this.functions.put(name, f);
+          }
+          f.addMethod(method);
         }
-        JavaFunctionObject f = this.functions.get(name);
-        if (f == null) {
-          f = new JavaFunctionObject(name);
-          this.functions.put(name, f);
-        }
-        f.addMethod(method);
       }
     }
   }
