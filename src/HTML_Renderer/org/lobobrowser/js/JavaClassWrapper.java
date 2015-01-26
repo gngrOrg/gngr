@@ -162,11 +162,13 @@ public class JavaClassWrapper {
   private void ensurePropertyKnown(final String methodName, final Method method) {
     String capPropertyName;
     boolean getter = false;
+    boolean setter = false;
     if (methodName.startsWith("get")) {
       capPropertyName = methodName.substring(3);
       getter = true;
     } else if (methodName.startsWith("set")) {
       capPropertyName = methodName.substring(3);
+      setter = method.getReturnType() == Void.TYPE;
     } else if (methodName.startsWith("is")) {
       capPropertyName = methodName.substring(2);
       getter = true;
@@ -185,7 +187,8 @@ public class JavaClassWrapper {
     }
     if (getter) {
       pinfo.setGetter(method);
-    } else {
+    }
+    if (setter) {
       pinfo.setSetter(method);
     }
   }
