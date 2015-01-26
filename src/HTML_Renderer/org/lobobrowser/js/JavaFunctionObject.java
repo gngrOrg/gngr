@@ -51,7 +51,7 @@ public class JavaFunctionObject extends ScriptableObject implements Function {
 
   @Override
   public String getClassName() {
-    return this.className;
+    return "JavaFunctionObject";
   }
 
   private static String getTypeName(final Object object) {
