@@ -76,7 +76,7 @@ public class JavaClassWrapper {
           }
           JavaFunctionObject f = this.functions.get(name);
           if (f == null) {
-            f = new JavaFunctionObject(name);
+            f = new JavaFunctionObject(name, javaClass.getName());
             this.functions.put(name, f);
           }
           f.addMethod(method);

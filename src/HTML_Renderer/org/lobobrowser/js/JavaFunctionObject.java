@@ -37,12 +37,14 @@ import org.mozilla.javascript.WrappedException;
 public class JavaFunctionObject extends ScriptableObject implements Function {
   private static final Logger logger = Logger.getLogger(JavaFunctionObject.class.getName());
   private static final boolean loggableInfo = logger.isLoggable(Level.INFO);
+  private final String methodName;
   private final String className;
   private final ArrayList<Method> methods = new ArrayList<>();
 
-  public JavaFunctionObject(final String name) {
+  public JavaFunctionObject(final String name, final String className) {
     super();
-    this.className = name;
+    this.methodName = name;
+    this.className = className;
   }
 
   public void addMethod(final Method m) {
@@ -113,7 +115,8 @@ public class JavaFunctionObject extends ScriptableObject implements Function {
   public Object call(final Context cx, final Scriptable scope, final Scriptable thisObj, final Object[] args) {
     final Method method = this.getBestMethod(args);
     if (method == null) {
-      throw new EvaluatorException("No method matching " + this.className + " with " + (args == null ? 0 : args.length) + " arguments.");
+      throw new EvaluatorException("No method matching " + this.methodName + " with " + (args == null ? 0 : args.length) + " arguments in "
+          + className + " .");
     }
     final Class<?>[] actualArgTypes = method.getParameterTypes();
     final int numParams = actualArgTypes.length;
@@ -156,12 +159,10 @@ public class JavaFunctionObject extends ScriptableObject implements Function {
         // return call(cx, scope, getParentScope(), args);
       }
     } catch (final IllegalAccessException iae) {
-      throw new IllegalStateException("Unable to call " + this.className + ".", iae);
+      throw new IllegalStateException("Unable to call " + this.methodName + ".", iae);
     } catch (final InvocationTargetException ite) {
-      // throw new WrappedException(new
-      // InvocationTargetException(ite.getCause(), "Unable to call " +
-      // this.className + " on " + jcw.getJavaObject() + "."));
-      throw new WrappedException(new InvocationTargetException(ite.getCause(), "Unable to call " + this.className + " on " + thisObj + "."));
+      throw new WrappedException(
+          new InvocationTargetException(ite.getCause(), "Unable to call " + this.methodName + " on " + thisObj + "."));
     } catch (final IllegalArgumentException iae) {
       final StringBuffer argTypes = new StringBuffer();
       for (int i = 0; i < actualArgs.length; i++) {
@@ -170,7 +171,8 @@ public class JavaFunctionObject extends ScriptableObject implements Function {
         }
         argTypes.append(actualArgs[i] == null ? "<null>" : actualArgs[i].getClass().getName());
       }
-      throw new WrappedException(new IllegalArgumentException("Unable to call " + this.className + ". Argument types: " + argTypes + ".",
+      throw new WrappedException(new IllegalArgumentException("Unable to call " + this.methodName + " in " + className
+          + ". Argument types: " + argTypes + "." + "\n  on method: " + methodAndArguments.method,
           iae));
     }
   }
@@ -181,7 +183,7 @@ public class JavaFunctionObject extends ScriptableObject implements Function {
       logger.info("getDefaultValue(): hint=" + hint + ",this=" + this);
     }
     if ((hint == null) || String.class.equals(hint)) {
-      return "function " + this.className;
+      return "function " + this.methodName;
     } else {
       return super.getDefaultValue(hint);
     }
