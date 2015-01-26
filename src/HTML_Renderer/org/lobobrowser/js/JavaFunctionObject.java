@@ -20,6 +20,7 @@
  */
 package org.lobobrowser.js;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -60,7 +61,26 @@ public class JavaFunctionObject extends ScriptableObject implements Function {
     return object == null ? "[null]" : object.getClass().getName();
   }
 
-  private Method getExactMethod(final Object[] args) {
+  private final static class MethodAndArguments {
+    private final Method method;
+    private final Object[] args;
+
+    public MethodAndArguments(final Method method, final Object[] args) {
+      this.method = method;
+      this.args = args;
+    }
+
+    public Object invoke(final Object javaObject) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+      return method.invoke(javaObject, args);
+    }
+
+    @Override
+    public String toString() {
+      return "MethodAndArguments [method=" + method + ", args=" + Arrays.toString(args) + "]";
+    }
+  }
+
+  private MethodAndArguments getExactMethod(final Object[] args) {
     final ArrayList<Method> methods = this.methods;
     final int size = methods.size();
     for (int i = 0; i < size; i++) {
@@ -68,19 +88,37 @@ public class JavaFunctionObject extends ScriptableObject implements Function {
       final Class<?>[] parameterTypes = m.getParameterTypes();
       if (args == null) {
         if ((parameterTypes == null) || (parameterTypes.length == 0)) {
-          return m;
+          return new MethodAndArguments(m, null);
         }
-      } else if ((parameterTypes != null) && (args.length == parameterTypes.length)) {
-        if (Objects.areSameTo(args, parameterTypes)) {
-          return m;
+      } else if (parameterTypes != null) {
+        if (args.length == parameterTypes.length) {
+          if (Objects.areSameTo(args, parameterTypes)) {
+            return new MethodAndArguments(m, args);
+          }
+        } else if ((parameterTypes.length == 1) && parameterTypes[0].isArray()) {
+          final Class<?> arrayType = parameterTypes[0].getComponentType();
+          final boolean allSame = true;
+          for (int j = 0; j < args.length; j++) {
+            if (!Objects.isSameOrBox(args[j], arrayType)) {
+              break;
+            }
+          }
+          if (allSame) {
+            final Object[] argsInArray = (Object[]) Array.newInstance(arrayType, args.length);
+            for (int j = 0; j < args.length; j++) {
+              argsInArray[j] = args[j];
+            }
+            return new MethodAndArguments(m, new Object[] { argsInArray });
+          }
+
         }
       }
     }
     return null;
   }
 
-  private Method getBestMethod(final Object[] args) {
-    final Method exactMethod = getExactMethod(args);
+  private MethodAndArguments getBestMethod(final Object[] args) {
+    final MethodAndArguments exactMethod = getExactMethod(args);
     if (exactMethod != null) {
       return exactMethod;
     }
@@ -94,11 +132,12 @@ public class JavaFunctionObject extends ScriptableObject implements Function {
       final Class<?>[] parameterTypes = m.getParameterTypes();
       if (args == null) {
         if ((parameterTypes == null) || (parameterTypes.length == 0)) {
-          return m;
+          return new MethodAndArguments(m, new Object[0]);
         }
       } else if ((parameterTypes != null) && (args.length >= parameterTypes.length)) {
         if (Objects.areAssignableTo(args, parameterTypes)) {
-          return m;
+          final Object[] actualArgs = convertArgs(args, parameterTypes.length, parameterTypes);
+          return new MethodAndArguments(m, actualArgs);
         }
         if ((matchingMethod == null) || (parameterTypes.length > matchingNumParams)) {
           matchingNumParams = parameterTypes.length;
@@ -109,29 +148,32 @@ public class JavaFunctionObject extends ScriptableObject implements Function {
     if (size == 0) {
       throw new IllegalStateException("zero methods");
     }
-    return matchingMethod;
+    if (matchingMethod == null) {
+      return null;
+    } else {
+      final Class<?>[] actualArgTypes = matchingMethod.getParameterTypes();
+      final Object[] actualArgs = convertArgs(args, matchingNumParams, actualArgTypes);
+      return new MethodAndArguments(matchingMethod, actualArgs);
+    }
+  }
+
+  private static Object[] convertArgs(final Object[] args, final int numConvert, final Class<?>[] actualArgTypes) {
+    final JavaScript manager = JavaScript.getInstance();
+    final Object[] actualArgs = args == null ? new Object[0] : new Object[numConvert];
+    for (int i = 0; i < numConvert; i++) {
+      final Object arg = args[i];
+      actualArgs[i] = manager.getJavaObject(arg, actualArgTypes[i]);
+    }
+    return actualArgs;
   }
 
   public Object call(final Context cx, final Scriptable scope, final Scriptable thisObj, final Object[] args) {
-    final Method method = this.getBestMethod(args);
-    if (method == null) {
+    final MethodAndArguments methodAndArguments = this.getBestMethod(args);
+    if (methodAndArguments == null) {
       throw new EvaluatorException("No method matching " + this.methodName + " with " + (args == null ? 0 : args.length) + " arguments in "
           + className + " .");
     }
-    final Class<?>[] actualArgTypes = method.getParameterTypes();
-    final int numParams = actualArgTypes.length;
-    final Object[] actualArgs = args == null ? new Object[0] : new Object[numParams];
-    final boolean linfo = loggableInfo;
     final JavaScript manager = JavaScript.getInstance();
-    for (int i = 0; i < numParams; i++) {
-      final Object arg = args[i];
-      final Object actualArg = manager.getJavaObject(arg, actualArgTypes[i]);
-      if (linfo) {
-        logger.info("call(): For method=" + method.getName() + ": Converted arg=" + arg + " (type=" + getTypeName(arg)
-            + ") into actualArg=" + actualArg + ". Type expected by method is " + actualArgTypes[i].getName() + ".");
-      }
-      actualArgs[i] = actualArg;
-    }
     try {
       if (thisObj instanceof JavaObjectWrapper) {
         final JavaObjectWrapper jcw = (JavaObjectWrapper) thisObj;
@@ -141,8 +183,7 @@ public class JavaFunctionObject extends ScriptableObject implements Function {
         // " on object " + javaObject + " of type " +
         // this.getTypeName(javaObject));
         // }
-        final Object raw = method.invoke(jcw.getJavaObject(), actualArgs);
-        // System.out.println("Invoked.");
+        final Object raw = methodAndArguments.invoke(jcw.getJavaObject());
         return manager.getJavascriptObject(raw, scope);
       } else {
         // if (args[0] instanceof Function ) {
@@ -151,7 +192,7 @@ public class JavaFunctionObject extends ScriptableObject implements Function {
         // args.length));
         // return manager.getJavascriptObject(raw, scope);
         // } else {
-        final Object raw = method.invoke(thisObj, actualArgs);
+        final Object raw = methodAndArguments.invoke(thisObj);
         return manager.getJavascriptObject(raw, scope);
         // }
 
@@ -165,11 +206,11 @@ public class JavaFunctionObject extends ScriptableObject implements Function {
           new InvocationTargetException(ite.getCause(), "Unable to call " + this.methodName + " on " + thisObj + "."));
     } catch (final IllegalArgumentException iae) {
       final StringBuffer argTypes = new StringBuffer();
-      for (int i = 0; i < actualArgs.length; i++) {
+      for (int i = 0; i < methodAndArguments.args.length; i++) {
         if (i > 0) {
           argTypes.append(", ");
         }
-        argTypes.append(actualArgs[i] == null ? "<null>" : actualArgs[i].getClass().getName());
+        argTypes.append(methodAndArguments.args[i] == null ? "<null>" : methodAndArguments.args[i].getClass().getName());
       }
       throw new WrappedException(new IllegalArgumentException("Unable to call " + this.methodName + " in " + className
           + ". Argument types: " + argTypes + "." + "\n  on method: " + methodAndArguments.method,
