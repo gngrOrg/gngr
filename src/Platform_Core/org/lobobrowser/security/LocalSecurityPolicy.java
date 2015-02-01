@@ -347,6 +347,10 @@ public class LocalSecurityPolicy extends Policy {
       if (path.endsWith("h2-1.4.184.jar")) {
         final String userDBPath = StorageManager.getInstance().userDBPath;
         permissions.add(new FilePermission(STORE_DIRECTORY_CANONICAL, "read"));
+
+        // h2 accesses the the userDBPath on Windows
+        permissions.add(new FilePermission(userDBPath, "read, write, delete"));
+
         // TODO: Request h2 to provide this list
         final String[] h2Suffixes = new String[] {
             Constants.SUFFIX_LOCK_FILE,
