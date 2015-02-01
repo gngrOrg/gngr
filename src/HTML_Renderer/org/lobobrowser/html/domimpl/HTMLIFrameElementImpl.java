@@ -3,11 +3,17 @@ package org.lobobrowser.html.domimpl;
 import java.net.URL;
 
 import org.lobobrowser.html.BrowserFrame;
+import org.lobobrowser.html.js.Executor;
 import org.lobobrowser.html.js.Window;
+import org.lobobrowser.html.js.Window.JSRunnableTask;
 import org.lobobrowser.html.style.IFrameRenderState;
 import org.lobobrowser.html.style.RenderState;
+import org.lobobrowser.ua.ParameterInfo;
+import org.lobobrowser.ua.RequestType;
+import org.lobobrowser.ua.TargetType;
 import org.lobobrowser.ua.UserAgentContext.Request;
 import org.lobobrowser.ua.UserAgentContext.RequestKind;
+import org.mozilla.javascript.Function;
 import org.w3c.dom.Document;
 import org.w3c.dom.html.HTMLIFrameElement;
 
@@ -20,9 +26,38 @@ public class HTMLIFrameElementImpl extends HTMLAbstractUIElement implements HTML
 
   public void setBrowserFrame(final BrowserFrame frame) {
     this.browserFrame = frame;
+    createJob();
+    /*
     final String src = this.getAttribute("src");
     if (src != null) {
-      loadURLIntoFrame(src);
+      ((HTMLDocumentImpl) document).addJob(() -> loadURLIntoFrame(src));
+      // loadURLIntoFrame(src);
+    }*/
+  }
+
+  // private AtomicBoolean jobCreated = new AtomicBoolean(false);
+  private boolean jobCreated = false;
+
+  private void createJob() {
+    synchronized (this) {
+      final String src = this.getAttribute("src");
+      System.out.println("Creating job with src: " + src);
+      if (src != null) {
+        if (!jobCreated) {
+          ((HTMLDocumentImpl) document).addJob(() -> loadURLIntoFrame(src));
+          jobCreated = true;
+        } else {
+          ((HTMLDocumentImpl) document).addJob(() -> loadURLIntoFrame(src), 0);
+          // loadURLIntoFrame(src);
+        }
+      }
+    }
+  }
+
+  private void markJobDone() {
+    synchronized (this) {
+      ((HTMLDocumentImpl) document).markJobsFinished(1);
+      jobCreated = false;
     }
   }
 
@@ -142,14 +177,34 @@ public class HTMLIFrameElementImpl extends HTMLAbstractUIElement implements HTML
     this.setAttribute("width", width);
   }
 
-  /*
+  @Override
   protected void assignAttributeField(final String normalName, final String value) {
+    // if ("src".equals(normalName)) {
+    // loadURLIntoFrame(value);
+    // }
+    // } else {
+    super.assignAttributeField(normalName, value);
+    // }
+
     if ("src".equals(normalName)) {
-      loadURLIntoFrame(value);
-    } else {
-      super.assignAttributeField(normalName, value);
+      /*
+      if (value != null) {
+        ((HTMLDocumentImpl) document).addJob(() -> loadURLIntoFrame(value));
+      } */
+      createJob();
+      // loadURLIntoFrame(value);
     }
-  }*/
+  }
+
+  private Function onload;
+
+  public Function getOnload() {
+    return this.getEventFunction(this.onload, "onload");
+  }
+
+  public void setOnload(final Function onload) {
+    this.onload = onload;
+  }
 
   private void loadURLIntoFrame(final String value) {
     final BrowserFrame frame = this.browserFrame;
@@ -157,10 +212,32 @@ public class HTMLIFrameElementImpl extends HTMLAbstractUIElement implements HTML
       try {
         final URL fullURL = this.getFullURL(value);
         if (getUserAgentContext().isRequestPermitted(new Request(fullURL, RequestKind.Frame))) {
+          getContentWindow().setJobFinishedHandler(new Runnable() {
+            public void run() {
+              System.out.println("Iframes window's job over!");
+              if (onload != null) {
+                // TODO: onload event object?
+                final Window window = ((HTMLDocumentImpl) document).getWindow();
+                window.addJSTask(new JSRunnableTask(0, "IFrame onload handler", () -> {
+                  Executor.executeFunction(HTMLIFrameElementImpl.this, onload, null, window.windowFactory);
+                }));
+              }
+              markJobDone();
+            }
+          });
           frame.loadURL(fullURL);
         }
       } catch (final java.net.MalformedURLException mfu) {
         this.warn("loadURLIntoFrame(): Unable to navigate to src.", mfu);
+      } finally {
+        /* TODO: Implement an onload handler
+        // Copied from image element
+        final Function onload = this.getOnload();
+        System.out.println("onload: " + onload);
+        if (onload != null) {
+          // TODO: onload event object?
+          Executor.executeFunction(HTMLIFrameElementImpl.this, onload, null);
+        }*/
       }
     }
   }
@@ -168,5 +245,35 @@ public class HTMLIFrameElementImpl extends HTMLAbstractUIElement implements HTML
   @Override
   protected RenderState createRenderState(final RenderState prevRenderState) {
     return new IFrameRenderState(prevRenderState, this);
+  }
+
+  // Trying out a way for a frame's target to be set to an iframe. for issue #96
+
+  public void navigate(final URL url, final String method, final ParameterInfo pinfo, final TargetType targetType, final RequestType form) {
+    final Window window = ((HTMLDocumentImpl) document).getWindow();
+    window.addJSTask(new JSRunnableTask(0, "Frame navigation to " + url, () -> {
+      final BrowserFrame frame = this.browserFrame;
+      if (frame != null) {
+        if (getUserAgentContext().isRequestPermitted(new Request(url, RequestKind.Frame))) {
+          getContentWindow().setJobFinishedHandler(new Runnable() {
+            public void run() {
+              System.out.println("Iframes window's job over!");
+              if (onload != null) {
+                // TODO: onload event object?
+                final Window window = ((HTMLDocumentImpl) document).getWindow();
+                window.addJSTask(new JSRunnableTask(0, "IFrame onload handler", () -> {
+                  Executor.executeFunction(HTMLIFrameElementImpl.this, onload, null, window.windowFactory);
+                }));
+              }
+              // markJobDone();
+            }
+          });
+          // frame.loadURL(fullURL);
+          browserFrame.navigate(url, method, pinfo, targetType, form);
+        }
+        // browserFrame.navigate(url, method, pinfo, targetType, form);
+      }
+    }
+        ));
   }
 }

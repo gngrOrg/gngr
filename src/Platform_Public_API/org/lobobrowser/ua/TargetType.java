@@ -36,5 +36,7 @@ public enum TargetType {
   /** Document should be opened in the parent frame. */
   PARENT,
   /** Document should be opened in the top frame of the current window. */
-  TOP
+  TOP,
+  /** Document should be opened in named frame. */
+  NAMED
 }

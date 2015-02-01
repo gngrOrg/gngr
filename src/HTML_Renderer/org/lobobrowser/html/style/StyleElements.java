@@ -23,10 +23,10 @@ public class StyleElements {
       //Analyze HTML attributes
       String attrs = "";
       final String tagName = el.getTagName();
-      if ("table".equals(tagName)) {
+      if ("TABLE".equalsIgnoreCase(tagName)) {
         //setting table and cell borders
         attrs = getTableElementStyle(el, attrs);
-      } else if ("font".equals(tagName)) {
+      } else if ("FONT".equalsIgnoreCase(tagName)) {
         //Text properties
         attrs = getFontElementStyle(el, attrs);
       }
