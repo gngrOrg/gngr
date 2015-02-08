@@ -765,9 +765,9 @@ public class FramePanel extends JPanel implements NavigatorFrame {
     SecurityUtil.doPrivileged(() -> {
       // Justification: While requests by untrusted code are generally only
       // allowed on certain hosts, navigation is an exception.
-      RequestEngine.getInstance().scheduleRequest(handler);
-      return null;
-    });
+        RequestEngine.getInstance().scheduleRequest(handler);
+        return null;
+      });
   }
 
   /**
@@ -885,9 +885,9 @@ public class FramePanel extends JPanel implements NavigatorFrame {
     SecurityUtil.doPrivileged(() -> {
       // Justification: While requests by untrusted code are generally only allowed on certain hosts,
       // navigation is an exception.
-      RequestEngine.getInstance().scheduleRequest(handler);
-      return null;
-    });
+        RequestEngine.getInstance().scheduleRequest(handler);
+        return null;
+      });
 
     return newFrame;
   }

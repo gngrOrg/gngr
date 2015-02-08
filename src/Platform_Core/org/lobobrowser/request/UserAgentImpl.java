@@ -41,30 +41,31 @@ public class UserAgentImpl implements UserAgent {
     return instance;
   }
 
+  private static final String UAName = "";
+  private static final String UAMajorVersion = "";
+  private static final String UAMinorVersion = "";
+  private static final String UAString = ""; // TODO: Update to UAName + "/" + UAMajorVersion
+
   public String getName() {
-    return "gngr";
+    return UAName;
   }
 
   public String getMajorVersion() {
-    return "0";
+    return UAMajorVersion;
   }
 
   public String getMinorVersion() {
-    return "98.5";
+    return UAMinorVersion;
   }
 
   public String getVersion() {
     return this.getMajorVersion() + "." + this.getMinorVersion();
   }
 
-  public String getJavaVersion() {
-    return "";
-  }
-
   private volatile String textValue = null;
 
   public String getUserAgentString() {
-    return "";
+    return UAString;
   }
 
   @Override

@@ -13,7 +13,7 @@ Security-wise, the code isn't hardened *at all!* Use the current version:
  * with simple trusted web-sites only
  * periodically [clear the browser cache and data](https://github.com/UprootLabs/gngr/wiki/Clearing-cache-and-data).
 
-**Do Not use the current version with critical websites such as banks or web-mails.**
+**Do Not use the current version with critical websites such as banking websites or web-mail.**
 
 ### Contributing
 We need help in testing the browser and in triaging bug reports. We also need expert advice.

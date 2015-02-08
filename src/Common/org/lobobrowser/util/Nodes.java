@@ -7,8 +7,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 public class Nodes {
   public static Node getCommonAncestor(final Node node1, final Node node2) {
     if ((node1 == null) || (node2 == null)) {
@@ -53,7 +51,7 @@ public class Nodes {
 
         @Override
         public void remove() {
-          throw new NotImplementedException();
+          throw new NotImplementedYetException();
         }
       };
     }
@@ -82,7 +80,7 @@ public class Nodes {
 
             @Override
             public void remove() {
-              throw new NotImplementedException();
+              throw new NotImplementedYetException();
             }
           };
         }
@@ -108,7 +106,7 @@ public class Nodes {
 
         @Override
         public void remove() {
-          throw new NotImplementedException();
+          throw new NotImplementedYetException();
         }
       };
     }
@@ -137,7 +135,7 @@ public class Nodes {
 
             @Override
             public void remove() {
-              throw new NotImplementedException();
+              throw new NotImplementedYetException();
             }
           };
         }

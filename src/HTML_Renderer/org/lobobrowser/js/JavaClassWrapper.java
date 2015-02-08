@@ -64,21 +64,23 @@ public class JavaClassWrapper {
     final int len = methods.length;
     for (int i = 0; i < len; i++) {
       final Method method = methods[i];
-      final String name = method.getName();
-      if (isPropertyMethod(name, method)) {
-        this.ensurePropertyKnown(name, method);
-      } else {
-        if (isNameIndexer(name, method)) {
-          this.updateNameIndexer(name, method);
-        } else if (isIntegerIndexer(name, method)) {
-          this.updateIntegerIndexer(name, method);
+      if (!method.isAnnotationPresent(HideFromJS.class)) {
+        final String name = method.getName();
+        if (isPropertyMethod(name, method)) {
+          this.ensurePropertyKnown(name, method);
+        } else {
+          if (isNameIndexer(name, method)) {
+            this.updateNameIndexer(name, method);
+          } else if (isIntegerIndexer(name, method)) {
+            this.updateIntegerIndexer(name, method);
+          }
+          JavaFunctionObject f = this.functions.get(name);
+          if (f == null) {
+            f = new JavaFunctionObject(name, javaClass.getName());
+            this.functions.put(name, f);
+          }
+          f.addMethod(method);
         }
-        JavaFunctionObject f = this.functions.get(name);
-        if (f == null) {
-          f = new JavaFunctionObject(name);
-          this.functions.put(name, f);
-        }
-        f.addMethod(method);
       }
     }
   }
@@ -94,10 +96,7 @@ public class JavaClassWrapper {
   }
 
   private void updateNameIndexer(final String methodName, final Method method) {
-    boolean getter = true;
-    if (methodName.startsWith("set")) {
-      getter = false;
-    }
+    final boolean getter = !methodName.startsWith("set");
     PropertyInfo indexer = this.nameIndexer;
     if (indexer == null) {
       indexer = new PropertyInfo("$item", Object.class);
@@ -111,10 +110,7 @@ public class JavaClassWrapper {
   }
 
   private void updateIntegerIndexer(final String methodName, final Method method) {
-    boolean getter = true;
-    if (methodName.startsWith("set")) {
-      getter = false;
-    }
+    final boolean getter = !methodName.startsWith("set");
     PropertyInfo indexer = this.integerIndexer;
     if (indexer == null) {
       final Class<?> pt = getter ? method.getReturnType() : method.getParameterTypes()[1];
@@ -166,11 +162,13 @@ public class JavaClassWrapper {
   private void ensurePropertyKnown(final String methodName, final Method method) {
     String capPropertyName;
     boolean getter = false;
+    boolean setter = false;
     if (methodName.startsWith("get")) {
       capPropertyName = methodName.substring(3);
       getter = true;
     } else if (methodName.startsWith("set")) {
       capPropertyName = methodName.substring(3);
+      setter = method.getReturnType() == Void.TYPE;
     } else if (methodName.startsWith("is")) {
       capPropertyName = methodName.substring(2);
       getter = true;
@@ -189,7 +187,8 @@ public class JavaClassWrapper {
     }
     if (getter) {
       pinfo.setGetter(method);
-    } else {
+    }
+    if (setter) {
       pinfo.setSetter(method);
     }
   }
