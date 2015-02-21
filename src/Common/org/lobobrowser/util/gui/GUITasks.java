@@ -98,8 +98,6 @@ public class GUITasks {
 
   public static void drawDotted(Graphics g, int x1, int y1, int x2, int y2, Color color, float width) {
 
-    System.out.println("Width: " + width);
-    System.out.println("x1: " + x1 + " y1: " + y1 + " x2: " + x2 + " y2: " + y2);
     Graphics2D g2d = (Graphics2D) g;
     g2d.setColor(color);
 

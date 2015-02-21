@@ -53,8 +53,7 @@ import org.lobobrowser.util.Strings;
 import org.lobobrowser.util.gui.GUITasks;
 import org.w3c.dom.css.CSS2Properties;
 
-abstract class BaseElementRenderable extends BaseRCollection implements
-    RElement, RenderableContainer, java.awt.image.ImageObserver {
+abstract class BaseElementRenderable extends BaseRCollection implements RElement, RenderableContainer, java.awt.image.ImageObserver {
   protected static final Integer INVALID_SIZE = new Integer(Integer.MIN_VALUE);
 
   /**
@@ -92,8 +91,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements
 
   protected final UserAgentContext userAgentContext;
 
-  public BaseElementRenderable(final RenderableContainer container,
-      final ModelNode modelNode, final UserAgentContext ucontext) {
+  public BaseElementRenderable(final RenderableContainer container, final ModelNode modelNode, final UserAgentContext ucontext) {
     super(container, modelNode);
     this.userAgentContext = ucontext;
   }
@@ -156,23 +154,18 @@ abstract class BaseElementRenderable extends BaseRCollection implements
   private int lastAvailWidthForDeclared = -1;
   private int lastAvailHeightForDeclared = -1;
 
-  protected Integer getDeclaredWidth(final RenderState renderState,
-      final int actualAvailWidth) {
+  protected Integer getDeclaredWidth(final RenderState renderState, final int actualAvailWidth) {
     Integer dw = this.declaredWidth;
-    if ((dw == INVALID_SIZE)
-        || (actualAvailWidth != this.lastAvailWidthForDeclared)) {
+    if ((dw == INVALID_SIZE) || (actualAvailWidth != this.lastAvailWidthForDeclared)) {
       this.lastAvailWidthForDeclared = actualAvailWidth;
-      final int dwInt = this.getDeclaredWidthImpl(renderState,
-          actualAvailWidth);
+      final int dwInt = this.getDeclaredWidthImpl(renderState, actualAvailWidth);
       dw = dwInt == -1 ? null : new Integer(dwInt);
       this.declaredWidth = dw;
     }
     return dw;
   }
 
-  protected Integer getDeclaredHelper(final RenderState renderState,
-      final int baseValue,
-      final Function<CSS2Properties, String> propertyGetter) {
+  protected Integer getDeclaredHelper(final RenderState renderState, final int baseValue, final Function<CSS2Properties, String> propertyGetter) {
     final Object rootNode = this.modelNode;
     if (rootNode instanceof HTMLElementImpl) {
       final HTMLElementImpl element = (HTMLElementImpl) rootNode;
@@ -184,35 +177,26 @@ abstract class BaseElementRenderable extends BaseRCollection implements
       if ((valueText == null) || "".equals(valueText)) {
         return null;
       }
-      return new Integer(HtmlValues.getPixelSize(valueText, renderState,
-          -1, baseValue));
+      return new Integer(HtmlValues.getPixelSize(valueText, renderState, -1, baseValue));
     } else {
       return null;
     }
   }
 
-  protected Integer getDeclaredMaxWidth(final RenderState renderState,
-      final int actualAvailWidth) {
-    return getDeclaredHelper(renderState, actualAvailWidth,
-        props -> props.getMaxWidth());
+  protected Integer getDeclaredMaxWidth(final RenderState renderState, final int actualAvailWidth) {
+    return getDeclaredHelper(renderState, actualAvailWidth, props -> props.getMaxWidth());
   }
 
-  protected Integer getDeclaredMinWidth(final RenderState renderState,
-      final int actualAvailWidth) {
-    return getDeclaredHelper(renderState, actualAvailWidth,
-        props -> props.getMinWidth());
+  protected Integer getDeclaredMinWidth(final RenderState renderState, final int actualAvailWidth) {
+    return getDeclaredHelper(renderState, actualAvailWidth, props -> props.getMinWidth());
   }
 
-  protected Integer getDeclaredMaxHeight(final RenderState renderState,
-      final int actualAvailHeight) {
-    return getDeclaredHelper(renderState, actualAvailHeight,
-        props -> props.getMaxHeight());
+  protected Integer getDeclaredMaxHeight(final RenderState renderState, final int actualAvailHeight) {
+    return getDeclaredHelper(renderState, actualAvailHeight, props -> props.getMaxHeight());
   }
 
-  protected Integer getDeclaredMinHeight(final RenderState renderState,
-      final int actualAvailHeight) {
-    return getDeclaredHelper(renderState, actualAvailHeight,
-        props -> props.getMinHeight());
+  protected Integer getDeclaredMinHeight(final RenderState renderState, final int actualAvailHeight) {
+    return getDeclaredHelper(renderState, actualAvailHeight, props -> props.getMinHeight());
   }
 
   public final boolean hasDeclaredWidth() {
@@ -225,16 +209,14 @@ abstract class BaseElementRenderable extends BaseRCollection implements
         if (props == null) {
           return false;
         }
-        return !Strings.isBlank(props.getWidth())
-            || !Strings.isBlank(props.getMaxWidth());
+        return !Strings.isBlank(props.getWidth()) || !Strings.isBlank(props.getMaxWidth());
       }
       return false;
     }
     return dw != null;
   }
 
-  private final int getDeclaredWidthImpl(final RenderState renderState,
-      final int availWidth) {
+  private final int getDeclaredWidthImpl(final RenderState renderState, final int availWidth) {
     final Object rootNode = this.modelNode;
     if (rootNode instanceof HTMLElementImpl) {
       final HTMLElementImpl element = (HTMLElementImpl) rootNode;
@@ -246,29 +228,24 @@ abstract class BaseElementRenderable extends BaseRCollection implements
       if ((widthText == null) || "".equals(widthText)) {
         return -1;
       }
-      return HtmlValues.getPixelSize(widthText, renderState, -1,
-          availWidth);
+      return HtmlValues.getPixelSize(widthText, renderState, -1, availWidth);
     } else {
       return -1;
     }
   }
 
-  protected Integer getDeclaredHeight(final RenderState renderState,
-      final int actualAvailHeight) {
+  protected Integer getDeclaredHeight(final RenderState renderState, final int actualAvailHeight) {
     Integer dh = this.declaredHeight;
-    if ((dh == INVALID_SIZE)
-        || (actualAvailHeight != this.lastAvailHeightForDeclared)) {
+    if ((dh == INVALID_SIZE) || (actualAvailHeight != this.lastAvailHeightForDeclared)) {
       this.lastAvailHeightForDeclared = actualAvailHeight;
-      final int dhInt = this.getDeclaredHeightImpl(renderState,
-          actualAvailHeight);
+      final int dhInt = this.getDeclaredHeightImpl(renderState, actualAvailHeight);
       dh = dhInt == -1 ? null : new Integer(dhInt);
       this.declaredHeight = dh;
     }
     return dh;
   }
 
-  protected int getDeclaredHeightImpl(final RenderState renderState,
-      final int availHeight) {
+  protected int getDeclaredHeightImpl(final RenderState renderState, final int availHeight) {
     final Object rootNode = this.modelNode;
     if (rootNode instanceof HTMLElementImpl) {
       final HTMLElementImpl element = (HTMLElementImpl) rootNode;
@@ -280,8 +257,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements
       if ((heightText == null) || "".equals(heightText)) {
         return -1;
       }
-      return HtmlValues.getPixelSize(heightText, renderState, -1,
-          availHeight);
+      return HtmlValues.getPixelSize(heightText, renderState, -1, availHeight);
     } else {
       return -1;
     }
@@ -297,8 +273,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements
    * Lays out children, and deals with "valid" state. Override doLayout method
    * instead of this one.
    */
-  public final void layout(final int availWidth, final int availHeight,
-      final boolean sizeOnly) {
+  public final void layout(final int availWidth, final int availHeight, final boolean sizeOnly) {
     // Must call doLayout regardless of validity state.
     try {
       this.doLayout(availWidth, availHeight, sizeOnly);
@@ -312,8 +287,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements
    * Lays out children, and deals with "valid" state. Override doLayout method
    * instead of this one.
    */
-  public final void layout(final int availWidth, final int availHeight,
-      final boolean expandWidth, final boolean sizeOnly) {
+  public final void layout(final int availWidth, final int availHeight, final boolean expandWidth, final boolean sizeOnly) {
     // Must call doLayout regardless of validity state.
     try {
       this.doLayout(availWidth, availHeight, expandWidth, sizeOnly);
@@ -323,11 +297,9 @@ abstract class BaseElementRenderable extends BaseRCollection implements
     }
   }
 
-  protected abstract void doLayout(int availWidth, int availHeight,
-      boolean sizeOnly);
+  protected abstract void doLayout(int availWidth, int availHeight, boolean sizeOnly);
 
-  protected abstract void doLayout(int availWidth, int availHeight,
-      boolean expand, boolean sizeOnly);
+  protected abstract void doLayout(int availWidth, int availHeight, boolean expand, boolean sizeOnly);
 
   protected final void sendGUIComponentsToParent() {
     // Ensures that parent has all the components
@@ -350,7 +322,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see org.xamjwg.html.renderer.RenderableContainer#add(java.awt.Component)
    */
   public Component addComponent(final Component component) {
@@ -414,12 +386,10 @@ abstract class BaseElementRenderable extends BaseRCollection implements
       // The margin of the root block behaves like extra padding.
       final Insets insets1 = this.defaultMarginInsets;
       final Insets insets2 = this.defaultPaddingInsets;
-      Insets finalInsets = insets1 == null ? null : new Insets(
-          insets1.top, insets1.left, insets1.bottom, insets1.right);
+      Insets finalInsets = insets1 == null ? null : new Insets(insets1.top, insets1.left, insets1.bottom, insets1.right);
       if (insets2 != null) {
         if (finalInsets == null) {
-          finalInsets = new Insets(insets2.top, insets2.left,
-              insets2.bottom, insets2.right);
+          finalInsets = new Insets(insets2.top, insets2.left, insets2.bottom, insets2.right);
         } else {
           finalInsets.top += insets2.top;
           finalInsets.bottom += insets2.bottom;
@@ -459,13 +429,11 @@ abstract class BaseElementRenderable extends BaseRCollection implements
     }
     final RenderState rs = rootElement.getRenderState();
     if (rs == null) {
-      throw new IllegalStateException("Element without render state: "
-          + rootElement + "; parent=" + rootElement.getParentNode());
+      throw new IllegalStateException("Element without render state: " + rootElement + "; parent=" + rootElement.getParentNode());
     }
     final BackgroundInfo binfo = rs.getBackgroundInfo();
     this.backgroundColor = binfo == null ? null : binfo.backgroundColor;
-    final java.net.URL backgroundImageUri = binfo == null ? null
-        : binfo.backgroundImage;
+    final java.net.URL backgroundImageUri = binfo == null ? null : binfo.backgroundImage;
     if (backgroundImageUri == null) {
       this.backgroundImage = null;
       this.lastBackgroundImageUri = null;
@@ -479,8 +447,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements
     } else {
       final BorderInfo borderInfo = rs.getBorderInfo();
       this.borderInfo = borderInfo;
-      final HtmlInsets binsets = borderInfo == null ? null
-          : borderInfo.insets;
+      final HtmlInsets binsets = borderInfo == null ? null : borderInfo.insets;
       final HtmlInsets minsets = rs.getMarginInsets();
       final HtmlInsets pinsets = rs.getPaddingInsets();
       final Insets defaultMarginInsets = this.defaultMarginInsets;
@@ -499,50 +466,38 @@ abstract class BaseElementRenderable extends BaseRCollection implements
         dptop = defaultPaddingInsets.top;
         dpbottom = defaultPaddingInsets.bottom;
       }
-      Insets borderInsets = binsets == null ? null : binsets
-          .getAWTInsets(0, 0, 0, 0, availWidth, availHeight, 0, 0);
+      Insets borderInsets = binsets == null ? null : binsets.getAWTInsets(0, 0, 0, 0, availWidth, availHeight, 0, 0);
       if (borderInsets == null) {
         borderInsets = RBlockViewport.ZERO_INSETS;
       }
-      Insets paddingInsets = pinsets == null ? defaultPaddingInsets
-          : pinsets.getAWTInsets(dptop, dpleft, dpbottom, dpright,
-              availWidth, availHeight, 0, 0);
+      Insets paddingInsets = pinsets == null ? defaultPaddingInsets : pinsets.getAWTInsets(dptop, dpleft, dpbottom, dpright, availWidth,
+          availHeight, 0, 0);
       if (paddingInsets == null) {
         paddingInsets = RBlockViewport.ZERO_INSETS;
       }
-      Insets tentativeMarginInsets = minsets == null ? defaultMarginInsets
-          : minsets.getAWTInsets(dmtop, dmleft, dmbottom, dmright,
-              availWidth, availHeight, 0, 0);
+      Insets tentativeMarginInsets = minsets == null ? defaultMarginInsets : minsets.getAWTInsets(dmtop, dmleft, dmbottom, dmright,
+          availWidth, availHeight, 0, 0);
       if (tentativeMarginInsets == null) {
         tentativeMarginInsets = RBlockViewport.ZERO_INSETS;
       }
-      // TODO: Get rid of autoMarginX and autoMarginY. They will be always
-      // zero
+      // TODO: Get rid of autoMarginX and autoMarginY. They will be always zero
       final int autoMarginX = 0, autoMarginY = 0;
       this.borderInsets = borderInsets;
       if (isRootBlock) {
         // In the root block, the margin behaves like an extra padding.
         Insets regularMarginInsets = ((autoMarginX == 0) && (autoMarginY == 0)) ? tentativeMarginInsets
-            : (minsets == null ? defaultMarginInsets : minsets
-                .getAWTInsets(dmtop, dmleft, dmbottom, dmright,
-                    availWidth, availHeight, autoMarginX,
-                    autoMarginY));
+            : (minsets == null ? defaultMarginInsets : minsets.getAWTInsets(dmtop, dmleft, dmbottom, dmright, availWidth, availHeight,
+                autoMarginX, autoMarginY));
         if (regularMarginInsets == null) {
           regularMarginInsets = RBlockViewport.ZERO_INSETS;
         }
         this.marginInsets = null;
-        this.paddingInsets = new Insets(paddingInsets.top
-            + regularMarginInsets.top, paddingInsets.left
-            + regularMarginInsets.left, paddingInsets.bottom
-            + regularMarginInsets.bottom, paddingInsets.right
-            + regularMarginInsets.right);
+        this.paddingInsets = new Insets(paddingInsets.top + regularMarginInsets.top, paddingInsets.left + regularMarginInsets.left,
+            paddingInsets.bottom + regularMarginInsets.bottom, paddingInsets.right + regularMarginInsets.right);
       } else {
         this.paddingInsets = paddingInsets;
-        this.marginInsets = ((autoMarginX == 0) && (autoMarginY == 0)) ? tentativeMarginInsets
-            : (minsets == null ? defaultMarginInsets : minsets
-                .getAWTInsets(dmtop, dmleft, dmbottom, dmright,
-                    availWidth, availHeight, autoMarginX,
-                    autoMarginY));
+        this.marginInsets = ((autoMarginX == 0) && (autoMarginY == 0)) ? tentativeMarginInsets : (minsets == null ? defaultMarginInsets
+            : minsets.getAWTInsets(dmtop, dmleft, dmbottom, dmright, availWidth, availHeight, autoMarginX, autoMarginY));
       }
       if (borderInfo != null) {
         this.borderTopColor = borderInfo.topColor;
@@ -560,9 +515,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements
         try {
           this.zIndex = Integer.parseInt(zIndex);
         } catch (final NumberFormatException err) {
-          logger.log(Level.WARNING, "Unable to parse z-index ["
-              + zIndex + "] in element " + this.modelNode + ".",
-              err);
+          logger.log(Level.WARNING, "Unable to parse z-index [" + zIndex + "] in element " + this.modelNode + ".", err);
           this.zIndex = 0;
         }
       } else {
@@ -576,8 +529,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements
   }
 
   // TODO: Move to RBlock and make private
-  protected Dimension applyAutoStyles(final int availWidth,
-      final int availHeight) {
+  protected Dimension applyAutoStyles(final int availWidth, final int availHeight) {
     final Object rootNode = this.modelNode;
     HTMLElementImpl rootElement;
     if (rootNode instanceof HTMLDocumentImpl) {
@@ -592,8 +544,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements
     }
     final RenderState rs = rootElement.getRenderState();
     if (rs == null) {
-      throw new IllegalStateException("Element without render state: "
-          + rootElement + "; parent=" + rootElement.getParentNode());
+      throw new IllegalStateException("Element without render state: " + rootElement + "; parent=" + rootElement.getParentNode());
     }
     final Dimension changes = new Dimension();
     final HtmlInsets minsets = rs.getMarginInsets();
@@ -610,19 +561,20 @@ abstract class BaseElementRenderable extends BaseRCollection implements
           changes.width += autoMarginX;
         }
       }
+      /* auto for margin-top and margin-bottom is supposed to compute to zero, except when parent is a flex box */
       /*
-       * auto for margin-top and margin-bottom is supposed to compute to
-       * zero, except when parent is a flex box
-       */
-      /*
-       * if (availHeight > 1) { // TODO: Consider the case when only one
-       * is auto final int autoMarginY = availHeight / 2; if
-       * (minsets.topType == HtmlInsets.TYPE_AUTO) { this.marginInsets.top
-       * = autoMarginY; changes.height += autoMarginY; } if
-       * (minsets.bottomType == HtmlInsets.TYPE_AUTO) {
-       * this.marginInsets.bottom = autoMarginY; changes.height +=
-       * autoMarginY; } }
-       */
+      if (availHeight > 1) {
+        // TODO: Consider the case when only one is auto
+        final int autoMarginY = availHeight / 2;
+        if (minsets.topType == HtmlInsets.TYPE_AUTO) {
+          this.marginInsets.top = autoMarginY;
+          changes.height += autoMarginY;
+        }
+        if (minsets.bottomType == HtmlInsets.TYPE_AUTO) {
+          this.marginInsets.bottom = autoMarginY;
+          changes.height += autoMarginY;
+        }
+      }*/
     }
     return changes;
   }
@@ -640,32 +592,27 @@ abstract class BaseElementRenderable extends BaseRCollection implements
             if (img != null) {
               BaseElementRenderable.this.backgroundImage = img;
               // Cause observer to be called
-          final int w = img
-              .getWidth(BaseElementRenderable.this);
-          final int h = img
-              .getHeight(BaseElementRenderable.this);
-          // Maybe image already done...
-          if ((w != -1) && (h != -1)) {
-            BaseElementRenderable.this.repaint();
+              final int w = img.getWidth(BaseElementRenderable.this);
+              final int h = img.getHeight(BaseElementRenderable.this);
+              // Maybe image already done...
+              if ((w != -1) && (h != -1)) {
+                BaseElementRenderable.this.repaint();
+              }
+            }
           }
         }
-      }
-    }
-  })  ;
+      })  ;
 
       SecurityUtil.doPrivileged(() -> {
-        // Code might have restrictions on accessing items from
-        // elsewhere.
-          try {
-            request.open("GET", imageURL);
-            request.send(null, new Request(imageURL,
-                RequestKind.Image));
-          } catch (final java.io.IOException thrown) {
-            logger.log(Level.WARNING, "loadBackgroundImage()",
-                thrown);
-          }
-          return null;
-        });
+        // Code might have restrictions on accessing items from elsewhere.
+        try {
+          request.open("GET", imageURL);
+          request.send(null, new Request(imageURL, RequestKind.Image));
+        } catch (final java.io.IOException thrown) {
+          logger.log(Level.WARNING, "loadBackgroundImage()", thrown);
+        }
+        return null;
+      });
     }
   }
 
@@ -721,8 +668,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements
       final int newTotalHeight = totalHeight - (btop + bbottom);
       final int newStartX = startX + bleft;
       final int newStartY = startY + btop;
-      final Rectangle clientRegion = new Rectangle(newStartX, newStartY,
-          newTotalWidth, newTotalHeight);
+      final Rectangle clientRegion = new Rectangle(newStartX, newStartY, newTotalWidth, newTotalHeight);
 
       // Paint borders if the clip bounds are not contained
       // by the content area.
@@ -732,13 +678,11 @@ abstract class BaseElementRenderable extends BaseRCollection implements
 
         if (btop > 0) {
           g.setColor(this.getBorderTopColor());
-          final int borderStyle = borderInfo == null ? HtmlValues.BORDER_STYLE_SOLID
-              : borderInfo.topStyle;
+          final int borderStyle = borderInfo == null ? HtmlValues.BORDER_STYLE_SOLID : borderInfo.topStyle;
 
           if (borderStyle == HtmlValues.BORDER_STYLE_DOTTED) {
 
-            GUITasks.drawDotted(g, newStartX, newStartY
-                , startX + totalWidth, startY + btop, borderInfo.topColor, btop);
+            GUITasks.drawDotted(g, newStartX, newStartY, startX + totalWidth, startY + btop, borderInfo.topColor, btop);
           }
 
           for (int i = 0; i < btop; i++) {
@@ -746,100 +690,75 @@ abstract class BaseElementRenderable extends BaseRCollection implements
             final int rightOffset = (i * bright) / btop;
 
             if (borderStyle == HtmlValues.BORDER_STYLE_DASHED) {
-              GUITasks.drawDashed(g, startX + leftOffset, startY
-                  + i, (startX + totalWidth) - rightOffset
-                  - 1, startY + i, 10 + btop, 6);
+              GUITasks.drawDashed(g, startX + leftOffset, startY + i, (startX + totalWidth) - rightOffset - 1, startY + i, 10 + btop, 6);
             } else if (borderStyle == HtmlValues.BORDER_STYLE_DOTTED) {
             }
 
             else {
 
-              g.drawLine(startX + leftOffset, startY + i,
-                  (startX + totalWidth) - rightOffset - 1,
-                  startY + i);
+              g.drawLine(startX + leftOffset, startY + i, (startX + totalWidth) - rightOffset - 1, startY + i);
             }
           }
         }
         if (bright > 0) {
-          final int borderStyle = borderInfo == null ? HtmlValues.BORDER_STYLE_SOLID
-              : borderInfo.rightStyle;
+          final int borderStyle = borderInfo == null ? HtmlValues.BORDER_STYLE_SOLID : borderInfo.rightStyle;
           g.setColor(this.getBorderRightColor());
           final int lastX = (startX + totalWidth) - 1;
 
           if (borderStyle == HtmlValues.BORDER_STYLE_DOTTED) {
-            GUITasks.drawDotted(g, lastX, startY
-                + btop, lastX,
-                (startY + totalHeight) - bbottom - 1, borderInfo.rightColor, bright);
+            GUITasks.drawDotted(g, lastX-bright, startY + btop, lastX, (startY + totalHeight) - bbottom - 1, borderInfo.rightColor, bright);
           }
 
           for (int i = 0; i < bright; i++) {
             final int topOffset = (i * btop) / bright;
             final int bottomOffset = (i * bbottom) / bright;
             if (borderStyle == HtmlValues.BORDER_STYLE_DASHED) {
-              GUITasks.drawDashed(g, lastX - i, startY
-                  + topOffset, lastX - i,
-                  (startY + totalHeight) - bottomOffset - 1,
-                  10 + bright, 6);
+              GUITasks.drawDashed(g, lastX - i, startY + topOffset, lastX - i, (startY + totalHeight) - bottomOffset - 1, 10 + bright, 6);
             } else if (borderStyle == HtmlValues.BORDER_STYLE_DOTTED) {
             }
             else {
-              g.drawLine(lastX - i, startY + topOffset,
-                  lastX - i, (startY + totalHeight)
-                      - bottomOffset - 1);
+              g.drawLine(lastX - i, startY + topOffset, lastX - i, (startY + totalHeight) - bottomOffset - 1);
             }
           }
         }
         if (bbottom > 0) {
-          final int borderStyle = borderInfo == null ? HtmlValues.BORDER_STYLE_SOLID
-              : borderInfo.bottomStyle;
+          final int borderStyle = borderInfo == null ? HtmlValues.BORDER_STYLE_SOLID : borderInfo.bottomStyle;
           g.setColor(this.getBorderBottomColor());
           final int lastY = (startY + totalHeight) - 1;
 
           if (borderStyle == HtmlValues.BORDER_STYLE_DOTTED) {
-            GUITasks.drawDotted(g, newStartX, newStartY
-                , (startX + totalWidth), startY + bbottom, borderInfo.bottomColor, bbottom);
+            GUITasks.drawDotted(g, newStartX, lastY-bbottom, (startX + totalWidth), lastY-bbottom, borderInfo.bottomColor, bbottom);
           }
 
           for (int i = 0; i < bbottom; i++) {
             final int leftOffset = (i * bleft) / bbottom;
             final int rightOffset = (i * bright) / bbottom;
             if (borderStyle == HtmlValues.BORDER_STYLE_DASHED) {
-              GUITasks.drawDashed(g, startX + leftOffset, lastY
-                  - i, (startX + totalWidth) - rightOffset
-                  - 1, lastY - i, 10 + bbottom, 6);
+              GUITasks.drawDashed(g, startX + leftOffset, lastY - i, (startX + totalWidth) - rightOffset - 1, lastY - i, 10 + bbottom, 6);
             } else if (borderStyle == HtmlValues.BORDER_STYLE_DOTTED) {
             }
             else {
-              g.drawLine(startX + leftOffset, lastY - i,
-                  (startX + totalWidth) - rightOffset - 1,
-                  lastY - i);
+              g.drawLine(startX + leftOffset, lastY - i, (startX + totalWidth) - rightOffset - 1, lastY - i);
             }
           }
         }
         if (bleft > 0) {
-          final int borderStyle = borderInfo == null ? HtmlValues.BORDER_STYLE_SOLID
-              : borderInfo.leftStyle;
+          final int borderStyle = borderInfo == null ? HtmlValues.BORDER_STYLE_SOLID : borderInfo.leftStyle;
           g.setColor(this.getBorderLeftColor());
 
           if (borderStyle == HtmlValues.BORDER_STYLE_DOTTED) {
-            GUITasks.drawDotted(g, newStartX, newStartY
-                , (startX + totalWidth), startY + bleft, borderInfo.leftColor, bleft);
+            GUITasks.drawDotted(g, newStartX, startY+btop, (newStartX + bleft), (startY + totalHeight) - bbottom - 1, borderInfo.leftColor, bleft);
           }
 
           for (int i = 0; i < bleft; i++) {
             final int topOffset = (i * btop) / bleft;
             final int bottomOffset = (i * bbottom) / bleft;
             if (borderStyle == HtmlValues.BORDER_STYLE_DASHED) {
-              GUITasks.drawDashed(g, startX + i, startY
-                  + topOffset, startX + i,
-                  (startY + totalHeight) - bottomOffset - 1,
-                  10 + bleft, 6);
+              GUITasks.drawDashed(g, startX + i, startY + topOffset, startX + i, (startY + totalHeight) - bottomOffset - 1, 10 + bleft, 6);
             } else if (borderStyle == HtmlValues.BORDER_STYLE_DOTTED) {
             }
             else {
-              g.drawLine(startX + i, startY + topOffset, startX
-                  + i, (startY + totalHeight) - bottomOffset
-                  - 1);
+              g.drawLine(startX + i, startY + topOffset, startX + i, (startY + totalHeight) - bottomOffset - 1);
             }
           }
         }
@@ -853,14 +772,11 @@ abstract class BaseElementRenderable extends BaseRCollection implements
 
     }
 
-    // TODO: Check if we can use TexturePaint to draw repeated background
-    // images
-    // See example:
-    // http://www.informit.com/articles/article.aspx?p=26349&seqNum=4
+    // TODO: Check if we can use TexturePaint to draw repeated background images
+    // See example: http://www.informit.com/articles/article.aspx?p=26349&seqNum=4
 
     // Using clientG (clipped below) beyond this point.
-    final Graphics clientG = g.create(startX, startY, totalWidth,
-        totalHeight);
+    final Graphics clientG = g.create(startX, startY, totalWidth, totalHeight);
     try {
       Rectangle bkgBounds = null;
       if (node != null) {
@@ -868,11 +784,9 @@ abstract class BaseElementRenderable extends BaseRCollection implements
         if ((bkg != null) && (bkg.getAlpha() > 0)) {
           clientG.setColor(bkg);
           bkgBounds = clientG.getClipBounds();
-          clientG.fillRect(bkgBounds.x, bkgBounds.y, bkgBounds.width,
-              bkgBounds.height);
+          clientG.fillRect(bkgBounds.x, bkgBounds.y, bkgBounds.width, bkgBounds.height);
         }
-        final BackgroundInfo binfo = rs == null ? null : rs
-            .getBackgroundInfo();
+        final BackgroundInfo binfo = rs == null ? null : rs.getBackgroundInfo();
         final Image image = this.backgroundImage;
         if (image != null) {
           if (bkgBounds == null) {
@@ -884,16 +798,11 @@ abstract class BaseElementRenderable extends BaseRCollection implements
             final int imageY = getImageY(totalHeight, binfo, h);
             final int imageX = getImageX(totalWidth, binfo, w);
 
-            // TODO: optimise this. Although it works fine, it makes
-            // an extra `draw` call when imageX or imageY are
-            // negative
-            final int baseX = ((bkgBounds.x / w) * w)
-                - (w - imageX);
-            final int baseY = ((bkgBounds.y / h) * h)
-                - (h - imageY);
+            // TODO: optimise this. Although it works fine, it makes an extra `draw` call when imageX or imageY are negative
+            final int baseX = ((bkgBounds.x / w) * w) - (w - imageX);
+            final int baseY = ((bkgBounds.y / h) * h) - (h - imageY);
 
-            switch (binfo == null ? BackgroundInfo.BR_REPEAT
-                : binfo.backgroundRepeat) {
+            switch (binfo == null ? BackgroundInfo.BR_REPEAT : binfo.backgroundRepeat) {
             case BackgroundInfo.BR_NO_REPEAT: {
               clientG.drawImage(image, imageX, imageY, w, h, this);
               break;
@@ -935,8 +844,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements
     }
   }
 
-  private static int getImageY(final int totalHeight,
-      final BackgroundInfo binfo, final int h) {
+  private static int getImageY(final int totalHeight, final BackgroundInfo binfo, final int h) {
     if (binfo == null) {
       return 0;
     } else {
@@ -948,8 +856,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements
     }
   }
 
-  private static int getImageX(final int totalWidth,
-      final BackgroundInfo binfo, final int w) {
+  private static int getImageX(final int totalWidth, final BackgroundInfo binfo, final int w) {
     if (binfo == null) {
       return 0;
     } else {
@@ -961,12 +868,10 @@ abstract class BaseElementRenderable extends BaseRCollection implements
     }
   }
 
-  public boolean imageUpdate(final Image img, final int infoflags,
-      final int x, final int y, final int w, final int h) {
+  public boolean imageUpdate(final Image img, final int infoflags, final int x, final int y, final int w, final int h) {
     // This is so that a loading image doesn't cause
     // too many repaint events.
-    if (((infoflags & ImageObserver.ALLBITS) != 0)
-        || ((infoflags & ImageObserver.FRAMEBITS) != 0)) {
+    if (((infoflags & ImageObserver.ALLBITS) != 0) || ((infoflags & ImageObserver.FRAMEBITS) != 0)) {
       this.repaint();
     }
     return true;
@@ -975,31 +880,26 @@ abstract class BaseElementRenderable extends BaseRCollection implements
   protected static final int SCROLL_BAR_THICKNESS = 16;
 
   public Insets getBorderInsets() {
-    return this.borderInsets == null ? RBlockViewport.ZERO_INSETS
-        : this.borderInsets;
+    return this.borderInsets == null ? RBlockViewport.ZERO_INSETS : this.borderInsets;
   }
 
   /**
-   * Gets insets of content area. It includes margin, borders, padding and
-   * scrollbars.
+   * Gets insets of content area. It includes margin, borders, padding and scrollbars.
    */
   public Insets getInsets(final boolean hscroll, final boolean vscroll) {
     return getInsets(hscroll, vscroll, true, true, true);
   }
 
   /**
-   * Gets insets of content area. It includes margin, borders, and scrollbars
-   * but excludes padding.
+   * Gets insets of content area. It includes margin, borders, and scrollbars but excludes padding.
    */
-  public Insets getInsetsMarginBorder(final boolean hscroll,
-      final boolean vscroll) {
+  public Insets getInsetsMarginBorder(final boolean hscroll, final boolean vscroll) {
     return getInsets(hscroll, vscroll, true, true, false);
   }
 
   // TODO: This method maybe inlined for performance
   private Insets getInsets(final boolean hscroll, final boolean vscroll,
-      final boolean includeMI, final boolean includeBI,
-      final boolean includePI) {
+      final boolean includeMI, final boolean includeBI, final boolean includePI) {
     final Insets mi = this.marginInsets;
     final Insets bi = this.borderInsets;
     final Insets pi = this.paddingInsets;
@@ -1063,7 +963,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see org.xamjwg.html.renderer.RenderableContainer#add(java.awt.Component)
    */
   public void addDelayedPair(final DelayedPair pair) {
