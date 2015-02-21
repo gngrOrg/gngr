@@ -20,8 +20,12 @@
  */
 package org.lobobrowser.util.gui;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Frame;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Stroke;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
@@ -85,10 +89,30 @@ public class GUITasks {
           g.drawLine(x1, firstY, x1, topY);
         }
       }
+
     } else {
       // Not supported
       g.drawLine(x1, y1, x2, y2);
     }
+  }
+
+  public static void drawDotted(Graphics g, int x1, int y1, int x2, int y2, Color color, float width) {
+
+    System.out.println("Width: " + width);
+    System.out.println("x1: " + x1 + " y1: " + y1 + " x2: " + x2 + " y2: " + y2);
+    Graphics2D g2d = (Graphics2D) g;
+    g2d.setColor(color);
+
+    float dot = width * 0.5f;
+    float gap = width * 0.65f;
+
+    float[] dashingPattern1 = { dot, gap };
+    Stroke stroke1 = new BasicStroke(width, BasicStroke.CAP_BUTT,
+        BasicStroke.JOIN_BEVEL, 2.0f, dashingPattern1, 0.0f);
+
+    g2d.setStroke(stroke1);
+    int c = Math.round(width);
+    g2d.drawLine(x1, y1, x2 - c, y2);
   }
 
   // As per this http://stackoverflow.com/a/661244/161257
