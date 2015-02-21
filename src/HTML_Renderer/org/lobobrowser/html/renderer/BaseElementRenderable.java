@@ -767,8 +767,9 @@ abstract class BaseElementRenderable extends BaseRCollection implements
           final int lastX = (startX + totalWidth) - 1;
 
           if (borderStyle == HtmlValues.BORDER_STYLE_DOTTED) {
-            GUITasks.drawDotted(g, newStartX, newStartY
-                , (startX + totalWidth), startY + bright, borderInfo.rightColor, bright);
+            GUITasks.drawDotted(g, lastX, startY
+                + btop, lastX,
+                (startY + totalHeight) - bbottom - 1, borderInfo.rightColor, bright);
           }
 
           for (int i = 0; i < bright; i++) {
