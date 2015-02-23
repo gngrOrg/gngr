@@ -111,6 +111,8 @@ public class GUITasks {
     g2d.setStroke(stroke1);
     int c = Math.round(width);
     g2d.drawLine(x1, y1, x2 - c, y2);
+    g2d.dispose();
+    g.dispose();
   }
 
   // As per this http://stackoverflow.com/a/661244/161257
