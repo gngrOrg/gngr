@@ -771,7 +771,6 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
       totalHeight = newTotalHeight;
       startX = newStartX;
       startY = newStartY;
-
     }
 
     // TODO: Check if we can use TexturePaint to draw repeated background images
