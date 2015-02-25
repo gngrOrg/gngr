@@ -165,7 +165,8 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
     return dw;
   }
 
-  protected Integer getDeclaredHelper(final RenderState renderState, final int baseValue, final Function<CSS2Properties, String> propertyGetter) {
+  protected Integer getDeclaredHelper(final RenderState renderState, final int baseValue,
+      final Function<CSS2Properties, String> propertyGetter) {
     final Object rootNode = this.modelNode;
     if (rootNode instanceof HTMLElementImpl) {
       final HTMLElementImpl element = (HTMLElementImpl) rootNode;
@@ -592,27 +593,27 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
             if (img != null) {
               BaseElementRenderable.this.backgroundImage = img;
               // Cause observer to be called
-              final int w = img.getWidth(BaseElementRenderable.this);
-              final int h = img.getHeight(BaseElementRenderable.this);
-              // Maybe image already done...
-              if ((w != -1) && (h != -1)) {
-                BaseElementRenderable.this.repaint();
-              }
-            }
+          final int w = img.getWidth(BaseElementRenderable.this);
+          final int h = img.getHeight(BaseElementRenderable.this);
+          // Maybe image already done...
+          if ((w != -1) && (h != -1)) {
+            BaseElementRenderable.this.repaint();
           }
         }
-      })  ;
+      }
+    }
+  })  ;
 
       SecurityUtil.doPrivileged(() -> {
         // Code might have restrictions on accessing items from elsewhere.
-        try {
-          request.open("GET", imageURL);
-          request.send(null, new Request(imageURL, RequestKind.Image));
-        } catch (final java.io.IOException thrown) {
-          logger.log(Level.WARNING, "loadBackgroundImage()", thrown);
-        }
-        return null;
-      });
+          try {
+            request.open("GET", imageURL);
+            request.send(null, new Request(imageURL, RequestKind.Image));
+          } catch (final java.io.IOException thrown) {
+            logger.log(Level.WARNING, "loadBackgroundImage()", thrown);
+          }
+          return null;
+        });
     }
   }
 
@@ -673,18 +674,29 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
       // Paint borders if the clip bounds are not contained
       // by the content area.
       final Rectangle clipBounds = g.getClipBounds();
+      final BorderInfo borderInfo = this.borderInfo;
       if (!clientRegion.contains(clipBounds)) {
-        final BorderInfo borderInfo = this.borderInfo;
+
         if (btop > 0) {
           g.setColor(this.getBorderTopColor());
           final int borderStyle = borderInfo == null ? HtmlValues.BORDER_STYLE_SOLID : borderInfo.topStyle;
-          for (int i = 0; i < btop; i++) {
-            final int leftOffset = (i * bleft) / btop;
-            final int rightOffset = (i * bright) / btop;
-            if (borderStyle == HtmlValues.BORDER_STYLE_DASHED) {
-              GUITasks.drawDashed(g, startX + leftOffset, startY + i, (startX + totalWidth) - rightOffset - 1, startY + i, 10 + btop, 6);
-            } else {
-              g.drawLine(startX + leftOffset, startY + i, (startX + totalWidth) - rightOffset - 1, startY + i);
+
+          if (borderStyle == HtmlValues.BORDER_STYLE_DOTTED) {
+
+            GUITasks.drawDotted(g, newStartX, newStartY, startX + totalWidth, startY + btop, borderInfo.topColor, btop);
+          }
+          else {
+            for (int i = 0; i < btop; i++) {
+              final int leftOffset = (i * bleft) / btop;
+              final int rightOffset = (i * bright) / btop;
+
+              if (borderStyle == HtmlValues.BORDER_STYLE_DASHED) {
+                GUITasks.drawDashed(g, startX + leftOffset, startY + i, (startX + totalWidth) - rightOffset - 1, startY + i, 10 + btop, 6);
+              }
+              else {
+
+                g.drawLine(startX + leftOffset, startY + i, (startX + totalWidth) - rightOffset - 1, startY + i);
+              }
             }
           }
         }
@@ -692,13 +704,21 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
           final int borderStyle = borderInfo == null ? HtmlValues.BORDER_STYLE_SOLID : borderInfo.rightStyle;
           g.setColor(this.getBorderRightColor());
           final int lastX = (startX + totalWidth) - 1;
-          for (int i = 0; i < bright; i++) {
-            final int topOffset = (i * btop) / bright;
-            final int bottomOffset = (i * bbottom) / bright;
-            if (borderStyle == HtmlValues.BORDER_STYLE_DASHED) {
-              GUITasks.drawDashed(g, lastX - i, startY + topOffset, lastX - i, (startY + totalHeight) - bottomOffset - 1, 10 + bright, 6);
-            } else {
-              g.drawLine(lastX - i, startY + topOffset, lastX - i, (startY + totalHeight) - bottomOffset - 1);
+
+          if (borderStyle == HtmlValues.BORDER_STYLE_DOTTED) {
+            GUITasks.drawDotted(g, lastX - bright, startY + btop, lastX, (startY + totalHeight) - bbottom - 1, borderInfo.rightColor,
+                bright);
+          }
+          else {
+            for (int i = 0; i < bright; i++) {
+              final int topOffset = (i * btop) / bright;
+              final int bottomOffset = (i * bbottom) / bright;
+              if (borderStyle == HtmlValues.BORDER_STYLE_DASHED) {
+                GUITasks.drawDashed(g, lastX - i, startY + topOffset, lastX - i, (startY + totalHeight) - bottomOffset - 1, 10 + bright, 6);
+              }
+              else {
+                g.drawLine(lastX - i, startY + topOffset, lastX - i, (startY + totalHeight) - bottomOffset - 1);
+              }
             }
           }
         }
@@ -706,37 +726,51 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
           final int borderStyle = borderInfo == null ? HtmlValues.BORDER_STYLE_SOLID : borderInfo.bottomStyle;
           g.setColor(this.getBorderBottomColor());
           final int lastY = (startY + totalHeight) - 1;
-          for (int i = 0; i < bbottom; i++) {
-            final int leftOffset = (i * bleft) / bbottom;
-            final int rightOffset = (i * bright) / bbottom;
-            if (borderStyle == HtmlValues.BORDER_STYLE_DASHED) {
-              GUITasks.drawDashed(g, startX + leftOffset, lastY - i, (startX + totalWidth) - rightOffset - 1, lastY - i, 10 + bbottom, 6);
-            } else {
-              g.drawLine(startX + leftOffset, lastY - i, (startX + totalWidth) - rightOffset - 1, lastY - i);
+
+          if (borderStyle == HtmlValues.BORDER_STYLE_DOTTED) {
+            GUITasks.drawDotted(g, newStartX, lastY - bbottom, (startX + totalWidth), lastY - bbottom, borderInfo.bottomColor, bbottom);
+          }
+          else {
+            for (int i = 0; i < bbottom; i++) {
+              final int leftOffset = (i * bleft) / bbottom;
+              final int rightOffset = (i * bright) / bbottom;
+              if (borderStyle == HtmlValues.BORDER_STYLE_DASHED) {
+                GUITasks.drawDashed(g, startX + leftOffset, lastY - i, (startX + totalWidth) - rightOffset - 1, lastY - i, 10 + bbottom, 6);
+              }
+              else {
+                g.drawLine(startX + leftOffset, lastY - i, (startX + totalWidth) - rightOffset - 1, lastY - i);
+              }
             }
           }
         }
         if (bleft > 0) {
           final int borderStyle = borderInfo == null ? HtmlValues.BORDER_STYLE_SOLID : borderInfo.leftStyle;
           g.setColor(this.getBorderLeftColor());
-          for (int i = 0; i < bleft; i++) {
-            final int topOffset = (i * btop) / bleft;
-            final int bottomOffset = (i * bbottom) / bleft;
-            if (borderStyle == HtmlValues.BORDER_STYLE_DASHED) {
-              GUITasks.drawDashed(g, startX + i, startY + topOffset, startX + i, (startY + totalHeight) - bottomOffset - 1, 10 + bleft, 6);
-            } else {
-              g.drawLine(startX + i, startY + topOffset, startX + i, (startY + totalHeight) - bottomOffset - 1);
+
+          if (borderStyle == HtmlValues.BORDER_STYLE_DOTTED) {
+            GUITasks.drawDotted(g, newStartX, startY + btop, (newStartX + bleft), (startY + totalHeight) - bbottom - 1,
+                borderInfo.leftColor, bleft);
+          }
+          else {
+            for (int i = 0; i < bleft; i++) {
+              final int topOffset = (i * btop) / bleft;
+              final int bottomOffset = (i * bbottom) / bleft;
+              if (borderStyle == HtmlValues.BORDER_STYLE_DASHED) {
+                GUITasks
+                    .drawDashed(g, startX + i, startY + topOffset, startX + i, (startY + totalHeight) - bottomOffset - 1, 10 + bleft, 6);
+              }
+              else {
+                g.drawLine(startX + i, startY + topOffset, startX + i, (startY + totalHeight) - bottomOffset - 1);
+              }
             }
           }
         }
       }
-
       // Adjust client area border
       totalWidth = newTotalWidth;
       totalHeight = newTotalHeight;
       startX = newStartX;
       startY = newStartY;
-
     }
 
     // TODO: Check if we can use TexturePaint to draw repeated background images
@@ -851,14 +885,16 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
   }
 
   /**
-   * Gets insets of content area. It includes margin, borders, padding and scrollbars.
+   * Gets insets of content area. It includes margin, borders, padding and
+   * scrollbars.
    */
   public Insets getInsets(final boolean hscroll, final boolean vscroll) {
     return getInsets(hscroll, vscroll, true, true, true);
   }
 
   /**
-   * Gets insets of content area. It includes margin, borders, and scrollbars but excludes padding.
+   * Gets insets of content area. It includes margin, borders, and scrollbars
+   * but excludes padding.
    */
   public Insets getInsetsMarginBorder(final boolean hscroll, final boolean vscroll) {
     return getInsets(hscroll, vscroll, true, true, false);
