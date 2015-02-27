@@ -658,7 +658,80 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
       startX += marginInsets.left;
       startY += marginInsets.top;
     }
+
     final Insets borderInsets = this.borderInsets;
+    // TODO: Check if we can use TexturePaint to draw repeated background images
+    // See example: http://www.informit.com/articles/article.aspx?p=26349&seqNum=4
+
+    // Using clientG (clipped below) beyond this point.
+    final Graphics clientG = g.create(startX, startY, totalWidth, totalHeight);
+    try {
+      Rectangle bkgBounds = null;
+      if (node != null) {
+        final int btop = borderInsets == null ? 0 : borderInsets.top;
+        final int bleft = borderInsets == null ? 0 : borderInsets.left;
+
+        final Color bkg = this.backgroundColor;
+        if ((bkg != null) && (bkg.getAlpha() > 0)) {
+          clientG.setColor(bkg);
+          clientG.fillRect(0, 0, totalWidth, totalHeight);
+        }
+        final BackgroundInfo binfo = rs == null ? null : rs.getBackgroundInfo();
+        final Image image = this.backgroundImage;
+        if (image != null) {
+          bkgBounds = clientG.getClipBounds();
+
+          final int w = image.getWidth(this);
+          final int h = image.getHeight(this);
+          if ((w != -1) && (h != -1)) {
+            final int imageY = getImageY(totalHeight, binfo, h);
+            final int imageX = getImageX(totalWidth, binfo, w);
+
+            // TODO: optimise this. Although it works fine, it makes an extra `draw` call when imageX or imageY are negative
+            final int baseX = (bleft % w) + ((bkgBounds.x / w) * w) - (w - imageX);
+            final int baseY = (btop % h) + ((bkgBounds.y / h) * h) - (h - imageY);
+
+            switch (binfo == null ? BackgroundInfo.BR_REPEAT : binfo.backgroundRepeat) {
+            case BackgroundInfo.BR_NO_REPEAT: {
+              clientG.drawImage(image, bleft + imageX, btop + imageY, w, h, this);
+              break;
+            }
+            case BackgroundInfo.BR_REPEAT_X: {
+              // Modulate starting x.
+              final int topX = bkgBounds.x + bkgBounds.width;
+              for (int x = baseX; x < topX; x += w) {
+                clientG.drawImage(image, x, btop + imageY, w, h, this);
+              }
+              break;
+            }
+            case BackgroundInfo.BR_REPEAT_Y: {
+              // Modulate starting y.
+              final int topY = bkgBounds.y + bkgBounds.height;
+              for (int y = baseY; y < topY; y += h) {
+                clientG.drawImage(image, bleft + imageX, y, w, h, this);
+              }
+              break;
+            }
+            default: {
+              // Modulate starting x and y.
+              final int topX = bkgBounds.x + bkgBounds.width;
+              final int topY = bkgBounds.y + bkgBounds.height;
+              // Replacing this:
+              for (int x = baseX; x < topX; x += w) {
+                for (int y = baseY; y < topY; y += h) {
+                  clientG.drawImage(image, x, y, w, h, this);
+                }
+              }
+              break;
+            }
+            }
+          }
+        }
+      }
+    } finally {
+      clientG.dispose();
+    }
+
     if (borderInsets != null) {
       final int btop = borderInsets.top;
       final int bleft = borderInsets.left;
@@ -758,82 +831,6 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
           }
         }
       }
-      // Adjust client area border
-      totalWidth = newTotalWidth;
-      totalHeight = newTotalHeight;
-      startX = newStartX;
-      startY = newStartY;
-    }
-
-    // TODO: Check if we can use TexturePaint to draw repeated background images
-    // See example: http://www.informit.com/articles/article.aspx?p=26349&seqNum=4
-
-    // Using clientG (clipped below) beyond this point.
-    final Graphics clientG = g.create(startX, startY, totalWidth, totalHeight);
-    try {
-      Rectangle bkgBounds = null;
-      if (node != null) {
-        final Color bkg = this.backgroundColor;
-        if ((bkg != null) && (bkg.getAlpha() > 0)) {
-          clientG.setColor(bkg);
-          bkgBounds = clientG.getClipBounds();
-          clientG.fillRect(bkgBounds.x, bkgBounds.y, bkgBounds.width, bkgBounds.height);
-        }
-        final BackgroundInfo binfo = rs == null ? null : rs.getBackgroundInfo();
-        final Image image = this.backgroundImage;
-        if (image != null) {
-          if (bkgBounds == null) {
-            bkgBounds = clientG.getClipBounds();
-          }
-          final int w = image.getWidth(this);
-          final int h = image.getHeight(this);
-          if ((w != -1) && (h != -1)) {
-            final int imageY = getImageY(totalHeight, binfo, h);
-            final int imageX = getImageX(totalWidth, binfo, w);
-
-            // TODO: optimise this. Although it works fine, it makes an extra `draw` call when imageX or imageY are negative
-            final int baseX = ((bkgBounds.x / w) * w) - (w - imageX);
-            final int baseY = ((bkgBounds.y / h) * h) - (h - imageY);
-
-            switch (binfo == null ? BackgroundInfo.BR_REPEAT : binfo.backgroundRepeat) {
-            case BackgroundInfo.BR_NO_REPEAT: {
-              clientG.drawImage(image, imageX, imageY, w, h, this);
-              break;
-            }
-            case BackgroundInfo.BR_REPEAT_X: {
-              // Modulate starting x.
-              final int topX = bkgBounds.x + bkgBounds.width;
-              for (int x = baseX; x < topX; x += w) {
-                clientG.drawImage(image, x, imageY, w, h, this);
-              }
-              break;
-            }
-            case BackgroundInfo.BR_REPEAT_Y: {
-              // Modulate starting y.
-              final int topY = bkgBounds.y + bkgBounds.height;
-              for (int y = baseY; y < topY; y += h) {
-                clientG.drawImage(image, imageX, y, w, h, this);
-              }
-              break;
-            }
-            default: {
-              // Modulate starting x and y.
-              final int topX = bkgBounds.x + bkgBounds.width;
-              final int topY = bkgBounds.y + bkgBounds.height;
-              // Replacing this:
-              for (int x = baseX; x < topX; x += w) {
-                for (int y = baseY; y < topY; y += h) {
-                  clientG.drawImage(image, x, y, w, h, this);
-                }
-              }
-              break;
-            }
-            }
-          }
-        }
-      }
-    } finally {
-      clientG.dispose();
     }
   }
 
