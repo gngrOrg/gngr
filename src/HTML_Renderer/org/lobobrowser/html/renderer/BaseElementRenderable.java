@@ -660,6 +660,14 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
     }
 
     final Insets borderInsets = this.borderInsets;
+
+    prePaintBackground(g, totalWidth, totalHeight, startX, startY, node, rs, borderInsets);
+
+    prePaintBorder(g, totalWidth, totalHeight, startX, startY, borderInsets);
+  }
+
+  private void prePaintBackground(final java.awt.Graphics g, int totalWidth, int totalHeight, int startX, int startY, final ModelNode node,
+      final RenderState rs, final Insets borderInsets) {
     // TODO: Check if we can use TexturePaint to draw repeated background images
     // See example: http://www.informit.com/articles/article.aspx?p=26349&seqNum=4
 
@@ -731,7 +739,9 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
     } finally {
       clientG.dispose();
     }
+  }
 
+  private void prePaintBorder(final java.awt.Graphics g, int totalWidth, int totalHeight, int startX, int startY, final Insets borderInsets) {
     if (borderInsets != null) {
       final int btop = borderInsets.top;
       final int bleft = borderInsets.left;
