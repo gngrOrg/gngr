@@ -165,7 +165,8 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
     return dw;
   }
 
-  protected Integer getDeclaredHelper(final RenderState renderState, final int baseValue, final Function<CSS2Properties, String> propertyGetter) {
+  protected Integer getDeclaredHelper(final RenderState renderState, final int baseValue,
+      final Function<CSS2Properties, String> propertyGetter) {
     final Object rootNode = this.modelNode;
     if (rootNode instanceof HTMLElementImpl) {
       final HTMLElementImpl element = (HTMLElementImpl) rootNode;
@@ -851,14 +852,16 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
   }
 
   /**
-   * Gets insets of content area. It includes margin, borders, padding and scrollbars.
+   * Gets insets of content area. It includes margin, borders, padding and
+   * scrollbars.
    */
   public Insets getInsets(final boolean hscroll, final boolean vscroll) {
     return getInsets(hscroll, vscroll, true, true, true);
   }
 
   /**
-   * Gets insets of content area. It includes margin, borders, and scrollbars but excludes padding.
+   * Gets insets of content area. It includes margin, borders, and scrollbars
+   * but excludes padding.
    */
   public Insets getInsetsMarginBorder(final boolean hscroll, final boolean vscroll) {
     return getInsets(hscroll, vscroll, true, true, false);
