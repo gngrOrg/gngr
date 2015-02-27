@@ -20,8 +20,10 @@
  */
 package org.lobobrowser.util.gui;
 
+import java.awt.BasicStroke;
 import java.awt.Frame;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
@@ -85,9 +87,25 @@ public class GUITasks {
           g.drawLine(x1, firstY, x1, topY);
         }
       }
+
     } else {
       // Not supported
       g.drawLine(x1, y1, x2, y2);
+    }
+  }
+
+  public static void drawDotted(final Graphics g, final int x1, final int y1, final int x2, final int y2, final float width) {
+    final Graphics ng = g.create();
+    try {
+      final Graphics2D g2d = (Graphics2D) ng.create();
+      final float dot = Math.max(2f, width);
+
+      final float[] dotPattern = { dot };
+      final BasicStroke stroke = new BasicStroke(width, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 2.0f, dotPattern, 0.0f);
+      g2d.setStroke(stroke);
+      g2d.drawLine(x1, y1, x2, y2);
+    } finally {
+      ng.dispose();
     }
   }
 
