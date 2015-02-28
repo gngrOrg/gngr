@@ -77,7 +77,7 @@ import com.squareup.okhttp.OkUrlFactory;
 public class PlatformInit {
   private static final String NATIVE_DIR_NAME = "native";
   private static final long DAYS_MILLIS = 24 * 60 * 60 * 1000L;
-  private static final long SIXTY_DAYS_MILLIS = 60 * DAYS_MILLIS;
+  private static final long TIMEOUT_DAYS = 60;
   private final SimpleThreadPool threadExecutor;
 
   // private final GeneralSettings generalSettings;
@@ -317,15 +317,15 @@ public class PlatformInit {
       final String dateStr = relProps.getProperty(RELEASE_VERSION_RELEASE_DATE);
       final SimpleDateFormat yyyyMMDDFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
       final Date releaseDate = yyyyMMDDFormat.parse(dateStr);
-      final Date releaseDatePlus60Days = new Date(releaseDate.getTime() + SIXTY_DAYS_MILLIS);
+      final Date releaseDatePlusTimeout = new Date(releaseDate.getTime() + (TIMEOUT_DAYS * DAYS_MILLIS));
       final Date currDate = new Date(System.currentTimeMillis());
-      if (releaseDatePlus60Days.before(currDate)) {
+      if (releaseDatePlusTimeout.before(currDate)) {
         final String version = relProps.getProperty(RELEASE_VERSION_STRING);
         final String checkForUpdatesMessage = "<html><h3><center>This version of gngr is old</center></h3><p>gngr "
             + version
             + "</p><p>Released on: "
             + releaseDate
-            + "</p><p>This version is more than 60 days old and was not intended for long-time use.</p><p>Please check if a newer version is available on https://gngr.info</p></html>";
+            + "</p><p>This version is more than " + TIMEOUT_DAYS + " days old and was not intended for long-time use.</p><p>Please check if a newer version is available on https://gngr.info</p></html>";
         JOptionPane.showMessageDialog(null, checkForUpdatesMessage);
       }
     } catch (IOException | ParseException e) {
