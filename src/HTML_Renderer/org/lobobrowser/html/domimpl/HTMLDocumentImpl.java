@@ -37,6 +37,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -52,9 +55,10 @@ import org.lobobrowser.html.domimpl.NodeFilter.LinkFilter;
 import org.lobobrowser.html.domimpl.NodeFilter.TagNameFilter;
 import org.lobobrowser.html.io.WritableLineReader;
 import org.lobobrowser.html.js.Event;
-import org.lobobrowser.html.js.Executor;
+import org.lobobrowser.html.js.EventTargetManager;
 import org.lobobrowser.html.js.Location;
 import org.lobobrowser.html.js.Window;
+import org.lobobrowser.html.js.Window.JSRunnableTask;
 import org.lobobrowser.html.parser.HtmlParser;
 import org.lobobrowser.html.style.RenderState;
 import org.lobobrowser.html.style.StyleElements;
@@ -85,6 +89,9 @@ import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
 import org.w3c.dom.UserDataHandler;
 import org.w3c.dom.css.CSSStyleSheet;
+import org.w3c.dom.events.EventException;
+import org.w3c.dom.events.EventListener;
+import org.w3c.dom.events.EventTarget;
 import org.w3c.dom.html.HTMLCollection;
 import org.w3c.dom.html.HTMLDocument;
 import org.w3c.dom.html.HTMLElement;
@@ -102,7 +109,7 @@ import co.uproot.css.domimpl.StyleSheetBridge;
 /**
  * Implementation of the W3C <code>HTMLDocument</code> interface.
  */
-public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, DocumentView, DocumentStyle {
+public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, DocumentView, DocumentStyle, EventTarget {
   private static final Logger logger = Logger.getLogger(HTMLDocumentImpl.class.getName());
   private final ElementFactory factory;
   private final HtmlRendererContext rcontext;
@@ -138,7 +145,10 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
         // no permission to connect to the host of the URL.
         // This is so that cookies cannot be written arbitrarily
         // with setCookie() method.
-        sm.checkPermission(new java.net.SocketPermission(docURL.getHost(), "connect"));
+        final String protocol = docURL.getProtocol();
+        if ("http".equalsIgnoreCase(protocol) || "https".equalsIgnoreCase(protocol)) {
+          sm.checkPermission(new java.net.SocketPermission(docURL.getHost(), "connect"));
+        }
       }
       this.documentURL = docURL;
       this.domain = docURL.getHost();
@@ -237,7 +247,12 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
     this.defaultTarget = value;
   }
 
+  // TODO: Is this required? Check JS DOM specs.
   public AbstractView getDefaultView() {
+    return this.window;
+  }
+
+  public Window getWindow() {
     return this.window;
   }
 
@@ -368,16 +383,19 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
   }
 
   public void setCookie(final String cookie) throws DOMException {
+    // Update in gngr: Whoa! No, we won't allow the privilege escalation below until better justification is presented ;)
+    // Chagned for Issue #78
+
     // Justification: A caller (e.g. Google Analytics script)
     // might want to set cookies on the parent document.
     // If the caller has access to the document, it appears
     // they should be able to set cookies on that document.
     // Note that this Document instance cannot be created
     // with an arbitrary URL.
-    SecurityUtil.doPrivileged(() -> {
-      ucontext.setCookie(documentURL, cookie);
-      return null;
-    });
+    // SecurityUtil.doPrivileged(() -> {
+    ucontext.setCookie(documentURL, cookie);
+    // return null;
+    // });
   }
 
   public void open() {
@@ -594,6 +612,7 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
    *          The element tag name or an asterisk character (*) to match all
    *          elements.
    */
+  @Override
   public NodeList getElementsByTagName(final String tagname) {
     if ("*".equals(tagname)) {
       return this.getNodeList(new ElementFilter());
@@ -607,7 +626,10 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
   }
 
   public Element createElementNS(final String namespaceURI, final String qualifiedName) throws DOMException {
-    System.out.println("request to create element: " + namespaceURI + " : " + qualifiedName);
+    if ("http://www.w3.org/1999/xhtml".equalsIgnoreCase(namespaceURI)) {
+      return createElement(qualifiedName);
+    }
+    System.out.println("unhandled request to create element in NS: " + namespaceURI + " with tag: " + qualifiedName);
     return null;
     // TODO
     // throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Not implemented: createElementNS");
@@ -1151,17 +1173,34 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
               // Must remove from map in the locked block
               // that got the listeners. Otherwise a new
               // listener might miss the event??
-              map.remove(urlText);
-            }
-            if (listeners != null) {
-              final int llength = listeners.length;
-              for (int i = 0; i < llength; i++) {
-                // Call holding no locks
-                listeners[i].imageLoaded(newEvent);
-              }
+            map.remove(urlText);
+          }
+          if (listeners != null) {
+            final int llength = listeners.length;
+            for (int i = 0; i < llength; i++) {
+              // Call holding no locks
+              listeners[i].imageLoaded(newEvent);
             }
           }
-        });
+        } else if (httpRequest.getReadyState() == NetworkRequest.STATE_ABORTED) {
+          ImageListener[] listeners;
+          synchronized (map) {
+            newInfo.loaded = true;
+            listeners = newInfo.getListeners();
+            // Must remove from map in the locked block
+            // that got the listeners. Otherwise a new
+            // listener might miss the event??
+            map.remove(urlText);
+          }
+          if (listeners != null) {
+            final int llength = listeners.length;
+            for (int i = 0; i < llength; i++) {
+              // Call holding no locks
+              listeners[i].imageAborted();
+            }
+          }
+        }
+      });
 
         SecurityUtil.doPrivileged(() -> {
           try {
@@ -1203,14 +1242,22 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
     final Function onloadHandler = this.onloadHandler;
     if (onloadHandler != null) {
       // TODO: onload event object?
-      Executor.executeFunction(this, onloadHandler, null);
+      throw new UnsupportedOperationException();
+      // TODO: Use the event dispatcher
+      // Executor.executeFunction(this, onloadHandler, null);
     }
 
     final Event loadEvent = new Event("load", getBody()); // TODO: What should be the target for this event?
-    dispatchEventToHandlers(loadEvent, onloadHandlers);
+    // dispatchEventToHandlers(loadEvent, onloadHandlers);
 
     final Event domContentLoadedEvent = new Event("DOMContentLoaded", getBody()); // TODO: What should be the target for this event?
     dispatchEvent(domContentLoadedEvent);
+
+    window.domContentLoaded(domContentLoadedEvent);
+  }
+
+  protected EventTargetManager getEventTargetManager() {
+    return window.getEventTargetManager();
   }
 
   @Override
@@ -1274,16 +1321,74 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
   }
 
   private List<Runnable> jobs = new LinkedList<>();
+  // private int registeredJobs = 0;
+  private final AtomicInteger registeredJobs = new AtomicInteger(0);
+  private final Semaphore doneAllJobs = new Semaphore(0);
+  private final AtomicBoolean stopRequested = new AtomicBoolean(false);
+  private int oldPendingTaskId = -1;
 
+  // TODO: This should be hidden from JS
+  public void stopEverything() {
+    if (stopRequested.get()) {
+      throw new IllegalStateException("Stop requested twice!");
+    }
+    stopRequested.set(true);
+    if (modificationsStarted.get()) {
+      boolean done = false;
+      while (!done) {
+        try {
+          System.out.println("In : " + getBaseURI() + " Acquiring Semaphore: " + doneAllJobs);
+          doneAllJobs.acquire();
+          done = true;
+        } catch (final InterruptedException e) {
+          System.err.println("Was interrupted but will keep trying!");
+          e.printStackTrace();
+        }
+      }
+    }
+  }
+
+  // TODO: This should be hidden from JS
   public void addJob(final Runnable job) {
+    addJob(job, 1);
+  }
+
+  // TODO: This should be hidden from JS
+  public void addJob(final Runnable job, final int incr) {
     synchronized (jobs) {
+      registeredJobs.addAndGet(incr);
       jobs.add(job);
+
+      // Added into synch block because of the JS Uniq task change. (old Id should be protected from parallel mod)
+      if (modificationsOver.get()) {
+        // TODO: temp hack. Not sure if spawning an entirely new thread is right. But it helps with a deadlock in
+        // test_script_iframe_load (test number 3)
+        // new Thread() {
+        // public void run() {
+        // runAllPending();
+        // };
+        // }.start();
+
+        // TODO: temp hack 2. This seems more legitimate than hack #1.
+        /*
+        window.addJSTask(new JSRunnableTask(0, "todo: quick check to run all pending jobs", () -> {
+            runAllPending();
+        }));
+        */
+
+        // TODO: temp hack 3. This seems more legitimate than hack #1 and optimisation over #2.
+        oldPendingTaskId = window.addJSUniqueTask(oldPendingTaskId, new JSRunnableTask(0, "todo: quick check to run all pending jobs",
+            () -> {
+              runAllPending();
+            }));
+        // runAllPending();
+      }
     }
   }
 
   private void runAllPending() {
     boolean done = false;
-    while (!done) {
+    while (!done && !stopRequested.get()) {
       List<Runnable> jobsCopy;
       synchronized (jobs) {
         jobsCopy = jobs;
@@ -1294,12 +1399,42 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
         done = jobs.size() == 0;
       }
     }
+    doneAllJobs.release();
   }
 
+  // TODO: This should be hidden from JS
+  public void markJobsFinished(final int numJobs) {
+    final int curr = registeredJobs.addAndGet(-numJobs);
+    if (curr < 0) {
+      throw new IllegalStateException("More jobs over than registered!");
+    } else if (curr == 0) {
+      if (!stopRequested.get() && !loadOver.get()) {
+        loadOver.set(true);
+        dispatchLoadEvent();
+        System.out.println("In " + baseURI);
+        System.out.println("  calling window.jobsFinished()");
+        window.jobsFinished();
+      }
+    }
+  }
+
+  private final AtomicBoolean modificationsStarted = new AtomicBoolean(false);
+  private final AtomicBoolean modificationsOver = new AtomicBoolean(false);
+  private final AtomicBoolean loadOver = new AtomicBoolean(false);
+
+  // TODO: This should be hidden from JS
   public void finishModifications() {
     StyleElements.normalizeHTMLTree(this);
-    runAllPending();
-    dispatchLoadEvent();
+    // Not sure if this should be run in new thread. But this blocks the UI sometimes when it is in the same thread, and a network request hangs.
+    new Thread(() -> {
+      modificationsStarted.set(true);
+      runAllPending();
+      modificationsOver.set(true);
+    }).start();
+
+    // This is to trigger a check in the no external resource case.
+    // On second thoughts, this may not be required. The window load event need only be fired if there is a script
+    // markJobsFinished(0);
 
     /* Nodes.forEachNode(document, node -> {
       if (node instanceof NodeImpl) {
@@ -1344,12 +1479,15 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
     };
 
     private List<JStyleSheetWrapper> getDocStyleSheetList() {
-      synchronized (treeLock) {
+      synchronized (this) {
         if (styleSheets == null) {
           styleSheets = new ArrayList<>();
           final List<JStyleSheetWrapper> docStyles = new ArrayList<>();
-          scanElementStyleSheets(docStyles, HTMLDocumentImpl.this);
+          synchronized (treeLock) {
+            scanElementStyleSheets(docStyles, HTMLDocumentImpl.this);
+          }
           styleSheets.addAll(docStyles);
+          System.out.println("Found stylesheets: " + this.styleSheets.size());
         }
         return this.styleSheets;
       }
@@ -1372,28 +1510,59 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
       }
     }
 
+    private volatile List<cz.vutbr.web.css.StyleSheet> enabledJStyleSheets = null;
+
     // TODO enabled style sheets can be cached
     List<cz.vutbr.web.css.StyleSheet> getEnabledJStyleSheets() {
-      final List<JStyleSheetWrapper> documentStyles = this.getDocStyleSheetList();
-      final List<cz.vutbr.web.css.StyleSheet> jStyleSheets = new ArrayList<>();
-      for (final JStyleSheetWrapper style : documentStyles) {
-        if ((!style.getDisabled()) && (style.getJStyleSheet() != null)) {
-          jStyleSheets.add(style.getJStyleSheet());
+      synchronized (this) {
+        if (enabledJStyleSheets != null) {
+          return enabledJStyleSheets;
         }
+        final List<JStyleSheetWrapper> documentStyles = this.getDocStyleSheetList();
+        final List<cz.vutbr.web.css.StyleSheet> jStyleSheets = new ArrayList<>();
+        for (final JStyleSheetWrapper style : documentStyles) {
+          if ((!style.getDisabled()) && (style.getJStyleSheet() != null)) {
+            jStyleSheets.add(style.getJStyleSheet());
+          }
+        }
+        enabledJStyleSheets = jStyleSheets;
+        return jStyleSheets;
       }
-      return jStyleSheets;
     }
 
     void invalidateStyles() {
       synchronized (treeLock) {
         this.styleSheets = null;
+        getDocStyleSheetList();
       }
-      allInvalidated();
+      synchronized (this) {
+        this.enabledJStyleSheets = null;
+      }
+      System.out.println("Stylesheets set to null");
+      allInvalidated(true);
     }
 
     StyleSheetList constructStyleSheetList() {
       return JStyleSheetWrapper.getStyleSheets(bridge);
     }
 
+  }
+
+  @Override
+  public void addEventListener(final String type, final EventListener listener, final boolean useCapture) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void removeEventListener(final String type, final EventListener listener, final boolean useCapture) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean dispatchEvent(final org.w3c.dom.events.Event evt) throws EventException {
+    // TODO Auto-generated method stub
+    return false;
   }
 }

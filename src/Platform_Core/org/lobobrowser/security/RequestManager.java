@@ -80,7 +80,10 @@ public final class RequestManager {
   }
 
   private Optional<String> getFrameHost() {
-    return getFrameNavigationEntry().map(e -> e.getUrl().getHost().toLowerCase());
+    return getFrameNavigationEntry().map(e -> {
+      final String host = e.getUrl().getHost();
+      return host == null ? "" : host.toLowerCase();
+    });
   }
 
   private Optional<URL> getFrameURL() {

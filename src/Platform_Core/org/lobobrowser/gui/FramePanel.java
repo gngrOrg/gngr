@@ -110,7 +110,8 @@ public class FramePanel extends JPanel implements NavigatorFrame {
   private final Object propertiesMonitor = new Object();
 
   private NavigatorFrame openerFrame;
-  private Window topFrameWindow;
+
+  // private Window topFrameWindow;
 
   /**
    * Constructs a FramePanel specifying a "window" ID.
@@ -715,6 +716,11 @@ public class FramePanel extends JPanel implements NavigatorFrame {
     case SELF:
       this.navigateLocal(event);
       break;
+    case NAMED:
+      // TODO
+      final NavigatorFrame namedFrame = null;
+      namedFrame.navigate(url, method, paramInfo, TargetType.SELF, requestType, this);
+      break;
     case BLANK:
       this.open(url, method, paramInfo);
       break;
@@ -1223,13 +1229,14 @@ public class FramePanel extends JPanel implements NavigatorFrame {
     }
   }
 
+  /*
   public Window getTopFrameWindow() {
     return topFrameWindow;
   }
 
   public void setTopFrameWindow(final Window topFrameWindow) {
     this.topFrameWindow = topFrameWindow;
-  }
+  }*/
 
   /**
    * Gets an object that is used to represent the current frame content. For

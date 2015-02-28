@@ -129,11 +129,14 @@ public final class RequestEngine {
     return cookieText.toString();
   }
 
-  public void setCookie(final URL url, final String cookieSpec) {
-    try {
-      this.cookieStore.saveCookie(url.toURI(), cookieSpec);
-    } catch (final URISyntaxException e) {
-      throw new RuntimeException(e);
+  public void setCookie(final URL url, final String cookieSpec, final UserAgentContext uaContext) {
+    // changed for issue #78
+    if (uaContext.isRequestPermitted(new Request(url, RequestKind.Cookie))) {
+      try {
+        this.cookieStore.saveCookie(url.toURI(), cookieSpec);
+      } catch (final URISyntaxException e) {
+        throw new RuntimeException(e);
+      }
     }
   }
 
@@ -776,7 +779,7 @@ public final class RequestEngine {
             hconnection.setInstanceFollowRedirects(false);
             final int responseCode = hconnection.getResponseCode();
             logInfo("run(): ResponseCode=" + responseCode + " for url=" + connectionUrl);
-            dumpResponseInfo(connection);
+            // dumpResponseInfo(connection);
             handleCookies(connectionUrl, hconnection, rhandler);
 
             if (responseCode == HttpURLConnection.HTTP_OK) {
@@ -905,7 +908,8 @@ public final class RequestEngine {
       final String protocol = connection.getURL().getProtocol();
       if ("http".equalsIgnoreCase(protocol) || "https".equalsIgnoreCase(protocol)) {
         final URL url = connection.getURL();
-        final URI uri = url.toURI();
+        final URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(),
+            url.getRef());
         // TODO: optimization #1: list is not required if we directly call our CookieHandler implementation
         // TODO: optimization #2: even if we use the CookieHandler interface, we can avoid the joining of List entries, since our impl always returns a single element list
         final Map<String, List<String>> cookieHeaders = cookieHandler.get(uri, null);
