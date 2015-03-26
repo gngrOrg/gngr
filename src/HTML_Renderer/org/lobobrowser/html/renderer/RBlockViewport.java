@@ -46,6 +46,7 @@ import org.lobobrowser.html.HtmlObject;
 import org.lobobrowser.html.HtmlRendererContext;
 import org.lobobrowser.html.domimpl.DocumentFragmentImpl;
 import org.lobobrowser.html.domimpl.HTMLBaseInputElement;
+import org.lobobrowser.html.domimpl.HTMLCanvasElementImpl;
 import org.lobobrowser.html.domimpl.HTMLElementImpl;
 import org.lobobrowser.html.domimpl.HTMLIFrameElementImpl;
 import org.lobobrowser.html.domimpl.HTMLImageElementImpl;
@@ -178,6 +179,7 @@ public class RBlockViewport extends BaseRCollection {
     el.put("BODY", div);
     el.put("DL", div);
     el.put("DT", div);
+    el.put("CANVAS", div);
     final BlockQuoteLayout bq = new BlockQuoteLayout();
     el.put("BLOCKQUOTE", bq);
     el.put("DD", bq);
@@ -188,6 +190,8 @@ public class RBlockViewport extends BaseRCollection {
     el.put("APPLET", ol);
     el.put("EMBED", ol);
     el.put("IFRAME", new IFrameLayout());
+
+    el.put("CANVAS", new CanvasLayout());
   }
 
   /**
@@ -2091,6 +2095,38 @@ public class RBlockViewport extends BaseRCollection {
     protected RElement createRenderable(final RBlockViewport bodyLayout, final HTMLElementImpl markupElement) {
       final UIControl control = new ImgControl((HTMLImageElementImpl) markupElement);
       return new RImgControl(markupElement, control, bodyLayout.container, bodyLayout.frameContext, bodyLayout.userAgentContext);
+    }
+  }
+
+  private static class CanvasLayout extends CommonWidgetLayout {
+    public CanvasLayout() {
+      super(ADD_INLINE, false);
+    }
+
+    @Override
+    protected RElement createRenderable(final RBlockViewport bodyLayout, final HTMLElementImpl markupElement) {
+      final HTMLCanvasElementImpl canvasImpl = (HTMLCanvasElementImpl) markupElement;
+      return new RUIControl(markupElement, new CanvasControl(canvasImpl), bodyLayout.container, bodyLayout.frameContext, bodyLayout.userAgentContext);
+    }
+
+    static class CanvasControl extends BaseControl {
+      private final HTMLCanvasElementImpl canvasNode;
+
+      public CanvasControl(HTMLCanvasElementImpl canvasNode) {
+        super(canvasNode);
+        this.canvasNode = canvasNode;
+      }
+
+      public void paintComponent(final Graphics g) {
+        canvasNode.paintComponent(g);
+      }
+
+      @Override
+      public void setBounds(int x, int y, int width, int height) {
+        super.setBounds(x, y, width, height);
+        canvasNode.setBounds(width, height);
+      }
+
     }
   }
 

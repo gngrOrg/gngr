@@ -109,6 +109,8 @@ class ElementFactory {
     builders.put("H4", heading);
     builders.put("H5", heading);
     builders.put("H6", heading);
+
+    builders.put("CANVAS", new HTMLElementBuilder.Canvas());
   }
 
   private static ElementFactory instance = new ElementFactory();

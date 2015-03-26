@@ -29,6 +29,8 @@ public class StyleElements {
       } else if ("FONT".equalsIgnoreCase(tagName)) {
         //Text properties
         attrs = getFontElementStyle(el, attrs);
+      } else if ("CANVAS".equalsIgnoreCase(tagName)) {
+        attrs = getCanvasElementStyle(el, attrs);
       }
 
       if (attrs.length() > 0) {
@@ -36,6 +38,35 @@ public class StyleElements {
       }
     }
     return null;
+  }
+
+  private static String getCanvasElementStyle(HTMLElementImpl el, String attrs) {
+    final Node widthNode = el.getAttributes().getNamedItem("width");
+    if (widthNode != null) {
+      attrs += "width: " + pixelise(widthNode.getNodeValue()) + ";";
+    } else {
+      attrs += "width: 300px;";
+    }
+
+    final Node heightNode = el.getAttributes().getNamedItem("height");
+    if (heightNode != null) {
+      attrs += "height: " + pixelise(heightNode.getNodeValue()) + ";";
+    } else {
+      attrs += "height: 150px;";
+    }
+
+    return attrs;
+  }
+
+  private static String pixelise(final String value) {
+    try {
+      @SuppressWarnings("unused")
+      final int ignored = Integer.parseInt(value);
+
+      return value + "px";
+    } catch (NumberFormatException e) {
+      return value;
+    }
   }
 
   private static String getTableElementStyle(final Element el, String attrs) {
