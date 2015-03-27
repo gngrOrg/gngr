@@ -20,6 +20,8 @@
 
 package org.lobobrowser.html.domimpl;
 
+import java.awt.AlphaComposite;
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -165,6 +167,14 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
       g2.setColor(parseStyle(style));
     }
 
+    public void setGlobalAlpha(final double alpha) {
+      final Graphics2D g2 = getGraphics();
+      g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) alpha));
+    }
+
+    public void setLineWidth(final double width) {
+      final Graphics2D g2 = getGraphics();
+      g2.setStroke(new BasicStroke((float) width, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
     }
 
     private Graphics2D cachedGraphics = null;
