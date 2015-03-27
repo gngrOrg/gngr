@@ -79,6 +79,10 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
     drawGrid();
   }
 
+  private void repaint() {
+    getUINode().repaint(HTMLCanvasElementImpl.this);
+  }
+
   private static final Color gridColor = new Color(30, 30, 30, 30);
   private static final int GRID_SIZE = 10;
 
@@ -102,6 +106,7 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
     public void fillRect(final int x, final int y, final int width, final int height) {
       final Graphics2D g2 = getGraphics();
       g2.fillRect(x, y, width, height);
+      repaint();
     }
 
     public void setFillStyle(final String style) {
