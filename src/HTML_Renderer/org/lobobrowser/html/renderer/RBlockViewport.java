@@ -2124,7 +2124,8 @@ public class RBlockViewport extends BaseRCollection {
       @Override
       public void setBounds(int x, int y, int width, int height) {
         super.setBounds(x, y, width, height);
-        canvasNode.setBounds(width, height);
+        final Insets insets = ruicontrol.getInsetsMarginPadding();
+        canvasNode.setBounds(insets.left, insets.top, width - (insets.left + insets.right), height - (insets.top + insets.bottom));
       }
 
     }

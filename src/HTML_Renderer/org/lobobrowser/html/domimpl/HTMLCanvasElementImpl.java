@@ -61,16 +61,21 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
   }
 
   private java.awt.Image image = null;
+  private int offsetX = 0;
+  private int offsetY = 0;
 
   @HideFromJS
   public void paintComponent(final Graphics g) {
     if (image != null) {
-      g.drawImage(image, 0, 0, null);
+      g.drawImage(image, offsetX, offsetY, null);
     }
   }
 
   @HideFromJS
-  public void setBounds(final int width, final int height) {
+  public void setBounds(final int x, final int y, final int width, final int height) {
+    offsetX = x;
+    offsetY = y;
+
     if (image == null) {
       createNewImage(width, height);
     } else if (image.getWidth(null) != width || image.getHeight(null) != height) {
