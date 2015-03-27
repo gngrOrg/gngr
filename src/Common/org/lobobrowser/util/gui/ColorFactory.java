@@ -265,14 +265,27 @@ public class ColorFactory {
           final int len = normalSpec.length();
           final int[] rgba = new int[4];
           rgba[3] = 255;
-          for (int i = 0; i < rgba.length; i++) {
-            final int idx = (2 * i) + 1;
-            if (idx < len) {
-              final String hexText = normalSpec.substring(idx, idx + Math.min(2, len - idx));
+          if (len == 4) {
+            for (int i = 1; i < 4; i++) {
+              final String hexText = normalSpec.substring(i, i + Math.min(1, len - i));
               try {
-                rgba[i] = Integer.parseInt(hexText, 16);
+                final int singleDigitValue = Integer.parseInt(hexText, 16);
+                rgba[i-1] = (singleDigitValue << 4) | singleDigitValue;
               } catch (final NumberFormatException nfe) {
                 // Ignore
+              }
+            }
+
+          } else {
+            for (int i = 0; i < rgba.length; i++) {
+              final int idx = (2 * i) + 1;
+              if (idx < len) {
+                final String hexText = normalSpec.substring(idx, idx + Math.min(2, len - idx));
+                try {
+                  rgba[i] = Integer.parseInt(hexText, 16);
+                } catch (final NumberFormatException nfe) {
+                  // Ignore
+                }
               }
             }
           }
