@@ -157,8 +157,14 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
 
     public void setFillStyle(final String style) {
       final Graphics2D g2 = getGraphics();
-      final Color c = ColorFactory.getInstance().getColor(style);
-      g2.setPaint(c);
+      g2.setPaint(parseStyle(style));
+    }
+
+    public void setStrokeStyle(final String style) {
+      final Graphics2D g2 = getGraphics();
+      g2.setColor(parseStyle(style));
+    }
+
     }
 
     private Graphics2D cachedGraphics = null;
@@ -184,4 +190,9 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
   public CanvasContext getContext(final String type) {
     return canvasContext;
   }
+
+  private static Color parseStyle(final String style) {
+    return ColorFactory.getInstance().getColor(style);
+  }
+
 }
