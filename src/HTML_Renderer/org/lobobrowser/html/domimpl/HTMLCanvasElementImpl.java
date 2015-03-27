@@ -24,6 +24,8 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.geom.Arc2D;
+import java.awt.geom.Path2D;
 import java.awt.image.BufferedImage;
 
 import org.lobobrowser.js.HideFromJS;
@@ -107,6 +109,49 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
     public void fillRect(final int x, final int y, final int width, final int height) {
       final Graphics2D g2 = getGraphics();
       g2.fillRect(x, y, width, height);
+      repaint();
+    }
+
+    public void clearRect(final int x, final int y, final int width, final int height) {
+      final Graphics2D g2 = getGraphics();
+      g2.clearRect(x, y, width, height);
+      repaint();
+    }
+
+    private Path2D currPath = null;
+
+    public void beginPath() {
+      currPath = new Path2D.Float();
+    }
+
+    public void closePath() {
+      currPath.closePath();
+    }
+
+    public void moveTo(final int x, final int y) {
+      currPath.moveTo(x, y);
+    }
+
+    public void lineTo(final int x, final int y) {
+      currPath.lineTo(x, y);
+    }
+
+    public void arc(final int x, final int y, final int radius, final double startAngle, final double endAngle, final boolean antiClockwise) {
+      final double start = antiClockwise ? startAngle : endAngle;
+      final double extent = antiClockwise ? endAngle - startAngle : Math.abs(startAngle - endAngle);
+      final Arc2D.Double arc = new Arc2D.Double(x-radius, y-radius, radius*2, radius*2, Math.toDegrees(start), Math.toDegrees(extent), Arc2D.OPEN);
+      currPath.append(arc, false);
+    }
+
+    public void stroke() {
+      final Graphics2D g2 = getGraphics();
+      g2.draw(currPath);
+      repaint();
+    }
+
+    public void fill() {
+      final Graphics2D g2 = getGraphics();
+      g2.fill(currPath);
       repaint();
     }
 
