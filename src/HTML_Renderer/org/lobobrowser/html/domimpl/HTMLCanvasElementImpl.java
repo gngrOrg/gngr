@@ -25,6 +25,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
+import org.lobobrowser.js.HideFromJS;
+import org.lobobrowser.util.gui.ColorFactory;
 import org.w3c.dom.html.HTMLElement;
 
 public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTMLElement {
@@ -63,12 +65,16 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
 
   public void setBounds(int width, int height) {
     if (image == null) {
-      image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-      drawGrid();
+      createNewImage(width, height);
     } else if (image.getWidth(null) != width || image.getHeight(null) != height) {
-      image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-      drawGrid();
+      createNewImage(width, height);
     }
+  }
+
+  private void createNewImage(int width, int height) {
+    image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+    canvasContext.invalidate();
+    drawGrid();
   }
 
   private static final Color gridColor = new Color(30, 30, 30, 30);
@@ -90,4 +96,37 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
     }
   }
 
+  final public class CanvasContext {
+    public void fillRect(final int x, final int y, final int width, final int height) {
+      final Graphics2D g2 = getGraphics();
+      g2.fillRect(x, y, width, height);
+    }
+
+    public void setFillStyle(final String style) {
+      final Graphics2D g2 = getGraphics();
+      final Color c = ColorFactory.getInstance().getColor(style);
+      g2.setPaint(c);
+    }
+
+    private Graphics2D cachedGraphics = null;
+
+    @HideFromJS
+    public synchronized void invalidate() {
+      cachedGraphics = null;
+    }
+
+    private synchronized Graphics2D getGraphics() {
+      if (cachedGraphics == null) {
+        cachedGraphics = (Graphics2D) image.getGraphics();
+      }
+      return cachedGraphics;
+    }
+
+  };
+
+  final private CanvasContext canvasContext = new CanvasContext();
+  
+  public CanvasContext getContext(final String type) {
+    return canvasContext;
+  }
 }
