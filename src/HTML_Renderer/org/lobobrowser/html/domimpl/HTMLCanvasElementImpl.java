@@ -57,12 +57,14 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
 
   private java.awt.Image image = null;
 
+  @HideFromJS
   public void paintComponent(Graphics g) {
     if (image != null) {
       g.drawImage(image, 0, 0, null);
     }
   }
 
+  @HideFromJS
   public void setBounds(int width, int height) {
     if (image == null) {
       createNewImage(width, height);
@@ -125,7 +127,7 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
   };
 
   final private CanvasContext canvasContext = new CanvasContext();
-  
+
   public CanvasContext getContext(final String type) {
     return canvasContext;
   }
