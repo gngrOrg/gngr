@@ -63,14 +63,14 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
   private java.awt.Image image = null;
 
   @HideFromJS
-  public void paintComponent(Graphics g) {
+  public void paintComponent(final Graphics g) {
     if (image != null) {
       g.drawImage(image, 0, 0, null);
     }
   }
 
   @HideFromJS
-  public void setBounds(int width, int height) {
+  public void setBounds(final int width, final int height) {
     if (image == null) {
       createNewImage(width, height);
     } else if (image.getWidth(null) != width || image.getHeight(null) != height) {
@@ -78,7 +78,7 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
     }
   }
 
-  private void createNewImage(int width, int height) {
+  private void createNewImage(final int width, final int height) {
     image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
     canvasContext.invalidate();
     drawGrid();
@@ -88,11 +88,11 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
     getUINode().repaint(HTMLCanvasElementImpl.this);
   }
 
-  private static final Color gridColor = new Color(30, 30, 30, 30);
+  private static final Color gridColor = new Color(30, 30, 30, 80);
   private static final int GRID_SIZE = 10;
 
   private void drawGrid() {
-    Graphics2D g2 = (Graphics2D) image.getGraphics();
+    final Graphics2D g2 = (Graphics2D) image.getGraphics();
     final int height = image.getHeight(null);
     final int width = image.getWidth(null);
 
