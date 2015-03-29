@@ -125,7 +125,7 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
       repaint();
     }
 
-    private Path2D currPath = null;
+    private Path2D currPath = new Path2D.Float();
 
     public void beginPath() {
       currPath = new Path2D.Float();
