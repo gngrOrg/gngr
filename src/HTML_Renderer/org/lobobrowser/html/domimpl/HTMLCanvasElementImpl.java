@@ -93,7 +93,7 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
     getUINode().repaint(HTMLCanvasElementImpl.this);
   }
 
-  private static final Color gridColor = new Color(30, 30, 30, 80);
+  private static final Color gridColor = new Color(30, 30, 30, 30);
   private static final int GRID_SIZE = 10;
 
   private void drawGrid() {
