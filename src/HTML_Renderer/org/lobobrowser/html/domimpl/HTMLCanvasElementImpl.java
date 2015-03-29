@@ -28,6 +28,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Path2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
 import org.lobobrowser.js.HideFromJS;
@@ -148,6 +149,10 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
       final double extent = antiClockwise ? endAngle - startAngle : Math.abs(startAngle - endAngle);
       final Arc2D.Double arc = new Arc2D.Double(x-radius, y-radius, radius*2, radius*2, Math.toDegrees(start), Math.toDegrees(extent), Arc2D.OPEN);
       currPath.append(arc, false);
+    }
+
+    public void rect(final double x, final double y, final double width, final double height) {
+      currPath.append(new Rectangle2D.Double(x, y, width, height), false);
     }
 
     public void stroke() {
