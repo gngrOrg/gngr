@@ -767,33 +767,35 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
           final Color darkColor = normalColor.darker();
           final Color lightColor = normalColor.brighter();
 
+          final int width = btop;
+          final int widthBy2 = width / 2;
+
           if (borderStyle == HtmlValues.BORDER_STYLE_DOTTED) {
             g.setColor(normalColor);
-            final int topMid = startY + (btop / 2);
-            GUITasks.drawDotted(g, startX, topMid, startX + totalWidth, topMid, btop);
+            final int topMid = startY + widthBy2;
+            GUITasks.drawDotted(g, startX, topMid, startX + totalWidth, topMid, width);
           } else {
-            final int btopBy3 = btop / 3;
-            final int btopBy2 = btop / 2;
+            final int widthBy3 = width / 3;
             setInitialBorderColor(g, borderStyle, normalColor, darkColor, lightColor);
-            for (int i = 0; i < btop; i++) {
-              final int leftOffset = (i * bleft) / btop;
-              final int rightOffset = (i * bright) / btop;
+            for (int i = 0; i < width; i++) {
+              final int leftOffset = (i * bleft) / width;
+              final int rightOffset = (i * bright) / width;
               if (borderStyle == HtmlValues.BORDER_STYLE_DASHED) {
-                GUITasks.drawDashed(g, startX + leftOffset, startY + i, (startX + totalWidth) - rightOffset - 1, startY + i, 10 + btop, 6);
+                GUITasks.drawDashed(g, startX + leftOffset, startY + i, (startX + totalWidth) - rightOffset - 1, startY + i, 10 + width, 6);
               } else {
                 if (borderStyle == HtmlValues.BORDER_STYLE_GROOVE) {
-                  if (i == btopBy2) {
+                  if (i == widthBy2) {
                     g.setColor(lightColor);
                   }
                 } else if (borderStyle == HtmlValues.BORDER_STYLE_RIDGE) {
-                  if (i == btopBy2) {
+                  if (i == widthBy2) {
                     g.setColor(darkColor);
                   }
                 }
                 g.drawLine(startX + leftOffset, startY + i, (startX + totalWidth) - rightOffset - 1, startY + i);
                 if (borderStyle == HtmlValues.BORDER_STYLE_DOUBLE) {
-                  if (i == btopBy3) {
-                    i += btopBy3;
+                  if (i == widthBy3) {
+                    i += widthBy3;
                   }
                 }
               }
@@ -808,33 +810,35 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
 
           final int lastX = (startX + totalWidth) - 1;
 
+          final int width = bright;
+          final int widthBy2 = width / 2;
+
           if (borderStyle == HtmlValues.BORDER_STYLE_DOTTED) {
             g.setColor(normalColor);
-            final int rightMid = lastX - (bright / 2);
-            GUITasks.drawDotted(g, rightMid, startY, rightMid, startY + totalHeight, bright);
+            final int rightMid = lastX - widthBy2;
+            GUITasks.drawDotted(g, rightMid, startY, rightMid, startY + totalHeight, width);
           } else {
-            final int brightBy3 = bright / 3;
-            final int brightBy2 = bright / 2;
+            final int widthBy3 = width / 3;
             setInitialBorderColor(g, borderStyle, normalColor, lightColor, darkColor);
-            for (int i = 0; i < bright; i++) {
-              final int topOffset = (i * btop) / bright;
-              final int bottomOffset = (i * bbottom) / bright;
+            for (int i = 0; i < width; i++) {
+              final int topOffset = (i * btop) / width;
+              final int bottomOffset = (i * bbottom) / width;
               if (borderStyle == HtmlValues.BORDER_STYLE_DASHED) {
-                GUITasks.drawDashed(g, lastX - i, startY + topOffset, lastX - i, (startY + totalHeight) - bottomOffset - 1, 10 + bright, 6);
+                GUITasks.drawDashed(g, lastX - i, startY + topOffset, lastX - i, (startY + totalHeight) - bottomOffset - 1, 10 + width, 6);
               } else {
                 if (borderStyle == HtmlValues.BORDER_STYLE_GROOVE) {
-                  if (i == brightBy2) {
+                  if (i == widthBy2) {
                     g.setColor(darkColor);
                   }
                 } else if (borderStyle == HtmlValues.BORDER_STYLE_RIDGE) {
-                  if (i == brightBy2) {
+                  if (i == widthBy2) {
                     g.setColor(lightColor);
                   }
                 }
                 g.drawLine(lastX - i, startY + topOffset, lastX - i, (startY + totalHeight) - bottomOffset - 1);
                 if (borderStyle == HtmlValues.BORDER_STYLE_DOUBLE) {
-                  if (i == brightBy3) {
-                    i += brightBy3;
+                  if (i == widthBy3) {
+                    i += widthBy3;
                   }
                 }
               }
@@ -849,33 +853,35 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
 
           final int lastY = (startY + totalHeight) - 1;
 
+          final int width = bbottom;
+          final int widthBy2 = width / 2;
+
           if (borderStyle == HtmlValues.BORDER_STYLE_DOTTED) {
             g.setColor(normalColor);
-            final int bottomMid = lastY - (bbottom / 2);
-            GUITasks.drawDotted(g, startX, bottomMid, startX + totalWidth, bottomMid, bbottom);
+            final int bottomMid = lastY - widthBy2;
+            GUITasks.drawDotted(g, startX, bottomMid, startX + totalWidth, bottomMid, width);
           } else {
-            final int bbottomBy3 = bbottom / 3;
-            final int bbottomBy2 = bbottom / 2;
+            final int widthBy3 = width / 3;
             setInitialBorderColor(g, borderStyle, normalColor, lightColor, darkColor);
-            for (int i = 0; i < bbottom; i++) {
-              final int leftOffset = (i * bleft) / bbottom;
-              final int rightOffset = (i * bright) / bbottom;
+            for (int i = 0; i < width; i++) {
+              final int leftOffset = (i * bleft) / width;
+              final int rightOffset = (i * bright) / width;
               if (borderStyle == HtmlValues.BORDER_STYLE_DASHED) {
-                GUITasks.drawDashed(g, startX + leftOffset, lastY - i, (startX + totalWidth) - rightOffset - 1, lastY - i, 10 + bbottom, 6);
+                GUITasks.drawDashed(g, startX + leftOffset, lastY - i, (startX + totalWidth) - rightOffset - 1, lastY - i, 10 + width, 6);
               } else {
                 if (borderStyle == HtmlValues.BORDER_STYLE_GROOVE) {
-                  if (i == bbottomBy2) {
+                  if (i == widthBy2) {
                     g.setColor(darkColor);
                   }
                 } else if (borderStyle == HtmlValues.BORDER_STYLE_RIDGE) {
-                  if (i == bbottomBy2) {
+                  if (i == widthBy2) {
                     g.setColor(lightColor);
                   }
                 }
                 g.drawLine(startX + leftOffset, lastY - i, (startX + totalWidth) - rightOffset - 1, lastY - i);
                 if (borderStyle == HtmlValues.BORDER_STYLE_DOUBLE) {
-                  if (i == bbottomBy3) {
-                    i += bbottomBy3;
+                  if (i == widthBy3) {
+                    i += widthBy3;
                   }
                 }
               }
@@ -888,34 +894,36 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
           final Color darkColor = normalColor.darker();
           final Color lightColor = normalColor.brighter();
 
+          final int width = bleft;
+          final int widthBy2 = width / 2;
+
           if (borderStyle == HtmlValues.BORDER_STYLE_DOTTED) {
             g.setColor(normalColor);
-            final int leftMid = startX + (bleft / 2);
+            final int leftMid = startX + widthBy2;
             GUITasks.drawDotted(g, leftMid, startY, leftMid, startY + totalHeight, bleft);
           } else {
-            final int bleftBy3 = bleft / 3;
-            final int bleftBy2 = bleft / 2;
+            final int widthBy3 = width / 3;
             setInitialBorderColor(g, borderStyle, normalColor, darkColor, lightColor);
-            for (int i = 0; i < bleft; i++) {
-              final int topOffset = (i * btop) / bleft;
-              final int bottomOffset = (i * bbottom) / bleft;
+            for (int i = 0; i < width; i++) {
+              final int topOffset = (i * btop) / width;
+              final int bottomOffset = (i * bbottom) / width;
               if (borderStyle == HtmlValues.BORDER_STYLE_DASHED) {
                 GUITasks
-                    .drawDashed(g, startX + i, startY + topOffset, startX + i, (startY + totalHeight) - bottomOffset - 1, 10 + bleft, 6);
+                    .drawDashed(g, startX + i, startY + topOffset, startX + i, (startY + totalHeight) - bottomOffset - 1, 10 + width, 6);
               } else {
                 if (borderStyle == HtmlValues.BORDER_STYLE_GROOVE) {
-                  if (i == bleftBy2) {
+                  if (i == widthBy2) {
                     g.setColor(lightColor);
                   }
                 } else if (borderStyle == HtmlValues.BORDER_STYLE_RIDGE) {
-                  if (i == bleftBy2) {
+                  if (i == widthBy2) {
                     g.setColor(darkColor);
                   }
                 }
                 g.drawLine(startX + i, startY + topOffset, startX + i, (startY + totalHeight) - bottomOffset - 1);
                 if (borderStyle == HtmlValues.BORDER_STYLE_DOUBLE) {
-                  if (i == bleftBy3) {
-                    i += bleftBy3;
+                  if (i == widthBy3) {
+                    i += widthBy3;
                   }
                 }
               }
