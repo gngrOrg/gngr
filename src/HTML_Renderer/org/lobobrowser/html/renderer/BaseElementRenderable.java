@@ -772,15 +772,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
           } else {
             int btopBy3 = btop / 3;
             int btopBy2 = btop / 2;
-            if (borderStyle == HtmlValues.BORDER_STYLE_INSET) {
-              g.setColor(borderTopDarkColor);
-            } else if (borderStyle == HtmlValues.BORDER_STYLE_OUTSET) {
-              g.setColor(borderTopLightColor);
-            } else if (borderStyle == HtmlValues.BORDER_STYLE_GROOVE) {
-              g.setColor(borderTopDarkColor);
-            } else if (borderStyle == HtmlValues.BORDER_STYLE_RIDGE) {
-              g.setColor(borderTopLightColor);
-            }
+            setInitialBorderColor(g, borderStyle, this.getBorderTopColor(), borderTopDarkColor, borderTopLightColor);
             for (int i = 0; i < btop; i++) {
               final int leftOffset = (i * bleft) / btop;
               final int rightOffset = (i * bright) / btop;
@@ -819,15 +811,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
           } else {
             int brightBy3 = bright / 3;
             int brightBy2 = bright / 2;
-            if (borderStyle == HtmlValues.BORDER_STYLE_INSET) {
-              g.setColor(borderRightLightColor);
-            } else if (borderStyle == HtmlValues.BORDER_STYLE_OUTSET) {
-              g.setColor(borderRightDarkColor);
-            } else if (borderStyle == HtmlValues.BORDER_STYLE_GROOVE) {
-              g.setColor(borderRightLightColor);
-            } else if (borderStyle == HtmlValues.BORDER_STYLE_RIDGE) {
-              g.setColor(borderRightDarkColor);
-            }
+            setInitialBorderColor(g, borderStyle, this.getBorderRightColor(), borderRightLightColor, borderRightDarkColor);
             for (int i = 0; i < bright; i++) {
               final int topOffset = (i * btop) / bright;
               final int bottomOffset = (i * bbottom) / bright;
@@ -867,15 +851,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
           } else {
             int bbottomBy3 = bbottom / 3;
             int bbottomBy2 = bbottom / 2;
-            if (borderStyle == HtmlValues.BORDER_STYLE_INSET) {
-              g.setColor(borderBottomLightColor);
-            } else if (borderStyle == HtmlValues.BORDER_STYLE_OUTSET) {
-              g.setColor(borderBottomDarkColor);
-            } else if (borderStyle == HtmlValues.BORDER_STYLE_GROOVE) {
-              g.setColor(borderBottomLightColor);
-            } else if (borderStyle == HtmlValues.BORDER_STYLE_RIDGE) {
-              g.setColor(borderBottomDarkColor);
-            }
+            setInitialBorderColor(g, borderStyle, this.getBorderBottomColor(), borderBottomLightColor, borderBottomDarkColor);
             for (int i = 0; i < bbottom; i++) {
               final int leftOffset = (i * bleft) / bbottom;
               final int rightOffset = (i * bright) / bbottom;
@@ -913,15 +889,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
           } else {
             int bleftBy3 = bleft / 3;
             int bleftBy2 = bleft / 2;
-            if (borderStyle == HtmlValues.BORDER_STYLE_INSET) {
-              g.setColor(borderLeftDarkColor);
-            } else if (borderStyle == HtmlValues.BORDER_STYLE_OUTSET) {
-              g.setColor(borderLeftLightColor);
-            } else if (borderStyle == HtmlValues.BORDER_STYLE_GROOVE) {
-              g.setColor(borderLeftDarkColor);
-            } else if (borderStyle == HtmlValues.BORDER_STYLE_RIDGE) {
-              g.setColor(borderLeftLightColor);
-            }
+            setInitialBorderColor(g, borderStyle, this.getBorderLeftColor(), borderLeftDarkColor, borderLeftLightColor);
             for (int i = 0; i < bleft; i++) {
               final int topOffset = (i * btop) / bleft;
               final int bottomOffset = (i * bbottom) / bleft;
@@ -949,6 +917,20 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
           }
         }
       }
+    }
+  }
+
+  private static void setInitialBorderColor(final java.awt.Graphics g, final int borderStyle, final Color normalColor, final Color lightColor, final Color darkColor) {
+    if (borderStyle == HtmlValues.BORDER_STYLE_INSET) {
+      g.setColor(lightColor);
+    } else if (borderStyle == HtmlValues.BORDER_STYLE_OUTSET) {
+      g.setColor(darkColor);
+    } else if (borderStyle == HtmlValues.BORDER_STYLE_GROOVE) {
+      g.setColor(lightColor);
+    } else if (borderStyle == HtmlValues.BORDER_STYLE_RIDGE) {
+      g.setColor(darkColor);
+    } else {
+      g.setColor(normalColor);
     }
   }
 
