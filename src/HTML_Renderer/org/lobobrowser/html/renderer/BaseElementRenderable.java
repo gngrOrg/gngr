@@ -666,7 +666,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
     prePaintBorder(g, totalWidth, totalHeight, startX, startY, borderInsets);
   }
 
-  private void prePaintBackground(final java.awt.Graphics g, int totalWidth, int totalHeight, int startX, int startY, final ModelNode node,
+  private void prePaintBackground(final java.awt.Graphics g, final int totalWidth, final int totalHeight, final int startX, final int startY, final ModelNode node,
       final RenderState rs, final Insets borderInsets) {
     // TODO: Check if we can use TexturePaint to draw repeated background images
     // See example: http://www.informit.com/articles/article.aspx?p=26349&seqNum=4
@@ -741,7 +741,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
     }
   }
 
-  private void prePaintBorder(final java.awt.Graphics g, int totalWidth, int totalHeight, int startX, int startY, final Insets borderInsets) {
+  private void prePaintBorder(final java.awt.Graphics g, final int totalWidth, final int totalHeight, final int startX, final int startY, final Insets borderInsets) {
     if (borderInsets != null) {
       final int btop = borderInsets.top;
       final int bleft = borderInsets.left;
@@ -772,8 +772,8 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
             final int topMid = startY + (btop / 2);
             GUITasks.drawDotted(g, startX, topMid, startX + totalWidth, topMid, btop);
           } else {
-            int btopBy3 = btop / 3;
-            int btopBy2 = btop / 2;
+            final int btopBy3 = btop / 3;
+            final int btopBy2 = btop / 2;
             setInitialBorderColor(g, borderStyle, normalColor, darkColor, lightColor);
             for (int i = 0; i < btop; i++) {
               final int leftOffset = (i * bleft) / btop;
@@ -813,8 +813,8 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
             final int rightMid = lastX - (bright / 2);
             GUITasks.drawDotted(g, rightMid, startY, rightMid, startY + totalHeight, bright);
           } else {
-            int brightBy3 = bright / 3;
-            int brightBy2 = bright / 2;
+            final int brightBy3 = bright / 3;
+            final int brightBy2 = bright / 2;
             setInitialBorderColor(g, borderStyle, normalColor, lightColor, darkColor);
             for (int i = 0; i < bright; i++) {
               final int topOffset = (i * btop) / bright;
@@ -854,8 +854,8 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
             final int bottomMid = lastY - (bbottom / 2);
             GUITasks.drawDotted(g, startX, bottomMid, startX + totalWidth, bottomMid, bbottom);
           } else {
-            int bbottomBy3 = bbottom / 3;
-            int bbottomBy2 = bbottom / 2;
+            final int bbottomBy3 = bbottom / 3;
+            final int bbottomBy2 = bbottom / 2;
             setInitialBorderColor(g, borderStyle, normalColor, lightColor, darkColor);
             for (int i = 0; i < bbottom; i++) {
               final int leftOffset = (i * bleft) / bbottom;
@@ -893,8 +893,8 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
             final int leftMid = startX + (bleft / 2);
             GUITasks.drawDotted(g, leftMid, startY, leftMid, startY + totalHeight, bleft);
           } else {
-            int bleftBy3 = bleft / 3;
-            int bleftBy2 = bleft / 2;
+            final int bleftBy3 = bleft / 3;
+            final int bleftBy2 = bleft / 2;
             setInitialBorderColor(g, borderStyle, normalColor, darkColor, lightColor);
             for (int i = 0; i < bleft; i++) {
               final int topOffset = (i * btop) / bleft;
