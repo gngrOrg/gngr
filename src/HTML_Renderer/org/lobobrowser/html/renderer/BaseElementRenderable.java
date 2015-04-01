@@ -878,7 +878,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
       }
       g.drawLine(x, y, x2, y2);
       if (borderStyle == HtmlValues.BORDER_STYLE_DOUBLE) {
-        if (i == widthBy3) {
+        if (i == (widthBy3 - 1)) {
           i += widthBy3;
         }
       }
