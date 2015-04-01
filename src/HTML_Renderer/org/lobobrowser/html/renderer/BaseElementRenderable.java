@@ -759,6 +759,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
       final Rectangle clipBounds = g.getClipBounds();
       if (!clientRegion.contains(clipBounds)) {
         final BorderInfo borderInfo = this.borderInfo;
+        final BorderPainter bPainter = new BorderPainter(g, totalWidth, totalHeight, startX, startY,btop, bbottom, bleft, bright);
 
         if (btop > 0) {
           final int borderStyle = borderInfo == null ? HtmlValues.BORDER_STYLE_SOLID : borderInfo.topStyle;
@@ -767,7 +768,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
           final int widthBy2 = width / 2;
           final int vertMid = startY + widthBy2;
           final Function<Integer, Integer> yComputer = i -> startY + i;
-          drawHorizBorder(g, totalWidth, startX, bleft, bright, borderStyle, normalColor, width, widthBy2, vertMid, yComputer, true);
+          bPainter.drawHorizBorder(borderStyle, normalColor, width, widthBy2, vertMid, yComputer, true);
         }
         if (bright > 0) {
           final int borderStyle = borderInfo == null ? HtmlValues.BORDER_STYLE_SOLID : borderInfo.rightStyle;
@@ -777,7 +778,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
           final int widthBy2 = width / 2;
           final int horizMid = lastX - widthBy2;
           final Function<Integer, Integer> xComputer = i -> lastX - i;
-          drawVertBorder(g, totalHeight, startY, btop, bbottom, borderStyle, normalColor, width, widthBy2, horizMid, xComputer, false);
+          bPainter.drawVertBorder(borderStyle, normalColor, width, widthBy2, horizMid, xComputer, false);
         }
         if (bbottom > 0) {
           final int borderStyle = borderInfo == null ? HtmlValues.BORDER_STYLE_SOLID : borderInfo.bottomStyle;
@@ -787,7 +788,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
           final int widthBy2 = width / 2;
           final int vertMid = lastY - widthBy2;
           final Function<Integer, Integer> yComputer = i -> lastY - i;
-          drawHorizBorder(g, totalWidth, startX, bleft, bright, borderStyle, normalColor, width, widthBy2, vertMid, yComputer, false);
+          bPainter.drawHorizBorder(borderStyle, normalColor, width, widthBy2, vertMid, yComputer, false);
         }
         if (bleft > 0) {
           final int borderStyle = borderInfo == null ? HtmlValues.BORDER_STYLE_SOLID : borderInfo.leftStyle;
@@ -796,92 +797,110 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
           final int widthBy2 = width / 2;
           final int horizMid = startX + widthBy2;
           final Function<Integer, Integer> xComputer = i -> startX + i;
-          drawVertBorder(g, totalHeight, startY, btop, bbottom, borderStyle, normalColor, width, widthBy2, horizMid, xComputer, true);
+          bPainter.drawVertBorder(borderStyle, normalColor, width, widthBy2, horizMid, xComputer, true);
         }
       }
     }
   }
 
-  private static void drawVertBorder(final java.awt.Graphics g, final int totalHeight, final int startY, final int btop, final int bbottom,
-      final int borderStyle, final Color normalColor, final int width, final int widthBy2, final int horizMid,
-      final Function<Integer, Integer> xComputer, final boolean mirror) {
-    final Color darkColor = mirror ? normalColor.brighter() : normalColor.darker().darker();
-    final Color lightColor = mirror ? normalColor.darker().darker() : normalColor.brighter();
+  final static class BorderPainter {
+    final java.awt.Graphics g;
+    final int totalWidth, totalHeight;
+    final int startX, startY;
+    final int bleft, bright, btop, bbottom;
 
-    if (borderStyle == HtmlValues.BORDER_STYLE_DOTTED) {
-      g.setColor(normalColor);
-      GUITasks.drawDotted(g, horizMid, startY, horizMid, startY + totalHeight, width);
-    } else {
-      final int widthBy3 = width / 3;
-      setInitialBorderColor(g, borderStyle, normalColor, lightColor, darkColor);
-      for (int i = 0; i < width; i++) {
-        final int x = xComputer.apply(i);
-        i += drawVertBorderSlice(g, totalHeight, startY, btop, bbottom, borderStyle, darkColor, lightColor, width, widthBy2, widthBy3, i, x);
-      }
+    BorderPainter(final java.awt.Graphics g, final int totalWidth, final int totalHeight, final int startX, final int startY,
+        final int btop, final int bbottom,
+        final int bleft, final int bright) {
+      this.g = g;
+      this.totalWidth = totalWidth;
+      this.totalHeight = totalHeight;
+      this.startX = startX;
+      this.startY = startY;
+      this.bleft = bleft;
+      this.bright = bright;
+      this.btop = btop;
+      this.bbottom = bbottom;
     }
-  }
 
-  private static void drawHorizBorder(final java.awt.Graphics g, final int totalWidth, final int startX, final int bleft, final int bright,
-      final int borderStyle, final Color normalColor, final int width, final int widthBy2, final int vertMid,
-      final Function<Integer, Integer> yComputer, final boolean mirror) {
-    final Color darkColor = mirror ? normalColor.brighter() : normalColor.darker().darker();
-    final Color lightColor = mirror ? normalColor.darker().darker() : normalColor.brighter();
+    void drawVertBorder(final int borderStyle, final Color normalColor, final int width, final int widthBy2, final int horizMid,
+        final Function<Integer, Integer> xComputer, final boolean mirror) {
+      final Color darkColor = mirror ? normalColor.brighter() : normalColor.darker().darker();
+      final Color lightColor = mirror ? normalColor.darker().darker() : normalColor.brighter();
 
-    if (borderStyle == HtmlValues.BORDER_STYLE_DOTTED) {
-      g.setColor(normalColor);
-      GUITasks.drawDotted(g, startX, vertMid, startX + totalWidth, vertMid, width);
-    } else {
-      final int widthBy3 = width / 3;
-      setInitialBorderColor(g, borderStyle, normalColor, lightColor, darkColor);
-      for (int i = 0; i < width; i++) {
-        final int y = yComputer.apply(i);
-        i += drawHorizBorderSlice(g, totalWidth, startX, bleft, bright, borderStyle, darkColor, lightColor, width, widthBy2, widthBy3, i, y);
-      }
-    }
-  }
-
-  private static final int drawVertBorderSlice(final java.awt.Graphics g, final int totalHeight, final int startY, final int btop, final int bbottom,
-      final int borderStyle, final Color darkColor, final Color lightColor, final int width, final int widthBy2, final int widthBy3, final int i,
-      final int x) {
-    final int topOffset = (i * btop) / width;
-    final int bottomOffset = (i * bbottom) / width;
-    final int y1 = startY + topOffset;
-    final int y2 = (startY + totalHeight) - bottomOffset - 1;
-    return drawBorderSlice(g, borderStyle, darkColor, lightColor, width, widthBy2, widthBy3, i, x, y1, x, y2);
-  }
-
-  private static int drawHorizBorderSlice(final java.awt.Graphics g, final int totalWidth, final int startX, final int bleft, final int bright,
-      final int borderStyle, final Color darkColor, final Color lightColor, final int width, final int widthBy2, final int widthBy3, final int i,
-      final int y) {
-    final int leftOffset = (i * bleft) / width;
-    final int rightOffset = (i * bright) / width;
-    final int x1 = startX + leftOffset;
-    final int x2 = (startX + totalWidth) - rightOffset - 1;
-    return drawBorderSlice(g, borderStyle, darkColor, lightColor, width, widthBy2, widthBy3, i, x1, y, x2, y);
-  }
-
-  private static int drawBorderSlice(final java.awt.Graphics g, final int borderStyle, final Color darkColor, final Color lightColor, final int width,
-      final int widthBy2, final int widthBy3, final int i, final int x, final int y, final int x2, final int y2) {
-    if (borderStyle == HtmlValues.BORDER_STYLE_DASHED) {
-      GUITasks.drawDashed(g, x, y, x2, y2, 10 + width, 6);
-    } else {
-      if (borderStyle == HtmlValues.BORDER_STYLE_GROOVE) {
-        if (i == widthBy2) {
-          g.setColor(darkColor);
-        }
-      } else if (borderStyle == HtmlValues.BORDER_STYLE_RIDGE) {
-        if (i == widthBy2) {
-          g.setColor(lightColor);
-        }
-      }
-      g.drawLine(x, y, x2, y2);
-      if (borderStyle == HtmlValues.BORDER_STYLE_DOUBLE) {
-        if (i == (widthBy3 - 1)) {
-          return widthBy3;
+      if (borderStyle == HtmlValues.BORDER_STYLE_DOTTED) {
+        g.setColor(normalColor);
+        GUITasks.drawDotted(g, horizMid, startY, horizMid, startY + totalHeight, width);
+      } else {
+        final int widthBy3 = width / 3;
+        setInitialBorderColor(g, borderStyle, normalColor, lightColor, darkColor);
+        for (int i = 0; i < width; i++) {
+          final int x = xComputer.apply(i);
+          i += drawVertBorderSlice(borderStyle, darkColor, lightColor, width, widthBy2, widthBy3, i, x);
         }
       }
     }
-    return 0;
+
+    private final int drawVertBorderSlice(final int borderStyle, final Color darkColor, final Color lightColor, final int width,
+        final int widthBy2, final int widthBy3, final int i, final int x) {
+      final int topOffset = (i * btop) / width;
+      final int bottomOffset = (i * bbottom) / width;
+      final int y1 = startY + topOffset;
+      final int y2 = (startY + totalHeight) - bottomOffset - 1;
+      return drawBorderSlice(borderStyle, darkColor, lightColor, width, widthBy2, widthBy3, i, x, y1, x, y2);
+    }
+
+    private void drawHorizBorder(final int borderStyle, final Color normalColor, final int width, final int widthBy2, final int vertMid,
+        final Function<Integer, Integer> yComputer, final boolean mirror) {
+      final Color darkColor = mirror ? normalColor.brighter() : normalColor.darker().darker();
+      final Color lightColor = mirror ? normalColor.darker().darker() : normalColor.brighter();
+
+      if (borderStyle == HtmlValues.BORDER_STYLE_DOTTED) {
+        g.setColor(normalColor);
+        GUITasks.drawDotted(g, startX, vertMid, startX + totalWidth, vertMid, width);
+      } else {
+        final int widthBy3 = width / 3;
+        setInitialBorderColor(g, borderStyle, normalColor, lightColor, darkColor);
+        for (int i = 0; i < width; i++) {
+          final int y = yComputer.apply(i);
+          i += drawHorizBorderSlice(borderStyle, darkColor, lightColor, width, widthBy2, widthBy3, i, y);
+        }
+      }
+    }
+
+    private int drawHorizBorderSlice(final int borderStyle, final Color darkColor, final Color lightColor, final int width,
+        final int widthBy2, final int widthBy3, final int i, final int y) {
+      final int leftOffset = (i * bleft) / width;
+      final int rightOffset = (i * bright) / width;
+      final int x1 = startX + leftOffset;
+      final int x2 = (startX + totalWidth) - rightOffset - 1;
+      return drawBorderSlice(borderStyle, darkColor, lightColor, width, widthBy2, widthBy3, i, x1, y, x2, y);
+    }
+
+    private int drawBorderSlice(final int borderStyle, final Color darkColor, final Color lightColor, final int width, final int widthBy2,
+        final int widthBy3, final int i, final int x, final int y, final int x2, final int y2) {
+      if (borderStyle == HtmlValues.BORDER_STYLE_DASHED) {
+        GUITasks.drawDashed(g, x, y, x2, y2, 10 + width, 6);
+      } else {
+        if (borderStyle == HtmlValues.BORDER_STYLE_GROOVE) {
+          if (i == widthBy2) {
+            g.setColor(darkColor);
+          }
+        } else if (borderStyle == HtmlValues.BORDER_STYLE_RIDGE) {
+          if (i == widthBy2) {
+            g.setColor(lightColor);
+          }
+        }
+        g.drawLine(x, y, x2, y2);
+        if (borderStyle == HtmlValues.BORDER_STYLE_DOUBLE) {
+          if (i == (widthBy3 - 1)) {
+            return widthBy3;
+          }
+        }
+      }
+      return 0;
+    }
+
   }
 
   private static void setInitialBorderColor(final java.awt.Graphics g, final int borderStyle, final Color normalColor, final Color lightColor, final Color darkColor) {
