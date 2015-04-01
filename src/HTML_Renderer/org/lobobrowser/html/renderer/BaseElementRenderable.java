@@ -747,57 +747,58 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
       final int bleft = borderInsets.left;
       final int bright = borderInsets.right;
       final int bbottom = borderInsets.bottom;
+      if ((btop | bleft | bright | bbottom) != 0) {
+        final int newTotalWidth = totalWidth - (bleft + bright);
+        final int newTotalHeight = totalHeight - (btop + bbottom);
+        final int newStartX = startX + bleft;
+        final int newStartY = startY + btop;
+        final Rectangle clientRegion = new Rectangle(newStartX, newStartY, newTotalWidth, newTotalHeight);
 
-      final int newTotalWidth = totalWidth - (bleft + bright);
-      final int newTotalHeight = totalHeight - (btop + bbottom);
-      final int newStartX = startX + bleft;
-      final int newStartY = startY + btop;
-      final Rectangle clientRegion = new Rectangle(newStartX, newStartY, newTotalWidth, newTotalHeight);
+        // Paint borders if the clip bounds are not contained
+        // by the content area.
+        final Rectangle clipBounds = g.getClipBounds();
+        if (!clientRegion.contains(clipBounds)) {
+          final BorderInfo borderInfo = this.borderInfo;
+          final BorderPainter bPainter = new BorderPainter(g, totalWidth, totalHeight, startX, startY, btop, bbottom, bleft, bright);
 
-      // Paint borders if the clip bounds are not contained
-      // by the content area.
-      final Rectangle clipBounds = g.getClipBounds();
-      if (!clientRegion.contains(clipBounds)) {
-        final BorderInfo borderInfo = this.borderInfo;
-        final BorderPainter bPainter = new BorderPainter(g, totalWidth, totalHeight, startX, startY,btop, bbottom, bleft, bright);
-
-        if (btop > 0) {
-          final int borderStyle = borderInfo == null ? HtmlValues.BORDER_STYLE_SOLID : borderInfo.topStyle;
-          final Color normalColor = this.getBorderTopColor();
-          final int width = btop;
-          final int widthBy2 = width / 2;
-          final int vertMid = startY + widthBy2;
-          final Function<Integer, Integer> yComputer = i -> startY + i;
-          bPainter.drawHorizBorder(borderStyle, normalColor, width, widthBy2, vertMid, yComputer, true);
-        }
-        if (bright > 0) {
-          final int borderStyle = borderInfo == null ? HtmlValues.BORDER_STYLE_SOLID : borderInfo.rightStyle;
-          final Color normalColor = this.getBorderRightColor();
-          final int lastX = (startX + totalWidth) - 1;
-          final int width = bright;
-          final int widthBy2 = width / 2;
-          final int horizMid = lastX - widthBy2;
-          final Function<Integer, Integer> xComputer = i -> lastX - i;
-          bPainter.drawVertBorder(borderStyle, normalColor, width, widthBy2, horizMid, xComputer, false);
-        }
-        if (bbottom > 0) {
-          final int borderStyle = borderInfo == null ? HtmlValues.BORDER_STYLE_SOLID : borderInfo.bottomStyle;
-          final Color normalColor = this.getBorderBottomColor();
-          final int width = bbottom;
-          final int lastY = (startY + totalHeight) - 1;
-          final int widthBy2 = width / 2;
-          final int vertMid = lastY - widthBy2;
-          final Function<Integer, Integer> yComputer = i -> lastY - i;
-          bPainter.drawHorizBorder(borderStyle, normalColor, width, widthBy2, vertMid, yComputer, false);
-        }
-        if (bleft > 0) {
-          final int borderStyle = borderInfo == null ? HtmlValues.BORDER_STYLE_SOLID : borderInfo.leftStyle;
-          final Color normalColor = this.getBorderLeftColor();
-          final int width = bleft;
-          final int widthBy2 = width / 2;
-          final int horizMid = startX + widthBy2;
-          final Function<Integer, Integer> xComputer = i -> startX + i;
-          bPainter.drawVertBorder(borderStyle, normalColor, width, widthBy2, horizMid, xComputer, true);
+          if (btop > 0) {
+            final int borderStyle = borderInfo == null ? HtmlValues.BORDER_STYLE_SOLID : borderInfo.topStyle;
+            final Color normalColor = this.getBorderTopColor();
+            final int width = btop;
+            final int widthBy2 = width / 2;
+            final int vertMid = startY + widthBy2;
+            final Function<Integer, Integer> yComputer = i -> startY + i;
+            bPainter.drawHorizBorder(borderStyle, normalColor, width, widthBy2, vertMid, yComputer, true);
+          }
+          if (bright > 0) {
+            final int borderStyle = borderInfo == null ? HtmlValues.BORDER_STYLE_SOLID : borderInfo.rightStyle;
+            final Color normalColor = this.getBorderRightColor();
+            final int lastX = (startX + totalWidth) - 1;
+            final int width = bright;
+            final int widthBy2 = width / 2;
+            final int horizMid = lastX - widthBy2;
+            final Function<Integer, Integer> xComputer = i -> lastX - i;
+            bPainter.drawVertBorder(borderStyle, normalColor, width, widthBy2, horizMid, xComputer, false);
+          }
+          if (bbottom > 0) {
+            final int borderStyle = borderInfo == null ? HtmlValues.BORDER_STYLE_SOLID : borderInfo.bottomStyle;
+            final Color normalColor = this.getBorderBottomColor();
+            final int width = bbottom;
+            final int lastY = (startY + totalHeight) - 1;
+            final int widthBy2 = width / 2;
+            final int vertMid = lastY - widthBy2;
+            final Function<Integer, Integer> yComputer = i -> lastY - i;
+            bPainter.drawHorizBorder(borderStyle, normalColor, width, widthBy2, vertMid, yComputer, false);
+          }
+          if (bleft > 0) {
+            final int borderStyle = borderInfo == null ? HtmlValues.BORDER_STYLE_SOLID : borderInfo.leftStyle;
+            final Color normalColor = this.getBorderLeftColor();
+            final int width = bleft;
+            final int widthBy2 = width / 2;
+            final int horizMid = startX + widthBy2;
+            final Function<Integer, Integer> xComputer = i -> startX + i;
+            bPainter.drawVertBorder(borderStyle, normalColor, width, widthBy2, horizMid, xComputer, true);
+          }
         }
       }
     }
