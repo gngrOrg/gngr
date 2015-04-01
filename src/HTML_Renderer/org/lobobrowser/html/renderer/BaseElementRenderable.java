@@ -833,7 +833,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
         GUITasks.drawDotted(g, horizMid, startY, horizMid, startY + totalHeight, width);
       } else {
         final int widthBy3 = width / 3;
-        setInitialBorderColor(g, borderStyle, normalColor, lightColor, darkColor);
+        g.setColor(getInitialBorderColor(borderStyle, normalColor, lightColor, darkColor));
         for (int i = 0; i < width; i++) {
           final int x = xComputer.apply(i);
           final int topOffset = (i * btop) / width;
@@ -855,7 +855,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
         GUITasks.drawDotted(g, startX, vertMid, startX + totalWidth, vertMid, width);
       } else {
         final int widthBy3 = width / 3;
-        setInitialBorderColor(g, borderStyle, normalColor, lightColor, darkColor);
+        g.setColor(getInitialBorderColor(borderStyle, normalColor, lightColor, darkColor));
         for (int i = 0; i < width; i++) {
           final int y = yComputer.apply(i);
           final int leftOffset = (i * bleft) / width;
@@ -891,20 +891,20 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
       return skipAmount;
     }
 
-  }
-
-  private static void setInitialBorderColor(final java.awt.Graphics g, final int borderStyle, final Color normalColor, final Color lightColor, final Color darkColor) {
-    if (borderStyle == HtmlValues.BORDER_STYLE_INSET) {
-      g.setColor(lightColor);
-    } else if (borderStyle == HtmlValues.BORDER_STYLE_OUTSET) {
-      g.setColor(darkColor);
-    } else if (borderStyle == HtmlValues.BORDER_STYLE_GROOVE) {
-      g.setColor(lightColor);
-    } else if (borderStyle == HtmlValues.BORDER_STYLE_RIDGE) {
-      g.setColor(darkColor);
-    } else {
-      g.setColor(normalColor);
+    private static Color getInitialBorderColor(final int borderStyle, final Color normalColor, final Color lightColor, final Color darkColor) {
+      if (borderStyle == HtmlValues.BORDER_STYLE_INSET) {
+        return lightColor;
+      } else if (borderStyle == HtmlValues.BORDER_STYLE_OUTSET) {
+        return darkColor;
+      } else if (borderStyle == HtmlValues.BORDER_STYLE_GROOVE) {
+        return lightColor;
+      } else if (borderStyle == HtmlValues.BORDER_STYLE_RIDGE) {
+        return darkColor;
+      } else {
+        return normalColor;
+      }
     }
+
   }
 
   private static int getImageY(final int totalHeight, final BackgroundInfo binfo, final int h) {
