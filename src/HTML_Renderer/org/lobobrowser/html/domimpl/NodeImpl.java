@@ -631,9 +631,7 @@ public abstract class NodeImpl extends AbstractScriptableDelegate implements Nod
         } else {
           this.userDataHandlers.remove(key);
         }
-        if (handler != null) {
-          this.userDataHandlers.put(key, handler);
-        }
+        this.userDataHandlers.put(key, handler);
       }
 
       Map<String, Object> userData = this.userData;

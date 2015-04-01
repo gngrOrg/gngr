@@ -406,9 +406,7 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
   public Set<String> getPseudoNames() {
     Set<String> pnset = null;
     if (this.isMouseOver) {
-      if (pnset == null) {
-        pnset = new HashSet<>(1);
-      }
+      pnset = new HashSet<>(1);
       pnset.add("hover");
     }
     return pnset;

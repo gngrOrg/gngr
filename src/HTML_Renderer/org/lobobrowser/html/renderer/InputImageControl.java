@@ -131,14 +131,12 @@ class InputImageControl extends BaseInputControl implements ImageListener {
     }
     if (this.mouseBeingPressed) {
       final Color over = new Color(255, 100, 100, 64);
-      if (over != null) {
-        final Color oldColor = g.getColor();
-        try {
-          g.setColor(over);
-          g.fillRect(0, 0, size.width, size.height);
-        } finally {
-          g.setColor(oldColor);
-        }
+      final Color oldColor = g.getColor();
+      try {
+        g.setColor(over);
+        g.fillRect(0, 0, size.width, size.height);
+      } finally {
+        g.setColor(oldColor);
       }
     }
   }

@@ -57,9 +57,7 @@ class BrowserFrameUIControl implements UIControl {
       String marginwidth = element.getAttribute("marginwidth");
       String marginheight = element.getAttribute("marginheight");
       if ((marginwidth != null) && (marginwidth.length() != 0)) {
-        if (insets == null) {
-          insets = new HtmlInsets();
-        }
+        insets = new HtmlInsets();
         marginwidth = marginwidth.trim();
         if (marginwidth.endsWith("%")) {
           int value;

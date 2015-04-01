@@ -193,12 +193,12 @@ public class StyleSheetRenderState implements RenderState {
     String fontWeight = null;
     String fontFamily = null;
 
-    final String newFontSize = style == null ? null : style.getFontSize();
-    final String newFontFamily = style == null ? null : style.getFontFamily();
-    final String newFontStyle = style == null ? null : style.getFontStyle();
-    final String newFontVariant = style == null ? null : style.getFontVariant();
-    final String newFontWeight = style == null ? null : style.getFontWeight();
-    final String verticalAlign = style == null ? null : style.getVerticalAlign();
+    final String newFontSize = style.getFontSize();
+    final String newFontFamily = style.getFontFamily();
+    final String newFontStyle = style.getFontStyle();
+    final String newFontVariant = style.getFontVariant();
+    final String newFontWeight = style.getFontWeight();
+    final String verticalAlign = style.getVerticalAlign();
     final boolean isSuper = (verticalAlign != null) && verticalAlign.equalsIgnoreCase("super");
     final boolean isSub = (verticalAlign != null) && verticalAlign.equalsIgnoreCase("sub");
     if ((newFontSize == null) && (newFontWeight == null) && (newFontStyle == null) && (newFontFamily == null) && (newFontVariant == null)) {
@@ -214,7 +214,7 @@ public class StyleSheetRenderState implements RenderState {
       } catch (final Exception err) {
         fontSize = HtmlValues.DEFAULT_FONT_SIZE_BOX;
       }
-    } else if (fontSize == null) {
+    } else {
       if (prs != null) {
         fontSize = new Float(prs.getFont().getSize());
       } else {
@@ -529,18 +529,20 @@ public class StyleSheetRenderState implements RenderState {
   }
 
   public BackgroundInfo getBackgroundInfo() {
-    BackgroundInfo binfo = this.iBackgroundInfo;
-    if (binfo != INVALID_BACKGROUND_INFO) {
-      return binfo;
+    {
+      final BackgroundInfo binfo = this.iBackgroundInfo;
+      if (binfo != INVALID_BACKGROUND_INFO) {
+        return binfo;
+      }
     }
-    binfo = null;
+
+    BackgroundInfo binfo = null;
+
     final JStyleProperties props = this.getCssProperties();
     if (props != null) {
       final String backgroundColorText = props.getBackgroundColor();
       if (backgroundColorText != null) {
-        if (binfo == null) {
-          binfo = new BackgroundInfo();
-        }
+        binfo = new BackgroundInfo();
         binfo.backgroundColor = ColorFactory.getInstance().getColor(backgroundColorText);
       }
       final String backgroundImageText = props.getBackgroundImage();

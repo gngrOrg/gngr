@@ -123,10 +123,10 @@ public abstract class CharacterDataImpl extends NodeImpl implements CharacterDat
   @Override
   public String toString() {
     String someText = this.text;
-    final int length = someText.length();
     if ((someText != null) && (someText.length() > 32)) {
       someText = someText.substring(0, 29) + "...";
     }
+    final int length = someText == null ? 0 : someText.length();
     return this.getNodeName() + "[length=" + length + ",text=" + someText + "]";
   }
 

@@ -749,9 +749,9 @@ public class RBlockViewport extends BaseRCollection {
     int newLineY;
     final FloatingBounds fb = this.floatBounds;
     if ((breakType == LineBreak.NONE) || (fb == null)) {
-      newLineY = line == null ? this.paddingInsets.top : line.y + line.height;
+      newLineY = line.y + line.height;
     } else {
-      final int prevY = line == null ? this.paddingInsets.top : line.y + line.height;
+      final int prevY = line.y + line.height;
       switch (breakType) {
       case LineBreak.LEFT:
         newLineY = fb.getLeftClearY(prevY);
@@ -2564,7 +2564,7 @@ public class RBlockViewport extends BaseRCollection {
   private void scheduleFloat(final RFloatInfo floatInfo) {
     final RLine line = this.currentLine;
     if (line == null) {
-      final int y = line == null ? this.paddingInsets.top : line.getY();
+      final int y = this.paddingInsets.top;
       this.placeFloat(floatInfo.getRenderable(), y, floatInfo.isLeftFloat());
     } else if (line.getWidth() == 0) {
       final int y = line.getY();

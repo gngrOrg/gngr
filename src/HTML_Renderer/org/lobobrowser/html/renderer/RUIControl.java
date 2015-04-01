@@ -203,14 +203,12 @@ class RUIControl extends BaseElementRenderable {
     inSelection = super.paintSelection(g, inSelection, startPoint, endPoint);
     if (inSelection) {
       final Color over = new Color(0, 0, 255, 50);
-      if (over != null) {
-        final Color oldColor = g.getColor();
-        try {
-          g.setColor(over);
-          g.fillRect(0, 0, this.width, this.height);
-        } finally {
-          g.setColor(oldColor);
-        }
+      final Color oldColor = g.getColor();
+      try {
+        g.setColor(over);
+        g.fillRect(0, 0, this.width, this.height);
+      } finally {
+        g.setColor(oldColor);
       }
     }
     return inSelection;
