@@ -41,24 +41,27 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
     super("CANVAS");
   }
 
-  public String getHeight() {
-    final UINode r = this.uiNode;
-    final int height = r == null ? 0 : r.getBounds().height;
-    return String.valueOf(height);
+  public int getHeight() {
+    return computedHeight;
   }
 
-  public void setHeight(final String height) {
-    this.setAttribute("height", height);
+  private int computedWidth = 0;
+  private int computedHeight = 0;
+
+  public void setHeight(final double height) {
+    computedHeight = ((int) height);
+    this.setAttribute("height", "" + computedHeight);
+    refreshImageDimension();
   }
 
-  public String getWidth() {
-    final UINode r = this.uiNode;
-    final int width = r == null ? 0 : r.getBounds().width;
-    return String.valueOf(width);
+  public int getWidth() {
+    return computedWidth;
   }
 
-  public void setWidth(final String width) {
-    this.setAttribute("width", width);
+  public void setWidth(final double width) {
+    computedWidth = ((int) width);
+    this.setAttribute("width", "" + computedWidth);
+    refreshImageDimension();
   }
 
   private java.awt.Image image = null;
@@ -78,10 +81,16 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
     offsetX = x;
     offsetY = y;
 
+    computedWidth = width;
+    computedHeight = height;
+    refreshImageDimension();
+  }
+
+  private void refreshImageDimension() {
     if (image == null) {
-      createNewImage(width, height);
-    } else if (image.getWidth(null) != width || image.getHeight(null) != height) {
-      createNewImage(width, height);
+      createNewImage(computedWidth, computedHeight);
+    } else if (image.getWidth(null) != computedWidth || image.getHeight(null) != computedHeight) {
+      createNewImage(computedWidth, computedHeight);
     }
   }
 
