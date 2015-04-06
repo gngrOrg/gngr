@@ -33,6 +33,7 @@ import java.awt.image.BufferedImage;
 
 import org.lobobrowser.js.HideFromJS;
 import org.lobobrowser.util.gui.ColorFactory;
+import org.mozilla.javascript.typedarrays.NativeUint8ClampedArray;
 import org.w3c.dom.html.HTMLElement;
 
 public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTMLElement {
@@ -64,7 +65,7 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
     refreshImageDimension();
   }
 
-  private java.awt.Image image = null;
+  private BufferedImage image = null;
   private int offsetX = 0;
   private int offsetY = 0;
 
@@ -196,6 +197,40 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
       g2.setStroke(new BasicStroke((float) width, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
     }
 
+    public ImageData getImageData(final int x, final int y, final int width, final int height) {
+      final int[] argbArray = new int[width * height];
+      image.getRGB(x, y, width, height, argbArray, 0, width);
+      final NativeUint8ClampedArray clampedBuffer = new NativeUint8ClampedArray(width * height * 4);
+      final byte[] clampedByteBuffer = clampedBuffer.getBuffer().getBuffer();
+      for (int i = 0, j = 0; i < argbArray.length; i++, j += 4) {
+        final int argb = argbArray[i];
+        clampedByteBuffer[j    ] = (byte) ((argb >> 16) & 0xff);
+        clampedByteBuffer[j + 1] = (byte) ((argb >>  8) & 0xff);
+        clampedByteBuffer[j + 2] = (byte) ((argb      ) & 0xff);
+        clampedByteBuffer[j + 3] = (byte) ((argb >> 24) & 0xff);
+      }
+      return new ImageData(width, height, clampedBuffer);
+    }
+
+    public void putImageData(final ImageData imgData, final int x, final int y) {
+      putImageData(imgData, x, y, imgData.width, imgData.height);
+    }
+
+    public void putImageData(final ImageData imgData, final int x, final int y, final int width, final int height) {
+      System.out.println("putImageData(imgData, x, y, width, height)" + java.util.Arrays.toString(new Object[] { x, y, width, height }));
+      if (x >= 0 && y >= 0) {
+        final byte[] dataBytes = imgData.getData().getBuffer().getBuffer();
+        final int[] argbArray = new int[imgData.width * imgData.height];
+        for (int i = 0, j = 0; i < argbArray.length; i++, j+=4) {
+          argbArray[i] = packBytes2Int(
+              dataBytes[j + 3], dataBytes[j    ],
+              dataBytes[j + 1], dataBytes[j + 2]);
+        }
+        image.setRGB(x, y, Math.min(width, imgData.width), Math.min(height, imgData.height), argbArray, 0, imgData.width);
+        repaint();
+      }
+    }
+
     private Graphics2D cachedGraphics = null;
 
     @HideFromJS
@@ -213,6 +248,36 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
     }
 
   };
+
+  private static int packBytes2Int(final byte a, final byte b, final byte c, final byte d) {
+    return (a << 24) | ((b & 0xff) << 16) | ((c & 0xff) << 8) | (d & 0xff);
+  }
+
+  public static final class ImageData {
+
+    final private int width;
+    final private int height;
+    final private NativeUint8ClampedArray dataInternal;
+
+    public ImageData(final int width, final int height, final NativeUint8ClampedArray data) {
+      this.width = width;
+      this.height = height;
+
+      this.dataInternal = data;
+    }
+
+    public int getWidth() {
+      return width;
+    }
+
+    public int getHeight() {
+      return height;
+    }
+
+    public NativeUint8ClampedArray getData() {
+      return dataInternal;
+    }
+  }
 
   final private CanvasContext canvasContext = new CanvasContext();
 
