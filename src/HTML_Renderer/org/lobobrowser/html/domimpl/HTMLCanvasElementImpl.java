@@ -68,6 +68,7 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
   @HideFromJS
   public void paintComponent(final Graphics g) {
     if (image != null) {
+      drawGrid(g);
       g.drawImage(image, offsetX, offsetY, null);
     }
   }
@@ -87,7 +88,6 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
   private void createNewImage(final int width, final int height) {
     image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
     canvasContext.invalidate();
-    drawGrid();
   }
 
   private void repaint() {
@@ -97,8 +97,8 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
   private static final Color gridColor = new Color(30, 30, 30, 30);
   private static final int GRID_SIZE = 10;
 
-  private void drawGrid() {
-    final Graphics2D g2 = (Graphics2D) image.getGraphics();
+  private void drawGrid(final Graphics g) {
+    final Graphics2D g2 = (Graphics2D) g;
     final int height = image.getHeight(null);
     final int width = image.getWidth(null);
 
