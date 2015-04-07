@@ -118,7 +118,7 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
       g2.drawLine(0, i, width, i);
     }
 
-    for (int i = 0; i < width; i += 10) {
+    for (int i = 0; i < width; i += GRID_SIZE) {
       g2.drawLine(i, 0, i, height);
     }
   }
