@@ -188,6 +188,14 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
       currPath.lineTo(x, y);
     }
 
+    public void quadraticCurveTo(final double x1, final double y1, final double x2, final double y2) {
+        currPath.quadTo(x1, y1, x2, y2);
+    }
+    
+    public void bezierCurveTo(final double x1, final double y1, final double x2, final double y2, final double x3, final double y3) {
+        currPath.curveTo(x1, y1, x2, y2, x3, y3);
+    }
+    
     public void arc(final int x, final int y, final int radius, final double startAngle, final double endAngle, final boolean antiClockwise) {
       final double start = antiClockwise ? startAngle : endAngle;
       final double extent = antiClockwise ? endAngle - startAngle : Math.abs(startAngle - endAngle);
