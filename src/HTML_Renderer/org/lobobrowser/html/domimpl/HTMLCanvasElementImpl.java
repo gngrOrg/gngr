@@ -29,6 +29,7 @@ import java.awt.RenderingHints;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
 import org.lobobrowser.js.HideFromJS;
@@ -135,7 +136,40 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
       g2.clearRect(x, y, width, height);
       repaint();
     }
-
+    
+    public void scale(final double x, final double y) {
+    	final Graphics2D g2 = getGraphics();
+    	g2.scale(x, y);    	
+    }
+    
+    public void rotate(final double angle) {
+    	final Graphics2D g2 = getGraphics();
+    	g2.rotate(angle);    
+    }
+    
+    public void translate(final double x, final double y) {
+    	final Graphics2D g2 = getGraphics();
+    	g2.translate(x, y);
+    }
+    
+    public void transform(final double a, final double b, final double c, final double d, final double e, final double f) {
+    	final Graphics2D g2 = getGraphics();
+    	final AffineTransform tx= new AffineTransform();
+    	tx.scale(a, d);
+    	tx.shear(-b, -c);
+    	tx.translate(e, f);
+    	g2.transform(tx);    	
+    }
+    
+    public void setTransform(final double a, final double b, final double c, final double d, final double e, final double f) {
+    	final Graphics2D g2 = getGraphics();
+    	final AffineTransform tx= new AffineTransform();
+    	tx.scale(a, d);
+    	tx.shear(-b, -c);
+    	tx.translate(e,f);
+    	g2.setTransform(tx);    	
+    }
+    
     private Path2D currPath = new Path2D.Float();
 
     public void beginPath() {
