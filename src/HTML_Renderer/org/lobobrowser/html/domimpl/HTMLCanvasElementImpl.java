@@ -136,40 +136,40 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
       g2.clearRect(x, y, width, height);
       repaint();
     }
-    
+
     public void scale(final double x, final double y) {
-    	final Graphics2D g2 = getGraphics();
-    	g2.scale(x, y);    	
+      final Graphics2D g2 = getGraphics();
+      g2.scale(x, y);
     }
-    
+
     public void rotate(final double angle) {
-    	final Graphics2D g2 = getGraphics();
-    	g2.rotate(angle);    
+      final Graphics2D g2 = getGraphics();
+      g2.rotate(angle);
     }
-    
+
     public void translate(final double x, final double y) {
-    	final Graphics2D g2 = getGraphics();
-    	g2.translate(x, y);
+      final Graphics2D g2 = getGraphics();
+      g2.translate(x, y);
     }
-    
+
     public void transform(final double a, final double b, final double c, final double d, final double e, final double f) {
-    	final Graphics2D g2 = getGraphics();
-    	final AffineTransform tx= new AffineTransform();
-    	tx.scale(a, d);
-    	tx.shear(-b, -c);
-    	tx.translate(e, f);
-    	g2.transform(tx);    	
+      final Graphics2D g2 = getGraphics();
+      final AffineTransform tx = new AffineTransform();
+      tx.scale(a, d);
+      tx.shear(-b, -c);
+      tx.translate(e, f);
+      g2.transform(tx);
     }
-    
+
     public void setTransform(final double a, final double b, final double c, final double d, final double e, final double f) {
-    	final Graphics2D g2 = getGraphics();
-    	final AffineTransform tx= new AffineTransform();
-    	tx.scale(a, d);
-    	tx.shear(-b, -c);
-    	tx.translate(e,f);
-    	g2.setTransform(tx);    	
+      final Graphics2D g2 = getGraphics();
+      final AffineTransform tx = new AffineTransform();
+      tx.scale(a, d);
+      tx.shear(-b, -c);
+      tx.translate(e, f);
+      g2.setTransform(tx);
     }
-    
+
     private Path2D currPath = new Path2D.Float();
 
     public void beginPath() {
@@ -189,17 +189,18 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
     }
 
     public void quadraticCurveTo(final double x1, final double y1, final double x2, final double y2) {
-        currPath.quadTo(x1, y1, x2, y2);
+      currPath.quadTo(x1, y1, x2, y2);
     }
-    
+
     public void bezierCurveTo(final double x1, final double y1, final double x2, final double y2, final double x3, final double y3) {
-        currPath.curveTo(x1, y1, x2, y2, x3, y3);
+      currPath.curveTo(x1, y1, x2, y2, x3, y3);
     }
-    
+
     public void arc(final int x, final int y, final int radius, final double startAngle, final double endAngle, final boolean antiClockwise) {
       final double start = antiClockwise ? startAngle : endAngle;
       final double extent = antiClockwise ? endAngle - startAngle : Math.abs(startAngle - endAngle);
-      final Arc2D.Double arc = new Arc2D.Double(x-radius, y-radius, radius*2, radius*2, Math.toDegrees(start), Math.toDegrees(extent), Arc2D.OPEN);
+      final Arc2D.Double arc = new Arc2D.Double(x - radius, y - radius, radius * 2, radius * 2, Math.toDegrees(start),
+          Math.toDegrees(extent), Arc2D.OPEN);
       currPath.append(arc, false);
     }
 
