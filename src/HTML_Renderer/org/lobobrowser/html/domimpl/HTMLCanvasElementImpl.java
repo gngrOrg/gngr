@@ -235,9 +235,54 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
       g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) alpha));
     }
 
+    private double lineWidth = 1;
+    private int lineCap = BasicStroke.CAP_BUTT;
+    private int lineJoin = BasicStroke.JOIN_MITER;
+    private double miterLimit = 10;
+
     public void setLineWidth(final double width) {
+      lineWidth = width;
+      setStroke();
+    }
+
+    public void setLineCap(final String cap) {
+
+      if ("butt".equals(cap)) {
+        lineCap = BasicStroke.CAP_BUTT;
+      } else if ("round".equals(cap)) {
+        lineCap = BasicStroke.CAP_ROUND;
+      } else if ("square".equals(cap)) {
+        lineCap = BasicStroke.CAP_SQUARE;
+      }
+
+      setStroke();
+    }
+
+    public void setLineJoin(final String join) {
+
+      if ("round".equals(join)) {
+        lineJoin = BasicStroke.JOIN_ROUND;
+      }
+
+      else if ("bevel".equals(join)) {
+        lineJoin = BasicStroke.JOIN_BEVEL;
+      }
+
+      else if ("miter".equals(join)) {
+        lineJoin = BasicStroke.JOIN_MITER;
+      }
+
+      setStroke();
+    }
+
+    public void setMiterLimit(final double miterLimit) {
+      this.miterLimit = miterLimit;
+      setStroke();
+    }
+
+    public void setStroke() {
       final Graphics2D g2 = getGraphics();
-      g2.setStroke(new BasicStroke((float) width, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
+      g2.setStroke(new BasicStroke((float) lineWidth, lineCap, lineJoin, (float) miterLimit));
     }
 
     public ImageData getImageData(final int x, final int y, final int width, final int height) {
