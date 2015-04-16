@@ -209,6 +209,12 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
       currPath.append(new Rectangle2D.Double(x, y, width, height), false);
     }
 
+    public void strokeRect(final double x, final double y, final double w, final double h) {
+      final Graphics2D g2 = getGraphics();
+      g2.setPaint(paintStroke);
+      g2.draw(new Rectangle2D.Double(x, y, w, h));
+    }
+
     public void stroke() {
       final Graphics2D g2 = getGraphics();
       g2.setPaint(paintStroke);
