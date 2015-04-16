@@ -25,6 +25,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Paint;
 import java.awt.RenderingHints;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Path2D;
@@ -32,6 +33,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
+import org.lobobrowser.html.js.NotGetterSetter;
 import org.lobobrowser.js.HideFromJS;
 import org.lobobrowser.util.gui.ColorFactory;
 import org.mozilla.javascript.typedarrays.NativeUint8ClampedArray;
@@ -249,7 +251,9 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
     private int lineCap = BasicStroke.CAP_BUTT;
     private int lineJoin = BasicStroke.JOIN_MITER;
     private float miterLimit = 10;
-
+    private float[] lineDash = null;
+    private float lineDashOffset=0;
+        
     public void setLineWidth(final double width) {
       lineWidth = (float) width;
       setStroke();
@@ -290,9 +294,36 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
       setStroke();
     }
 
+    @NotGetterSetter
+    public void setLineDash(final double[] segments) {
+      lineDash = new float[segments.length];
+      for (int i = 0; i < segments.length; i++) {
+        lineDash[i] = (float) segments[i];
+      }
+      setStroke();
+    }
+
+    @NotGetterSetter
+    public double[] getLineDash() {
+      double[] lineDash1 = new double[lineDash.length];
+      for (int i = 0; i < lineDash.length; i++) {
+        lineDash1[i] = (float) lineDash[i];
+      }
+      return lineDash1;
+    }
+
+    public void setLineDashOffset(final double lineDashOffset) {
+      this.lineDashOffset=(float) lineDashOffset;
+      setStroke();
+    }
+
+    public double getLineDashOffset() {
+      return this.lineDashOffset;
+    }
+
     public void setStroke() {
       final Graphics2D g2 = getGraphics();
-      g2.setStroke(new BasicStroke(lineWidth, lineCap, lineJoin, miterLimit));
+      g2.setStroke(new BasicStroke(lineWidth, lineCap, lineJoin, miterLimit, lineDash, lineDashOffset));
     }
 
     public ImageData getImageData(final int x, final int y, final int width, final int height) {
