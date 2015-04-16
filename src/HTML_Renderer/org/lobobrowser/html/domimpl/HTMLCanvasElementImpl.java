@@ -127,6 +127,7 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
   final public class CanvasContext {
     public void fillRect(final int x, final int y, final int width, final int height) {
       final Graphics2D g2 = getGraphics();
+      g2.setPaint(paintFill);
       g2.fillRect(x, y, width, height);
       repaint();
     }
@@ -210,24 +211,27 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
 
     public void stroke() {
       final Graphics2D g2 = getGraphics();
+      g2.setPaint(paintStroke);
       g2.draw(currPath);
       repaint();
     }
 
     public void fill() {
       final Graphics2D g2 = getGraphics();
+      g2.setPaint(paintFill);
       g2.fill(currPath);
       repaint();
     }
 
+    private Paint paintFill;
+    private Paint paintStroke;
+
     public void setFillStyle(final String style) {
-      final Graphics2D g2 = getGraphics();
-      g2.setPaint(parseStyle(style));
+      this.paintFill = parseStyle(style);
     }
 
     public void setStrokeStyle(final String style) {
-      final Graphics2D g2 = getGraphics();
-      g2.setColor(parseStyle(style));
+      this.paintStroke = parseStyle(style);
     }
 
     public void setGlobalAlpha(final double alpha) {
