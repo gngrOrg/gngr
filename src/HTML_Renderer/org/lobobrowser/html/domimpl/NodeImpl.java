@@ -605,6 +605,38 @@ public abstract class NodeImpl extends AbstractScriptableDelegate implements Nod
     return parent == null ? null : parent.getNextTo(this);
   }
 
+  public Element getPreviousElementSibling() {
+    final NodeImpl parent = (NodeImpl) this.getParentNode();
+    if (parent != null) {
+      Node previous = this;
+      do {
+        previous = parent.getPreviousTo(previous);
+        if ((previous != null) && (previous instanceof Element)) {
+          return (Element) previous;
+        }
+      } while (previous != null);
+      return null;
+    } else {
+      return null;
+    }
+  }
+
+  public Element getNextElementSibling() {
+    final NodeImpl parent = (NodeImpl) this.getParentNode();
+    if (parent != null) {
+      Node next = this;
+      do {
+        next = parent.getNextTo(next);
+        if ((next != null) && (next instanceof Element)) {
+          return (Element) next;
+        }
+      } while (next != null);
+      return null;
+    } else {
+      return null;
+    }
+  }
+
   public Object getFeature(final String feature, final String version) {
     // TODO What should this do?
     return null;
