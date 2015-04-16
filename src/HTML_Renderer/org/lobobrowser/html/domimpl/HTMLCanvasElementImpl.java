@@ -245,13 +245,13 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
       g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) alpha));
     }
 
-    private double lineWidth = 1;
+    private float lineWidth = 1;
     private int lineCap = BasicStroke.CAP_BUTT;
     private int lineJoin = BasicStroke.JOIN_MITER;
-    private double miterLimit = 10;
+    private float miterLimit = 10;
 
     public void setLineWidth(final double width) {
-      lineWidth = width;
+      lineWidth = (float) width;
       setStroke();
     }
 
@@ -286,13 +286,13 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
     }
 
     public void setMiterLimit(final double miterLimit) {
-      this.miterLimit = miterLimit;
+      this.miterLimit = (float) miterLimit;
       setStroke();
     }
 
     public void setStroke() {
       final Graphics2D g2 = getGraphics();
-      g2.setStroke(new BasicStroke((float) lineWidth, lineCap, lineJoin, (float) miterLimit));
+      g2.setStroke(new BasicStroke(lineWidth, lineCap, lineJoin, miterLimit));
     }
 
     public ImageData getImageData(final int x, final int y, final int width, final int height) {
