@@ -199,11 +199,45 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
       currPath.curveTo(x1, y1, x2, y2, x3, y3);
     }
 
+    private double tweakStart(final double start, double value, final double end) {
+      while (value < start) {
+        value += (2 * Math.PI);
+      }
+      while (value > end) {
+        value -= (2 * Math.PI);
+      }
+      return value;
+    }
+
+    private double tweakEnd(final double start, double value, final double end) {
+      while (value <= start) {
+        value += (2 * Math.PI);
+      }
+      while (value > end) {
+        value -= (2 * Math.PI);
+      }
+      return value;
+    }
+
+    private final static double TWO_PI = 2 * Math.PI;
+
     public void arc(final int x, final int y, final int radius, final double startAngle, final double endAngle, final boolean antiClockwise) {
-      final double start = antiClockwise ? startAngle : endAngle;
-      final double extent = antiClockwise ? endAngle - startAngle : Math.abs(startAngle - endAngle);
-      final Arc2D.Double arc = new Arc2D.Double(x - radius, y - radius, radius * 2, radius * 2, Math.toDegrees(start),
-          Math.toDegrees(extent), Arc2D.OPEN);
+      final double start;
+      final double end;
+      final double extent;
+      final double diffAngle = antiClockwise ? (startAngle - endAngle) : (endAngle - startAngle);
+
+      if (diffAngle >= TWO_PI) {
+        start = 0;
+        end = TWO_PI;
+        extent = TWO_PI;
+      } else {
+        start = tweakStart(0, -startAngle % TWO_PI, TWO_PI);
+        end = tweakEnd(start, -endAngle % TWO_PI, TWO_PI + start);
+        extent = antiClockwise ? (end - start) : -(TWO_PI + (start - end));
+      }
+      final Arc2D.Double arc = new Arc2D.Double();
+      arc.setArcByCenter(x, y, radius, Math.toDegrees(start), Math.toDegrees(extent), Arc2D.OPEN);
       currPath.append(arc, false);
     }
 
