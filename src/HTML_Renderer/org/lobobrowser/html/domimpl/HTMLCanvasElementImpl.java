@@ -252,8 +252,8 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
     private int lineJoin = BasicStroke.JOIN_MITER;
     private float miterLimit = 10;
     private float[] lineDash = null;
-    private float lineDashOffset=0;
-        
+    private float lineDashOffset = 0;
+
     public void setLineWidth(final double width) {
       lineWidth = (float) width;
       setStroke();
@@ -305,7 +305,7 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
 
     @NotGetterSetter
     public double[] getLineDash() {
-      double[] lineDash1 = new double[lineDash.length];
+      final double[] lineDash1 = new double[lineDash.length];
       for (int i = 0; i < lineDash.length; i++) {
         lineDash1[i] = (float) lineDash[i];
       }
@@ -313,7 +313,7 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
     }
 
     public void setLineDashOffset(final double lineDashOffset) {
-      this.lineDashOffset=(float) lineDashOffset;
+      this.lineDashOffset = (float) lineDashOffset;
       setStroke();
     }
 
@@ -350,7 +350,7 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
       if (x >= 0 && y >= 0) {
         final byte[] dataBytes = imgData.getData().getBuffer().getBuffer();
         final int[] argbArray = new int[imgData.width * imgData.height];
-        for (int i = 0, j = 0; i < argbArray.length; i++, j+=4) {
+        for (int i = 0, j = 0; i < argbArray.length; i++, j += 4) {
           argbArray[i] = packBytes2Int(
               dataBytes[j + 3], dataBytes[j    ],
               dataBytes[j + 1], dataBytes[j + 2]);
