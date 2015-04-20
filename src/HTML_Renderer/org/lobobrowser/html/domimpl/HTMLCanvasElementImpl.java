@@ -25,6 +25,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.LinearGradientPaint;
 import java.awt.Paint;
 import java.awt.RenderingHints;
 import java.awt.geom.Arc2D;
@@ -32,7 +33,7 @@ import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-
+import java.util.ArrayList;
 import org.lobobrowser.html.js.NotGetterSetter;
 import org.lobobrowser.js.HideFromJS;
 import org.lobobrowser.util.gui.ColorFactory;
@@ -201,20 +202,20 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
 
     private double tweakStart(final double start, double value, final double end) {
       while (value < start) {
-        value += (2 * Math.PI);
+        value += (TWO_PI);
       }
       while (value > end) {
-        value -= (2 * Math.PI);
+        value -= (TWO_PI);
       }
       return value;
     }
 
     private double tweakEnd(final double start, double value, final double end) {
       while (value <= start) {
-        value += (2 * Math.PI);
+        value += (TWO_PI);
       }
       while (value > end) {
-        value -= (2 * Math.PI);
+        value -= (TWO_PI);
       }
       return value;
     }
@@ -269,11 +270,19 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
     private Paint paintStroke;
 
     public void setFillStyle(final String style) {
-      this.paintFill = parseStyle(style);
+      this.paintFill = parseColor(style);
+    }
+
+    public void setFillStyle(final CanvasGradient gradient) {
+      paintFill = gradient.toPaint();
     }
 
     public void setStrokeStyle(final String style) {
-      this.paintStroke = parseStyle(style);
+      this.paintStroke = parseColor(style);
+    }
+
+    public void setStrokeStyle(final CanvasGradient gradient) {
+      paintStroke = gradient.toPaint();
     }
 
     public void setGlobalAlpha(final double alpha) {
@@ -411,7 +420,54 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
       return cachedGraphics;
     }
 
+    public CanvasGradient createLinearGradient(final float x0, final float y0, final float x1, final float y1) {
+      final LinearCanvasGradient linearGradient = new LinearCanvasGradient(x0, y0, x1, y1);
+      return linearGradient;
+    }
   };
+
+  public abstract class CanvasGradient {
+
+    final protected ArrayList<Float> offsets = new ArrayList<Float>();
+    final protected ArrayList<Color> colors = new ArrayList<Color>();
+
+    public void addColorStop(final float offset, final String color) {
+      this.offsets.add(offset);
+      this.colors.add(parseColor(color));
+    }
+
+    public abstract Paint toPaint();
+  }
+
+  public class LinearCanvasGradient extends CanvasGradient {
+    private final float x0;
+    private final float y0;
+    private final float x1;
+    private final float y1;
+
+    LinearCanvasGradient(final float x0, final float y0, final float x1, final float y1) {
+      this.x0 = x0;
+      this.y0 = y0;
+      this.x1 = x1;
+      this.y1 = y1;
+    }
+
+    public Paint toPaint() {
+      if (colors.size() == 0) {
+        return new Color(0, 0, 0, 0);
+      } else if (colors.size() == 1) {
+        return colors.get(0);
+      } else {
+        // TODO: See if this can be optimized
+        final float[] offsetsArray = new float[offsets.size()];
+        for (int i = 0; i < offsets.size(); i++) {
+          offsetsArray[i] = offsets.get(i);
+        }
+        return new LinearGradientPaint(x0, y0, x1, y1, offsetsArray, colors.toArray(new Color[colors.size()]));
+      }
+    }
+
+  }
 
   private static int packBytes2Int(final byte a, final byte b, final byte c, final byte d) {
     return (a << 24) | ((b & 0xff) << 16) | ((c & 0xff) << 8) | (d & 0xff);
@@ -449,8 +505,7 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
     return canvasContext;
   }
 
-  private static Color parseStyle(final String style) {
-    return ColorFactory.getInstance().getColor(style);
+  private static Color parseColor(final String color) {
+    return ColorFactory.getInstance().getColor(color);
   }
-
 }
