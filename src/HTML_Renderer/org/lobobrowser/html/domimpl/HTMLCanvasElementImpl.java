@@ -266,6 +266,11 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
       repaint();
     }
 
+    public void clip() {
+      final Graphics2D g2 = getGraphics();
+      g2.clip(currPath);
+    }
+
     private Paint paintFill;
     private Paint paintStroke;
 
