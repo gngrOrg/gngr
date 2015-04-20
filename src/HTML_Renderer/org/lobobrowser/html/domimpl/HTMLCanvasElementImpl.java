@@ -374,6 +374,18 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
       g2.setStroke(new BasicStroke(lineWidth, lineCap, lineJoin, miterLimit, lineDash, lineDashOffset));
     }
 
+    public ImageData createImageData(final int width, final int height) {
+      final NativeUint8ClampedArray data = new NativeUint8ClampedArray(width * height * 4);
+      return new ImageData(width, height, data);
+    }
+
+    public ImageData createImageData(final ImageData imgdata) {
+      final int width = imgdata.getWidth();
+      final int height = imgdata.getHeight();
+      final NativeUint8ClampedArray data = new NativeUint8ClampedArray(width * height * 4);
+      return new ImageData(width, height, data);
+    }
+
     public ImageData getImageData(final int x, final int y, final int width, final int height) {
       final int[] argbArray = new int[width * height];
       image.getRGB(x, y, width, height, argbArray, 0, width);
