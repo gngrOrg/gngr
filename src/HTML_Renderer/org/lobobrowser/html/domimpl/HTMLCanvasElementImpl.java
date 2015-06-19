@@ -274,20 +274,26 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
     private Paint paintFill = Color.BLACK; 
     private Paint paintStroke = Color.BLACK;
 
-    public void setFillStyle(final String style) {
-      this.paintFill = parseColor(style);
+    // TODO: Check if polymorphism can be handled in JavaObjectWrapper
+    public void setFillStyle(final Object style) {
+      if (style instanceof String) {
+        this.paintFill = parseColor((String) style);
+      } else if (style instanceof CanvasGradient) {
+        this.paintFill = ((CanvasGradient) style).toPaint();
+      } else {
+        throw new UnsupportedOperationException("Fill style not recognized");
+      }
     }
 
-    public void setFillStyle(final CanvasGradient gradient) {
-      paintFill = gradient.toPaint();
-    }
-
-    public void setStrokeStyle(final String style) {
-      this.paintStroke = parseColor(style);
-    }
-
-    public void setStrokeStyle(final CanvasGradient gradient) {
-      paintStroke = gradient.toPaint();
+    // TODO: Check if polymorphism can be handled in JavaObjectWrapper
+    public void setStrokeStyle(final Object style) {
+      if (style instanceof String) {
+        this.paintStroke = parseColor((String) style);
+      } else if (style instanceof CanvasGradient) {
+        this.paintStroke = ((CanvasGradient) style).toPaint();
+      } else {
+        throw new UnsupportedOperationException("Stroke style not recognized");
+      }
     }
 
     public void setGlobalAlpha(final double alpha) {
