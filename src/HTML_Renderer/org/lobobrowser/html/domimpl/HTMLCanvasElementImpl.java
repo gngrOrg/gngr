@@ -28,12 +28,11 @@ import java.awt.Graphics2D;
 import java.awt.LinearGradientPaint;
 import java.awt.Paint;
 import java.awt.RenderingHints;
-import java.awt.geom.Arc2D;
-import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+
 import org.lobobrowser.html.js.NotGetterSetter;
 import org.lobobrowser.js.HideFromJS;
 import org.lobobrowser.util.gui.ColorFactory;
@@ -174,76 +173,54 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
       g2.setTransform(tx);
     }
 
-    private Path2D currPath = new Path2D.Float();
+    private CanvasPath2D cpath2D = new CanvasPath2D();
 
     public void beginPath() {
-      currPath = new Path2D.Float();
+      cpath2D = new CanvasPath2D();
     }
 
     public void closePath() {
-      currPath.closePath();
+      cpath2D.closePath();
     }
 
     public void moveTo(final int x, final int y) {
-      currPath.moveTo(x, y);
+      cpath2D.moveTo(x, y);
     }
 
     public void lineTo(final int x, final int y) {
-      currPath.lineTo(x, y);
+      cpath2D.lineTo(x, y);
     }
 
     public void quadraticCurveTo(final double x1, final double y1, final double x2, final double y2) {
-      currPath.quadTo(x1, y1, x2, y2);
+      cpath2D.quadraticCurveTo(x1, y1, x2, y2);
     }
 
     public void bezierCurveTo(final double x1, final double y1, final double x2, final double y2, final double x3, final double y3) {
-      currPath.curveTo(x1, y1, x2, y2, x3, y3);
+      cpath2D.bezierCurveTo(x1, y1, x2, y2, x3, y3);
     }
 
-    private double tweakStart(final double start, double value, final double end) {
-      while (value < start) {
-        value += (TWO_PI);
-      }
-      while (value > end) {
-        value -= (TWO_PI);
-      }
-      return value;
+    public void arc(final int x, final int y, final int radius, final double startAngle, final double endAngle) {
+      cpath2D.arc(x, y, radius, startAngle, endAngle, false);
     }
-
-    private double tweakEnd(final double start, double value, final double end) {
-      while (value <= start) {
-        value += (TWO_PI);
-      }
-      while (value > end) {
-        value -= (TWO_PI);
-      }
-      return value;
-    }
-
-    private final static double TWO_PI = 2 * Math.PI;
 
     public void arc(final int x, final int y, final int radius, final double startAngle, final double endAngle, final boolean antiClockwise) {
-      final double start;
-      final double end;
-      final double extent;
-      final double diffAngle = antiClockwise ? (startAngle - endAngle) : (endAngle - startAngle);
+      cpath2D.arc(x, y, radius, startAngle, endAngle, antiClockwise);
+    }
 
-      if (diffAngle >= TWO_PI) {
-        start = 0;
-        end = TWO_PI;
-        extent = TWO_PI;
-      } else {
-        start = tweakStart(0, -startAngle % TWO_PI, TWO_PI);
-        end = tweakEnd(start, -endAngle % TWO_PI, TWO_PI + start);
-        extent = antiClockwise ? (end - start) : -(TWO_PI + (start - end));
-      }
-      final Arc2D.Double arc = new Arc2D.Double();
-      arc.setArcByCenter(x, y, radius, Math.toDegrees(start), Math.toDegrees(extent), Arc2D.OPEN);
-      currPath.append(arc, false);
+    public void arcTo(final double x1, final double y1, final double x2, final double y2, final double radius) {
+      cpath2D.arcTo(x1, y1, x2, y2, radius);
+    }
+
+    public void ellipse(final double x, final double y, final double radiusX, final double radiusY, final double rotation, final double startAngle, final double endAngle, final boolean antiClockwise) {
+      cpath2D.ellipse(x, y, radiusX, radiusY, rotation, startAngle, endAngle, antiClockwise);
+    }
+
+    public void ellipse(final double x, final double y, final double radiusX, final double radiusY, final double rotation, final double startAngle, final double endAngle) {
+      cpath2D.ellipse(x, y, radiusX, radiusY, rotation, startAngle, endAngle);
     }
 
     public void rect(final double x, final double y, final double width, final double height) {
-      currPath.append(new Rectangle2D.Double(x, y, width, height), false);
+      cpath2D.rect(x, y, width, height);
     }
 
     public void strokeRect(final double x, final double y, final double w, final double h) {
@@ -253,22 +230,34 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
     }
 
     public void stroke() {
+      stroke(cpath2D);
+    }
+
+    public void stroke(final CanvasPath2D cpath2D) {
       final Graphics2D g2 = getGraphics();
       g2.setPaint(paintStroke);
-      g2.draw(currPath);
+      g2.draw(cpath2D.path2D);
       repaint();
     }
 
     public void fill() {
+      fill(cpath2D);
+    }
+
+    public void fill(final CanvasPath2D cpath2D) {
       final Graphics2D g2 = getGraphics();
       g2.setPaint(paintFill);
-      g2.fill(currPath);
+      g2.fill(cpath2D.path2D);
       repaint();
     }
 
     public void clip() {
+      clip(cpath2D);
+    }
+
+    public void clip(final CanvasPath2D cpath2D) {
       final Graphics2D g2 = getGraphics();
-      g2.clip(currPath);
+      g2.clip(cpath2D.path2D);
     }
 
     private Paint paintFill = Color.BLACK;

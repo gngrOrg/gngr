@@ -35,6 +35,7 @@ import java.util.logging.Logger;
 import javax.swing.Timer;
 
 import org.lobobrowser.html.HtmlRendererContext;
+import org.lobobrowser.html.domimpl.CanvasPath2D;
 import org.lobobrowser.html.domimpl.HTMLDocumentImpl;
 import org.lobobrowser.html.domimpl.HTMLElementImpl;
 import org.lobobrowser.html.domimpl.HTMLIFrameElementImpl;
@@ -71,6 +72,9 @@ public class Window extends AbstractScriptableDelegate implements AbstractView {
   // JavaClassWrapperFactory.getInstance().getClassWrapper(Image.class);
   private static final JavaClassWrapper XMLHTTPREQUEST_WRAPPER = JavaClassWrapperFactory.getInstance()
       .getClassWrapper(XMLHttpRequest.class);
+
+  private static final JavaClassWrapper PATH2D_WRAPPER = JavaClassWrapperFactory.getInstance()
+      .getClassWrapper(CanvasPath2D.class);
 
   private static int timerIdCounter = 0;
 
@@ -395,6 +399,14 @@ public class Window extends AbstractScriptableDelegate implements AbstractView {
     };
     final Function xmlHttpRequestC = JavaObjectWrapper.getConstructor("XMLHttpRequest", XMLHTTPREQUEST_WRAPPER, ws, xi);
     ScriptableObject.defineProperty(ws, "XMLHttpRequest", xmlHttpRequestC, ScriptableObject.READONLY);
+
+    final JavaInstantiator pi = new JavaInstantiator() {
+      public Object newInstance() {
+        return new CanvasPath2D();
+      }
+    };
+    final Function path2DC = JavaObjectWrapper.getConstructor("Path2D", PATH2D_WRAPPER, ws, pi);
+    ScriptableObject.defineProperty(ws, "Path2D", path2DC, ScriptableObject.READONLY);
 
     // HTML element classes
     defineElementClass(ws, doc, "Image", "img", HTMLImageElementImpl.class);
