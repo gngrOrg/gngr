@@ -271,8 +271,8 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
       g2.clip(currPath);
     }
 
-    private Paint paintFill;
-    private Paint paintStroke;
+    private Paint paintFill = Color.BLACK; 
+    private Paint paintStroke = Color.BLACK;
 
     public void setFillStyle(final String style) {
       this.paintFill = parseColor(style);
