@@ -261,6 +261,10 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
 
     private Paint paintFill = Color.BLACK;
     private Paint paintStroke = Color.BLACK;
+    public void resetClip () {
+      final Graphics2D g2 = getGraphics();
+      g2.setClip(null);
+    }
 
     // TODO: Check if polymorphism can be handled in JavaObjectWrapper
     public void setFillStyle(final Object style) {
