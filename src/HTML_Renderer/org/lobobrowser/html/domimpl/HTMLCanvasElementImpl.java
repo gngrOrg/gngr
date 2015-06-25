@@ -157,19 +157,13 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
 
     public void transform(final double a, final double b, final double c, final double d, final double e, final double f) {
       final Graphics2D g2 = getGraphics();
-      final AffineTransform tx = new AffineTransform();
-      tx.scale(a, d);
-      tx.shear(-b, -c);
-      tx.translate(e, f);
+      final AffineTransform tx = new AffineTransform(a,b,c,d,e,f);
       g2.transform(tx);
     }
 
     public void setTransform(final double a, final double b, final double c, final double d, final double e, final double f) {
       final Graphics2D g2 = getGraphics();
-      final AffineTransform tx = new AffineTransform();
-      tx.scale(a, d);
-      tx.shear(-b, -c);
-      tx.translate(e, f);
+      final AffineTransform tx = new AffineTransform(a,b,c,d,e,f);
       g2.setTransform(tx);
     }
 
