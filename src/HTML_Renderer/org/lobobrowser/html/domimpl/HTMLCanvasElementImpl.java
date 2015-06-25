@@ -167,6 +167,11 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
       g2.setTransform(tx);
     }
 
+    public void resetTransform() {
+      final Graphics2D g2= getGraphics();
+      g2.setTransform(new AffineTransform());
+    }
+
     private CanvasPath2D cpath2D = new CanvasPath2D();
 
     public void beginPath() {
