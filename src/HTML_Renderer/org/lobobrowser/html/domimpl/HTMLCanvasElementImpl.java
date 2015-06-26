@@ -28,10 +28,13 @@ import java.awt.Graphics2D;
 import java.awt.LinearGradientPaint;
 import java.awt.Paint;
 import java.awt.RenderingHints;
+import java.awt.Shape;
+import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Stack;
 
 import org.lobobrowser.html.js.NotGetterSetter;
 import org.lobobrowser.js.HideFromJS;
@@ -129,7 +132,7 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
   final public class CanvasContext {
     public void fillRect(final int x, final int y, final int width, final int height) {
       final Graphics2D g2 = getGraphics();
-      g2.setPaint(paintFill);
+      g2.setPaint(currDrawingState.paintFill);
       g2.fillRect(x, y, width, height);
       repaint();
     }
@@ -138,6 +141,16 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
       final Graphics2D g2 = getGraphics();
       g2.clearRect(x, y, width, height);
       repaint();
+    }
+
+    private AffineTransform getCurrentTransformMatrix() {
+      final Graphics2D g2 = getGraphics();
+      return g2.getTransform();
+    }
+
+    private Shape getCurrClip() {
+      final Graphics2D g2 = getGraphics();
+      return g2.getClip();
     }
 
     public void scale(final double x, final double y) {
@@ -182,70 +195,80 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
       cpath2D.closePath();
     }
 
-    public void moveTo(final int x, final int y) {
-      cpath2D.moveTo(x, y);
+    public void moveTo(final double x, final double y) {
+      cpath2D.moveToWithTransform(x, y, getCurrentTransformMatrix());
     }
 
     public void lineTo(final int x, final int y) {
-      cpath2D.lineTo(x, y);
+      cpath2D.lineToWithTransform(x, y, getCurrentTransformMatrix());
     }
 
     public void quadraticCurveTo(final double x1, final double y1, final double x2, final double y2) {
-      cpath2D.quadraticCurveTo(x1, y1, x2, y2);
+      cpath2D.quadraticCurveToWithTransform(x1, y1, x2, y2, getCurrentTransformMatrix());
     }
 
     public void bezierCurveTo(final double x1, final double y1, final double x2, final double y2, final double x3, final double y3) {
-      cpath2D.bezierCurveTo(x1, y1, x2, y2, x3, y3);
+      cpath2D.bezierCurveToWithTransform(x1, y1, x2, y2, x3, y3, getCurrentTransformMatrix());
     }
 
     public void arc(final int x, final int y, final int radius, final double startAngle, final double endAngle) {
-      cpath2D.arc(x, y, radius, startAngle, endAngle, false);
+      arc(x, y, radius, startAngle, endAngle, false);
     }
 
     public void arc(final int x, final int y, final int radius, final double startAngle, final double endAngle, final boolean antiClockwise) {
-      cpath2D.arc(x, y, radius, startAngle, endAngle, antiClockwise);
+      cpath2D.arcWithTransform(x, y, radius, startAngle, endAngle, antiClockwise, getCurrentTransformMatrix());
     }
 
     public void arcTo(final double x1, final double y1, final double x2, final double y2, final double radius) {
-      cpath2D.arcTo(x1, y1, x2, y2, radius);
+      cpath2D.arcToWithTransform(x1, y1, x2, y2, radius, getCurrentTransformMatrix());
     }
 
-    public void ellipse(final double x, final double y, final double radiusX, final double radiusY, final double rotation, final double startAngle, final double endAngle, final boolean antiClockwise) {
-      cpath2D.ellipse(x, y, radiusX, radiusY, rotation, startAngle, endAngle, antiClockwise);
+    public void ellipse(final double x, final double y, final double radiusX, final double radiusY, final double rotation,
+        final double startAngle, final double endAngle, final boolean antiClockwise) throws NoninvertibleTransformException {
+      cpath2D.ellipseWithTransform(x, y, radiusX, radiusY, rotation, startAngle, endAngle, antiClockwise, getCurrentTransformMatrix());
     }
 
-    public void ellipse(final double x, final double y, final double radiusX, final double radiusY, final double rotation, final double startAngle, final double endAngle) {
-      cpath2D.ellipse(x, y, radiusX, radiusY, rotation, startAngle, endAngle);
+    public void ellipse(final double x, final double y, final double radiusX, final double radiusY, final double rotation,
+        final double startAngle, final double endAngle) throws NoninvertibleTransformException {
+      ellipse(x, y, radiusX, radiusY, rotation, startAngle, endAngle, false);
     }
 
     public void rect(final double x, final double y, final double width, final double height) {
-      cpath2D.rect(x, y, width, height);
+      cpath2D.rectWithTransform(x, y, width, height, getCurrentTransformMatrix());
     }
 
     public void strokeRect(final double x, final double y, final double w, final double h) {
       final Graphics2D g2 = getGraphics();
-      g2.setPaint(paintStroke);
+      g2.setPaint(currDrawingState.paintStroke);
       g2.draw(new Rectangle2D.Double(x, y, w, h));
     }
 
     public void stroke() {
+      final Graphics2D g2 = getGraphics();
+      final AffineTransform currAFT = g2.getTransform();
+      resetTransform();
       stroke(cpath2D);
+      g2.setTransform(currAFT);
     }
 
     public void stroke(final CanvasPath2D cpath2D) {
       final Graphics2D g2 = getGraphics();
-      g2.setPaint(paintStroke);
+      g2.setPaint(currDrawingState.paintStroke);
       g2.draw(cpath2D.path2D);
       repaint();
     }
 
     public void fill() {
+      final Graphics2D g2 = getGraphics();
+      final AffineTransform currAFT = g2.getTransform();
+      resetTransform();
       fill(cpath2D);
+      g2.setTransform(currAFT);
     }
 
     public void fill(final CanvasPath2D cpath2D) {
       final Graphics2D g2 = getGraphics();
-      g2.setPaint(paintFill);
+      g2.setPaint(currDrawingState.paintFill);
       g2.fill(cpath2D.path2D);
       repaint();
     }
@@ -259,9 +282,7 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
       g2.clip(cpath2D.path2D);
     }
 
-    private Paint paintFill = Color.BLACK;
-    private Paint paintStroke = Color.BLACK;
-    public void resetClip () {
+    public void resetClip() {
       final Graphics2D g2 = getGraphics();
       g2.setClip(null);
     }
@@ -269,9 +290,9 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
     // TODO: Check if polymorphism can be handled in JavaObjectWrapper
     public void setFillStyle(final Object style) {
       if (style instanceof String) {
-        this.paintFill = parseColor((String) style);
+        currDrawingState.paintFill = parseColor((String) style);
       } else if (style instanceof CanvasGradient) {
-        this.paintFill = ((CanvasGradient) style).toPaint();
+        currDrawingState.paintFill = ((CanvasGradient) style).toPaint();
       } else {
         throw new UnsupportedOperationException("Fill style not recognized");
       }
@@ -280,39 +301,97 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
     // TODO: Check if polymorphism can be handled in JavaObjectWrapper
     public void setStrokeStyle(final Object style) {
       if (style instanceof String) {
-        this.paintStroke = parseColor((String) style);
+        currDrawingState.paintStroke = parseColor((String) style);
       } else if (style instanceof CanvasGradient) {
-        this.paintStroke = ((CanvasGradient) style).toPaint();
+        currDrawingState.paintStroke = ((CanvasGradient) style).toPaint();
       } else {
         throw new UnsupportedOperationException("Stroke style not recognized");
       }
     }
 
+    private int rule = AlphaComposite.SRC_OVER;
+
     public void setGlobalAlpha(final double alpha) {
       final Graphics2D g2 = getGraphics();
-      g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) alpha));
+      currDrawingState.globalAlpha = (float) alpha;
+      final AlphaComposite a = AlphaComposite.getInstance(rule, currDrawingState.globalAlpha);
+      g2.setComposite(a);
     }
 
-    private float lineWidth = 1;
-    private int lineCap = BasicStroke.CAP_BUTT;
-    private int lineJoin = BasicStroke.JOIN_MITER;
-    private float miterLimit = 10;
-    private float[] lineDash = null;
-    private float lineDashOffset = 0;
+    public float getGlobalAlpha() {
+      return currDrawingState.globalAlpha;
+    }
+
+    private class CanvasState implements Cloneable {
+      private AffineTransform currTransformMatrix;
+      private Shape currClippingRegion;
+      private Paint paintFill = Color.BLACK;
+      private Paint paintStroke = Color.BLACK;
+      private float lineWidth = 1;
+      private int lineCap = BasicStroke.CAP_BUTT;
+      private int lineJoin = BasicStroke.JOIN_MITER;
+      private float miterLimit = 10;
+      private float[] lineDash = null;
+      private float lineDashOffset = 0;
+      private float globalAlpha = 1;
+      private String globalCompositeOperation = "source-over";
+
+      CanvasState() {
+        currTransformMatrix = null;
+        currClippingRegion = null;
+      }
+
+      public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+      }
+    }
+
+    public void setGlobalCompositeOperation(final String composition) {
+      final Graphics2D g2 = getGraphics();
+      currDrawingState.globalCompositeOperation = composition;
+
+      if ("source-atop".equals(currDrawingState.globalCompositeOperation)) {
+        rule = AlphaComposite.SRC_ATOP;
+      } else if ("source-in".equals(currDrawingState.globalCompositeOperation)) {
+        rule = AlphaComposite.SRC_IN;
+      } else if ("source-out".equals(currDrawingState.globalCompositeOperation)) {
+        rule = AlphaComposite.SRC_OUT;
+      } else if ("source-over".equals(currDrawingState.globalCompositeOperation)) {
+        rule = AlphaComposite.SRC_OVER;
+      } else if ("destination-atop".equals(currDrawingState.globalCompositeOperation)) {
+        rule = AlphaComposite.DST_ATOP;
+      } else if ("destination-in".equals(currDrawingState.globalCompositeOperation)) {
+        rule = AlphaComposite.DST_IN;
+      } else if ("destination-out".equals(currDrawingState.globalCompositeOperation)) {
+        rule = AlphaComposite.DST_OUT;
+      } else if ("destination-over".equals(currDrawingState.globalCompositeOperation)) {
+        rule = AlphaComposite.DST_OVER;
+      } else if ("xor".equals(currDrawingState.globalCompositeOperation)) {
+        rule = AlphaComposite.XOR;
+      } else if ("clear".equals(currDrawingState.globalCompositeOperation)) {
+        rule = AlphaComposite.CLEAR;
+      }
+
+      final AlphaComposite a = AlphaComposite.getInstance(rule, currDrawingState.globalAlpha);
+      g2.setComposite(a);
+    }
+
+    public String getGlobalCompositeOperation() {
+      return currDrawingState.globalCompositeOperation;
+    }
 
     public void setLineWidth(final double width) {
-      lineWidth = (float) width;
+      currDrawingState.lineWidth = (float) width;
       setStroke();
     }
 
     public void setLineCap(final String cap) {
-
       if ("butt".equals(cap)) {
-        lineCap = BasicStroke.CAP_BUTT;
+        currDrawingState.lineCap = BasicStroke.CAP_BUTT;
       } else if ("round".equals(cap)) {
-        lineCap = BasicStroke.CAP_ROUND;
+        currDrawingState.lineCap = BasicStroke.CAP_ROUND;
       } else if ("square".equals(cap)) {
-        lineCap = BasicStroke.CAP_SQUARE;
+        currDrawingState.lineCap = BasicStroke.CAP_SQUARE;
       }
 
       setStroke();
@@ -321,55 +400,56 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
     public void setLineJoin(final String join) {
 
       if ("round".equals(join)) {
-        lineJoin = BasicStroke.JOIN_ROUND;
+        currDrawingState.lineJoin = BasicStroke.JOIN_ROUND;
       }
 
       else if ("bevel".equals(join)) {
-        lineJoin = BasicStroke.JOIN_BEVEL;
+        currDrawingState.lineJoin = BasicStroke.JOIN_BEVEL;
       }
 
       else if ("miter".equals(join)) {
-        lineJoin = BasicStroke.JOIN_MITER;
+        currDrawingState.lineJoin = BasicStroke.JOIN_MITER;
       }
 
       setStroke();
     }
 
     public void setMiterLimit(final double miterLimit) {
-      this.miterLimit = (float) miterLimit;
+      currDrawingState.miterLimit = (float) miterLimit;
       setStroke();
     }
 
     @NotGetterSetter
     public void setLineDash(final double[] segments) {
-      lineDash = new float[segments.length];
+      currDrawingState.lineDash = new float[segments.length];
       for (int i = 0; i < segments.length; i++) {
-        lineDash[i] = (float) segments[i];
+        currDrawingState.lineDash[i] = (float) segments[i];
       }
       setStroke();
     }
 
     @NotGetterSetter
     public double[] getLineDash() {
-      final double[] lineDash1 = new double[lineDash.length];
-      for (int i = 0; i < lineDash.length; i++) {
-        lineDash1[i] = (float) lineDash[i];
+      final double[] lineDash1 = new double[currDrawingState.lineDash.length];
+      for (int i = 0; i < currDrawingState.lineDash.length; i++) {
+        lineDash1[i] = (float) currDrawingState.lineDash[i];
       }
       return lineDash1;
     }
 
     public void setLineDashOffset(final double lineDashOffset) {
-      this.lineDashOffset = (float) lineDashOffset;
+      currDrawingState.lineDashOffset = (float) lineDashOffset;
       setStroke();
     }
 
     public double getLineDashOffset() {
-      return this.lineDashOffset;
+      return currDrawingState.lineDashOffset;
     }
 
-    public void setStroke() {
+    private void setStroke() {
       final Graphics2D g2 = getGraphics();
-      g2.setStroke(new BasicStroke(lineWidth, lineCap, lineJoin, miterLimit, lineDash, lineDashOffset));
+      g2.setStroke(new BasicStroke(currDrawingState.lineWidth, currDrawingState.lineCap, currDrawingState.lineJoin,
+          currDrawingState.miterLimit, currDrawingState.lineDash, currDrawingState.lineDashOffset));
     }
 
     public ImageData createImageData(final int width, final int height) {
@@ -439,6 +519,35 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
       final LinearCanvasGradient linearGradient = new LinearCanvasGradient(x0, y0, x1, y1);
       return linearGradient;
     }
+
+    private final Stack<CanvasState> drawingStateStack = new Stack<CanvasState>();
+
+    private CanvasState currDrawingState = new CanvasState();
+
+    public void save() {
+      try {
+        final CanvasState cloneDrawingState = (CanvasState) currDrawingState.clone();
+        cloneDrawingState.currTransformMatrix = this.getCurrentTransformMatrix();
+        cloneDrawingState.currClippingRegion = this.getCurrClip();
+        drawingStateStack.push(cloneDrawingState);
+      } catch (final CloneNotSupportedException e) {
+        e.printStackTrace();
+        throw new IllegalStateException(e);
+      }
+    }
+
+    public void restore() {
+      if (drawingStateStack.empty()) {
+        // Do nothing
+      } else {
+        currDrawingState = drawingStateStack.pop();
+        this.setGlobalAlpha(currDrawingState.globalAlpha);
+        this.setGlobalCompositeOperation(currDrawingState.globalCompositeOperation);
+        this.setStroke();
+        getGraphics().setTransform(currDrawingState.currTransformMatrix);
+        getGraphics().setClip(currDrawingState.currClippingRegion);
+      }
+    }
   };
 
   public abstract class CanvasGradient {
@@ -481,7 +590,6 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
         return new LinearGradientPaint(x0, y0, x1, y1, offsetsArray, colors.toArray(new Color[colors.size()]));
       }
     }
-
   }
 
   private static int packBytes2Int(final byte a, final byte b, final byte c, final byte d) {
