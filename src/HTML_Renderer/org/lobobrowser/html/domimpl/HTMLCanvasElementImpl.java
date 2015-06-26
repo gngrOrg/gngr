@@ -508,7 +508,7 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
     private synchronized Graphics2D getGraphics() {
       if (cachedGraphics == null) {
         cachedGraphics = (Graphics2D) image.getGraphics();
-        cachedGraphics.setBackground(Color.WHITE);
+        cachedGraphics.setBackground(new Color(0, 0, 0, 0));
         cachedGraphics.setPaint(Color.BLACK);
         cachedGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
       }
