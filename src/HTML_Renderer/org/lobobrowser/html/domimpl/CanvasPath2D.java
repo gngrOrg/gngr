@@ -236,8 +236,12 @@ public class CanvasPath2D {
   }
 
   void rectWithTransform(final double x, final double y, final double width, final double height, final AffineTransform aft) {
-    final Rectangle2D.Double rect = new Rectangle2D.Double(x, y, width, height);
-    appendWithTransform(rect, aft, false);
+    // Note: We can't use Rectangle2D because it doesn't support negative width, height, nor can we adjust x, y for negative
+    // widths / heights because the clockwise / anti-clockwise nature of the path isn't preserved
+    moveToWithTransform(x,y,aft);
+    lineToWithTransform(x+width, y, aft);
+    lineToWithTransform(x+width, y+height, aft);
+    lineToWithTransform(x, y+height, aft);
     closePath();
     moveToWithTransform(x, y, aft);
   }
