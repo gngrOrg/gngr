@@ -54,8 +54,7 @@ public class CanvasPath2D {
     if (!needNewSubpath) {
       path2D.closePath();
     }
-    currPoint = null;
-    needNewSubpath = true;
+    needNewSubpath = currPoint == null;
   }
 
   public void lineTo(final double x, final double y) {
