@@ -548,6 +548,13 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
         getGraphics().setClip(currDrawingState.currClippingRegion);
       }
     }
+
+    public void fillText(final String s, final double x, final double y) {
+      final char[] chars = s.toCharArray();
+      final Graphics2D g2 = getGraphics();
+      g2.setPaint(currDrawingState.paintFill);
+      g2.drawChars(chars, 0, chars.length, (int) x, (int) y);
+    }
   };
 
   public abstract class CanvasGradient {
