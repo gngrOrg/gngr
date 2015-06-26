@@ -224,7 +224,7 @@ public class CanvasPath2D {
     } else {
       rotatedT = AffineTransform.getRotateInstance(rotation, x, y);
     }
-    appendWithTransform(ellipse, rotatedT, !needNewSubpath);
+    appendWithTransform(ellipse, rotatedT, true);
     setCurrPoint(aft);
     needNewSubpath = false;
   }
