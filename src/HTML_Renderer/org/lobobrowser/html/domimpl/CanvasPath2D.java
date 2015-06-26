@@ -145,25 +145,7 @@ public class CanvasPath2D {
 
   void arcWithTransform(final double x, final double y, final double radius, final double startAngle, final double endAngle,
       final boolean antiClockwise, final AffineTransform aft) {
-    final double start;
-    final double end;
-    final double extent;
-    final double diffAngle = antiClockwise ? (startAngle - endAngle) : (endAngle - startAngle);
-
-    if (diffAngle >= TWO_PI) {
-      start = 0;
-      end = TWO_PI;
-      extent = TWO_PI;
-    } else {
-      start = tweakStart(0, -startAngle % TWO_PI, TWO_PI);
-      end = tweakEnd(start, -endAngle % TWO_PI, TWO_PI + start);
-      extent = antiClockwise ? (end - start) : -(TWO_PI + (start - end));
-    }
-    final Arc2D.Double arc = new Arc2D.Double();
-    arc.setArcByCenter(x, y, radius, Math.toDegrees(start), Math.toDegrees(extent), Arc2D.OPEN);
-    appendWithTransform(arc, aft, !needNewSubpath);
-    setCurrPoint(aft);
-    needNewSubpath = false;
+    ellipseWithTransform(x, y, radius, radius, 0, startAngle, endAngle, antiClockwise, aft);
   }
 
   private void appendWithTransform(final Shape shape, final AffineTransform aft, final boolean connect) {
