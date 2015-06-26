@@ -133,13 +133,12 @@ public class CanvasPath2D {
 
   private final static double TWO_PI = 2 * Math.PI;
 
-  public void arc(final double x, final double y, final double radius, final double startAngle, final double endAngle)
-      throws NoninvertibleTransformException {
+  public void arc(final double x, final double y, final double radius, final double startAngle, final double endAngle) {
     arc(x, y, radius, startAngle, endAngle, false);
   }
 
   public void arc(final double x, final double y, final double radius, final double startAngle, final double endAngle,
-      final boolean antiClockwise) throws NoninvertibleTransformException {
+      final boolean antiClockwise) {
     arcWithTransform(x, y, radius, startAngle, endAngle, antiClockwise, null);
   }
 
@@ -190,18 +189,17 @@ public class CanvasPath2D {
   }
 
   public void ellipse(final double x, final double y, final double radiusX, final double radiusY, final double rotation,
-      final double startAngle, final double endAngle) throws NoninvertibleTransformException {
+      final double startAngle, final double endAngle) {
     ellipse(x, y, radiusX, radiusY, rotation, startAngle, endAngle, false);
   }
 
   public void ellipse(final double x, final double y, final double radiusX, final double radiusY, final double rotation,
-      final double startAngle, final double endAngle, final boolean antiClockwise) throws NoninvertibleTransformException {
+      final double startAngle, final double endAngle, final boolean antiClockwise) {
     ellipseWithTransform(x, y, radiusX, radiusY, rotation, startAngle, endAngle, antiClockwise, null);
   }
 
   void ellipseWithTransform(final double x, final double y, final double radiusX, final double radiusY, final double rotation,
-      final double startAngle, final double endAngle, final boolean antiClockwise, final AffineTransform aft)
-      throws NoninvertibleTransformException {
+      final double startAngle, final double endAngle, final boolean antiClockwise, final AffineTransform aft) {
     final double start;
     final double end;
     final double extent;

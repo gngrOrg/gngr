@@ -224,12 +224,12 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
     }
 
     public void ellipse(final double x, final double y, final double radiusX, final double radiusY, final double rotation,
-        final double startAngle, final double endAngle, final boolean antiClockwise) throws NoninvertibleTransformException {
+        final double startAngle, final double endAngle, final boolean antiClockwise) {
       cpath2D.ellipseWithTransform(x, y, radiusX, radiusY, rotation, startAngle, endAngle, antiClockwise, getCurrentTransformMatrix());
     }
 
     public void ellipse(final double x, final double y, final double radiusX, final double radiusY, final double rotation,
-        final double startAngle, final double endAngle) throws NoninvertibleTransformException {
+        final double startAngle, final double endAngle) {
       ellipse(x, y, radiusX, radiusY, rotation, startAngle, endAngle, false);
     }
 
