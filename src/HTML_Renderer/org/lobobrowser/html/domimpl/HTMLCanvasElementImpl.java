@@ -29,12 +29,16 @@ import java.awt.LinearGradientPaint;
 import java.awt.Paint;
 import java.awt.RenderingHints;
 import java.awt.Shape;
-import java.awt.geom.NoninvertibleTransformException;
-import java.awt.geom.Rectangle2D;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Stack;
+
+import javax.imageio.ImageIO;
 
 import org.lobobrowser.html.js.NotGetterSetter;
 import org.lobobrowser.js.HideFromJS;
@@ -46,6 +50,37 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
 
   public HTMLCanvasElementImpl() {
     super("CANVAS");
+
+    // The default width and height are defined by the spec to 300 x 150
+    setBounds(0, 0, 300, 150);
+  }
+
+  public String toDataURL() {
+    return toDataURL("image/png",1);
+  }
+  
+  public String toDataURL(final String type, final double encoderOptions) {
+    String format = "png";
+    if ("image/png".equals(type)) {
+      format = "png";
+    } else if ("image/gif".equals(type)) {
+      format = "gif";
+    } else if ("image/jpeg".equals(type)) {
+      format = "jpg";
+    }
+    if (computedWidth==0 || computedHeight==0) {
+      return "data:,";
+    } else {
+      try {
+        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        ImageIO.write(image, format, outputStream);
+        final String outputStr = Base64.getEncoder().encodeToString(outputStream.toByteArray());
+        return "data:" + type + ";base64," + outputStr;
+      } catch (final IOException e) {
+        e.printStackTrace();
+        throw new RuntimeException("Unexpected exception while encoding canvas to data-url");
+      }
+    }
   }
 
   public int getHeight() {
