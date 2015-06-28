@@ -385,4 +385,13 @@ public abstract class HTMLElementBuilder {
     }
   }
 
+  public static final class Canvas extends HTMLElementBuilder {
+
+    @Override
+    protected HTMLElementImpl build(String name) {
+      return new HTMLCanvasElementImpl();
+    }
+
+  }
+
 }

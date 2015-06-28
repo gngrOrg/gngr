@@ -963,6 +963,10 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
     return getInsets(hscroll, vscroll, true, true, false);
   }
 
+  public Insets getInsetsMarginPadding() {
+    return getInsets(false, false, true, false, true);
+  }
+
   // TODO: This method maybe inlined for performance
   private Insets getInsets(final boolean hscroll, final boolean vscroll,
       final boolean includeMI, final boolean includeBI, final boolean includePI) {
