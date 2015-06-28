@@ -68,18 +68,19 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
     } else if ("image/jpeg".equals(type)) {
       format = "jpg";
     }
-    if (computedWidth==0 || computedHeight==0) {
+
+    if (computedWidth == 0 || computedHeight == 0) {
       return "data:,";
-    } else {
-      try {
-        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        ImageIO.write(image, format, outputStream);
-        final String outputStr = Base64.getEncoder().encodeToString(outputStream.toByteArray());
-        return "data:" + type + ";base64," + outputStr;
-      } catch (final IOException e) {
-        e.printStackTrace();
-        throw new RuntimeException("Unexpected exception while encoding canvas to data-url");
-      }
+    }
+
+    try {
+      final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+      ImageIO.write(image, format, outputStream);
+      final String outputStr = Base64.getEncoder().encodeToString(outputStream.toByteArray());
+      return "data:" + type + ";base64," + outputStr;
+    } catch (final IOException e) {
+      e.printStackTrace();
+      throw new RuntimeException("Unexpected exception while encoding canvas to data-url");
     }
   }
 
