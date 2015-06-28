@@ -397,16 +397,14 @@ public class Window extends AbstractScriptableDelegate implements AbstractView {
         return new XMLHttpRequest(uaContext, hd.getDocumentURL(), ws);
       }
     };
-    final Function xmlHttpRequestC = JavaObjectWrapper.getConstructor("XMLHttpRequest", XMLHTTPREQUEST_WRAPPER, ws, xi);
-    ScriptableObject.defineProperty(ws, "XMLHttpRequest", xmlHttpRequestC, ScriptableObject.READONLY);
+    defineInstantiator(ws, "XMLHttpRequest", XMLHTTPREQUEST_WRAPPER, xi);
 
     final JavaInstantiator pi = new JavaInstantiator() {
       public Object newInstance() {
         return new CanvasPath2D();
       }
     };
-    final Function path2DC = JavaObjectWrapper.getConstructor("Path2D", PATH2D_WRAPPER, ws, pi);
-    ScriptableObject.defineProperty(ws, "Path2D", path2DC, ScriptableObject.READONLY);
+    defineInstantiator(ws, "Path2D", PATH2D_WRAPPER, pi);
 
     // HTML element classes
     defineElementClass(ws, doc, "Image", "img", HTMLImageElementImpl.class);
@@ -414,6 +412,16 @@ public class Window extends AbstractScriptableDelegate implements AbstractView {
     defineElementClass(ws, doc, "IFrame", "iframe", HTMLIFrameElementImpl.class);
     defineElementClass(ws, doc, "Option", "option", HTMLOptionElementImpl.class);
     defineElementClass(ws, doc, "Select", "select", HTMLSelectElementImpl.class);
+  }
+
+  private static void defineInstantiator(
+      final Scriptable ws,
+      final String name,
+      final JavaClassWrapper wrapper,
+      final JavaInstantiator ji) {
+
+    final Function constructor = JavaObjectWrapper.getConstructor(name, wrapper, ws, ji);
+    ScriptableObject.defineProperty(ws, name, constructor, ScriptableObject.READONLY);
   }
 
   private Scriptable windowScope;
