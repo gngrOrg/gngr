@@ -102,8 +102,12 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
   }
 
   private void createNewImage(final int width, final int height) {
-    image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-    canvasContext.invalidate();
+    if (width != 0 && height != 0) {
+      image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+      canvasContext.invalidate();
+    } else {
+      // TODO: Need to handle the case when width or height is zero. Buffered image doesn't accept zero width / height.
+    }
   }
 
   private void repaint() {
