@@ -303,16 +303,16 @@ public class Window extends AbstractScriptableDelegate implements AbstractView {
   }
 
   public void back() {
-    final HtmlRendererContext rcontext = this.rcontext;
-    if (rcontext != null) {
-      rcontext.back();
+    final HtmlRendererContext rc = this.rcontext;
+    if (rc != null) {
+      rc.back();
     }
   }
 
   public void blur() {
-    final HtmlRendererContext rcontext = this.rcontext;
-    if (rcontext != null) {
-      rcontext.blur();
+    final HtmlRendererContext rc = this.rcontext;
+    if (rc != null) {
+      rc.blur();
     }
   }
 
@@ -322,16 +322,16 @@ public class Window extends AbstractScriptableDelegate implements AbstractView {
   }
 
   public void close() {
-    final HtmlRendererContext rcontext = this.rcontext;
-    if (rcontext != null) {
-      rcontext.close();
+    final HtmlRendererContext rc = this.rcontext;
+    if (rc != null) {
+      rc.close();
     }
   }
 
   public boolean confirm(final String message) {
-    final HtmlRendererContext rcontext = this.rcontext;
-    if (rcontext != null) {
-      return rcontext.confirm(message);
+    final HtmlRendererContext rc = this.rcontext;
+    if (rc != null) {
+      return rc.confirm(message);
     } else {
       return false;
     }
@@ -373,9 +373,9 @@ public class Window extends AbstractScriptableDelegate implements AbstractView {
    */
 
   public void focus() {
-    final HtmlRendererContext rcontext = this.rcontext;
-    if (rcontext != null) {
-      rcontext.focus();
+    final HtmlRendererContext rc = this.rcontext;
+    if (rc != null) {
+      rc.focus();
     }
   }
 
@@ -428,20 +428,20 @@ public class Window extends AbstractScriptableDelegate implements AbstractView {
 
   private Scriptable getWindowScope() {
     synchronized (this) {
-      Scriptable windowScope = this.windowScope;
-      if (windowScope != null) {
-        return windowScope;
+      Scriptable ws = this.windowScope;
+      if (ws != null) {
+        return ws;
       }
       // Context.enter() OK in this particular case.
       final Context ctx = Context.enter();
       try {
         // Window scope needs to be top-most scope.
-        windowScope = (Scriptable) JavaScript.getInstance().getJavascriptObject(this, null);
-        windowScope = ctx.initStandardObjects((ScriptableObject) windowScope);
-        final Object consoleJSObj = JavaScript.getInstance().getJavascriptObject(new Console(), windowScope);
-        ScriptableObject.putProperty(windowScope, "console", consoleJSObj);
-        this.windowScope = windowScope;
-        return windowScope;
+        ws = (Scriptable) JavaScript.getInstance().getJavascriptObject(this, null);
+        ws = ctx.initStandardObjects((ScriptableObject) ws);
+        final Object consoleJSObj = JavaScript.getInstance().getJavascriptObject(new Console(), ws);
+        ScriptableObject.putProperty(ws, "console", consoleJSObj);
+        this.windowScope = ws;
+        return ws;
       } finally {
         Context.exit();
       }
@@ -491,12 +491,12 @@ public class Window extends AbstractScriptableDelegate implements AbstractView {
   }
 
   public Window open(final String relativeUrl, final String windowName, final String windowFeatures, final boolean replace) {
-    final HtmlRendererContext rcontext = this.rcontext;
-    if (rcontext != null) {
+    final HtmlRendererContext rc = this.rcontext;
+    if (rc != null) {
       java.net.URL url;
-      final Object document = this.document;
-      if (document instanceof HTMLDocumentImpl) {
-        url = ((HTMLDocumentImpl) document).getFullURL(relativeUrl);
+      final Object doc = this.document;
+      if (doc instanceof HTMLDocumentImpl) {
+        url = ((HTMLDocumentImpl) doc).getFullURL(relativeUrl);
       } else {
         try {
           url = new java.net.URL(relativeUrl);
@@ -504,7 +504,7 @@ public class Window extends AbstractScriptableDelegate implements AbstractView {
           throw new IllegalArgumentException("Malformed URI: " + relativeUrl);
         }
       }
-      final HtmlRendererContext newContext = rcontext.open(url, windowName, windowFeatures, replace);
+      final HtmlRendererContext newContext = rc.open(url, windowName, windowFeatures, replace);
       return getWindow(newContext);
     } else {
       return null;
@@ -541,30 +541,30 @@ public class Window extends AbstractScriptableDelegate implements AbstractView {
   }
 
   public void scrollTo(final int x, final int y) {
-    final HtmlRendererContext rcontext = this.rcontext;
-    if (rcontext != null) {
-      rcontext.scroll(x, y);
+    final HtmlRendererContext rc = this.rcontext;
+    if (rc != null) {
+      rc.scroll(x, y);
     }
   }
 
   public void scrollBy(final int x, final int y) {
-    final HtmlRendererContext rcontext = this.rcontext;
+    final HtmlRendererContext rc = this.rcontext;
     if (rcontext != null) {
       rcontext.scrollBy(x, y);
     }
   }
 
   public void resizeTo(final int width, final int height) {
-    final HtmlRendererContext rcontext = this.rcontext;
-    if (rcontext != null) {
-      rcontext.resizeTo(width, height);
+    final HtmlRendererContext rc = this.rcontext;
+    if (rc != null) {
+      rc.resizeTo(width, height);
     }
   }
 
   public void resizeBy(final int byWidth, final int byHeight) {
-    final HtmlRendererContext rcontext = this.rcontext;
-    if (rcontext != null) {
-      rcontext.resizeBy(byWidth, byHeight);
+    final HtmlRendererContext rc = this.rcontext;
+    if (rc != null) {
+      rc.resizeBy(byWidth, byHeight);
     }
   }
 
@@ -611,18 +611,18 @@ public class Window extends AbstractScriptableDelegate implements AbstractView {
   }
 
   public boolean isClosed() {
-    final HtmlRendererContext rcontext = this.rcontext;
-    if (rcontext != null) {
-      return rcontext.isClosed();
+    final HtmlRendererContext rc = this.rcontext;
+    if (rc != null) {
+      return rc.isClosed();
     } else {
       return false;
     }
   }
 
   public String getDefaultStatus() {
-    final HtmlRendererContext rcontext = this.rcontext;
-    if (rcontext != null) {
-      return rcontext.getDefaultStatus();
+    final HtmlRendererContext rc = this.rcontext;
+    if (rc != null) {
+      return rc.getDefaultStatus();
     } else {
       return null;
     }
@@ -657,9 +657,9 @@ public class Window extends AbstractScriptableDelegate implements AbstractView {
   }
 
   public String getName() {
-    final HtmlRendererContext rcontext = this.rcontext;
-    if (rcontext != null) {
-      return rcontext.getName();
+    final HtmlRendererContext rc = this.rcontext;
+    if (rc != null) {
+      return rc.getName();
     } else {
       return null;
     }
@@ -671,30 +671,30 @@ public class Window extends AbstractScriptableDelegate implements AbstractView {
   }
 
   public Window getParent() {
-    final HtmlRendererContext rcontext = this.rcontext;
-    if (rcontext != null) {
-      return Window.getWindow(rcontext.getParent());
+    final HtmlRendererContext rc = this.rcontext;
+    if (rc != null) {
+      return Window.getWindow(rc.getParent());
     } else {
       return null;
     }
   }
 
   public Window getOpener() {
-    final HtmlRendererContext rcontext = this.rcontext;
-    if (rcontext != null) {
-      return Window.getWindow(rcontext.getOpener());
+    final HtmlRendererContext rc = this.rcontext;
+    if (rc != null) {
+      return Window.getWindow(rc.getOpener());
     } else {
       return null;
     }
   }
 
   public void setOpener(final Window opener) {
-    final HtmlRendererContext rcontext = this.rcontext;
-    if (rcontext != null) {
+    final HtmlRendererContext rc = this.rcontext;
+    if (rc != null) {
       if (opener == null) {
-        rcontext.setOpener(null);
+        rc.setOpener(null);
       } else {
-        rcontext.setOpener(opener.rcontext);
+        rc.setOpener(opener.rcontext);
       }
     }
   }
@@ -704,25 +704,25 @@ public class Window extends AbstractScriptableDelegate implements AbstractView {
   }
 
   public String getStatus() {
-    final HtmlRendererContext rcontext = this.rcontext;
-    if (rcontext != null) {
-      return rcontext.getStatus();
+    final HtmlRendererContext rc = this.rcontext;
+    if (rc != null) {
+      return rc.getStatus();
     } else {
       return null;
     }
   }
 
   public void setStatus(final String message) {
-    final HtmlRendererContext rcontext = this.rcontext;
-    if (rcontext != null) {
-      rcontext.setStatus(message);
+    final HtmlRendererContext rc = this.rcontext;
+    if (rc != null) {
+      rc.setStatus(message);
     }
   }
 
   public Window getTop() {
-    final HtmlRendererContext rcontext = this.rcontext;
-    if (rcontext != null) {
-      return Window.getWindow(rcontext.getTop());
+    final HtmlRendererContext rc = this.rcontext;
+    if (rc != null) {
+      return Window.getWindow(rc.getTop());
     } else {
       return null;
     }
@@ -756,12 +756,12 @@ public class Window extends AbstractScriptableDelegate implements AbstractView {
 
   public Location getLocation() {
     synchronized (this) {
-      Location location = this.location;
-      if (location == null) {
-        location = new Location(this);
-        this.location = location;
+      Location loc = this.location;
+      if (loc == null) {
+        loc = new Location(this);
+        this.location = loc;
       }
-      return location;
+      return loc;
     }
   }
 
@@ -773,12 +773,12 @@ public class Window extends AbstractScriptableDelegate implements AbstractView {
 
   public History getHistory() {
     synchronized (this) {
-      History history = this.history;
-      if (history == null) {
-        history = new History(this);
-        this.history = history;
+      History hist = this.history;
+      if (hist == null) {
+        hist = new History(this);
+        this.history = hist;
       }
-      return history;
+      return hist;
     }
   }
 
