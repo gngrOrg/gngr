@@ -42,6 +42,7 @@ import javax.imageio.ImageIO;
 
 import org.lobobrowser.html.js.NotGetterSetter;
 import org.lobobrowser.js.HideFromJS;
+import org.lobobrowser.main.PlatformInit;
 import org.lobobrowser.util.gui.ColorFactory;
 import org.mozilla.javascript.typedarrays.NativeUint8ClampedArray;
 import org.w3c.dom.html.HTMLElement;
@@ -114,7 +115,17 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
   @HideFromJS
   public void paintComponent(final Graphics g) {
     if (image != null) {
-      drawGrid(g);
+
+      // Draw a grid if debugging
+      if (PlatformInit.getInstance().debugOn) {
+        final Graphics newG = g.create(offsetX, offsetY, computedWidth, computedHeight);
+        try {
+          drawGrid(newG);
+        } finally {
+          newG.dispose();
+        }
+      }
+
       g.drawImage(image, offsetX, offsetY, null);
     }
   }
