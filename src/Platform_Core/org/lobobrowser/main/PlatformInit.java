@@ -67,7 +67,6 @@ import org.lobobrowser.util.Urls;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.OkUrlFactory;
 
-;
 /**
  * A singleton class that is used to initialize a browser session in the current
  * JVM. It can also be used to open a browser window.
