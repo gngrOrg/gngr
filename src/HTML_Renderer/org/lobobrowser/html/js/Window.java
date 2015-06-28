@@ -297,8 +297,9 @@ public class Window extends AbstractScriptableDelegate implements AbstractView {
   }
 
   public void alert(final String message) {
-    if (this.rcontext != null) {
-      this.rcontext.alert(message);
+    final HtmlRendererContext rc = this.rcontext;
+    if (rc != null) {
+      rc.alert(message);
     }
   }
 
