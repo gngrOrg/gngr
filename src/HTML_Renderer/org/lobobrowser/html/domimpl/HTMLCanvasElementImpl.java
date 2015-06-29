@@ -57,9 +57,9 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
   }
 
   public String toDataURL() {
-    return toDataURL("image/png",1);
+    return toDataURL("image/png", 1);
   }
-  
+
   public String toDataURL(final String type, final double encoderOptions) {
     String format = "png";
     if ("image/png".equals(type)) {
@@ -449,16 +449,11 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
     }
 
     public void setLineJoin(final String join) {
-
       if ("round".equals(join)) {
         currDrawingState.lineJoin = BasicStroke.JOIN_ROUND;
-      }
-
-      else if ("bevel".equals(join)) {
+      } else if ("bevel".equals(join)) {
         currDrawingState.lineJoin = BasicStroke.JOIN_BEVEL;
-      }
-
-      else if ("miter".equals(join)) {
+      } else if ("miter".equals(join)) {
         currDrawingState.lineJoin = BasicStroke.JOIN_MITER;
       }
 
