@@ -1,0 +1,76 @@
+<project name="gngr" default="dist" basedir=".">
+    <description>
+        simple example build file
+    </description>
+
+  <!-- set global properties for this build -->
+  <property name="dist"  location="dist"/>
+  <property name="build"  location="build"/>
+  <property name="src"  location="src"/>
+
+  <target name="init">
+    <!-- Create the time stamp -->
+    <tstamp/>
+
+    <mkdir dir="${build}/libs"/>
+    <mkdir dir="${dist}"/>
+  </target>
+
+  <target name="coreJar" depends="init" description="one jar to rule the core" >
+    <jar jarfile="${build}/core.jar" duplicate="preserve">
+      <fileset dir="${src}/Common/bin" />
+      <fileset dir="${src}/Platform_Core/bin"/>
+      <fileset dir="${src}/Platform_Public_API/bin"/>
+    </jar>
+  </target>
+
+  <target name="Primary_Extension" depends="init" description="jar the Primary_Extension" >
+    <jar jarfile="${dist}/libs/Primary_Extension.jar">
+      <fileset dir="${src}/Primary_Extension/bin" />
+      <fileset dir="${src}/HTML_Renderer/bin" />
+    </jar>
+  </target>
+
+  <target name="signJars" depends="coreJar,Primary_Extension">
+    <!-- Create the distribution directory -->
+    <mkdir dir="${dist}/libs"/>
+
+    <signjar
+      alias="myself"
+      keystore="build_resources/testKeystore"
+      storepass="gggnnn"
+      lazy="true"
+      destDir="${dist}/libs"
+      >
+      <path>
+        <fileset dir="${build}/libs/" includes="*.jar" />
+        <fileset dir="${src}/XAMJ_Build/ext/" includes="*.jar" />
+        <fileset dir="${src}/Platform_Core/lib/" includes="*.jar" />
+      </path>
+    </signjar>
+
+    <signjar
+      alias="myself"
+      keystore="build_resources/testKeystore"
+      storepass="gggnnn"
+      lazy="true"
+      destDir="${dist}/"
+      >
+      <path>
+        <fileset dir="${build}/" includes="core.jar" />
+      </path>
+    </signjar>
+  </target>
+
+  <target name="dist" depends="signJars" description="generate the distribution" >
+    <copy file="build_resources/gngr.jnlp" todir="${dist}/" />
+    <copy file="build_resources/gngr_libs.jnlp" todir="${dist}/" />
+    <exec executable="./build_resources/makeUno.sh" vmlauncher="false" resolveexecutable="true">
+      <arg line="build_resources/ ${build} ${dist}" />
+    </exec>
+  </target>
+
+  <target name="clean" description="clean up" >
+    <delete dir="${dist}"/>
+  </target>
+</project>

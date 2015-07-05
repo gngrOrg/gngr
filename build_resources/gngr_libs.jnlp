@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jnlp
+  spec="6.0+"
+  codebase="libs"
+  >
+  <information>
+    <title>libs component</title>
+    <vendor>gngr.info</vendor>
+    <offline-allowed/> 
+  </information>
+  <resources>
+    <jar href="h2-1.4.180.jar" />
+    <jar href="javatuples-1.2.jar" />
+    <jar href="jooq-3.5.0-SNAPSHOT.jar" />
+
+    <jar href="antlr-runtime-3.5.2.jar" />
+    <jar href="cssparser-0.9.14.jar" />
+    <jar href="jlfgr-1_0.jar" />
+    <jar href="js.jar" />
+    <jar href="jstyleparser-1.17.jar" />
+    <jar href="sac.jar" />
+    <jar href="slf4j-api-1.7.7.jar" />
+    <jar href="h2-1.4.180.jar" />
+    <jar href="javatuples-1.2.jar" />
+    <jar href="jooq-3.5.0-SNAPSHOT.jar" />
+
+  </resources>
+  <component-desc/>
+</jnlp> 
+

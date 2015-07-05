@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jnlp
+  spec="6.0+"
+  >
+  <information>
+    <title>gngr</title>
+    <vendor>gngr.info</vendor>
+
+    <offline-allowed/> 
+
+    <!--
+    <shortcut online="false" install="false">
+      <desktop/>
+      <menu submenu="ggg"/>
+    </shortcut>
+    -->
+  </information>
+
+  <security>
+    <all-permissions/>
+  </security>
+
+  <resources>
+    <j2se version="1.8+" />
+
+    <!-- we have to use jnlp namespace for the property, as per: http://stackoverflow.com/q/19400725/161257 -->
+    <property name="jnlp.ext.files" value="libs/Primary_Extension.jar" />
+
+    <jar href="core.jar" main="true"/>
+
+    <extension name="gngr_libs" href="gngr_libs.jnlp" />
+
+  </resources>
+
+  <application-desc
+    name="gngr"
+    main-class="org.lobobrowser.main.EntryPoint"
+    />
+</jnlp> 
