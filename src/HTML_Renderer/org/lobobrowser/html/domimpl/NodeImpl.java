@@ -23,9 +23,11 @@
  */
 package org.lobobrowser.html.domimpl;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -35,10 +37,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import org.lobobrowser.html.HtmlRendererContext;
 import org.lobobrowser.html.js.Event;
-import org.lobobrowser.html.js.Executor;
 import org.lobobrowser.html.style.RenderState;
 import org.lobobrowser.html.style.StyleSheetRenderState;
 import org.lobobrowser.js.AbstractScriptableDelegate;
@@ -58,7 +60,15 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
 import org.w3c.dom.UserDataHandler;
+import org.w3c.dom.html.HTMLCollection;
 import org.w3c.dom.html.HTMLDocument;
+
+import cz.vutbr.web.css.CSSException;
+import cz.vutbr.web.css.CSSFactory;
+import cz.vutbr.web.css.CombinedSelector;
+import cz.vutbr.web.css.RuleSet;
+import cz.vutbr.web.css.Selector;
+import cz.vutbr.web.css.StyleSheet;
 
 // TODO: Implement org.w3c.dom.events.EventTarget ?
 public abstract class NodeImpl extends AbstractScriptableDelegate implements Node, ModelNode {
@@ -105,37 +115,52 @@ public abstract class NodeImpl extends AbstractScriptableDelegate implements Nod
   }
 
   public Node appendChild(final Node newChild) throws DOMException {
-    synchronized (this.treeLock) {
-      if (isInclusiveAncestorOf(newChild)) {
-        final Node prevParent = newChild.getParentNode();
-        if (prevParent instanceof NodeImpl) {
-          ((NodeImpl) prevParent).removeChild(newChild);
+    if (newChild != null) {
+      synchronized (this.treeLock) {
+        if (isInclusiveAncestorOf(newChild)) {
+          final Node prevParent = newChild.getParentNode();
+          if (prevParent instanceof NodeImpl) {
+            ((NodeImpl) prevParent).removeChild(newChild);
+          }
+        } else if ((newChild instanceof NodeImpl) && ((NodeImpl) newChild).isInclusiveAncestorOf(this)) {
+          throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, "Trying to append an ancestor element.");
         }
-      } else if ((newChild instanceof NodeImpl) && ((NodeImpl) newChild).isInclusiveAncestorOf(this)) {
-        throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, "Trying to append an ancestor element.");
+
+        ArrayList<Node> nl = this.nodeList;
+        if (nl == null) {
+          nl = new ArrayList<>(3);
+          this.nodeList = nl;
+        }
+        nl.add(newChild);
+        if (newChild instanceof NodeImpl) {
+          ((NodeImpl) newChild).handleAddedToParent(this);
+        }
       }
 
-      ArrayList<Node> nl = this.nodeList;
-      if (nl == null) {
-        nl = new ArrayList<>(3);
-        this.nodeList = nl;
-      }
-      nl.add(newChild);
-      if (newChild instanceof NodeImpl) {
-        ((NodeImpl) newChild).handleAddedToParent(this);
-      }
+      this.postChildListChanged();
+
+      /*
+      System.out.println("Appending child. " + newChild);
+      System.out.println("  modifying: " + newChild.getUserData(org.lobobrowser.html.parser.HtmlParser.MODIFYING_KEY));
+
+      if(newChild.getUserData(org.lobobrowser.html.parser.HtmlParser.MODIFYING_KEY) == null) {
+        System.out.println("Setting uesr data ");
+        newChild.setUserData(org.lobobrowser.html.parser.HtmlParser.MODIFYING_KEY, Boolean.FALSE, null);
+      }*/
+
+      return newChild;
+    } else {
+      System.out.println("\nTrying to append a null child!\n");
+      throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Trying to append a null child!");
+      // throw new WrappedException(new DOMException(DOMException.INVALID_ACCESS_ERR, "Trying to append a null child!"));
+      // throw ScriptRuntime.typeError("Trying to append a null child");
+      // throw Context.throwAsScriptRuntimeEx(ScriptRuntime.typeError("Trying to append a null child"));
     }
-
-    this.postChildListChanged();
-
-    return newChild;
   }
 
   // TODO not used by anyone
   protected void removeAllChildren() {
-    synchronized (this.treeLock) {
-      this.removeAllChildrenImpl();
-    }
+    this.removeAllChildrenImpl();
   }
 
   protected void removeAllChildrenImpl() {
@@ -184,9 +209,11 @@ public abstract class NodeImpl extends AbstractScriptableDelegate implements Nod
     }
   }
 
-  private ChildHTMLCollection childrenCollection;
+  private DescendentHTMLCollection childrenCollection;
 
-  public ChildHTMLCollection getChildren() {
+  // TODO: This is needed to be implemented only by Element, Document and DocumentFragment as per https://developer.mozilla.org/en-US/docs/Web/API/ParentNode
+  public HTMLCollection getChildren() {
+    /* This older implementation returns all children. Whereas we need to return only Element children as per https://developer.mozilla.org/en-US/docs/Web/API/ParentNode
     // Method required by JavaScript
     synchronized (this) {
       ChildHTMLCollection collection = this.childrenCollection;
@@ -195,7 +222,8 @@ public abstract class NodeImpl extends AbstractScriptableDelegate implements Nod
         this.childrenCollection = collection;
       }
       return collection;
-    }
+    }*/
+    return new DescendentHTMLCollection(this, new NodeFilter.ElementFilter(), this.treeLock);
   }
 
   /**
@@ -418,10 +446,46 @@ public abstract class NodeImpl extends AbstractScriptableDelegate implements Nod
     }
   }
 
+  /*
   public Node insertBefore(final Node newChild, final Node refChild) throws DOMException {
     synchronized (this.treeLock) {
-      final ArrayList<Node> nl = this.nodeList;
-      final int idx = nl == null ? -1 : nl.indexOf(refChild);
+      final ArrayList<Node> nl = getNonEmptyNodeList();
+      // int idx = nl == null ? -1 : nl.indexOf(refChild);
+      int idx = nl.indexOf(refChild);
+      // System.out.println("inserting in " + this);
+      // System.out.println("  new child: " + newChild);
+      // System.out.println("  ref child: " + refChild);
+      if (idx == -1) {
+        // The exception was misleading. -1 could have resulted from an empty node list too. (but that is no more the case)
+        // throw new DOMException(DOMException.NOT_FOUND_ERR, "refChild not found");
+
+        // From what I understand from https://developer.mozilla.org/en-US/docs/Web/API/Node.insertBefore
+        // an invalid refChild will add the new child at the end of the list
+
+        idx = nl.size();
+      }
+      nl.add(idx, newChild);
+      if (newChild instanceof NodeImpl) {
+        ((NodeImpl) newChild).handleAddedToParent(this);
+      }
+    }
+
+    this.postChildListChanged();
+
+    return newChild;
+  }*/
+
+  // Ongoing issue : 152
+  // This is a changed and better version of the above. It gives the same number of pass / failures on http://web-platform.test:8000/dom/nodes/Node-insertBefore.html
+  // Pass 2: FAIL: 24
+  public Node insertBefore(final Node newChild, final Node refChild) throws DOMException {
+    synchronized (this.treeLock) {
+      // From what I understand from https://developer.mozilla.org/en-US/docs/Web/API/Node.insertBefore
+      // a null or undefined refChild will cause the new child to be appended at the end of the list
+      // otherwise, this function will throw an exception if refChild is not found in the child list
+
+      final ArrayList<Node> nl = refChild == null ? getNonEmptyNodeList() : this.nodeList;
+      final int idx = refChild == null ? nl.size() : (nl == null ? -1 : nl.indexOf(refChild));
       if (idx == -1) {
         throw new DOMException(DOMException.NOT_FOUND_ERR, "refChild not found");
       }
@@ -436,13 +500,19 @@ public abstract class NodeImpl extends AbstractScriptableDelegate implements Nod
     return newChild;
   }
 
+  // TODO: Use this wherever nodeList needs to be non empty
+  private ArrayList<Node> getNonEmptyNodeList() {
+    ArrayList<Node> nl = this.nodeList;
+    if (nl == null) {
+      nl = new ArrayList<>();
+      this.nodeList = nl;
+    }
+    return nl;
+  }
+
   protected Node insertAt(final Node newChild, final int idx) throws DOMException {
     synchronized (this.treeLock) {
-      ArrayList<Node> nl = this.nodeList;
-      if (nl == null) {
-        nl = new ArrayList<>();
-        this.nodeList = nl;
-      }
+      final ArrayList<Node> nl = getNonEmptyNodeList();
       nl.add(idx, newChild);
       if (newChild instanceof NodeImpl) {
         ((NodeImpl) newChild).handleAddedToParent(this);
@@ -1172,7 +1242,10 @@ public abstract class NodeImpl extends AbstractScriptableDelegate implements Nod
     // offset properties.
     synchronized (this.treeLock) {
       RenderState rs = this.renderState;
+      rs = this.renderState;
+      // This is a workaround to null pointer exception
       if (rs != INVALID_RENDER_STATE) {
+        // if (rs != INVALID_RENDER_STATE && rs != null) {
         return rs;
       }
       final Object parent = this.parentNode;
@@ -1184,7 +1257,7 @@ public abstract class NodeImpl extends AbstractScriptableDelegate implements Nod
       } else {
         // Return null without caching.
         // Scenario is possible due to Javascript.
-        return null;
+        return INVALID_RENDER_STATE;
       }
     }
   }
@@ -1193,7 +1266,7 @@ public abstract class NodeImpl extends AbstractScriptableDelegate implements Nod
     if (parent instanceof NodeImpl) {
       return ((NodeImpl) parent).getRenderState();
     } else {
-      return null;
+      return INVALID_RENDER_STATE;
     }
   }
 
@@ -1285,6 +1358,7 @@ public abstract class NodeImpl extends AbstractScriptableDelegate implements Nod
     }
   }
 
+  /*
   protected void dispatchEventToHandlers(final Event event, final List<Function> handlers) {
     if (handlers != null) {
       // We clone the collection and check if original collection still contains
@@ -1302,9 +1376,13 @@ public abstract class NodeImpl extends AbstractScriptableDelegate implements Nod
 
   private final Map<String, List<Function>> onEventHandlers = new HashMap<>();
 
+  public void addEventListener(final String type, final Function listener) {
+    addEventListener(type, listener, false);
+  }
+
   public void addEventListener(final String type, final Function listener, final boolean useCapture) {
     // TODO
-    System.out.println("node Event listener: " + type);
+    System.out.println("node by name: " + getNodeName() + " adding Event listener of type: " + type);
 
     List<Function> handlerList = null;
     if (onEventHandlers.containsKey(type)) {
@@ -1325,9 +1403,10 @@ public abstract class NodeImpl extends AbstractScriptableDelegate implements Nod
   }
 
   public boolean dispatchEvent(final Event evt) {
+    System.out.println("Dispatching event: " + evt);
     dispatchEventToHandlers(evt, onEventHandlers.get(evt.getType()));
     return false;
-  }
+  }*/
 
   private volatile boolean attachedToDocument = this instanceof HTMLDocument;
 
@@ -1418,4 +1497,158 @@ public abstract class NodeImpl extends AbstractScriptableDelegate implements Nod
     }
   }
 
+  /*
+  public void addEventListener(final String type, final EventListener listener) {
+    addEventListener(type, listener, false);
+  }
+
+  public void addEventListener(final String type, final EventListener listener, final boolean useCapture) {
+    if (useCapture) {
+      throw new UnSupportedOperationException();
+    }
+  }
+
+  public void removeEventListener(final String type, final EventListener listener, final boolean useCapture) {
+    // TODO Auto-generated method stub
+
+  }
+
+  public boolean dispatchEvent(final org.w3c.dom.events.Event evt) throws EventException {
+    // TODO Auto-generated method stub
+    return false;
+  }*/
+
+  public void addEventListener(final String type, final Function listener) {
+    addEventListener(type, listener, false);
+  }
+
+  public void addEventListener(final String type, final Function listener, final boolean useCapture) {
+    // TODO
+    System.out.println("node by name: " + getNodeName() + " adding Event listener of type: " + type);
+    // System.out.println("  txt content: " + getInnerText());
+    ((HTMLDocumentImpl) getOwnerDocument()).getEventTargetManager().addEventListener(this, type, listener);
+  }
+
+  public void removeEventListener(final String type, final Function listener, final boolean useCapture) {
+    // TODO
+    System.out.println("node remove Event listener: " + type);
+    ((HTMLDocumentImpl) getOwnerDocument()).getEventTargetManager().removeEventListener(this, type, listener, useCapture);
+  }
+
+  public boolean dispatchEvent(final Event evt) {
+    System.out.println("Dispatching event: " + evt);
+    // dispatchEventToHandlers(evt, onEventHandlers.get(evt.getType()));
+    ((HTMLDocumentImpl) getOwnerDocument()).getEventTargetManager().dispatchEvent(this, evt);
+    return false;
+  }
+
+  /*
+  public void addEventListener(final String type, final EventListener listener) {
+    addEventListener(type, listener, false);
+  }
+
+  public void addEventListener(final String type, final EventListener listener, final boolean useCapture) {
+    if (useCapture) {
+      throw new UnSupportedOperationException();
+    }
+  }
+
+  public void removeEventListener(final String type, final EventListener listener, final boolean useCapture) {
+    // TODO Auto-generated method stub
+
+  }
+
+  public boolean dispatchEvent(final org.w3c.dom.events.Event evt) throws EventException {
+    // TODO Auto-generated method stub
+    return false;
+  }*/
+
+  public Element querySelector(final String query) {
+    // TODO: Optimize: Avoid getting all matches. Only first match is sufficient.
+    final NodeList matchingElements = querySelectorAll(query);
+    if (matchingElements.getLength() > 0) {
+      return (Element) matchingElements.item(0);
+    } else {
+      return null;
+    }
+  }
+
+  private static CombinedSelector makeSelector(final String query) throws IOException, CSSException {
+    // this is quick way to parse the selectors. TODO: check if jStyleParser supports a better option.
+    final String tempBlock = query + " { }";
+    final StyleSheet styleSheet = CSSFactory.parse(tempBlock);
+    final RuleSet firstRuleBlock = (RuleSet) styleSheet.get(0);
+    final List<CombinedSelector> selectors = firstRuleBlock.getSelectors();
+    final CombinedSelector firstSelector = selectors.get(0);
+    return firstSelector;
+  }
+
+  /*
+  protected Collection<Node> getMatchingChildren(CombinedSelector selectors) {
+    final Collection<Node> matchingElements = new LinkedList<>();
+    final NodeImpl[] childrenArray = getChildrenArray();
+    if (childrenArray != null) {
+      for (final NodeImpl n : childrenArray) {
+        if (n instanceof ElementImpl) {
+          final ElementImpl element = (ElementImpl) n;
+          if (selectors.stream().anyMatch(selector -> selector.matches(element))) {
+            System.out.println("Found match: " + element + " of class: " + element.getClass());
+            matchingElements.add(element);
+          }
+          matchingElements.addAll(element.getMatchingChildren(selectors));
+        }
+      }
+    }
+    return matchingElements;
+  }*/
+
+  protected Collection<Node> getMatchingChildren(final List<Selector> selectors) {
+    final Collection<Node> matchingElements = new LinkedList<>();
+    if (selectors.size() > 0) {
+      final Selector firstSelector = selectors.get(0);
+      final List<Selector> tailSelectors = selectors.subList(1, selectors.size());
+      final boolean moreSelectorsPresent = tailSelectors.size() > 0;
+      final NodeImpl[] childrenArray = getChildrenArray();
+      if (childrenArray != null) {
+        for (final NodeImpl n : childrenArray) {
+          if (n instanceof ElementImpl) {
+            final ElementImpl element = (ElementImpl) n;
+            if (firstSelector.matches(element)) {
+              if (moreSelectorsPresent) {
+                matchingElements.addAll(element.getMatchingChildren(tailSelectors));
+              } else {
+                matchingElements.add(element);
+              }
+            }
+            matchingElements.addAll(element.getMatchingChildren(selectors));
+          }
+        }
+      }
+    }
+    return matchingElements;
+  }
+
+  public NodeList querySelectorAll(final String query) {
+    try {
+      final CombinedSelector firstSelector = makeSelector(query);
+      return new NodeListImpl(getMatchingChildren(firstSelector));
+    } catch (final IOException | CSSException e) {
+      e.printStackTrace();
+      throw new DOMException(DOMException.SYNTAX_ERR, "Couldn't parse selector: " + query);
+    }
+  }
+
+  public NodeList getElementsByClassName(final String classNames) {
+    final String[] classNamesArray = classNames.split("\\s");
+    // TODO: escape commas in class-names
+    final String query = Arrays.stream(classNamesArray).map(cn -> "." + cn).collect(Collectors.joining(","));
+    return querySelectorAll(query);
+  }
+
+  public NodeList getElementsByTagName(final String classNames) {
+    final String[] classNamesArray = classNames.split("\\s");
+    // TODO: escape commas in class-names
+    final String query = Arrays.stream(classNamesArray).collect(Collectors.joining(","));
+    return querySelectorAll(query);
+  }
 }

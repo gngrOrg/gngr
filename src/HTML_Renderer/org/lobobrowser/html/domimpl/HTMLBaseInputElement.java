@@ -26,7 +26,8 @@ package org.lobobrowser.html.domimpl;
 import java.util.ArrayList;
 
 import org.lobobrowser.html.FormInput;
-import org.lobobrowser.html.js.Executor;
+import org.lobobrowser.html.js.Event;
+import org.lobobrowser.html.js.NotGetterSetter;
 import org.mozilla.javascript.Function;
 import org.w3c.dom.Node;
 import org.w3c.dom.html.HTMLFormElement;
@@ -381,11 +382,16 @@ public abstract class HTMLBaseInputElement extends HTMLAbstractUIElement {
       // Inform listener, holding no lock.
       listenerArray[i].imageLoaded(event);
     }
+
+    // TODO: With this change, setOnLoad method should add a listener with dispatch mechanism. Best implemented in a parent class.
+    dispatchEvent(new Event("load", this));
+
+    /*
     final Function onload = this.getOnload();
     if (onload != null) {
       // TODO: onload event object?
       Executor.executeFunction(HTMLBaseInputElement.this, onload, null);
-    }
+    }*/
   }
 
   private class LocalImageListener implements ImageListener {
@@ -398,6 +404,14 @@ public abstract class HTMLBaseInputElement extends HTMLAbstractUIElement {
     public void imageLoaded(final ImageEvent event) {
       dispatchEvent(this.expectedImgSrc, event);
     }
+
+    public void imageAborted() {
+      // Do nothing
+    }
   }
 
+  @NotGetterSetter
+  public void setCustomValidity(final String message) {
+    System.out.println("HTMLBaseInputElement.setCustomValidity() " + message);
+  }
 }

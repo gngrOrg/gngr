@@ -30,6 +30,8 @@ import java.util.ArrayList;
 import org.lobobrowser.html.FormInput;
 import org.lobobrowser.html.HtmlRendererContext;
 import org.lobobrowser.html.js.Executor;
+import org.lobobrowser.html.js.Window;
+import org.lobobrowser.html.js.Window.JSSupplierTask;
 import org.mozilla.javascript.Function;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -176,10 +178,27 @@ public class HTMLFormElementImpl extends HTMLAbstractUIElement implements HTMLFo
     final Function onsubmit = this.getOnsubmit();
     if (onsubmit != null) {
       // TODO: onsubmit event object?
+      /*
       if (!Executor.executeFunction(this, onsubmit, null)) {
         return;
-      }
+      } */
+      // dispatchEvent(new Event("submit", this));
+      final Window window = ((HTMLDocumentImpl) document).getWindow();
+      window.addJSTask(new JSSupplierTask<>(0, () -> {
+        return Executor.executeFunction(this, onsubmit, null, window.windowFactory);
+      }, (result) -> {
+        System.out.println("Result of form submission function: " + result);
+        if (result) {
+          submitFormImpl(extraFormInputs);
+        }
+      }));
+    } else {
+      submitFormImpl(extraFormInputs);
     }
+
+  }
+
+  private void submitFormImpl(final FormInput[] extraFormInputs) {
     final HtmlRendererContext context = this.getHtmlRendererContext();
     if (context != null) {
       final ArrayList<FormInput> formInputs = new ArrayList<>();

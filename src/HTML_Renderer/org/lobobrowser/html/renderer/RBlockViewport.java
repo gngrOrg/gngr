@@ -689,7 +689,11 @@ public class RBlockViewport extends BaseRCollection {
   }
 
   private final void layoutRBlock(final HTMLElementImpl markupElement) {
-    RBlock renderable = (RBlock) markupElement.getUINode();
+    UINode uiNode = markupElement.getUINode();
+    RBlock renderable = null;
+    if (uiNode instanceof RBlock) {
+      renderable = (RBlock) markupElement.getUINode();
+    }
     if (renderable == null) {
       renderable = new RBlock(markupElement, this.listNesting, this.userAgentContext, this.rendererContext, this.frameContext,
           this.container);
@@ -2214,7 +2218,8 @@ public class RBlockViewport extends BaseRCollection {
         final String display = style.getDisplay();
         if (display != null) {
           if ("none".equalsIgnoreCase(display)) {
-            return;
+            /* Dromeao tests use an iframe with display set to none; If we return here, then scripts in the iframe don't load. */
+            // return;
           } else if ("block".equalsIgnoreCase(display)) {
             currMethod = ADD_AS_BLOCK;
           } else if ("inline".equalsIgnoreCase(display)) {
@@ -2282,10 +2287,10 @@ public class RBlockViewport extends BaseRCollection {
           }
         }
       }
+      final UINode node = markupElement.getUINode();
       switch (display) {
       case DISPLAY_NONE:
         // skip it completely.
-        final UINode node = markupElement.getUINode();
         if (node instanceof BaseBoundableRenderable) {
           // This is necessary so that if the element is made
           // visible again, it can be invalidated.
@@ -2294,16 +2299,24 @@ public class RBlockViewport extends BaseRCollection {
         break;
       case DISPLAY_BLOCK:
         //TODO refer issue #87
-        final String tagName = markupElement.getTagName();
-        if ("UL".equalsIgnoreCase(tagName) || "OL".equalsIgnoreCase(tagName)) {
-          bodyLayout.layoutList(markupElement);
+        if (node instanceof RTable) {
+          bodyLayout.layoutRTable(markupElement);
         } else {
           bodyLayout.layoutRBlock(markupElement);
         }
         break;
       case DISPLAY_LIST_ITEM:
-        bodyLayout.layoutListItem(markupElement);
+        final String tagName = markupElement.getTagName();
+        if ("UL".equalsIgnoreCase(tagName) || "OL".equalsIgnoreCase(tagName)) {
+          bodyLayout.layoutList(markupElement);
+        } else {
+          // bodyLayout.layoutRBlock(markupElement);
+          bodyLayout.layoutListItem(markupElement);
+        }
         break;
+        /*case DISPLAY_LIST_ITEM:
+        bodyLayout.layoutListItem(markupElement);
+        break;*/
       case DISPLAY_TABLE:
         bodyLayout.layoutRTable(markupElement);
         break;
@@ -2323,7 +2336,15 @@ public class RBlockViewport extends BaseRCollection {
   }
 
   private void layoutRInlineBlock(final HTMLElementImpl markupElement) {
-    final RInlineBlock inlineBlock = new RInlineBlock(container, markupElement, userAgentContext, rendererContext, frameContext);
+    final UINode uINode = markupElement.getUINode();
+    RInlineBlock inlineBlock = null;
+    if (uINode instanceof RInlineBlock) {
+      inlineBlock = (RInlineBlock) uINode;
+    } else {
+      final RInlineBlock newInlineBlock = new RInlineBlock(container, markupElement, userAgentContext, rendererContext, frameContext);
+      markupElement.setUINode(newInlineBlock);
+      inlineBlock = newInlineBlock;
+    }
     inlineBlock.doLayout(availContentWidth, availContentHeight, sizeOnly);
     addRenderableToLine(inlineBlock);
   }

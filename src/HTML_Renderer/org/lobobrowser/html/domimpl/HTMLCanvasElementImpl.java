@@ -57,9 +57,9 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
   }
 
   public String toDataURL() {
-    return toDataURL("image/png", 1);
+    return toDataURL("image/png",1);
   }
-
+  
   public String toDataURL(final String type, final double encoderOptions) {
     String format = "png";
     if ("image/png".equals(type)) {
@@ -349,36 +349,6 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
       }
     }
 
-    private String toHex(final int r, final int g, final int b) {
-      return "#" + toBrowserHexValue(r) + toBrowserHexValue(g) + toBrowserHexValue(b);
-    }
-
-    private String toBrowserHexValue(final int number) {
-      final StringBuilder builder = new StringBuilder(Integer.toHexString(number & 0xff));
-      while (builder.length() < 2) {
-        builder.append("0");
-      }
-      return builder.toString().toLowerCase();
-    }
-
-    public Object getFillStyle() {
-      return formatStyle(currDrawingState.paintFill);
-    }
-
-    private Object formatStyle(final Paint paint) {
-      if (paint instanceof Color) {
-        final Color color = (Color) paint;
-        if (color.getAlpha() == 1) {
-          return toHex(color.getRed(), color.getGreen(), color.getBlue());
-        } else {
-          System.out.println("Alpha: " + color.getAlpha());
-          return "rgba(" + color.getRed() + ", " + color.getGreen() + ", " + color.getBlue() + ", " + (color.getAlpha()/255.0) + ")";
-        }
-      }
-      // TODO: Handle canvas pattern and canvas gradient
-      return null;
-    }
-
     // TODO: Check if polymorphism can be handled in JavaObjectWrapper
     public void setStrokeStyle(final Object style) {
       if (style instanceof String) {
@@ -388,10 +358,6 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
       } else {
         throw new UnsupportedOperationException("Stroke style not recognized");
       }
-    }
-
-    public Object getStrokeStyle() {
-      return formatStyle(currDrawingState.paintStroke);
     }
 
     private int rule = AlphaComposite.SRC_OVER;
@@ -470,10 +436,6 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
       setStroke();
     }
 
-    public double getLineWidth() {
-      return currDrawingState.lineWidth;
-    }
-
     public void setLineCap(final String cap) {
       if ("butt".equals(cap)) {
         currDrawingState.lineCap = BasicStroke.CAP_BUTT;
@@ -486,46 +448,26 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
       setStroke();
     }
 
-    public String getLineCap() {
-      if (currDrawingState.lineCap == BasicStroke.CAP_BUTT) {
-        return "butt";
-      } else if (currDrawingState.lineCap == BasicStroke.CAP_ROUND) {
-        return "round";
-      } else if (currDrawingState.lineCap == BasicStroke.CAP_SQUARE) {
-        return "square";
-      }
-      return null;
-    }
-
     public void setLineJoin(final String join) {
+
       if ("round".equals(join)) {
         currDrawingState.lineJoin = BasicStroke.JOIN_ROUND;
-      } else if ("bevel".equals(join)) {
+      }
+
+      else if ("bevel".equals(join)) {
         currDrawingState.lineJoin = BasicStroke.JOIN_BEVEL;
-      } else if ("miter".equals(join)) {
+      }
+
+      else if ("miter".equals(join)) {
         currDrawingState.lineJoin = BasicStroke.JOIN_MITER;
       }
-      setStroke();
-    }
 
-    public String getLineJoin() {
-      if (currDrawingState.lineJoin == BasicStroke.JOIN_MITER) {
-        return "miter";
-      } else if (currDrawingState.lineCap == BasicStroke.JOIN_BEVEL) {
-        return "bevel";
-      } else if (currDrawingState.lineCap == BasicStroke.JOIN_ROUND) {
-        return "round";
-      }
-      return null;
+      setStroke();
     }
 
     public void setMiterLimit(final double miterLimit) {
       currDrawingState.miterLimit = (float) miterLimit;
       setStroke();
-    }
-
-    public float getMiterLimit() {
-      return currDrawingState.miterLimit;
     }
 
     @NotGetterSetter

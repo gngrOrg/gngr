@@ -25,19 +25,23 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
 import org.lobobrowser.js.AbstractScriptableDelegate;
+import org.lobobrowser.js.HideFromJS;
+import org.w3c.dom.Node;
+import org.w3c.dom.events.EventTarget;
 import org.w3c.dom.html.HTMLElement;
 
 // TODO: Implement org.w3c.events.Event ?
-public class Event extends AbstractScriptableDelegate {
+public class Event extends AbstractScriptableDelegate implements org.w3c.dom.events.Event {
   private boolean cancelBubble;
   private HTMLElement fromElement, toElement;
   private int leafX, leafY;
   private boolean returnValue;
-  private HTMLElement srcElement;
+  private Node srcElement;
   private String type;
   private final java.awt.event.InputEvent inputEvent;
+  private boolean propagationStopped = false;
 
-  public Event(final String type, final HTMLElement srcElement, final java.awt.event.InputEvent mouseEvent, final int leafX, final int leafY) {
+  public Event(final String type, final Node srcElement, final java.awt.event.InputEvent mouseEvent, final int leafX, final int leafY) {
     this.type = type;
     this.srcElement = srcElement;
     this.leafX = leafX;
@@ -45,13 +49,13 @@ public class Event extends AbstractScriptableDelegate {
     this.inputEvent = mouseEvent;
   }
 
-  public Event(final String type, final HTMLElement srcElement, final java.awt.event.KeyEvent keyEvent) {
+  public Event(final String type, final Node srcElement, final java.awt.event.KeyEvent keyEvent) {
     this.type = type;
     this.srcElement = srcElement;
     this.inputEvent = keyEvent;
   }
 
-  public Event(final String type, final HTMLElement srcElement) {
+  public Event(final String type, final Node srcElement) {
     this.type = type;
     this.srcElement = srcElement;
     this.inputEvent = null;
@@ -75,7 +79,9 @@ public class Event extends AbstractScriptableDelegate {
   public int getButton() {
     final InputEvent ie = this.inputEvent;
     if (ie instanceof MouseEvent) {
-      return ((MouseEvent) ie).getButton();
+      // return ((MouseEvent) ie).getButton();
+      // range of button is 0 to N in DOM spec, but 1 to N in AWT
+      return ((MouseEvent) ie).getButton() - 1;
     } else {
       return 0;
     }
@@ -86,6 +92,7 @@ public class Event extends AbstractScriptableDelegate {
   }
 
   public void setCancelBubble(final boolean cancelBubble) {
+    System.out.println("Event.setCancelBubble()");
     this.cancelBubble = cancelBubble;
   }
 
@@ -146,7 +153,7 @@ public class Event extends AbstractScriptableDelegate {
     this.returnValue = returnValue;
   }
 
-  public HTMLElement getSrcElement() {
+  public Node getSrcElement() {
     return srcElement;
   }
 
@@ -185,4 +192,75 @@ public class Event extends AbstractScriptableDelegate {
   public void setLeafY(final int leafY) {
     this.leafY = leafY;
   }
+
+  @Override
+  public EventTarget getTarget() {
+    System.out.println("Event.getTarget()");
+    // TODO: Target and source may not be always same. Need to add a constructor param for target.
+    return (EventTarget) srcElement;
+  }
+
+  @Override
+  public EventTarget getCurrentTarget() {
+    System.out.println("Event.getCurrentTarget()");
+    return null;
+  }
+
+  private short currentPhase = 0;
+
+  @Override
+  public short getEventPhase() {
+    System.out.println("Event.getEventPhase() : " + currentPhase);
+    return currentPhase;
+  }
+
+  @HideFromJS
+  public void setPhase(final short newPhase) {
+    currentPhase = newPhase;
+  }
+
+  @Override
+  public boolean getBubbles() {
+    System.out.println("Event.getBubbles()");
+    return false;
+  }
+
+  @Override
+  public boolean getCancelable() {
+    System.out.println("Event.getCancelable()");
+    return false;
+  }
+
+  @Override
+  public long getTimeStamp() {
+    System.out.println("Event.getTimeStamp()");
+    return 0;
+  }
+
+  @Override
+  public void stopPropagation() {
+    propagationStopped = true;
+    System.out.println("Event.stopPropagation()");
+  }
+
+  // TODO: Hide from JS
+  public boolean isPropagationStopped() {
+    return propagationStopped;
+  }
+
+  @Override
+  public void preventDefault() {
+    System.out.println("Event.preventDefault()");
+  }
+
+  @Override
+  public void initEvent(final String eventTypeArg, final boolean canBubbleArg, final boolean cancelableArg) {
+    System.out.println("Event.initEvent()");
+  }
+
+  @Override
+  public String toString() {
+    return "Event [phase=" + currentPhase + ", type=" + type + ", leafX=" + leafX + ", leafY=" + leafY + ", srcElement=" + srcElement + "]";
+  }
+
 }

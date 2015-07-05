@@ -278,14 +278,14 @@ public class Extension implements Comparable<Object>, NavigatorExtensionContext 
     final ClassLoader prevClassLoader = currentThread.getContextClassLoader();
     final ClassLoader loader = this.classLoader;
     if (loader != null) {
-      currentThread.setContextClassLoader(loader);
+      // currentThread.setContextClassLoader(loader);
     }
     try {
       return r.call();
     } catch (final Exception e) {
       throw new Error(e);
     } finally {
-      currentThread.setContextClassLoader(prevClassLoader);
+      // currentThread.setContextClassLoader(prevClassLoader);
     }
   }
 

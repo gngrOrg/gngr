@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.logging.Level;
 
 import org.lobobrowser.html.js.Executor;
+import org.lobobrowser.html.js.Window;
 import org.lobobrowser.js.JavaScript;
 import org.lobobrowser.ua.UserAgentContext;
 import org.mozilla.javascript.Context;
@@ -170,12 +171,12 @@ public class HTMLAbstractUIElement extends HTMLElementImpl {
           if (doc == null) {
             throw new IllegalStateException("Element does not belong to a document.");
           }
-          final Context ctx = Executor.createContext(this.getDocumentURL(), uac);
+          final Window window = ((HTMLDocumentImpl) doc).getWindow();
+          final Context ctx = Executor.createContext(this.getDocumentURL(), uac, window.windowFactory);
           try {
-            final Scriptable scope = (Scriptable) doc.getUserData(Executor.SCOPE_KEY);
+            final Scriptable scope = window.getWindowScope();
             if (scope == null) {
-              throw new IllegalStateException("Scriptable (scope) instance was expected to be keyed as UserData to document using "
-                  + Executor.SCOPE_KEY);
+              throw new IllegalStateException("Scriptable (scope) instance was null");
             }
             final Scriptable thisScope = (Scriptable) JavaScript.getInstance().getJavascriptObject(this, scope);
             try {

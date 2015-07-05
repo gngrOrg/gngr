@@ -32,6 +32,7 @@ import java.io.File;
 import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
@@ -48,6 +49,7 @@ import org.lobobrowser.html.HtmlObject;
 import org.lobobrowser.html.HtmlRendererContext;
 import org.lobobrowser.html.domimpl.FrameNode;
 import org.lobobrowser.html.domimpl.HTMLDocumentImpl;
+import org.lobobrowser.html.domimpl.HTMLIFrameElementImpl;
 import org.lobobrowser.html.domimpl.HTMLImageElementImpl;
 import org.lobobrowser.html.domimpl.HTMLLinkElementImpl;
 import org.lobobrowser.html.gui.HtmlPanel;
@@ -161,15 +163,35 @@ public class HtmlRendererContextImpl implements HtmlRendererContext {
       return TargetType.PARENT;
     } else if ("_top".equalsIgnoreCase(target)) {
       return TargetType.TOP;
+    } else if ((target != null) && (target.trim().length() > 0)) {
+      return TargetType.NAMED;
     } else {
       return TargetType.SELF;
     }
   }
 
   public void submitForm(final String method, final URL url, final String target, final String enctype, final FormInput[] formInputs) {
+    System.out.println("Submitting form to " + target);
     final TargetType targetType = HtmlRendererContextImpl.getTargetType(target);
-    final ParameterInfo pinfo = new LocalParameterInfo(enctype, formInputs);
-    this.clientletFrame.navigate(url, method, pinfo, targetType, RequestType.FORM);
+    System.out.println("target type " + targetType);
+    if (targetType == TargetType.NAMED) {
+      final HTMLCollection frames = getFrames();
+      for (int i = 0; i < frames.getLength(); i++) {
+        final Node frame = frames.item(i);
+        if (frame instanceof HTMLIFrameElementImpl) {
+          final HTMLIFrameElementImpl iframe = (HTMLIFrameElementImpl) frame;
+          final String name = iframe.getAttribute("name");
+          System.out.println("Found iframe with name: " + name);
+          final ParameterInfo pinfo = new LocalParameterInfo(enctype, formInputs);
+          iframe.navigate(url, method, pinfo, TargetType.SELF, RequestType.FORM);
+          return;
+        }
+      }
+    } else {
+
+      final ParameterInfo pinfo = new LocalParameterInfo(enctype, formInputs);
+      this.clientletFrame.navigate(url, method, pinfo, targetType, RequestType.FORM);
+    }
   }
 
   public BrowserFrame createBrowserFrame() {
@@ -552,6 +574,11 @@ public class HtmlRendererContextImpl implements HtmlRendererContext {
         };
       }
       return params;
+    }
+
+    @Override
+    public String toString() {
+      return Arrays.toString(formInputs);
     }
   }
 
