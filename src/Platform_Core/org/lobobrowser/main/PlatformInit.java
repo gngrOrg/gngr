@@ -76,7 +76,7 @@ import com.squareup.okhttp.OkUrlFactory;
 public class PlatformInit {
   private static final String NATIVE_DIR_NAME = "native";
   private static final long DAYS_MILLIS = 24 * 60 * 60 * 1000L;
-  private static final long TIMEOUT_DAYS = 60;
+  private static final long TIMEOUT_DAYS = 120;
   private final SimpleThreadPool threadExecutor;
 
   // private final GeneralSettings generalSettings;
