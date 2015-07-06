@@ -36,8 +36,8 @@ class RList extends BaseRListElement {
   }
 
   @Override
-  protected void applyStyle(final int availWidth, final int availHeight) {
-    super.applyStyle(availWidth, availHeight);
+  protected void applyStyle(final int availWidth, final int availHeight, final boolean updateLayout) {
+    super.applyStyle(availWidth, availHeight, updateLayout);
     ListStyle listStyle = this.listStyle;
     if ((listStyle == null) || (listStyle.type == ListStyle.TYPE_UNSET)) {
       final Object rootNode = this.modelNode;

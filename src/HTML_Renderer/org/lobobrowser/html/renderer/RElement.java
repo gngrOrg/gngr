@@ -67,4 +67,6 @@ public interface RElement extends RCollection, UINode {
   public static final int VALIGN_ABSMIDDLE = 3;
   public static final int VALIGN_ABSBOTTOM = 4;
   public static final int VALIGN_BASELINE = 5;
+
+  public void invalidateRenderStyle();
 }

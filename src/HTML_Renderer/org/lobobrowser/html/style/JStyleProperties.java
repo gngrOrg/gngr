@@ -25,6 +25,7 @@ import java.net.URL;
 import java.util.regex.Pattern;
 
 import org.lobobrowser.js.AbstractScriptableDelegate;
+import org.lobobrowser.js.HideFromJS;
 import org.lobobrowser.util.Urls;
 import org.w3c.dom.css.CSS2Properties;
 
@@ -697,7 +698,8 @@ abstract public class JStyleProperties extends AbstractScriptableDelegate implem
     }
   }
 
-  private String helperTryBoth(final String propertyName) {
+  @HideFromJS
+  public String helperTryBoth(final String propertyName) {
     final String value = helperGetValue(propertyName);
     return value == null ? helperGetProperty(propertyName) : value;
   }

@@ -32,6 +32,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
@@ -58,13 +59,15 @@ import org.w3c.dom.html.HTMLFormElement;
 import cz.vutbr.web.css.CSSException;
 import cz.vutbr.web.css.CSSFactory;
 import cz.vutbr.web.css.CSSProperty;
+import cz.vutbr.web.css.MediaSpec;
 import cz.vutbr.web.css.NodeData;
 import cz.vutbr.web.css.Selector;
 import cz.vutbr.web.css.Selector.PseudoDeclaration;
 import cz.vutbr.web.css.StyleSheet;
 import cz.vutbr.web.css.Term;
 import cz.vutbr.web.csskit.MatchConditionOnElements;
-import cz.vutbr.web.domassign.DirectAnalyzer;
+import cz.vutbr.web.domassign.Analyzer.OrderedRule;
+import cz.vutbr.web.domassign.AnalyzerUtil;
 
 public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2PropertiesContext {
   private final boolean noStyleSheet;
@@ -109,6 +112,7 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
       this.hasHoverStyleByElement = null;
        */
       this.currentStyle = null;
+      this.cachedRules = null;
       this.cachedNodeData = null;
       if (deep) {
         final java.util.ArrayList<Node> nl = this.nodeList;
@@ -153,6 +157,7 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
   }
 
   private NodeData cachedNodeData = null;
+  private volatile OrderedRule[] cachedRules = null;
 
   private NodeData getNodeData(final Selector.PseudoDeclaration psuedoElement) {
     synchronized (this) {
@@ -160,26 +165,27 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
         return cachedNodeData;
       }
 
-      final HTMLDocumentImpl doc = (HTMLDocumentImpl) this.document;
-      final List<StyleSheet> jSheets = new ArrayList<>();
-      jSheets.add(recommendedStyle);
-      jSheets.add(userAgentStyle);
-      jSheets.addAll(doc.styleSheetManager.getEnabledJStyleSheets());
+      if (cachedRules == null) {
+        final HTMLDocumentImpl doc = (HTMLDocumentImpl) this.document;
+        final List<StyleSheet> jSheets = new ArrayList<>();
+        jSheets.add(recommendedStyle);
+        jSheets.add(userAgentStyle);
+        jSheets.addAll(doc.styleSheetManager.getEnabledJStyleSheets());
 
-      final StyleSheet attributeStyle = StyleElements.convertAttributesToStyles(this);
-      if (attributeStyle != null) {
-        jSheets.add(attributeStyle);
+        final StyleSheet attributeStyle = StyleElements.convertAttributesToStyles(this);
+        if (attributeStyle != null) {
+          jSheets.add(attributeStyle);
+        }
+
+        final StyleSheet inlineStyle = this.getInlineJStyle();
+        if (inlineStyle != null) {
+          jSheets.add(inlineStyle);
+        }
+
+        cachedRules = AnalyzerUtil.getApplicableRules(jSheets, this, new MediaSpec("screen"));
       }
 
-      final StyleSheet inlineStyle = this.getInlineJStyle();
-      if (inlineStyle != null) {
-        jSheets.add(inlineStyle);
-      }
-
-      final DirectAnalyzer domAnalyser = new cz.vutbr.web.domassign.DirectAnalyzer(jSheets);
-      domAnalyser.registerMatchCondition(elementMatchCondition);
-
-      final NodeData nodeData = domAnalyser.getElementStyle(this, psuedoElement, "screen");
+      final NodeData nodeData = AnalyzerUtil.getElementStyle(this, psuedoElement, elementMatchCondition, cachedRules);
       final Node parent = this.parentNode;
       if ((parent != null) && (parent instanceof HTMLElementImpl)) {
         final HTMLElementImpl parentElement = (HTMLElementImpl) parent;
@@ -317,23 +323,24 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
       }
       // Change isMouseOver field before checking to invalidate.
       this.isMouseOver = mouseOver;
+
+      // TODO: If informLocalInvalid detects a layout change, then there is no need to do descendant invalidation.
+
       // Check if descendents are affected (e.g. div:hover a { ... } )
-      this.invalidateDescendentsForHover();
+      this.invalidateDescendentsForHover(mouseOver);
       if (this.hasHoverStyle()) {
-        // TODO: OPTIMIZATION: In some cases it should be much
-        // better to simply invalidate the "look" of the node.
-        this.informInvalid();
+        this.informLocalInvalid();
       }
     }
   }
 
-  private void invalidateDescendentsForHover() {
+  private void invalidateDescendentsForHover(final boolean mouseOver) {
     synchronized (this.treeLock) {
-      this.invalidateDescendentsForHoverImpl(this);
+      this.invalidateDescendentsForHoverImpl(this, mouseOver);
     }
   }
 
-  private void invalidateDescendentsForHoverImpl(final HTMLElementImpl ancestor) {
+  private void invalidateDescendentsForHoverImpl(final HTMLElementImpl ancestor, final boolean mouseOver) {
     final ArrayList<Node> nodeList = this.nodeList;
     if (nodeList != null) {
       final int size = nodeList.size();
@@ -341,10 +348,19 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
         final Object node = nodeList.get(i);
         if (node instanceof HTMLElementImpl) {
           final HTMLElementImpl descendent = (HTMLElementImpl) node;
-          if (descendent.hasHoverStyle(ancestor)) {
-            descendent.informInvalid();
+          // TODO: Use a clone of elementMatchCondition, instead of modifying it all the time.
+          // Requires support from jStyleParser
+          if (!mouseOver) {
+            elementMatchCondition.addMatch(ancestor, PseudoDeclaration.HOVER);
           }
-          descendent.invalidateDescendentsForHoverImpl(ancestor);
+          final boolean hasMatch = descendent.hasHoverStyle(ancestor);
+          if (!mouseOver) {
+            elementMatchCondition.removeMatch(ancestor, PseudoDeclaration.HOVER);
+          }
+          if (hasMatch) {
+            descendent.informLocalInvalid();
+          }
+          descendent.invalidateDescendentsForHoverImpl(ancestor, mouseOver);
         }
       }
     }
@@ -374,28 +390,20 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
     return false;
   }
 
-  //TODO: GH #89 need to optimize it by checking if there is hover style for the given element
   private boolean hasHoverStyle() {
-    return true;
-    /*
-    final NodeData newNodeData = getNodeData(null);
-    if (currentStyle != null) {
-      return !isSameNodeData(newNodeData, currentStyle.getNodeData());
-    } else {
-      return newNodeData == null;
-    }*/
+    final OrderedRule[] rules = cachedRules;
+    if (rules == null) {
+      return false;
+    }
+    return AnalyzerUtil.hasPseudoSelector(rules, this, elementMatchCondition, PseudoDeclaration.HOVER);
   }
 
-  //TODO: GH #89 need to optimize it by checking if there is hover style for the given element
   private boolean hasHoverStyle(final HTMLElementImpl ancestor) {
-    return true;
-    /*
-    final NodeData newNodeData = getNodeData(null);
-    if (currentStyle != null) {
-      return !isSameNodeData(newNodeData, currentStyle.getNodeData());
-    } else {
-      return newNodeData == null;
-    }*/
+    final OrderedRule[] rules = cachedRules;
+    if (rules == null) {
+      return false;
+    }
+    return AnalyzerUtil.hasPseudoSelectorForAncestor(rules, this, ancestor, elementMatchCondition, PseudoDeclaration.HOVER);
   }
 
   /**
@@ -418,6 +426,55 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
     // TODO: forgetStyle can call informInvalid() since informInvalid() seems to always follow forgetStyle()
     this.forgetStyle(false);
     super.informInvalid();
+  }
+
+  public void informLocalInvalid() {
+    // TODO: forgetStyle can call informInvalid() since informInvalid() seems to always follow forgetStyle()
+    //       ^^ Hah, not any more
+    final JStyleProperties prevStyle = currentStyle;
+    this.forgetLocalStyle();
+    final JStyleProperties newStyle = getCurrentStyle();
+    if (layoutChanges(prevStyle, newStyle)) {
+      super.informInvalid();
+    } else {
+      super.informLookInvalid();
+    }
+  }
+
+  private static final String[] layoutProperties = {
+      "margin-top",
+      "margin-bottom",
+      "margin-left",
+      "margin-right",
+      "padding-top",
+      "padding-bottom",
+      "padding-left",
+      "padding-right",
+      "border-top-width",
+      "border-bottom-width",
+      "border-left-width",
+      "border-right-width",
+      "max-width",
+      "min-width",
+      "max-height",
+      "min-height",
+      "font-size",
+      "font-family",
+      "font-weight",
+      "font-variant"  // TODO: Add other font properties that affect layouting
+  };
+
+  private static boolean layoutChanges(final JStyleProperties prevStyle, final JStyleProperties newStyle) {
+    if (prevStyle == null || newStyle == null) {
+      return true;
+    }
+
+    for (final String p : layoutProperties) {
+      if (!Objects.equals(prevStyle.helperTryBoth(p), newStyle.helperTryBoth(p))) {
+        return true;
+      }
+    }
+    return false;
   }
 
   // TODO: Use the handleAttributeChanged() system and remove informInvalidAttribute

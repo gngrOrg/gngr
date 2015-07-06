@@ -39,9 +39,9 @@ class BaseRListElement extends RBlock {
   }
 
   @Override
-  protected void applyStyle(final int availWidth, final int availHeight) {
+  protected void applyStyle(final int availWidth, final int availHeight, final boolean updateLayout) {
     this.listStyle = null;
-    super.applyStyle(availWidth, availHeight);
+    super.applyStyle(availWidth, availHeight, updateLayout);
     final Object rootNode = this.modelNode;
     if (!(rootNode instanceof HTMLElementImpl)) {
       return;

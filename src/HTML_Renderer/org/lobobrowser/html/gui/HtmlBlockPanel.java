@@ -796,7 +796,7 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
               repainters = new ArrayList<>(1);
             }
             final RElement relement = (RElement) uiNode;
-            // relement.invalidateRenderStyle();
+            relement.invalidateRenderStyle();
             repainters.add(relement);
           }
           break;
