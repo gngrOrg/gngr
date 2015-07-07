@@ -22,6 +22,7 @@ package org.lobobrowser.html.style;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.regex.Pattern;
 
 import org.lobobrowser.js.AbstractScriptableDelegate;
 import org.lobobrowser.util.Urls;
@@ -651,6 +652,8 @@ abstract public class JStyleProperties extends AbstractScriptableDelegate implem
 
   abstract protected NodeData getNodeData();
 
+  private static final Pattern inchPattern = Pattern.compile("[0-9]+(.[0-9]+)?in");
+
   private String helperGetValue(final String propertyName) {
     final NodeData nodeData = getNodeData();
     if (nodeData != null) {
@@ -659,7 +662,7 @@ abstract public class JStyleProperties extends AbstractScriptableDelegate implem
       final String valueStr = value == null ? null : value.toString().trim();
       // TODO
       // hack for inch support. need to implement it where it is actually processed.
-      if ((valueStr != null) && valueStr.matches("[0-9]+(.[0-9]+)?in")) {
+      if ((valueStr != null) && inchPattern.matcher(valueStr).matches()) {
         return inch2Pixel(value);
       }
       return valueStr;
