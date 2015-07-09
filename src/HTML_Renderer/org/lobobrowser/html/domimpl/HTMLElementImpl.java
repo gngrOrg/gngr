@@ -390,6 +390,7 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
     return false;
   }
 
+  // TODO: Cache the result of this
   private boolean hasHoverStyle() {
     final OrderedRule[] rules = cachedRules;
     if (rules == null) {
@@ -398,6 +399,7 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
     return AnalyzerUtil.hasPseudoSelector(rules, this, elementMatchCondition, PseudoDeclaration.HOVER);
   }
 
+  // TODO: Cache the result of this
   private boolean hasHoverStyle(final HTMLElementImpl ancestor) {
     final OrderedRule[] rules = cachedRules;
     if (rules == null) {
