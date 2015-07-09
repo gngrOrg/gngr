@@ -689,7 +689,11 @@ public class RBlockViewport extends BaseRCollection {
   }
 
   private final void layoutRBlock(final HTMLElementImpl markupElement) {
-    RBlock renderable = (RBlock) markupElement.getUINode();
+    final UINode uiNode = markupElement.getUINode();
+    RBlock renderable = null;
+    if (uiNode instanceof RBlock) {
+      renderable = (RBlock) markupElement.getUINode();
+    }
     if (renderable == null) {
       renderable = new RBlock(markupElement, this.listNesting, this.userAgentContext, this.rendererContext, this.frameContext,
           this.container);
@@ -2323,7 +2327,15 @@ public class RBlockViewport extends BaseRCollection {
   }
 
   private void layoutRInlineBlock(final HTMLElementImpl markupElement) {
-    final RInlineBlock inlineBlock = new RInlineBlock(container, markupElement, userAgentContext, rendererContext, frameContext);
+    final UINode uINode = markupElement.getUINode();
+    RInlineBlock inlineBlock = null;
+    if (uINode instanceof RInlineBlock) {
+      inlineBlock = (RInlineBlock) uINode;
+    } else {
+      final RInlineBlock newInlineBlock = new RInlineBlock(container, markupElement, userAgentContext, rendererContext, frameContext);
+      markupElement.setUINode(newInlineBlock);
+      inlineBlock = newInlineBlock;
+    }
     inlineBlock.doLayout(availContentWidth, availContentHeight, sizeOnly);
     addRenderableToLine(inlineBlock);
   }
