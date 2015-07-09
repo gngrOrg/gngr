@@ -133,7 +133,10 @@ public class Urls {
         }
       }
     }
-    return null;
+
+    // For issue #99
+    // When there is no cache setting; assume a 60 second cache expiry time, for now.
+    return baseTime + (60 * 1000);
   }
 
   public static List<NameValuePair> getHeaders(final URLConnection connection) {
