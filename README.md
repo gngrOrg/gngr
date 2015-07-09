@@ -2,6 +2,7 @@ gngr
 ====
 
 This is the source code of [gngr](https://gngr.info), a new cross-platform browser that champions privacy.
+Read [the introduction](https://gngr.info/doc/introduction.html) to know more.
 
 ![gngr Inception](https://gngr.info/media/img/screens/v035/gngrInception.png)
 
