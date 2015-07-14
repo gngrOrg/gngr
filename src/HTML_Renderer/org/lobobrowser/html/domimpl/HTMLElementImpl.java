@@ -59,6 +59,7 @@ import org.w3c.dom.html.HTMLFormElement;
 import cz.vutbr.web.css.CSSException;
 import cz.vutbr.web.css.CSSFactory;
 import cz.vutbr.web.css.CSSProperty;
+import cz.vutbr.web.css.MatchCondition;
 import cz.vutbr.web.css.MediaSpec;
 import cz.vutbr.web.css.NodeData;
 import cz.vutbr.web.css.Selector;
@@ -336,11 +337,17 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
 
   private void invalidateDescendentsForHover(final boolean mouseOver) {
     synchronized (this.treeLock) {
-      this.invalidateDescendentsForHoverImpl(this, mouseOver);
+      if (!mouseOver) {
+        final MatchConditionOnElements hoverCondition = (MatchConditionOnElements) elementMatchCondition.clone();
+        hoverCondition.addMatch(this, PseudoDeclaration.HOVER);
+        invalidateDescendentsForHoverImpl(this, hoverCondition);
+      } else {
+        invalidateDescendentsForHoverImpl(this, elementMatchCondition);
+      }
     }
   }
 
-  private void invalidateDescendentsForHoverImpl(final HTMLElementImpl ancestor, final boolean mouseOver) {
+  private void invalidateDescendentsForHoverImpl(final HTMLElementImpl ancestor, final MatchCondition hoverCondition) {
     final ArrayList<Node> nodeList = this.nodeList;
     if (nodeList != null) {
       final int size = nodeList.size();
@@ -348,19 +355,11 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
         final Object node = nodeList.get(i);
         if (node instanceof HTMLElementImpl) {
           final HTMLElementImpl descendent = (HTMLElementImpl) node;
-          // TODO: Use a clone of elementMatchCondition, instead of modifying it all the time.
-          // Requires support from jStyleParser
-          if (!mouseOver) {
-            elementMatchCondition.addMatch(ancestor, PseudoDeclaration.HOVER);
-          }
-          final boolean hasMatch = descendent.hasHoverStyle(ancestor);
-          if (!mouseOver) {
-            elementMatchCondition.removeMatch(ancestor, PseudoDeclaration.HOVER);
-          }
+          final boolean hasMatch = descendent.hasHoverStyle(ancestor, hoverCondition);
           if (hasMatch) {
             descendent.informLocalInvalid();
           }
-          descendent.invalidateDescendentsForHoverImpl(ancestor, mouseOver);
+          descendent.invalidateDescendentsForHoverImpl(ancestor, hoverCondition);
         }
       }
     }
@@ -400,12 +399,12 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
   }
 
   // TODO: Cache the result of this
-  private boolean hasHoverStyle(final HTMLElementImpl ancestor) {
+  private boolean hasHoverStyle(final HTMLElementImpl ancestor, final MatchCondition hoverCondition) {
     final OrderedRule[] rules = cachedRules;
     if (rules == null) {
       return false;
     }
-    return AnalyzerUtil.hasPseudoSelectorForAncestor(rules, this, ancestor, elementMatchCondition, PseudoDeclaration.HOVER);
+    return AnalyzerUtil.hasPseudoSelectorForAncestor(rules, this, ancestor, hoverCondition, PseudoDeclaration.HOVER);
   }
 
   /**
