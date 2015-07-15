@@ -26,6 +26,7 @@ package org.lobobrowser.html.domimpl;
 import java.util.ArrayList;
 
 import org.lobobrowser.html.js.Executor;
+import org.lobobrowser.html.js.Window;
 import org.lobobrowser.html.style.ImageRenderState;
 import org.lobobrowser.html.style.RenderState;
 import org.mozilla.javascript.Function;
@@ -185,10 +186,9 @@ public class HTMLImageElementImpl extends HTMLAbstractUIElement implements HTMLI
   protected void assignAttributeField(final String normalName, final String value) {
     super.assignAttributeField(normalName, value);
 
-    // Commenting out for TODO: #3
-    /* if ("src".equals(normalName)) {
-      this.loadImage(value);
-    }*/
+    if ("src".equals(normalName)) {
+      ((HTMLDocumentImpl) document).addJob(() -> loadImage(getSrc()));
+    }
   }
 
   private Function onload;
@@ -282,7 +282,8 @@ public class HTMLImageElementImpl extends HTMLAbstractUIElement implements HTMLI
     final Function onload = this.getOnload();
     if (onload != null) {
       // TODO: onload event object?
-      Executor.executeFunction(HTMLImageElementImpl.this, onload, null);
+      final Window window = ((HTMLDocumentImpl) document).getWindow();
+      Executor.executeFunction(HTMLImageElementImpl.this, onload, null, window.getContextFactory());
     }
   }
 
@@ -300,6 +301,17 @@ public class HTMLImageElementImpl extends HTMLAbstractUIElement implements HTMLI
 
     public void imageLoaded(final ImageEvent event) {
       dispatchEvent(this.expectedImgSrc, event);
+      if (document instanceof HTMLDocumentImpl) {
+        final HTMLDocumentImpl htmlDocumentImpl = (HTMLDocumentImpl) document;
+        htmlDocumentImpl.markJobsFinished(1);
+      }
+    }
+
+    public void imageAborted() {
+      if (document instanceof HTMLDocumentImpl) {
+        final HTMLDocumentImpl htmlDocumentImpl = (HTMLDocumentImpl) document;
+        htmlDocumentImpl.markJobsFinished(1);
+      }
     }
   }
 

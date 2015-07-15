@@ -220,6 +220,10 @@ class ImgControl extends BaseControl implements ImageListener {
     }
   }
 
+  public void imageAborted() {
+    // do nothing
+  }
+
   @Override
   public String toString() {
     return "ImgControl[src=" + this.lastSrc + "]";

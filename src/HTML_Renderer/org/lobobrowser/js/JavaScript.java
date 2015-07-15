@@ -24,6 +24,8 @@ import java.lang.ref.WeakReference;
 import java.util.WeakHashMap;
 
 import org.lobobrowser.util.Objects;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
 
@@ -36,6 +38,15 @@ public class JavaScript {
 
   public static JavaScript getInstance() {
     return instance;
+  }
+
+  public static void init() {
+    ContextFactory.initGlobal(new ContextFactory() {
+      @Override
+      protected Context makeContext() {
+        throw new UnsupportedOperationException("Internal error. Global context factory should not be used.");
+      }
+    });
   }
 
   /**

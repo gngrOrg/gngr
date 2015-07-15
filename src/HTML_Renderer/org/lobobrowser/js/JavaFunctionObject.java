@@ -35,6 +35,7 @@ import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.WrappedException;
+import org.w3c.dom.DOMException;
 
 public class JavaFunctionObject extends ScriptableObject implements Function {
   private static final Logger logger = Logger.getLogger(JavaFunctionObject.class.getName());
@@ -203,6 +204,10 @@ public class JavaFunctionObject extends ScriptableObject implements Function {
     } catch (final IllegalAccessException iae) {
       throw new IllegalStateException("Unable to call " + this.methodName + ".", iae);
     } catch (final InvocationTargetException ite) {
+      if (ite.getCause() instanceof DOMException) {
+        final DOMException domException = (DOMException) ite.getCause();
+        throw new WrappedException(domException);
+      }
       throw new WrappedException(
           new InvocationTargetException(ite.getCause(), "Unable to call " + this.methodName + " on " + thisObj + "."));
     } catch (final IllegalArgumentException iae) {

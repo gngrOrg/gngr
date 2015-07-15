@@ -147,6 +147,9 @@ public class LocalSecurityPolicy extends Policy {
     CORE_PERMISSIONS.add(new java.util.logging.LoggingPermission("control", null));
     CORE_PERMISSIONS.add(GenericLocalPermission.EXT_GENERIC);
 
+    // For stopping JS Scheduler
+    CORE_PERMISSIONS.add(new RuntimePermission("stopThread"));
+
     copyPermissions(EXTENSION_PERMISSIONS, CORE_PERMISSIONS);
     addStoreDirectoryPermissions(CORE_PERMISSIONS);
 

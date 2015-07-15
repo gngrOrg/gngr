@@ -3,11 +3,15 @@ package org.lobobrowser.html.domimpl;
 import java.net.URL;
 
 import org.lobobrowser.html.BrowserFrame;
+import org.lobobrowser.html.js.Executor;
 import org.lobobrowser.html.js.Window;
+import org.lobobrowser.html.js.Window.JSRunnableTask;
 import org.lobobrowser.html.style.IFrameRenderState;
 import org.lobobrowser.html.style.RenderState;
+import org.lobobrowser.js.HideFromJS;
 import org.lobobrowser.ua.UserAgentContext.Request;
 import org.lobobrowser.ua.UserAgentContext.RequestKind;
+import org.mozilla.javascript.Function;
 import org.w3c.dom.Document;
 import org.w3c.dom.html.HTMLIFrameElement;
 
@@ -18,26 +22,34 @@ public class HTMLIFrameElementImpl extends HTMLAbstractUIElement implements HTML
     super(name);
   }
 
+  @HideFromJS
   public void setBrowserFrame(final BrowserFrame frame) {
     this.browserFrame = frame;
-    final String src = this.getAttribute("src");
-    if (src != null) {
-      loadURLIntoFrame(src);
+    createJob();
+  }
+
+  private boolean jobCreated = false;
+
+  private void createJob() {
+    synchronized (this) {
+      final String src = this.getAttribute("src");
+      if (src != null) {
+        if (!jobCreated) {
+          ((HTMLDocumentImpl) document).addJob(() -> loadURLIntoFrame(src));
+          jobCreated = true;
+        } else {
+          ((HTMLDocumentImpl) document).addJob(() -> loadURLIntoFrame(src), 0);
+        }
+      }
     }
   }
 
-  /*
-  @Override
-  public Object setUserData(String key, Object data, UserDataHandler handler) {
-    if (org.lobobrowser.html.parser.HtmlParser.MODIFYING_KEY.equals(key) && data != Boolean.TRUE) {
-      final String src = this.getAttribute("src");
-      if (src != null) {
-        ((HTMLDocumentImpl) document).addJob(() -> loadURLIntoFrame(src), true);
-        // loadURLIntoFrame(src);
-      }
+  private void markJobDone() {
+    synchronized (this) {
+      ((HTMLDocumentImpl) document).markJobsFinished(1);
+      jobCreated = false;
     }
-    return super.setUserData(key, data, handler);
-  }*/
+  }
 
   public BrowserFrame getBrowserFrame() {
     return this.browserFrame;
@@ -142,14 +154,24 @@ public class HTMLIFrameElementImpl extends HTMLAbstractUIElement implements HTML
     this.setAttribute("width", width);
   }
 
-  /*
+  @Override
   protected void assignAttributeField(final String normalName, final String value) {
+    super.assignAttributeField(normalName, value);
+
     if ("src".equals(normalName)) {
-      loadURLIntoFrame(value);
-    } else {
-      super.assignAttributeField(normalName, value);
+      createJob();
     }
-  }*/
+  }
+
+  private Function onload;
+
+  public Function getOnload() {
+    return this.getEventFunction(this.onload, "onload");
+  }
+
+  public void setOnload(final Function onload) {
+    this.onload = onload;
+  }
 
   private void loadURLIntoFrame(final String value) {
     final BrowserFrame frame = this.browserFrame;
@@ -157,10 +179,32 @@ public class HTMLIFrameElementImpl extends HTMLAbstractUIElement implements HTML
       try {
         final URL fullURL = this.getFullURL(value);
         if (getUserAgentContext().isRequestPermitted(new Request(fullURL, RequestKind.Frame))) {
+          getContentWindow().setJobFinishedHandler(new Runnable() {
+            public void run() {
+              System.out.println("Iframes window's job over!");
+              if (onload != null) {
+                // TODO: onload event object?
+                final Window window = ((HTMLDocumentImpl) document).getWindow();
+                window.addJSTask(new JSRunnableTask(0, "IFrame onload handler", () -> {
+                  Executor.executeFunction(HTMLIFrameElementImpl.this, onload, null, window.getContextFactory());
+                }));
+              }
+              markJobDone();
+            }
+          });
           frame.loadURL(fullURL);
         }
       } catch (final java.net.MalformedURLException mfu) {
         this.warn("loadURLIntoFrame(): Unable to navigate to src.", mfu);
+      } finally {
+        /* TODO: Implement an onload handler
+        // Copied from image element
+        final Function onload = this.getOnload();
+        System.out.println("onload: " + onload);
+        if (onload != null) {
+          // TODO: onload event object?
+          Executor.executeFunction(HTMLIFrameElementImpl.this, onload, null);
+        }*/
       }
     }
   }

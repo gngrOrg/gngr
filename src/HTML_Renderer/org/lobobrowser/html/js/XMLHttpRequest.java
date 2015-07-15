@@ -1,9 +1,7 @@
 package org.lobobrowser.html.js;
 
 import java.io.IOException;
-import java.net.SocketPermission;
 import java.net.URL;
-import java.net.URLPermission;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
@@ -13,12 +11,14 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.lobobrowser.html.js.Window.JSRunnableTask;
 import org.lobobrowser.js.AbstractScriptableDelegate;
 import org.lobobrowser.js.JavaScript;
 import org.lobobrowser.ua.NetworkRequest;
 import org.lobobrowser.ua.UserAgentContext;
 import org.lobobrowser.ua.UserAgentContext.Request;
 import org.lobobrowser.ua.UserAgentContext.RequestKind;
+import org.lobobrowser.util.DOMExceptions;
 import org.lobobrowser.util.Urls;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
@@ -36,11 +36,15 @@ public class XMLHttpRequest extends AbstractScriptableDelegate {
   private final Scriptable scope;
   private final java.net.URL codeSource;
 
-  public XMLHttpRequest(final UserAgentContext pcontext, final java.net.URL codeSource, final Scriptable scope) {
+  // TODO: This is a quick hack
+  private final Window window;
+
+  public XMLHttpRequest(final UserAgentContext pcontext, final java.net.URL codeSource, final Scriptable scope, final Window window) {
     this.request = pcontext.createHttpRequest();
     this.pcontext = pcontext;
     this.scope = scope;
     this.codeSource = codeSource;
+    this.window = window;
   }
 
   public void abort() {
@@ -98,19 +102,47 @@ public class XMLHttpRequest extends AbstractScriptableDelegate {
 
   public void open(final String method, final String url, final boolean asyncFlag, final String userName, final String password)
       throws java.io.IOException {
-    request.open(method, this.getFullURL(url), asyncFlag, userName, password);
+    final String adjustedMethod = checkAndAdjustMethod(method);
+    request.open(adjustedMethod, this.getFullURL(url), asyncFlag, userName, password);
+  }
+
+  private static String[] prohibitedMethods = {
+      "CONNECT", "TRACE", "TRACK"
+  };
+
+  private static String[] upperCaseMethods = {
+      "DELETE", "GET", "HEAD", "OPTIONS", "POST", "PUT"
+  };
+
+  private static String checkAndAdjustMethod(final String method) {
+    for (final String p : prohibitedMethods) {
+      if (p.equalsIgnoreCase(method)) {
+        throw DOMExceptions.ExtendedError.SecurityError.createException();
+      }
+    }
+
+    for (final String u : upperCaseMethods) {
+      if (u.equalsIgnoreCase(method)) {
+        return u;
+      }
+    }
+
+    return method;
   }
 
   public void open(final String method, final String url, final boolean asyncFlag, final String userName) throws java.io.IOException {
-    request.open(method, this.getFullURL(url), asyncFlag, userName);
+    final String adjustedMethod = checkAndAdjustMethod(method);
+    request.open(adjustedMethod, this.getFullURL(url), asyncFlag, userName);
   }
 
   public void open(final String method, final String url, final boolean asyncFlag) throws java.io.IOException {
-    request.open(method, this.getFullURL(url), asyncFlag);
+    final String adjustedMethod = checkAndAdjustMethod(method);
+    request.open(adjustedMethod, this.getFullURL(url), asyncFlag);
   }
 
   public void open(final String method, final String url) throws java.io.IOException {
-    request.open(method, this.getFullURL(url));
+    final String adjustedMethod = checkAndAdjustMethod(method);
+    request.open(adjustedMethod, this.getFullURL(url));
   }
 
   public void send(final String content) throws IOException {
@@ -118,21 +150,36 @@ public class XMLHttpRequest extends AbstractScriptableDelegate {
     if (urlOpt.isPresent()) {
       final URL url = urlOpt.get();
       if (isSameOrigin(url, codeSource)) {
-        final URLPermission urlPermission = new URLPermission(url.toExternalForm());
-        final SocketPermission socketPermission = new SocketPermission(url.getHost() + ":" + Urls.getPort(url), "connect,resolve");
-        final PrivilegedExceptionAction<Object> action = () -> {
-          request.send(content, new Request(url, RequestKind.XHR));
-          return null;
+        // final URLPermission urlPermission = new URLPermission(url.toExternalForm());
+        // final SocketPermission socketPermission = new SocketPermission(url.getHost() + ":" + Urls.getPort(url), "connect,resolve");
+        // final StoreHostPermission storeHostPermission = StoreHostPermission.forURL(url);
+        final PrivilegedExceptionAction<Object> action = new PrivilegedExceptionAction<Object>() {
+          @Override
+          public Object run() throws Exception {
+            request.send(content, new Request(url, RequestKind.XHR));
+            return null;
+          }
         };
+        // if (request.isAsnyc()) {
+        // window.addJSTask(new JSRunnableTask(0, "xhr async request", () -> {
+        // try {
+        // // AccessController.doPrivileged(action, null, urlPermission, socketPermission, storeHostPermission);
+        // AccessController.doPrivileged(action);
+        // } catch (final PrivilegedActionException e) {
+        // e.printStackTrace();
+        // }
+        // }));
+        // } else {
         try {
-          AccessController.doPrivileged(action, null, urlPermission, socketPermission);
+          // AccessController.doPrivileged(action, null, urlPermission, socketPermission, storeHostPermission);
+          AccessController.doPrivileged(action);
         } catch (final PrivilegedActionException e) {
           throw (IOException) e.getCause();
         }
+        // }
       } else {
         final String msg = String.format("Failed to execute 'send' on 'XMLHttpRequest': Failed to load '%s'", url.toExternalForm());
-        // TODO: The code 19 is being hard-coded here to match Chromium's code. Better to declare a static constant in a subclass of DOMException.
-        throw new DOMException((short) 19, msg);
+        throw DOMExceptions.ExtendedError.NetworkError.createException(msg);
       }
     }
   }
@@ -163,21 +210,56 @@ public class XMLHttpRequest extends AbstractScriptableDelegate {
     }
   }
 
+  private Function onLoad;
+  // private boolean listenerAddedLoad;
+
+  public void setOnload(final Function value) {
+    synchronized (this) {
+      this.onLoad = value;
+      if ((value != null) && !this.listenerAdded) {
+        this.request.addNetworkRequestListener(netEvent -> executeReadyStateChange());
+        this.listenerAdded = true;
+      }
+    }
+  }
+
   private void executeReadyStateChange() {
     // Not called in GUI thread to ensure consistency of readyState.
     try {
       final Function f = XMLHttpRequest.this.getOnreadystatechange();
       if (f != null) {
-        final Context ctx = Executor.createContext(this.codeSource, this.pcontext);
+        window.addJSTask(new JSRunnableTask(0, "xhr ready state changed: " + request.getReadyState(), () -> {
+        final Context ctx = Executor.createContext(this.codeSource, this.pcontext, window.getContextFactory());
         try {
           final Scriptable newScope = (Scriptable) JavaScript.getInstance().getJavascriptObject(XMLHttpRequest.this, this.scope);
           f.call(ctx, newScope, newScope, new Object[0]);
         } finally {
           Context.exit();
         }
+        }));
       }
     } catch (final Exception err) {
       logger.log(Level.WARNING, "Error processing ready state change.", err);
+      Executor.logJSException(err);
+    }
+
+    if (request.getReadyState() == NetworkRequest.STATE_COMPLETE) {
+      try {
+        final Function f = this.onLoad;
+        if (f != null) {
+          window.addJSTaskUnchecked(new JSRunnableTask(0, "xhr on load : ", () -> {
+            final Context ctx = Executor.createContext(this.codeSource, this.pcontext, window.getContextFactory());
+            try {
+              final Scriptable newScope = (Scriptable) JavaScript.getInstance().getJavascriptObject(XMLHttpRequest.this, this.scope);
+              f.call(ctx, newScope, newScope, new Object[0]);
+            } finally {
+              Context.exit();
+            }
+          }));
+        }
+      } catch (final Exception err) {
+        logger.log(Level.WARNING, "Error processing ready state change.", err);
+      }
     }
   }
 
@@ -225,14 +307,13 @@ public class XMLHttpRequest extends AbstractScriptableDelegate {
 
   // As per: http://www.w3.org/TR/XMLHttpRequest2/#the-setrequestheader-method
   public void setRequestHeader(final String header, final String value) {
-    System.out.println("\n\nXMLHttpRequest.setRequestHeader() " + header + " : " + value);
     final int readyState = request.getReadyState();
     if (readyState == NetworkRequest.STATE_LOADING) {
       if (isWellFormattedHeaderValue(header, value)) {
         if (!isProhibited(header)) {
-          System.out.println("Adding header: " + header);
           request.addRequestedHeader(header, value);
         } else {
+          // TODO: Throw exception?
           System.out.println("Prohibited header: " + header);
         }
       } else {

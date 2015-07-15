@@ -37,6 +37,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -52,13 +55,15 @@ import org.lobobrowser.html.domimpl.NodeFilter.LinkFilter;
 import org.lobobrowser.html.domimpl.NodeFilter.TagNameFilter;
 import org.lobobrowser.html.io.WritableLineReader;
 import org.lobobrowser.html.js.Event;
-import org.lobobrowser.html.js.Executor;
+import org.lobobrowser.html.js.EventTargetManager;
 import org.lobobrowser.html.js.Location;
 import org.lobobrowser.html.js.Window;
+import org.lobobrowser.html.js.Window.JSRunnableTask;
 import org.lobobrowser.html.parser.HtmlParser;
 import org.lobobrowser.html.style.RenderState;
 import org.lobobrowser.html.style.StyleElements;
 import org.lobobrowser.html.style.StyleSheetRenderState;
+import org.lobobrowser.js.HideFromJS;
 import org.lobobrowser.request.DomainValidation;
 import org.lobobrowser.ua.NetworkRequest;
 import org.lobobrowser.ua.UserAgentContext;
@@ -238,6 +243,10 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
   }
 
   public AbstractView getDefaultView() {
+    return this.window;
+  }
+
+  public Window getWindow() {
     return this.window;
   }
 
@@ -1151,17 +1160,34 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
               // Must remove from map in the locked block
               // that got the listeners. Otherwise a new
               // listener might miss the event??
-              map.remove(urlText);
-            }
-            if (listeners != null) {
-              final int llength = listeners.length;
-              for (int i = 0; i < llength; i++) {
-                // Call holding no locks
-                listeners[i].imageLoaded(newEvent);
-              }
+            map.remove(urlText);
+          }
+          if (listeners != null) {
+            final int llength = listeners.length;
+            for (int i = 0; i < llength; i++) {
+              // Call holding no locks
+              listeners[i].imageLoaded(newEvent);
             }
           }
-        });
+        } else if (httpRequest.getReadyState() == NetworkRequest.STATE_ABORTED) {
+          ImageListener[] listeners;
+          synchronized (map) {
+            newInfo.loaded = true;
+            listeners = newInfo.getListeners();
+            // Must remove from map in the locked block
+            // that got the listeners. Otherwise a new
+            // listener might miss the event??
+            map.remove(urlText);
+          }
+          if (listeners != null) {
+            final int llength = listeners.length;
+            for (int i = 0; i < llength; i++) {
+              // Call holding no locks
+              listeners[i].imageAborted();
+            }
+          }
+        }
+      });
 
         SecurityUtil.doPrivileged(() -> {
           try {
@@ -1203,14 +1229,22 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
     final Function onloadHandler = this.onloadHandler;
     if (onloadHandler != null) {
       // TODO: onload event object?
-      Executor.executeFunction(this, onloadHandler, null);
+      throw new UnsupportedOperationException();
+      // TODO: Use the event dispatcher
+      // Executor.executeFunction(this, onloadHandler, null);
     }
 
     final Event loadEvent = new Event("load", getBody()); // TODO: What should be the target for this event?
-    dispatchEventToHandlers(loadEvent, onloadHandlers);
+    // dispatchEventToHandlers(loadEvent, onloadHandlers);
 
     final Event domContentLoadedEvent = new Event("DOMContentLoaded", getBody()); // TODO: What should be the target for this event?
     dispatchEvent(domContentLoadedEvent);
+
+    window.domContentLoaded(domContentLoadedEvent);
+  }
+
+  protected EventTargetManager getEventTargetManager() {
+    return window.getEventTargetManager();
   }
 
   @Override
@@ -1263,27 +1297,83 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
     }
   }
 
-  // TODO: ensure not accessible from JS
+  @HideFromJS
   public void addLoadHandler(final Function handler) {
     onloadHandlers.add(handler);
   }
 
-  // TODO: ensure not accessible from JS
+  @HideFromJS
   public void removeLoadHandler(final Function handler) {
     onloadHandlers.remove(handler);
   }
 
   private List<Runnable> jobs = new LinkedList<>();
+  // private int registeredJobs = 0;
+  private final AtomicInteger registeredJobs = new AtomicInteger(0);
+  private final Semaphore doneAllJobs = new Semaphore(0);
+  private final AtomicBoolean stopRequested = new AtomicBoolean(false);
+  private int oldPendingTaskId = -1;
 
+  @HideFromJS
+  public void stopEverything() {
+    if (stopRequested.get()) {
+      throw new IllegalStateException("Stop requested twice!");
+    }
+    stopRequested.set(true);
+    if (modificationsStarted.get()) {
+      boolean done = false;
+      while (!done) {
+        try {
+          doneAllJobs.acquire();
+          done = true;
+        } catch (final InterruptedException e) {
+          e.printStackTrace();
+        }
+      }
+    }
+  }
+
+  @HideFromJS
   public void addJob(final Runnable job) {
+    addJob(job, 1);
+  }
+
+  @HideFromJS
+  public void addJob(final Runnable job, final int incr) {
     synchronized (jobs) {
+      registeredJobs.addAndGet(incr);
       jobs.add(job);
+
+      // Added into synch block because of the JS Uniq task change. (old Id should be protected from parallel mod)
+      if (modificationsOver.get()) {
+        // TODO: temp hack. Not sure if spawning an entirely new thread is right. But it helps with a deadlock in
+        // test_script_iframe_load (test number 3)
+        // new Thread() {
+        // public void run() {
+        // runAllPending();
+        // };
+        // }.start();
+
+        // TODO: temp hack 2. This seems more legitimate than hack #1.
+        /*
+        window.addJSTask(new JSRunnableTask(0, "todo: quick check to run all pending jobs", () -> {
+            runAllPending();
+        }));
+        */
+
+        // TODO: temp hack 3. This seems more legitimate than hack #1 and optimisation over #2.
+        oldPendingTaskId = window.addJSUniqueTask(oldPendingTaskId, new JSRunnableTask(0, "todo: quick check to run all pending jobs",
+            () -> {
+              runAllPending();
+            }));
+        // runAllPending();
+      }
     }
   }
 
   private void runAllPending() {
     boolean done = false;
-    while (!done) {
+    while (!done && !stopRequested.get()) {
       List<Runnable> jobsCopy;
       synchronized (jobs) {
         jobsCopy = jobs;
@@ -1294,12 +1384,42 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
         done = jobs.size() == 0;
       }
     }
+    doneAllJobs.release();
   }
 
+  @HideFromJS
+  public void markJobsFinished(final int numJobs) {
+    final int curr = registeredJobs.addAndGet(-numJobs);
+    if (curr < 0) {
+      throw new IllegalStateException("More jobs over than registered!");
+    } else if (curr == 0) {
+      if (!stopRequested.get() && !loadOver.get()) {
+        loadOver.set(true);
+        dispatchLoadEvent();
+        System.out.println("In " + baseURI);
+        System.out.println("  calling window.jobsFinished()");
+        window.jobsFinished();
+      }
+    }
+  }
+
+  private final AtomicBoolean modificationsStarted = new AtomicBoolean(false);
+  private final AtomicBoolean modificationsOver = new AtomicBoolean(false);
+  private final AtomicBoolean loadOver = new AtomicBoolean(false);
+
+  @HideFromJS
   public void finishModifications() {
     StyleElements.normalizeHTMLTree(this);
-    runAllPending();
-    dispatchLoadEvent();
+    // Not sure if this should be run in new thread. But this blocks the UI sometimes when it is in the same thread, and a network request hangs.
+    new Thread(() -> {
+      modificationsStarted.set(true);
+      runAllPending();
+      modificationsOver.set(true);
+    }).start();
+
+    // This is to trigger a check in the no external resource case.
+    // On second thoughts, this may not be required. The window load event need only be fired if there is a script
+    // markJobsFinished(0);
 
     /* Nodes.forEachNode(document, node -> {
       if (node instanceof NodeImpl) {
@@ -1344,12 +1464,15 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
     };
 
     private List<JStyleSheetWrapper> getDocStyleSheetList() {
-      synchronized (treeLock) {
+      synchronized (this) {
         if (styleSheets == null) {
           styleSheets = new ArrayList<>();
           final List<JStyleSheetWrapper> docStyles = new ArrayList<>();
-          scanElementStyleSheets(docStyles, HTMLDocumentImpl.this);
+          synchronized (treeLock) {
+            scanElementStyleSheets(docStyles, HTMLDocumentImpl.this);
+          }
           styleSheets.addAll(docStyles);
+          System.out.println("Found stylesheets: " + this.styleSheets.size());
         }
         return this.styleSheets;
       }
@@ -1372,23 +1495,36 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
       }
     }
 
+    private volatile List<cz.vutbr.web.css.StyleSheet> enabledJStyleSheets = null;
+
     // TODO enabled style sheets can be cached
     List<cz.vutbr.web.css.StyleSheet> getEnabledJStyleSheets() {
-      final List<JStyleSheetWrapper> documentStyles = this.getDocStyleSheetList();
-      final List<cz.vutbr.web.css.StyleSheet> jStyleSheets = new ArrayList<>();
-      for (final JStyleSheetWrapper style : documentStyles) {
-        if ((!style.getDisabled()) && (style.getJStyleSheet() != null)) {
-          jStyleSheets.add(style.getJStyleSheet());
+      synchronized (this) {
+        if (enabledJStyleSheets != null) {
+          return enabledJStyleSheets;
         }
+        final List<JStyleSheetWrapper> documentStyles = this.getDocStyleSheetList();
+        final List<cz.vutbr.web.css.StyleSheet> jStyleSheets = new ArrayList<>();
+        for (final JStyleSheetWrapper style : documentStyles) {
+          if ((!style.getDisabled()) && (style.getJStyleSheet() != null)) {
+            jStyleSheets.add(style.getJStyleSheet());
+          }
+        }
+        enabledJStyleSheets = jStyleSheets;
+        return jStyleSheets;
       }
-      return jStyleSheets;
     }
 
     void invalidateStyles() {
       synchronized (treeLock) {
         this.styleSheets = null;
+        getDocStyleSheetList();
       }
-      allInvalidated();
+      synchronized (this) {
+        this.enabledJStyleSheets = null;
+      }
+      System.out.println("Stylesheets set to null");
+      allInvalidated(true);
     }
 
     StyleSheetList constructStyleSheetList() {
