@@ -456,6 +456,7 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
       "border-left-width",
       "border-right-width",
       "position",
+      "display",
       "top",
       "left",
       "right",
