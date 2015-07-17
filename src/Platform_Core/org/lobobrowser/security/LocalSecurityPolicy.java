@@ -307,7 +307,12 @@ public class LocalSecurityPolicy extends Policy {
   @Override
   public PermissionCollection getPermissions(final CodeSource codesource) {
     if (codesource == null) {
-      throw new AccessControlException("codesource was null");
+      // throw new AccessControlException("codesource was null");
+      // Open issue GH: #117
+      final Permissions permissions = new Permissions();
+      // permissions.add(new AllPermission()); // TODO: Whoa! all permissions?
+      permissions.add(new PropertyPermission("*", "read"));
+      return permissions;
     }
 
     if (PlatformInit.getInstance().debugOn) {
