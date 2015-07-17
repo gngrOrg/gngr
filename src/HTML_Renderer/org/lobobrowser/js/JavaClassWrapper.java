@@ -216,11 +216,11 @@ public class JavaClassWrapper {
     return this.javaClass.getName();
   }
 
-  public Map<String, PropertyInfo> getProperties() {
+  Map<String, PropertyInfo> getProperties() {
     return properties;
   }
 
-  public boolean hasInstance(final Scriptable instance) {
+  boolean hasInstance(final Scriptable instance) {
     if (instance instanceof JavaObjectWrapper) {
       final JavaObjectWrapper javaObjectWrapper = (JavaObjectWrapper) instance;
       return javaClass.isInstance(javaObjectWrapper.getJavaObject());
@@ -228,7 +228,7 @@ public class JavaClassWrapper {
     return javaClass.isInstance(instance);
   }
 
-  public Map<String, Field> getStaticFinalProperties() {
+  Map<String, Field> getStaticFinalProperties() {
     return staticFinalProperties;
   }
 }
