@@ -23,6 +23,7 @@
  */
 package org.lobobrowser.html.domimpl;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -59,6 +60,12 @@ import org.w3c.dom.Text;
 import org.w3c.dom.UserDataHandler;
 import org.w3c.dom.html.HTMLDocument;
 
+import cz.vutbr.web.css.CSSException;
+import cz.vutbr.web.css.CSSFactory;
+import cz.vutbr.web.css.CombinedSelector;
+import cz.vutbr.web.css.RuleSet;
+import cz.vutbr.web.css.Selector;
+import cz.vutbr.web.css.StyleSheet;
 // TODO: Implement org.w3c.dom.events.EventTarget ?
 public abstract class NodeImpl extends AbstractScriptableDelegate implements Node, ModelNode {
   private static final NodeImpl[] EMPTY_ARRAY = new NodeImpl[0];
@@ -1532,5 +1539,83 @@ public abstract class NodeImpl extends AbstractScriptableDelegate implements Nod
     // TODO Auto-generated method stub
     return false;
   }*/
+
+  public Element querySelector(final String query) {
+    // TODO: Optimize: Avoid getting all matches. Only first match is sufficient.
+    final NodeList matchingElements = querySelectorAll(query);
+    if (matchingElements.getLength() > 0) {
+      return (Element) matchingElements.item(0);
+    } else {
+      return null;
+    }
+  }
+
+  private static List<CombinedSelector> makeSelectors(final String query) throws IOException, CSSException {
+    // this is quick way to parse the selectors. TODO: check if jStyleParser supports a better option.
+    final String tempBlock = query + " { }";
+    final StyleSheet styleSheet = CSSFactory.parse(tempBlock);
+    final RuleSet firstRuleBlock = (RuleSet) styleSheet.get(0);
+    final List<CombinedSelector> selectors = firstRuleBlock.getSelectors();
+    return selectors;
+  }
+
+  /*
+  protected Collection<Node> getMatchingChildren(CombinedSelector selectors) {
+    final Collection<Node> matchingElements = new LinkedList<>();
+    final NodeImpl[] childrenArray = getChildrenArray();
+    if (childrenArray != null) {
+      for (final NodeImpl n : childrenArray) {
+        if (n instanceof ElementImpl) {
+          final ElementImpl element = (ElementImpl) n;
+          if (selectors.stream().anyMatch(selector -> selector.matches(element))) {
+            System.out.println("Found match: " + element + " of class: " + element.getClass());
+            matchingElements.add(element);
+          }
+          matchingElements.addAll(element.getMatchingChildren(selectors));
+        }
+      }
+    }
+    return matchingElements;
+  }*/
+
+  protected Collection<Node> getMatchingChildren(final List<Selector> selectors) {
+    final Collection<Node> matchingElements = new LinkedList<>();
+    if (selectors.size() > 0) {
+      final Selector firstSelector = selectors.get(0);
+      final NodeImpl[] childrenArray = getChildrenArray();
+      if (childrenArray != null) {
+        for (final NodeImpl n : childrenArray) {
+          if (n instanceof ElementImpl) {
+            final ElementImpl element = (ElementImpl) n;
+            if (firstSelector.matches(element)) {
+              final boolean moreSelectorsPresent = selectors.size() > 1;
+              if (moreSelectorsPresent) {
+                 final List<Selector> tailSelectors = selectors.subList(1, selectors.size());
+                 matchingElements.addAll(element.getMatchingChildren(tailSelectors));
+              } else {
+                matchingElements.add(element);
+              }
+            }
+            matchingElements.addAll(element.getMatchingChildren(selectors));
+          }
+        }
+      }
+    }
+    return matchingElements;
+  }
+
+  public NodeList querySelectorAll(final String query) {
+    try {
+      final List<CombinedSelector> selectors = makeSelectors(query);
+      final LinkedList<Node> matches = new LinkedList<>();
+      for (final CombinedSelector selector : selectors) {
+        matches.addAll(getMatchingChildren(selector));
+      }
+      return new NodeListImpl(matches);
+    } catch (final IOException | CSSException e) {
+      e.printStackTrace();
+      throw new DOMException(DOMException.SYNTAX_ERR, "Couldn't parse selector: " + query);
+    }
+  }
 
 }
