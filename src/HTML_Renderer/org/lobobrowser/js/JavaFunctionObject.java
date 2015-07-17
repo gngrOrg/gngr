@@ -29,6 +29,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.lobobrowser.util.Objects;
+import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.Function;
@@ -48,6 +49,20 @@ public class JavaFunctionObject extends ScriptableObject implements Function {
     super();
     this.methodName = name;
     this.className = className;
+
+    // Quick hack for issue #98
+    defineProperty("call", new Callable() {
+
+      public Object call(final Context cx, final Scriptable scope, final Scriptable thisObj, final Object[] args) {
+        if ((args.length > 0) && (args[0] instanceof JavaObjectWrapper)) {
+          final JavaObjectWrapper javaObjectWrapper = (JavaObjectWrapper) args[0];
+          return JavaFunctionObject.this.call(cx, scope, javaObjectWrapper, Arrays.copyOfRange(args, 1, args.length));
+        } else {
+          throw new RuntimeException("Unexpected condition");
+        }
+      }
+
+    }, org.mozilla.javascript.ScriptableObject.READONLY);
   }
 
   public void addMethod(final Method m) {

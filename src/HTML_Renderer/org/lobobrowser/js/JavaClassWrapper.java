@@ -20,18 +20,24 @@
  */
 package org.lobobrowser.js;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.lobobrowser.html.js.NotGetterSetter;
 import org.lobobrowser.html.js.PropertyName;
 import org.mozilla.javascript.Function;
+import org.mozilla.javascript.Scriptable;
 
 public class JavaClassWrapper {
   private final Class<?> javaClass;
   private final Map<String, JavaFunctionObject> functions = new HashMap<>();
   private final Map<String, PropertyInfo> properties = new HashMap<>();
+
+  private final Map<String, Field> staticFinalProperties = new HashMap<>();
+
   private PropertyInfo nameIndexer;
   private PropertyInfo integerIndexer;
 
@@ -51,6 +57,10 @@ public class JavaClassWrapper {
     return lastDotIdx == -1 ? className : className.substring(lastDotIdx + 1);
   }
 
+  public String getCanonicalClassName() {
+    return this.javaClass.getCanonicalName();
+  }
+
   public Function getFunction(final String name) {
     return this.functions.get(name);
   }
@@ -60,6 +70,14 @@ public class JavaClassWrapper {
   }
 
   private void scanMethods() {
+    final Field[] fields = javaClass.getFields();
+    for (final Field f : fields) {
+      final int modifiers = f.getModifiers();
+      if (Modifier.isPublic(modifiers) && Modifier.isStatic(modifiers) && Modifier.isFinal(modifiers)) {
+        staticFinalProperties.put(f.getName(), f);
+      }
+    }
+
     final Method[] methods = this.javaClass.getMethods();
     final int len = methods.length;
     for (int i = 0; i < len; i++) {
@@ -196,5 +214,21 @@ public class JavaClassWrapper {
   @Override
   public String toString() {
     return this.javaClass.getName();
+  }
+
+  public Map<String, PropertyInfo> getProperties() {
+    return properties;
+  }
+
+  public boolean hasInstance(final Scriptable instance) {
+    if (instance instanceof JavaObjectWrapper) {
+      final JavaObjectWrapper javaObjectWrapper = (JavaObjectWrapper) instance;
+      return javaClass.isInstance(javaObjectWrapper.getJavaObject());
+    }
+    return javaClass.isInstance(instance);
+  }
+
+  public Map<String, Field> getStaticFinalProperties() {
+    return staticFinalProperties;
   }
 }

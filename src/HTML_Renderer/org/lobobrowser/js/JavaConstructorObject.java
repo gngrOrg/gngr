@@ -64,7 +64,9 @@ public class JavaConstructorObject extends ScriptableObject implements Function 
 
   @Override
   public java.lang.Object getDefaultValue(final java.lang.Class<?> hint) {
-    if (String.class.equals(hint)) {
+    // if (String.class.equals(hint)) {
+    // null is passed as hint when converting to string, hence adding it as an extra condition.
+    if (String.class.equals(hint) || (hint == null)) {
       return "function " + this.name;
     } else {
       return super.getDefaultValue(hint);
@@ -82,5 +84,13 @@ public class JavaConstructorObject extends ScriptableObject implements Function 
     public Object newInstance() throws InstantiationException, IllegalAccessException {
       return this.classWrapper.newInstance();
     }
+  }
+
+  @Override
+  public boolean hasInstance(final Scriptable instance) {
+    // System.out.println("\nChecking if " + instance + " is instance of " + classWrapper);
+    // System.out.println("  result: " + classWrapper.hasInstance(instance));
+    return classWrapper.hasInstance(instance);
+    // return super.hasInstance(instance);
   }
 }

@@ -62,19 +62,23 @@ public class JavaScript {
       return null;
     } else if (raw.getClass().isPrimitive()) {
       return raw;
+    } else if (raw.getClass().isArray()) {
+      return raw;
     } else if (raw instanceof ScriptableDelegate) {
       // Classes that implement ScriptableDelegate retain
       // the JavaScript object. Reciprocal linking cannot
       // be done with weak hash maps and without leaking.
       synchronized (this) {
-        Scriptable javascriptObject = ((ScriptableDelegate) raw).getScriptable();
+        final ScriptableDelegate delegate = (ScriptableDelegate) raw;
+        Scriptable javascriptObject = delegate.getScriptable();
         if (javascriptObject == null) {
           final JavaObjectWrapper jow = new JavaObjectWrapper(JavaClassWrapperFactory.getInstance().getClassWrapper(raw.getClass()), raw);
           javascriptObject = jow;
           jow.setParentScope(scope);
-          ((ScriptableDelegate) raw).setScriptable(jow);
+          delegate.setScriptable(jow);
+        } else {
+          javascriptObject.setParentScope(scope);
         }
-        javascriptObject.setParentScope(scope);
         return javascriptObject;
       }
     } else if (Objects.isBoxClass(raw.getClass())) {
@@ -118,6 +122,26 @@ public class JavaScript {
       } else {
         return rawJavaObject;
       }
+    }
+    // Relying on Rhino to do the right thing.
+    // TODO: Remove the older implementation archived below.
+    return Context.jsToJava(javascriptObject, type);
+  }
+
+  /*
+  public Object getJavaObject(final Object javascriptObject, final Class<?> type) {
+    if (type == Boolean.TYPE) {
+      if ((javascriptObject == null) || (javascriptObject == Undefined.instance)) {
+        return Boolean.FALSE;
+      }
+    }
+    if (javascriptObject instanceof JavaObjectWrapper) {
+      final Object rawJavaObject = ((JavaObjectWrapper) javascriptObject).getJavaObject();
+      if (String.class == type) {
+        return String.valueOf(rawJavaObject);
+      } else {
+        return rawJavaObject;
+      }
     } else if (javascriptObject == null) {
       return null;
     } else if (type == String.class) {
@@ -153,4 +177,6 @@ public class JavaScript {
       return javascriptObject;
     }
   }
+  */
+
 }
