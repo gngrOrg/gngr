@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -36,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import org.lobobrowser.html.HtmlRendererContext;
 import org.lobobrowser.html.js.Event;
@@ -1618,4 +1620,17 @@ public abstract class NodeImpl extends AbstractScriptableDelegate implements Nod
     }
   }
 
+  public NodeList getElementsByClassName(final String classNames) {
+    final String[] classNamesArray = classNames.split("\\s");
+    // TODO: escape commas in class-names
+    final String query = Arrays.stream(classNamesArray).map(cn -> "." + cn).collect(Collectors.joining(","));
+    return querySelectorAll(query);
+  }
+
+  public NodeList getElementsByTagName(final String classNames) {
+    final String[] classNamesArray = classNames.split("\\s");
+    // TODO: escape commas in class-names
+    final String query = Arrays.stream(classNamesArray).collect(Collectors.joining(","));
+    return querySelectorAll(query);
+  }
 }
