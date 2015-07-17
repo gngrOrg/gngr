@@ -50,6 +50,7 @@ public class JavaFunctionObject extends ScriptableObject implements Function {
     this.methodName = name;
     this.className = className;
 
+    // TODO: Review
     // Quick hack for issue #98
     defineProperty("call", new Callable() {
 
