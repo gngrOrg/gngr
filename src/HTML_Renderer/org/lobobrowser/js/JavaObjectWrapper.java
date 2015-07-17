@@ -191,7 +191,6 @@ public class JavaObjectWrapper extends ScriptableObject {
       if (getter == null) {
         throw new EvaluatorException("Property '" + name + "' is not readable");
       }
-      // try {
       // Cannot retain delegate with a strong reference.
       final Object javaObject = this.getJavaObject();
       if (javaObject == null) {
@@ -207,11 +206,7 @@ public class JavaObjectWrapper extends ScriptableObject {
           }
         }
       });
-      // final Object val = getter.invoke(javaObject, (Object[]) null);
       return JavaScript.getInstance().getJavascriptObject(val, start.getParentScope());
-      // } catch (final Exception err) {
-      // throw new WrappedException(err);
-      // }
     } else {
       final Function f = this.classWrapper.getFunction(name);
       if (f != null) {
@@ -367,9 +362,4 @@ public class JavaObjectWrapper extends ScriptableObject {
     }
   }
 
-  /*
-  @Override
-  public Object[] getIds() {
-    return getAllIds();
-  }*/
 }
