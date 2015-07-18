@@ -412,6 +412,7 @@ public class LocalSecurityPolicy extends Policy {
       } else if (path.endsWith("js.jar")) {
         permissions.add(new PropertyPermission("java.vm.name", "read"));
         permissions.add(new PropertyPermission("line.separator", "read"));
+        permissions.add(new PropertyPermission("rhino.stack.style", "read"));
         permissions.add(new RuntimePermission("getClassLoader"));
 
       } else if (path.endsWith("okhttp-urlconnection-2.4.0.jar")) {
