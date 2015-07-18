@@ -91,7 +91,10 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
   private static final JavaClassWrapper PATH2D_WRAPPER = JavaClassWrapperFactory.getInstance()
       .getClassWrapper(CanvasPath2D.class);
 
-  private static int timerIdCounter = 0;
+  // Timer ids should begin counting from 1 or more.
+  // jQuery's ajax polling handler relies on a non-zero value (uses it as a boolean condition)
+  // Chromium 37 starts counting from 1 while Firefox 32 starts counting from 2 (from developer consoles and plugins installed)
+  private static int timerIdCounter = 1;
 
   private final HtmlRendererContext rcontext;
   private final UserAgentContext uaContext;
