@@ -1582,7 +1582,8 @@ public abstract class NodeImpl extends AbstractScriptableDelegate implements Nod
 
   protected Collection<Node> getMatchingChildren(final List<Selector> selectors) {
     final Collection<Node> matchingElements = new LinkedList<>();
-    if (selectors.size() > 0) {
+    final int numSelectors = selectors.size();
+    if (numSelectors > 0) {
       final Selector firstSelector = selectors.get(0);
       final NodeImpl[] childrenArray = getChildrenArray();
       if (childrenArray != null) {
@@ -1590,9 +1591,8 @@ public abstract class NodeImpl extends AbstractScriptableDelegate implements Nod
           if (n instanceof ElementImpl) {
             final ElementImpl element = (ElementImpl) n;
             if (firstSelector.matches(element)) {
-              final boolean moreSelectorsPresent = selectors.size() > 1;
-              if (moreSelectorsPresent) {
-                 final List<Selector> tailSelectors = selectors.subList(1, selectors.size());
+              if (numSelectors > 1) {
+                 final List<Selector> tailSelectors = selectors.subList(1, numSelectors);
                  matchingElements.addAll(element.getMatchingChildren(tailSelectors));
               } else {
                 matchingElements.add(element);
