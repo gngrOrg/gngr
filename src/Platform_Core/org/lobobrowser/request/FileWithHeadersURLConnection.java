@@ -41,7 +41,6 @@ import org.lobobrowser.util.io.IORoutines;
  */
 public class FileWithHeadersURLConnection extends HttpURLConnection {
   private final byte[] content;
-  private boolean connected = false;
   private InputStream inputStream;
   private final Map<String, List<String>> headersMap = new HashMap<>();
   private final List<NameValuePair> headersList = new ArrayList<>();
@@ -83,6 +82,7 @@ public class FileWithHeadersURLConnection extends HttpURLConnection {
       } finally {
         // Do not close inputStream. Needed later.
         this.connected = true;
+        this.responseCode = 200;
       }
     }
   }
