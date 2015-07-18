@@ -411,4 +411,9 @@ public abstract class HTMLBaseInputElement extends HTMLAbstractUIElement {
     }
   }
 
+  @NotGetterSetter
+  public void setCustomValidity(final String message) {
+    // TODO Implement
+    System.out.println("TODO: HTMLBaseInputElement.setCustomValidity() " + message);
+  }
 }
