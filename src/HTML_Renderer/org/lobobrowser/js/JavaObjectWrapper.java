@@ -362,4 +362,14 @@ public class JavaObjectWrapper extends ScriptableObject {
     }
   }
 
+  // TODO: Override has(int index) also
+
+  @Override
+  public boolean has(String name, Scriptable start) {
+    // TODO: should the start parameter be considered here?
+    if (classWrapper.getProperties().containsKey(name) || classWrapper.getStaticFinalProperties().containsKey(name)) {
+      return true;
+    }
+    return super.has(name, start);
+  }
 }
