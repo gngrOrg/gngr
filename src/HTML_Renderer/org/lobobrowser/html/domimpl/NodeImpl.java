@@ -1552,12 +1552,12 @@ public abstract class NodeImpl extends AbstractScriptableDelegate implements Nod
     }
   }
 
-  private static List<CombinedSelector> makeSelectors(final String query) throws IOException, CSSException {
+  private static CombinedSelector[] makeSelectors(final String query) throws IOException, CSSException {
     // this is quick way to parse the selectors. TODO: check if jStyleParser supports a better option.
     final String tempBlock = query + " { }";
     final StyleSheet styleSheet = CSSFactory.parse(tempBlock);
     final RuleSet firstRuleBlock = (RuleSet) styleSheet.get(0);
-    final List<CombinedSelector> selectors = firstRuleBlock.getSelectors();
+    final CombinedSelector[] selectors = firstRuleBlock.getSelectors();
     return selectors;
   }
 
@@ -1608,7 +1608,7 @@ public abstract class NodeImpl extends AbstractScriptableDelegate implements Nod
 
   public NodeList querySelectorAll(final String query) {
     try {
-      final List<CombinedSelector> selectors = makeSelectors(query);
+      final CombinedSelector[] selectors = makeSelectors(query);
       final LinkedList<Node> matches = new LinkedList<>();
       for (final CombinedSelector selector : selectors) {
         matches.addAll(getMatchingChildren(selector));
