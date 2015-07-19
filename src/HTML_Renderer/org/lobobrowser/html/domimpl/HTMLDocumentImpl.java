@@ -90,6 +90,9 @@ import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
 import org.w3c.dom.UserDataHandler;
 import org.w3c.dom.css.CSSStyleSheet;
+import org.w3c.dom.events.EventException;
+import org.w3c.dom.events.EventListener;
+import org.w3c.dom.events.EventTarget;
 import org.w3c.dom.html.HTMLCollection;
 import org.w3c.dom.html.HTMLDocument;
 import org.w3c.dom.html.HTMLElement;
@@ -107,7 +110,7 @@ import co.uproot.css.domimpl.StyleSheetBridge;
 /**
  * Implementation of the W3C <code>HTMLDocument</code> interface.
  */
-public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, DocumentView, DocumentStyle {
+public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, DocumentView, DocumentStyle, EventTarget {
   private static final Logger logger = Logger.getLogger(HTMLDocumentImpl.class.getName());
   private final ElementFactory factory;
   private final HtmlRendererContext rcontext;
@@ -1534,5 +1537,23 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
       return JStyleSheetWrapper.getStyleSheets(bridge);
     }
 
+  }
+
+  @Override
+  public void addEventListener(final String type, final EventListener listener, final boolean useCapture) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void removeEventListener(final String type, final EventListener listener, final boolean useCapture) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean dispatchEvent(final org.w3c.dom.events.Event evt) throws EventException {
+    // TODO Auto-generated method stub
+    return false;
   }
 }
