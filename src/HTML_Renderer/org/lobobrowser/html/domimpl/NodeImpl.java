@@ -60,6 +60,7 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
 import org.w3c.dom.UserDataHandler;
+import org.w3c.dom.html.HTMLCollection;
 import org.w3c.dom.html.HTMLDocument;
 
 import cz.vutbr.web.css.CSSException;
@@ -68,6 +69,7 @@ import cz.vutbr.web.css.CombinedSelector;
 import cz.vutbr.web.css.RuleSet;
 import cz.vutbr.web.css.Selector;
 import cz.vutbr.web.css.StyleSheet;
+
 // TODO: Implement org.w3c.dom.events.EventTarget ?
 public abstract class NodeImpl extends AbstractScriptableDelegate implements Node, ModelNode {
   private static final NodeImpl[] EMPTY_ARRAY = new NodeImpl[0];
@@ -194,18 +196,9 @@ public abstract class NodeImpl extends AbstractScriptableDelegate implements Nod
     }
   }
 
-  private ChildHTMLCollection childrenCollection;
-
-  public ChildHTMLCollection getChildren() {
-    // Method required by JavaScript
-    synchronized (this) {
-      ChildHTMLCollection collection = this.childrenCollection;
-      if (collection == null) {
-        collection = new ChildHTMLCollection(this);
-        this.childrenCollection = collection;
-      }
-      return collection;
-    }
+  // TODO: This is needed to be implemented only by Element, Document and DocumentFragment as per https://developer.mozilla.org/en-US/docs/Web/API/ParentNode
+  public HTMLCollection getChildren() {
+    return new DescendentHTMLCollection(this, new NodeFilter.ElementFilter(), this.treeLock);
   }
 
   /**
