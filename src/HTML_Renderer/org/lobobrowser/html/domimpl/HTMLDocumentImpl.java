@@ -616,7 +616,10 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
   }
 
   public Element createElementNS(final String namespaceURI, final String qualifiedName) throws DOMException {
-    System.out.println("request to create element: " + namespaceURI + " : " + qualifiedName);
+    if ("http://www.w3.org/1999/xhtml".equalsIgnoreCase(namespaceURI)) {
+      return createElement(qualifiedName);
+    }
+    System.out.println("unhandled request to create element in NS: " + namespaceURI + " with tag: " + qualifiedName);
     return null;
     // TODO
     // throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Not implemented: createElementNS");
