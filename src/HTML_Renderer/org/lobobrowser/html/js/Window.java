@@ -44,6 +44,8 @@ import javax.swing.Timer;
 
 import org.lobobrowser.html.HtmlRendererContext;
 import org.lobobrowser.html.domimpl.CanvasPath2D;
+import org.lobobrowser.html.domimpl.CommentImpl;
+import org.lobobrowser.html.domimpl.HTMLDivElementImpl;
 import org.lobobrowser.html.domimpl.HTMLDocumentImpl;
 import org.lobobrowser.html.domimpl.HTMLElementImpl;
 import org.lobobrowser.html.domimpl.HTMLIFrameElementImpl;
@@ -771,12 +773,19 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
     };
     defineInstantiator(ws, "Path2D", PATH2D_WRAPPER, pi);
 
+
+    // ScriptableObject.defineClass(ws, org.mozilla.javascript.ast.Comment.class);
+    defineElementClass(ws, doc, "Comment", "comment", CommentImpl.class);
+
     // HTML element classes
     defineElementClass(ws, doc, "Image", "img", HTMLImageElementImpl.class);
     defineElementClass(ws, doc, "Script", "script", HTMLScriptElementImpl.class);
     defineElementClass(ws, doc, "IFrame", "iframe", HTMLIFrameElementImpl.class);
     defineElementClass(ws, doc, "Option", "option", HTMLOptionElementImpl.class);
     defineElementClass(ws, doc, "Select", "select", HTMLSelectElementImpl.class);
+
+    // TODO: Add all similar elements
+    defineElementClass(ws, doc, "HTMLDivElement", "div", HTMLDivElementImpl.class);
   }
 
   private static void defineInstantiator(
