@@ -23,6 +23,7 @@
  */
 package org.lobobrowser.html.domimpl;
 
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -107,7 +108,32 @@ public class HTMLScriptElementImpl extends HTMLElementImpl implements HTMLScript
     this.setAttribute("type", type);
   }
 
+  private static final String[] jsTypes = {
+      "application/ecmascript",
+      "application/javascript",
+      "application/x-ecmascript",
+      "application/x-javascript",
+      "text/ecmascript",
+      "text/javascript",
+      "text/javascript1.0",
+      "text/javascript1.1",
+      "text/javascript1.2",
+      "text/javascript1.3",
+      "text/javascript1.4",
+      "text/javascript1.5",
+      "text/jscript",
+      "text/livescript",
+      "text/x-ecmascript",
+      "text/x-javascript"
+  };
+
   protected final void processScript() {
+    final String scriptType = getType();
+    if (scriptType != null) {
+      if (Arrays.stream(jsTypes).noneMatch(e -> e.equals(scriptType))) {
+        return;
+      }
+    }
     final UserAgentContext bcontext = this.getUserAgentContext();
     if (bcontext == null) {
       throw new IllegalStateException("No user agent context.");
