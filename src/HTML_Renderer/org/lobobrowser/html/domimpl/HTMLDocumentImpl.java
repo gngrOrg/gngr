@@ -1556,4 +1556,8 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
     // TODO Auto-generated method stub
     return false;
   }
+
+  public Event createEvent(final String type ) {
+    return new Event(type, this);
+  }
 }

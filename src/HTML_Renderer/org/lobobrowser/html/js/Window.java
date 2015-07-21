@@ -68,6 +68,7 @@ import org.mozilla.javascript.ClassShutter;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Function;
+import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.w3c.dom.Document;
@@ -92,6 +93,9 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
 
   private static final JavaClassWrapper PATH2D_WRAPPER = JavaClassWrapperFactory.getInstance()
       .getClassWrapper(CanvasPath2D.class);
+
+  private static final JavaClassWrapper EVENT_WRAPPER = JavaClassWrapperFactory.getInstance()
+      .getClassWrapper(Event.class);
 
   // Timer ids should begin counting from 1 or more.
   // jQuery's ajax polling handler relies on a non-zero value (uses it as a boolean condition)
@@ -773,6 +777,15 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
     };
     defineInstantiator(ws, "Path2D", PATH2D_WRAPPER, pi);
 
+    final JavaInstantiator ei = new JavaInstantiator() {
+      public Object newInstance(final Object[] args) {
+        if (args.length > 0) {
+          return new Event(args[0].toString(), doc);
+        }
+        throw ScriptRuntime.constructError("TypeError", "An event name must be provided");
+      }
+    };
+    defineInstantiator(ws, "Event", EVENT_WRAPPER, ei);
 
     // ScriptableObject.defineClass(ws, org.mozilla.javascript.ast.Comment.class);
     defineElementClass(ws, doc, "Comment", "comment", CommentImpl.class);
