@@ -41,6 +41,10 @@ public class HtmlValues {
   private static final Logger logger = Logger.getLogger(HtmlValues.class.getName());
   public static final float DEFAULT_FONT_SIZE = 16.0f;
   public static final int DEFAULT_FONT_SIZE_INT = (int) DEFAULT_FONT_SIZE;
+
+  // TODO: Make the minimum font size configurable
+  public static final int MINIMUM_FONT_SIZE_PIXELS = 14;
+
   public static final Float DEFAULT_FONT_SIZE_BOX = new Float(DEFAULT_FONT_SIZE);
   public static final int DEFAULT_BORDER_WIDTH = 2;
 
@@ -403,6 +407,10 @@ public class HtmlValues {
   }
 
   public static final float getFontSize(final String spec, final RenderState parentRenderState) {
+    return Math.max(MINIMUM_FONT_SIZE_PIXELS, getFontSizeImpl(spec, parentRenderState));
+  }
+
+  private static final float getFontSizeImpl(final String spec, final RenderState parentRenderState) {
     final String specTL = spec.toLowerCase();
     if (specTL.endsWith("em")) {
       if (parentRenderState == null) {
