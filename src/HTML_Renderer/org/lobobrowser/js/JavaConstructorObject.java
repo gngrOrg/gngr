@@ -21,9 +21,12 @@
 package org.lobobrowser.js;
 
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.EcmaError;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.WrappedException;
+import org.w3c.dom.DOMException;
 
 public class JavaConstructorObject extends ScriptableObject implements Function {
   private final JavaClassWrapper classWrapper;
@@ -57,6 +60,10 @@ public class JavaConstructorObject extends ScriptableObject implements Function 
       final Scriptable newObject = new JavaObjectWrapper(this.classWrapper, javaObject);
       newObject.setParentScope(scope);
       return newObject;
+    } catch (final DOMException err) {
+      throw new WrappedException(err);
+    } catch (final EcmaError err) {
+      throw err;
     } catch (final Exception err) {
       throw new IllegalStateException(err.getMessage());
     }
