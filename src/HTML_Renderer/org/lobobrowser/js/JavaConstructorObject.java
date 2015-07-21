@@ -53,7 +53,7 @@ public class JavaConstructorObject extends ScriptableObject implements Function 
 
   public Scriptable construct(final Context cx, final Scriptable scope, final Object[] args) {
     try {
-      final Object javaObject = this.instantiator.newInstance();
+      final Object javaObject = this.instantiator.newInstance(args);
       final Scriptable newObject = new JavaObjectWrapper(this.classWrapper, javaObject);
       newObject.setParentScope(scope);
       return newObject;
@@ -80,7 +80,7 @@ public class JavaConstructorObject extends ScriptableObject implements Function 
       this.classWrapper = classWrapper;
     }
 
-    public Object newInstance() throws InstantiationException, IllegalAccessException {
+    public Object newInstance(final Object[] args) throws InstantiationException, IllegalAccessException {
       return this.classWrapper.newInstance();
     }
   }

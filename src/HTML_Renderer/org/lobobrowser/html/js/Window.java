@@ -750,7 +750,7 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
     // Special Javascript class: XMLHttpRequest
     final Scriptable ws = this.getWindowScope();
     final JavaInstantiator xi = new JavaInstantiator() {
-      public Object newInstance() {
+      public Object newInstance(final Object[] args) {
         final Document d = doc;
         if (d == null) {
           throw new IllegalStateException("Cannot perform operation when document is unset.");
@@ -767,7 +767,7 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
     defineInstantiator(ws, "XMLHttpRequest", XMLHTTPREQUEST_WRAPPER, xi);
 
     final JavaInstantiator pi = new JavaInstantiator() {
-      public Object newInstance() {
+      public Object newInstance(final Object[] args) {
         return new CanvasPath2D();
       }
     };
@@ -835,7 +835,7 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
       final String elementName,
       final Class<?> javaClass) {
     final JavaInstantiator ji = new JavaInstantiator() {
-      public Object newInstance() {
+      public Object newInstance(final Object[] args) {
         final Document d = document;
         if (d == null) {
           throw new IllegalStateException("Document not set in current context.");
