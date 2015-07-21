@@ -30,6 +30,7 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
 
 public class JavaScript {
+  // TODO: Should the instance be specific to thread? GH #122
   private static JavaScript instance = new JavaScript();
   // objectMap must be a map that uses weak keys
   // and refers to values using weak references.
@@ -87,6 +88,9 @@ public class JavaScript {
       synchronized (this.javaObjectToWrapper) {
         // WeakHashMaps will retain keys if the value refers to the key.
         // That's why we need to refer to the value weakly too.
+        // TODO: The above comment should probably be moved to the context of the code further below
+        //       where the value is being inserted into the map.
+        //       This part of the code is simply querying an existing value.
         final WeakReference<?> valueRef = this.javaObjectToWrapper.get(raw);
         JavaObjectWrapper jow = null;
         if (valueRef != null) {
