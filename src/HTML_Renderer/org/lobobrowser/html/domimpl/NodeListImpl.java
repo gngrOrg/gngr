@@ -56,6 +56,7 @@ public class NodeListImpl extends AbstractScriptableDelegate implements NodeList
     }
   }
 
+  // TODO: This needs to be handled in a general fashion. GH #123
   public boolean hasOwnProperty(final Object obj) {
     if (Objects.isAssignableOrBox(obj, Integer.TYPE)) {
       final Integer i = (Integer) JavaScript.getInstance().getJavaObject(obj, Integer.TYPE);

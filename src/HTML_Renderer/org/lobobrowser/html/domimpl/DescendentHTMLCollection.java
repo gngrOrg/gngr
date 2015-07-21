@@ -31,7 +31,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.lobobrowser.js.AbstractScriptableDelegate;
+import org.lobobrowser.js.JavaScript;
 import org.lobobrowser.util.Nodes;
+import org.lobobrowser.util.Objects;
 import org.w3c.dom.Node;
 import org.w3c.dom.html.HTMLCollection;
 
@@ -113,6 +115,25 @@ public class DescendentHTMLCollection extends AbstractScriptableDelegate impleme
       } catch (final java.lang.IndexOutOfBoundsException iob) {
         return null;
       }
+    }
+  }
+
+  // TODO: This is a quick hack. Need to support WEB-IDL Semantics. GH #67
+  public Node item(final Object obj) {
+    if (obj instanceof Integer) {
+      final Integer index = (Integer) obj;
+      return item((int) index);
+    }
+    return item(0);
+  }
+
+  // TODO: This needs to be handled in a general fashion. GH #123
+  public boolean hasOwnProperty(final Object obj) {
+    if (Objects.isAssignableOrBox(obj, Integer.TYPE)) {
+      final Integer i = (Integer) JavaScript.getInstance().getJavaObject(obj, Integer.TYPE);
+      return i < getLength();
+    } else {
+      return false;
     }
   }
 
