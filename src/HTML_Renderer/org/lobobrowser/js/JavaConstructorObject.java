@@ -51,7 +51,9 @@ public class JavaConstructorObject extends ScriptableObject implements Function 
   }
 
   public Object call(final Context cx, final Scriptable scope, final Scriptable thisObj, final Object[] args) {
-    throw new UnsupportedOperationException();
+    // TODO: Implement this, or atleast remove the wrapped exception.
+    //       The exception is being wrapped so that web-platform-tests don't timeout; timeouts are slowing down testing.
+    throw new WrappedException(new UnsupportedOperationException());
   }
 
   public Scriptable construct(final Context cx, final Scriptable scope, final Object[] args) {
