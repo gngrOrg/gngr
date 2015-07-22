@@ -1420,10 +1420,11 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
 
   private volatile Runnable jobFinishedHandler = null;
 
-  // TODO: ensure not accessible from JS
+  @HideFromJS
   public void setJobFinishedHandler(final Runnable handler) {
     jobFinishedHandler = handler;
   }
+
   @PropertyName("Element")
   public Class<Element> getElement() {
     return Element.class;
