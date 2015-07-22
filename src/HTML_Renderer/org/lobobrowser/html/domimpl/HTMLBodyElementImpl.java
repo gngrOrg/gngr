@@ -122,6 +122,7 @@ public class HTMLBodyElementImpl extends HTMLAbstractUIElement implements HTMLBo
     }
   }
 
+  /*
   @Override
   protected void assignAttributeField(final String normalName, final String value) {
     if ("onload".equals(normalName)) {
@@ -132,6 +133,16 @@ public class HTMLBodyElementImpl extends HTMLAbstractUIElement implements HTMLBo
     } else {
       super.assignAttributeField(normalName, value);
     }
-  }
+  }*/
 
+  @Override
+  protected void handleAttributeChanged(String name, String oldValue, String newValue) {
+    super.handleAttributeChanged(name, oldValue, newValue);
+    if ("onload".equals(name)) {
+      final Function onload = this.getEventFunction(null, name);
+      if (onload != null) {
+        this.setOnload(onload);
+      }
+    }
+  }
 }

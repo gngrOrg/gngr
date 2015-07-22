@@ -239,6 +239,7 @@ public class ElementImpl extends NodeImpl implements Element {
     throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Namespaces not supported");
   }
 
+  /*
   protected void assignAttributeField(final String normalName, final String value) {
     // Note: overriders assume that processing here is only done after
     // checking attribute names, i.e. they may not call the super
@@ -256,7 +257,7 @@ public class ElementImpl extends NodeImpl implements Element {
         document.setNamedItem(value, this);
       }
     }
-  }
+  }*/
 
   protected final static String normalizeAttributeName(final String name) {
     return name.toLowerCase();
@@ -471,6 +472,15 @@ public class ElementImpl extends NodeImpl implements Element {
    *          null, if the attribute is now removed
    */
   protected void handleAttributeChanged(final String name, final String oldValue, final String newValue) {
+    // TODO: Need to move this to a separate function, similar to updateIdMap()
+    // TODO: Need to update the name map, whenever attachment changes
+      final HTMLDocumentImpl document = (HTMLDocumentImpl) this.document;
+      if ("name".equals(name)) {
+        if (oldValue != null) {
+          document.removeNamedItem(oldValue);
+        }
+        document.setNamedItem(newValue, this);
+      }
   }
 
   /**
@@ -484,10 +494,6 @@ public class ElementImpl extends NodeImpl implements Element {
 
     String oldValue = null;
     synchronized (this) {
-      // Need to call this before modifying the attribute map because
-      // the old value is accessed inside assignAttributeField().
-      this.assignAttributeField(normalName, newValue);
-
       if (newValue == null) {
         if (attributes != null) {
           oldValue = attributes.remove(normalName);

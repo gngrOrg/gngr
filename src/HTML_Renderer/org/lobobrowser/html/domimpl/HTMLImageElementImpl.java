@@ -183,10 +183,9 @@ public class HTMLImageElementImpl extends HTMLAbstractUIElement implements HTMLI
   }
 
   @Override
-  protected void assignAttributeField(final String normalName, final String value) {
-    super.assignAttributeField(normalName, value);
-
-    if ("src".equals(normalName)) {
+  protected void handleAttributeChanged(final String name, final String oldValue, final String newValue) {
+    super.handleAttributeChanged(name, oldValue, newValue);
+    if ("src".equals(name)) {
       ((HTMLDocumentImpl) document).addJob(() -> loadImage(getSrc()));
     }
   }

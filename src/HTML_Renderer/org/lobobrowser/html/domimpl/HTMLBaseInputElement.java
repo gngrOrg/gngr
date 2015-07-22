@@ -279,6 +279,7 @@ public abstract class HTMLBaseInputElement extends HTMLAbstractUIElement {
    * org.xamjwg.html.domimpl.HTMLElementImpl#assignAttributeField(java.lang.
    * String, java.lang.String)
    */
+  /*
   @Override
   protected void assignAttributeField(final String normalName, final String value) {
     if ("value".equals(normalName)) {
@@ -294,6 +295,23 @@ public abstract class HTMLBaseInputElement extends HTMLAbstractUIElement {
       this.loadImage(value);
     } else {
       super.assignAttributeField(normalName, value);
+    }
+  }*/
+
+  @Override
+  protected void handleAttributeChanged(String name, String oldValue, String newValue) {
+    super.handleAttributeChanged(name, oldValue, newValue);
+    if ("value".equals(name)) {
+      this.setValue(newValue);
+    } else if ("checked".equals(name)) {
+      this.setChecked(newValue != null);
+    } else if ("disabled".equals(name)) {
+      this.setDisabled(newValue != null);
+    } else if ("readonly".equals(name)) {
+      this.setReadOnly(newValue != null);
+    } else if ("src".equals(name)) {
+      // TODO: Should check whether "type" == "image"
+      this.loadImage(newValue);
     }
   }
 

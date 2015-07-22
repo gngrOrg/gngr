@@ -158,22 +158,9 @@ public class HTMLIFrameElementImpl extends HTMLAbstractUIElement implements HTML
   }
 
   @Override
-  protected void assignAttributeField(final String normalName, final String value) {
-    super.assignAttributeField(normalName, value);
-
-    /*
-    System.out.println("Iframe attribute " + normalName + " assigned to: " + value);
-    if ("src".equals(normalName)) {
-      System.out.println("Src: " + getSrc());
-      createJob();
-    }
-    */
-  }
-  @Override
   protected void handleAttributeChanged(String name, String oldValue, String newValue) {
-    System.out.println("Attributed changed: " + name + " to: " + newValue);
+    super.handleAttributeChanged(name, oldValue, newValue);
     if ("src".equals(name)) {
-      System.out.println("Src: " + getSrc());
       createJob();
     }
   }

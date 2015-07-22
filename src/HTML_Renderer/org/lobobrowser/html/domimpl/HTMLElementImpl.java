@@ -99,12 +99,13 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
       this.computedStyles = null;
        */
     }
+
   }
 
   protected final void forgetStyle(final boolean deep) {
     // TODO: OPTIMIZATION: If we had a ComputedStyle map in
     // window (Mozilla model) the map could be cleared in one shot.
-    synchronized (this) {
+    synchronized (treeLock) {
       //TODO to be reconsidered in issue #41
       /*
       this.currentStyleDeclarationState = null;
@@ -161,40 +162,44 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
   private volatile OrderedRule[] cachedRules = null;
 
   private NodeData getNodeData(final Selector.PseudoDeclaration psuedoElement) {
-    synchronized (this) {
-      if (cachedNodeData != null) {
-        return cachedNodeData;
-      }
-
-      if (cachedRules == null) {
-        final HTMLDocumentImpl doc = (HTMLDocumentImpl) this.document;
-        final List<StyleSheet> jSheets = new ArrayList<>();
-        jSheets.add(recommendedStyle);
-        jSheets.add(userAgentStyle);
-        jSheets.addAll(doc.styleSheetManager.getEnabledJStyleSheets());
-
-        final StyleSheet attributeStyle = StyleElements.convertAttributesToStyles(this);
-        if (attributeStyle != null) {
-          jSheets.add(attributeStyle);
+    // The analyzer needs the tree lock, when traversing the DOM.
+    // To break deadlocks, we take the tree lock before taking the element lock (priority based dead-lock break).
+    synchronized (this.treeLock) {
+      synchronized (this) {
+        if (cachedNodeData != null) {
+          return cachedNodeData;
         }
 
-        final StyleSheet inlineStyle = this.getInlineJStyle();
-        if (inlineStyle != null) {
-          jSheets.add(inlineStyle);
+        if (cachedRules == null) {
+          final HTMLDocumentImpl doc = (HTMLDocumentImpl) this.document;
+          final List<StyleSheet> jSheets = new ArrayList<>();
+          jSheets.add(recommendedStyle);
+          jSheets.add(userAgentStyle);
+          jSheets.addAll(doc.styleSheetManager.getEnabledJStyleSheets());
+
+          final StyleSheet attributeStyle = StyleElements.convertAttributesToStyles(this);
+          if (attributeStyle != null) {
+            jSheets.add(attributeStyle);
+          }
+
+          final StyleSheet inlineStyle = this.getInlineJStyle();
+          if (inlineStyle != null) {
+            jSheets.add(inlineStyle);
+          }
+
+          cachedRules = AnalyzerUtil.getApplicableRules(jSheets, this, new MediaSpec("screen"));
         }
 
-        cachedRules = AnalyzerUtil.getApplicableRules(jSheets, this, new MediaSpec("screen"));
+        final NodeData nodeData = AnalyzerUtil.getElementStyle(this, psuedoElement, elementMatchCondition, cachedRules);
+        final Node parent = this.parentNode;
+        if ((parent != null) && (parent instanceof HTMLElementImpl)) {
+          final HTMLElementImpl parentElement = (HTMLElementImpl) parent;
+          nodeData.inheritFrom(parentElement.getNodeData(psuedoElement));
+          nodeData.concretize();
+        }
+        cachedNodeData = nodeData;
+        return nodeData;
       }
-
-      final NodeData nodeData = AnalyzerUtil.getElementStyle(this, psuedoElement, elementMatchCondition, cachedRules);
-      final Node parent = this.parentNode;
-      if ((parent != null) && (parent instanceof HTMLElementImpl)) {
-        final HTMLElementImpl parentElement = (HTMLElementImpl) parent;
-        nodeData.inheritFrom(parentElement.getNodeData(psuedoElement));
-        nodeData.concretize();
-      }
-      cachedNodeData = nodeData;
-      return nodeData;
     }
   }
 
@@ -295,6 +300,7 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
     return this.getAttribute(name) != null;
   }
 
+  /*
   @Override
   protected void assignAttributeField(final String normalName, final String value) {
     if (!this.notificationsSuspended) {
@@ -305,6 +311,13 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
       }
     }
     super.assignAttributeField(normalName, value);
+  }*/
+
+  @Override
+  protected void handleAttributeChanged(String name, String oldValue, String newValue) {
+    super.handleAttributeChanged(name, oldValue, newValue);
+    forgetStyle(true);
+    this.informInvalidRecursive();
   }
 
   protected final static InputSource getCssInputSourceForDecl(final String text) {
@@ -485,6 +498,7 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
   }
 
   // TODO: Use the handleAttributeChanged() system and remove informInvalidAttribute
+  /*
   private void informInvalidAttibute(final String normalName) {
     if (isAttachedToDocument()) {
       // This is called when an attribute changes while
@@ -496,7 +510,7 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
       forgetStyle(true);
       informInvalidRecursive();
     }
-  }
+  }*/
 
   private void informInvalidRecursive() {
     super.informInvalid();

@@ -206,13 +206,13 @@ public class HTMLAbstractUIElement extends HTMLElementImpl {
   }
 
   @Override
-  protected void assignAttributeField(final String normalName, final String value) {
-    super.assignAttributeField(normalName, value);
-    if (normalName.startsWith("on")) {
+  protected void handleAttributeChanged(String name, String oldValue, String newValue) {
+    super.handleAttributeChanged(name, oldValue, newValue);
+    if (name.startsWith("on")) {
       synchronized (this) {
         final Map<String, Function> fba = this.functionByAttribute;
         if (fba != null) {
-          fba.remove(normalName);
+          fba.remove(name);
         }
       }
     }
