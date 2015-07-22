@@ -430,7 +430,11 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
       rootElement = (HTMLElementImpl) doc.getBody();
     } else {
       isRootBlock = false;
-      rootElement = (HTMLElementImpl) rootNode;
+      if (rootNode instanceof HTMLElementImpl) {
+        rootElement = (HTMLElementImpl) rootNode;
+      } else {
+        rootElement = null;
+      }
     }
     if (rootElement == null) {
       this.clearStyle(isRootBlock);
@@ -548,7 +552,11 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
       // Need to get BODY tag, for bgcolor, etc.
       rootElement = (HTMLElementImpl) doc.getBody();
     } else {
-      rootElement = (HTMLElementImpl) rootNode;
+      if (rootNode instanceof HTMLElementImpl) {
+        rootElement = (HTMLElementImpl) rootNode;
+      } else {
+        rootElement = null;
+      }
     }
     if (rootElement == null) {
       return null;

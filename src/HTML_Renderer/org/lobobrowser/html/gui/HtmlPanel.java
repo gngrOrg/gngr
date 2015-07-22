@@ -364,15 +364,25 @@ public class HtmlPanel extends JComponent implements FrameContext {
 
   private void setDocumentImpl(final Document node, final HtmlRendererContext rcontext) {
     // Expected to be called in the GUI thread.
+    /*
     if (!(node instanceof HTMLDocumentImpl)) {
       throw new IllegalArgumentException("Only nodes of type HTMLDocumentImpl are currently supported. Use DocumentBuilderImpl.");
     }
+    */
+
+    if (this.rootNode instanceof HTMLDocumentImpl) {
     final HTMLDocumentImpl prevDocument = (HTMLDocumentImpl) this.rootNode;
     if (prevDocument != null) {
       prevDocument.removeDocumentNotificationListener(this.notificationListener);
     }
+    }
+    if (node instanceof HTMLDocumentImpl) {
     final HTMLDocumentImpl nodeImpl = (HTMLDocumentImpl) node;
     nodeImpl.addDocumentNotificationListener(this.notificationListener);
+    }
+
+    if (node instanceof NodeImpl) {
+    final NodeImpl nodeImpl = (NodeImpl) node;
     this.rootNode = nodeImpl;
     final NodeImpl fsrn = this.getFrameSetRootNode(nodeImpl);
     final boolean newIfs = fsrn != null;
@@ -397,6 +407,7 @@ public class HtmlPanel extends JComponent implements FrameContext {
       this.invalidate();
       this.validate();
       this.repaint();
+    }
     }
   }
 

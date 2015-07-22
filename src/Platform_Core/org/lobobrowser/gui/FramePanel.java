@@ -475,10 +475,12 @@ public class FramePanel extends JPanel implements NavigatorFrame {
     return content == null ? false : content.copy();
   }
 
+  /*
   public final void replaceContent(final Component component) {
     // TODO: Security?
     this.replaceContent(null, new SimpleComponentContent(component));
   }
+  */
 
   /**
    * Replaces the content of the frame. This method can be safely called outside

@@ -36,6 +36,10 @@ import org.lobobrowser.clientlet.ClientletContext;
 import org.lobobrowser.clientlet.ClientletException;
 import org.lobobrowser.clientlet.ClientletResponse;
 import org.lobobrowser.clientlet.ComponentContent;
+import org.lobobrowser.html.HtmlRendererContext;
+import org.lobobrowser.html.js.Window;
+import org.lobobrowser.primary.clientlets.SimpleDocument;
+import org.lobobrowser.primary.clientlets.html.HtmlRendererContextImpl;
 import org.lobobrowser.util.io.IORoutines;
 
 public final class ImageClientlet implements Clientlet {
@@ -64,26 +68,34 @@ public final class ImageClientlet implements Clientlet {
       logger.info("process(): Loaded " + imageBytes.length + " bytes.");
     }
     final Image image = Toolkit.getDefaultToolkit().createImage(imageBytes);
-    context.setResultingContent(new ImageContent(image, mimeType));
+
+    final HtmlRendererContextImpl rcontext = HtmlRendererContextImpl.getHtmlRendererContext(context.getNavigatorFrame());
+    // final HTMLDocumentImpl document = new HTMLDocumentImpl(rcontext.getUserAgentContext(), context.getRequest().getRequestURL().toString());
+    rcontext.getHtmlPanel().setDocument(new SimpleDocument(mimeType), rcontext);
+    context.setResultingContent(new ImageContent(image, mimeType, rcontext));
+    // Window.getWindow(rcontext).setDocument(new ImageDocument(mimeType));
   }
 
   private static final class ImageContent implements ComponentContent {
     private final Image image;
     private final String mimeType;
     private final JScrollPane scrollPane;
+    private HtmlRendererContext context;
 
-    public ImageContent(final Image image, final String mimeType) {
+    public ImageContent(final Image image, final String mimeType, final HtmlRendererContext context) {
       final ImageScrollable is = new ImageScrollable(image);
       final JScrollPane sp = new JScrollPane(is);
       this.scrollPane = sp;
       this.image = image;
       this.mimeType = mimeType;
+      this.context = context;
     }
 
     public void addNotify() {
     }
 
     public void navigatedNotify() {
+      Window.getWindow(context).jobsFinished();
     }
 
     public boolean canCopy() {

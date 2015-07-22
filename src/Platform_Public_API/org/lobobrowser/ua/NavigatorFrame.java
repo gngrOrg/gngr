@@ -314,7 +314,9 @@ public interface NavigatorFrame {
    * @param component
    *          A AWT or Swing component.
    */
+  /*
   public void replaceContent(Component component);
+  */
 
   /**
    * Gets source code for content currently showing, if any.

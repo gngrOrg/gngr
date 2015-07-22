@@ -32,6 +32,9 @@ import javax.swing.JTextArea;
 import org.lobobrowser.clientlet.Clientlet;
 import org.lobobrowser.clientlet.ClientletContext;
 import org.lobobrowser.clientlet.ClientletException;
+import org.lobobrowser.clientlet.SimpleComponentContent;
+import org.lobobrowser.html.js.Window;
+import org.lobobrowser.primary.clientlets.html.HtmlRendererContextImpl;
 import org.lobobrowser.util.io.IORoutines;
 
 public final class TextClientlet implements Clientlet {
@@ -39,6 +42,7 @@ public final class TextClientlet implements Clientlet {
   }
 
   public void process(final ClientletContext context) throws ClientletException {
+    System.out.println("Processing text client");
     try {
       final InputStream in = context.getResponse().getInputStream();
       try {
@@ -46,7 +50,17 @@ public final class TextClientlet implements Clientlet {
         final JTextArea textArea = new JTextArea(text);
         textArea.setEditable(false);
         final JScrollPane pane = new JScrollPane(textArea);
-        context.setResultingContent(pane, context.getResponse().getResponseURL());
+        final HtmlRendererContextImpl rcontext = HtmlRendererContextImpl.getHtmlRendererContext(context.getNavigatorFrame());
+        rcontext.getHtmlPanel().setDocument(new SimpleDocument(context.getResponse().getMimeType()), rcontext);
+        // context.setResultingContent(pane, context.getResponse().getResponseURL());
+        context.setResultingContent(new SimpleComponentContent(pane) {
+          
+          @Override
+          public void navigatedNotify() {
+            System.out.println("Navigated");
+            Window.getWindow(rcontext).jobsFinished();
+          }
+        });
       } finally {
         in.close();
       }

@@ -24,7 +24,7 @@ package org.lobobrowser.clientlet;
 
 import java.awt.Component;
 
-public class SimpleComponentContent extends AbstractComponentContent {
+public abstract class SimpleComponentContent extends AbstractComponentContent {
   private final Component component;
   private final String title;
   private final String sourceCode;
@@ -65,4 +65,5 @@ public class SimpleComponentContent extends AbstractComponentContent {
   public String getTitle() {
     return this.title;
   }
+
 }

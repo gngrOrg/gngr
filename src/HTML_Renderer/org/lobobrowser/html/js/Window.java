@@ -26,6 +26,7 @@ package org.lobobrowser.html.js;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.ref.WeakReference;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.AccessControlContext;
 import java.security.AccessController;
@@ -53,6 +54,7 @@ import org.lobobrowser.html.domimpl.HTMLImageElementImpl;
 import org.lobobrowser.html.domimpl.HTMLOptionElementImpl;
 import org.lobobrowser.html.domimpl.HTMLScriptElementImpl;
 import org.lobobrowser.html.domimpl.HTMLSelectElementImpl;
+import org.lobobrowser.html.domimpl.NodeImpl;
 import org.lobobrowser.js.AbstractScriptableDelegate;
 import org.lobobrowser.js.HideFromJS;
 import org.lobobrowser.js.JavaClassWrapper;
@@ -109,7 +111,8 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
   private Screen screen;
   private Location location;
   private Map<Integer, TaskWrapper> taskMap;
-  private volatile HTMLDocumentImpl document;
+  private volatile Document document;
+  // private volatile HTMLDocumentImpl document;
 
   public Window(final HtmlRendererContext rcontext, final UserAgentContext uaContext) {
     // TODO: Probably need to create a new Window instance
@@ -136,7 +139,9 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
   private void clearState() {
     synchronized (this) {
       // windowClosing = true;
-      document.stopEverything();
+      if (document instanceof HTMLDocumentImpl) {
+        ((HTMLDocumentImpl) document).stopEverything();
+      }
       jsScheduler.stopAndWindUp();
       jsScheduler = new JSScheduler(this);
       eventTargetManager.reset();
@@ -165,7 +170,7 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
     }
   }
 
-  public void setDocument(final HTMLDocumentImpl document) {
+  public void setDocument(final Document document) {
     synchronized (this) {
 
       final Document prevDocument = this.document;
@@ -196,7 +201,7 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
   }
 
   public DocumentView getDocument() {
-    return this.document;
+    return (DocumentView) this.document;
   }
 
   public Document getDocumentNode() {
@@ -398,12 +403,28 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
     }
   }
 
+  private URL getCurrURL() {
+    try {
+      return new URL(rcontext.getCurrentURL());
+    } catch (MalformedURLException e) {
+      return null;
+    }
+  }
+
   private volatile JSScheduler jsScheduler = new JSScheduler(this);
 
   @HideFromJS
   public void addJSTask(final JSTask task) {
-    final URL url = document.getDocumentURL();
-    if (uaContext.isRequestPermitted(new Request(url, RequestKind.JavaScript))) {
+      /*
+      final URL urlContext = new URL(rcontext.getCurrentURL());
+      if (document != null) {
+        final URL urlDoc = document.getDocumentURL();
+        if (!urlDoc.equals(urlContext)) {
+          throw new RuntimeException(String.format("doc url(%s) is different from context url (%s)", urlDoc, urlContext));
+        }
+      }*/
+    final URL urlContext = getCurrURL();
+    if (uaContext.isRequestPermitted(new Request(urlContext, RequestKind.JavaScript))) {
       // System.out.println("Adding task: " + task);
       synchronized (this) {
         jsScheduler.addJSTask(task);
@@ -638,7 +659,7 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
       public void run() {
         try {
           final String scriptURI = "window.eval";
-          final Context ctx = Executor.createContext(document.getDocumentURL(), Window.this.uaContext, windowContextFactory);
+          final Context ctx = Executor.createContext(getCurrURL(), Window.this.uaContext, windowContextFactory);
           ctx.evaluateString(getWindowScope(), javascript, scriptURI, 1, null);
         } finally {
           Context.exit();
@@ -894,8 +915,14 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
           throw new IllegalArgumentException("Malformed URI: " + relativeUrl);
         }
       }
-      final HtmlRendererContext newContext = rc.open(url, windowName, windowFeatures, replace);
-      return getWindow(newContext);
+      if (replace) {
+        this.document = null;
+        rc.navigate(url, null);
+        return this;
+      } else {
+        final HtmlRendererContext newContext = rc.open(url, windowName, windowFeatures, replace);
+        return getWindow(newContext);
+      }
     } else {
       return null;
     }
@@ -1222,7 +1249,7 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
 
   public org.w3c.dom.Node namedItem(final String name) {
     // Bug 1928758: Element IDs are named objects in context.
-    final HTMLDocumentImpl doc = this.document;
+    final Document doc = this.document;
     if (doc == null) {
       return null;
     }
@@ -1275,8 +1302,8 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
         if (this.removeTask) {
           window.forgetTask(this.timeIDInt, false);
         }
-        final HTMLDocumentImpl doc = (HTMLDocumentImpl) window.getDocument();
-        if (doc == null) {
+        // final HTMLDocumentImpl doc = (HTMLDocumentImpl) window.getDocument();
+        if (window.getDocument() == null) {
           throw new IllegalStateException("Cannot perform operation when document is unset.");
         }
         final Function function = this.functionRef.get();
@@ -1284,7 +1311,7 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
           throw new IllegalStateException("Cannot perform operation. Function is no longer available.");
         }
         window.addJSTaskUnchecked(new JSRunnableTask(0, "timer task for id: " + timeIDInt + ", oneshot: " + removeTask, () -> {
-          Executor.executeFunction(window.getWindowScope(), function, doc.getDocumentURL(), window.getUserAgentContext(),
+          Executor.executeFunction(window.getWindowScope(), function, window.getCurrURL(), window.getUserAgentContext(),
               window.windowContextFactory);
         }));
         // Executor.executeFunction(window.getWindowScope(), function, doc.getDocumentURL(), window.getUserAgentContext(), window.windowFactory);
@@ -1322,8 +1349,8 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
         if (this.removeTask) {
           window.forgetTask(this.timeIDInt, false);
         }
-        final HTMLDocumentImpl doc = (HTMLDocumentImpl) window.getDocument();
-        if (doc == null) {
+        // final HTMLDocumentImpl doc = (HTMLDocumentImpl) window.getDocument();
+        if (window.getDocument() == null) {
           throw new IllegalStateException("Cannot perform operation when document is unset.");
         }
         window.addJSTaskUnchecked(new JSRunnableTask(0, "timer task for id: " + timeIDInt, () -> {
@@ -1369,27 +1396,27 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
       document.addEventListener(type, listener);
     }*/
     System.out.println("window Added listener for: " + type);
-    eventTargetManager.addEventListener(document, type, listener);
+    eventTargetManager.addEventListener((NodeImpl) document, type, listener);
   }
 
   public void removeEventListener(final String type, final Function listener, final boolean useCapture) {
     // TODO: Should this delegate completely to document
     if ("load".equals(type)) {
-      document.removeLoadHandler(listener);
+      ((HTMLDocumentImpl) document).removeLoadHandler(listener);
     }
-    eventTargetManager.removeEventListener(document, type, listener, useCapture);
+    eventTargetManager.removeEventListener((NodeImpl) document, type, listener, useCapture);
   }
 
   public boolean dispatchEvent(final Event evt) throws EventException {
     // TODO
     System.out.println("TODO: window dispatch event");
-    eventTargetManager.dispatchEvent(document, evt);
+    eventTargetManager.dispatchEvent((NodeImpl) document, evt);
     return false;
   }
 
   // TODO: Hide from JS
   public void domContentLoaded(final Event domContentLoadedEvent) {
-    eventTargetManager.dispatchEvent(document, domContentLoadedEvent);
+    eventTargetManager.dispatchEvent((NodeImpl) document, domContentLoadedEvent);
   }
 
   private Function onWindowLoadHandler;
@@ -1401,13 +1428,13 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
   // private AtomicBoolean jobsOver = new AtomicBoolean(false);
   public void jobsFinished() {
     final Event windowLoadEvent = new Event("load", document);
-    eventTargetManager.dispatchEvent(document, windowLoadEvent);
+    eventTargetManager.dispatchEvent((NodeImpl) document, windowLoadEvent);
 
     final Function handler = this.onWindowLoadHandler;
     if (handler != null) {
       addJSTask(new JSRunnableTask(0, new Runnable() {
         public void run() {
-          Executor.executeFunction(document, handler, windowLoadEvent, windowContextFactory);
+          Executor.executeFunction((NodeImpl) document, handler, windowLoadEvent, windowContextFactory);
         }
       }));
       // Executor.executeFunction(document, handler, windowLoadEvent);
@@ -1447,7 +1474,7 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
     }
     // TODO Auto-generated method stub
     // throw new UnsupportedOperationException();
-    eventTargetManager.addEventListener(document, type, listener, useCapture);
+    eventTargetManager.addEventListener((NodeImpl) document, type, listener, useCapture);
   }
 
   public void removeEventListener(final String type, final EventListener listener, final boolean useCapture) {

@@ -3,6 +3,7 @@ package org.lobobrowser.html.domimpl;
 import java.net.URL;
 
 import org.lobobrowser.html.BrowserFrame;
+import org.lobobrowser.html.js.Event;
 import org.lobobrowser.html.js.Executor;
 import org.lobobrowser.html.js.Window;
 import org.lobobrowser.html.js.Window.JSRunnableTask;
@@ -48,6 +49,8 @@ public class HTMLIFrameElementImpl extends HTMLAbstractUIElement implements HTML
     synchronized (this) {
       ((HTMLDocumentImpl) document).markJobsFinished(1);
       jobCreated = false;
+
+      dispatchEvent(new Event("load", this));
     }
   }
 
@@ -158,7 +161,19 @@ public class HTMLIFrameElementImpl extends HTMLAbstractUIElement implements HTML
   protected void assignAttributeField(final String normalName, final String value) {
     super.assignAttributeField(normalName, value);
 
+    /*
+    System.out.println("Iframe attribute " + normalName + " assigned to: " + value);
     if ("src".equals(normalName)) {
+      System.out.println("Src: " + getSrc());
+      createJob();
+    }
+    */
+  }
+  @Override
+  protected void handleAttributeChanged(String name, String oldValue, String newValue) {
+    System.out.println("Attributed changed: " + name + " to: " + newValue);
+    if ("src".equals(name)) {
+      System.out.println("Src: " + getSrc());
       createJob();
     }
   }
@@ -192,7 +207,9 @@ public class HTMLIFrameElementImpl extends HTMLAbstractUIElement implements HTML
               markJobDone();
             }
           });
-          frame.loadURL(fullURL);
+          System.out.println("Loading url into frame: " + frame);
+          // frame.loadURL(fullURL);
+          getContentWindow().open(fullURL.toExternalForm(), "iframe", "", true);
         }
       } catch (final java.net.MalformedURLException mfu) {
         this.warn("loadURLIntoFrame(): Unable to navigate to src.", mfu);

@@ -131,10 +131,13 @@ public class ClientletContextImpl implements ClientletContext {
     this.frame.navigate(newURL);
   }
 
+  /*
   public final void setResultingContent(final Component content, final URL url) {
     // Must call other overload, which may be overridden.
+
     this.setResultingContent(new SimpleComponentContent(content, url.toExternalForm(), null));
   }
+  */
 
   public void setResultingContent(final ComponentContent content) {
     this.resultingContent = content;

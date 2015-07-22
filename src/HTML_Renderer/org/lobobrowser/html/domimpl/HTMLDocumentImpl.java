@@ -146,7 +146,10 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
         // no permission to connect to the host of the URL.
         // This is so that cookies cannot be written arbitrarily
         // with setCookie() method.
+        final String protocol = docURL.getProtocol();
+        if ("http".equalsIgnoreCase(protocol) || "https".equalsIgnoreCase(protocol)) {
         sm.checkPermission(new java.net.SocketPermission(docURL.getHost(), "connect"));
+        }
       }
       this.documentURL = docURL;
       this.domain = docURL.getHost();
@@ -1425,7 +1428,8 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
 
     // This is to trigger a check in the no external resource case.
     // On second thoughts, this may not be required. The window load event need only be fired if there is a script
-    // markJobsFinished(0);
+    // On third thoughs, this also affects frame that embed iframes
+    markJobsFinished(0);
 
     /* Nodes.forEachNode(document, node -> {
       if (node instanceof NodeImpl) {
