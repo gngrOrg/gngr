@@ -51,9 +51,10 @@ public class DataURLConnection extends URLConnection {
       mediatype = path.substring(0, index2).trim();
     }
     boolean base64 = false;
-    final String[] split = mediatype.split("[;]");
-    // TODO: In some cases the next line throws ArrayOutOfBoundsException. Need to investigate.
-    if (split[0].equals("")) {
+    String[] split = mediatype.split("[;]");
+    if (split.length == 0) {
+      split = new String[] {"text/plain"};
+    } else if (split[0].equals("")) {
       split[0] = "text/plain";
     }
 
