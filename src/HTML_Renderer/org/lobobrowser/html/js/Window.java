@@ -861,6 +861,7 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
     ScriptableObject.defineProperty(scope, jsClassName, constructorFunction, ScriptableObject.READONLY);
   }
 
+  @HideFromJS
   public static Window getWindow(final HtmlRendererContext rcontext) {
     if (rcontext == null) {
       return null;
