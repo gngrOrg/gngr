@@ -54,7 +54,7 @@ public class PrimaryClientletSelector implements ClientletSelector {
       // TODO: XHTML needs its own clientlet.
       return new HtmlClientlet();
     } else if ("image/jpeg".equals(mimeTypeTL) || "image/jpg".equals(mimeTypeTL) || "image/gif".equals(mimeTypeTL)
-        || "image/png".equals(mimeTypeTL)) {
+        || "image/png".equals(mimeTypeTL) || "image/bmp".equals(mimeTypeTL) || "image/x-ms-bmp".equals(mimeTypeTL)) {
       return new ImageClientlet();
     } else if ((mimeType == null) || "application/octet-stream".equals(mimeTypeTL) || "content/unknown".equals(mimeTypeTL)) {
 
