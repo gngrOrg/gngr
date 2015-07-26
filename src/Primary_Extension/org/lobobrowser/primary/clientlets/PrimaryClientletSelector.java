@@ -50,7 +50,7 @@ public class PrimaryClientletSelector implements ClientletSelector {
       logger.info("select(): mimeType=" + mimeType);
     }
     final String mimeTypeTL = mimeType == null ? null : mimeType.toLowerCase();
-    if ("text/html".equals(mimeTypeTL)) {
+    if ("text/html".equals(mimeTypeTL) || "image/svg+xml".equals(mimeTypeTL) || "application/xhtml+xml".equals(mimeTypeTL)) {
       // TODO: XHTML needs its own clientlet.
       return new HtmlClientlet();
     } else if ("image/jpeg".equals(mimeTypeTL) || "image/jpg".equals(mimeTypeTL) || "image/gif".equals(mimeTypeTL)
