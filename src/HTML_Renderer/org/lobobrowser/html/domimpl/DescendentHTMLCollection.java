@@ -132,6 +132,14 @@ public class DescendentHTMLCollection extends AbstractScriptableDelegate impleme
     if (Objects.isAssignableOrBox(obj, Integer.TYPE)) {
       final Integer i = (Integer) JavaScript.getInstance().getJavaObject(obj, Integer.TYPE);
       return i < getLength();
+    } else if (Objects.isAssignableOrBox(obj, String.class)) {
+      // This seems to be related to GH #67
+      final String s = (String) JavaScript.getInstance().getJavaObject(obj, String.class);
+      try {
+        return Integer.parseInt(s) < getLength();
+      } catch (NumberFormatException nfe){
+        return false;
+      }
     } else {
       return false;
     }
