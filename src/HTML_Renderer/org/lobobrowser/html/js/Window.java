@@ -55,6 +55,7 @@ import org.lobobrowser.html.domimpl.HTMLOptionElementImpl;
 import org.lobobrowser.html.domimpl.HTMLScriptElementImpl;
 import org.lobobrowser.html.domimpl.HTMLSelectElementImpl;
 import org.lobobrowser.html.domimpl.NodeImpl;
+import org.lobobrowser.html.domimpl.TextImpl;
 import org.lobobrowser.js.AbstractScriptableDelegate;
 import org.lobobrowser.js.HideFromJS;
 import org.lobobrowser.js.JavaClassWrapper;
@@ -820,6 +821,12 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
 
     // TODO: Add all similar elements
     defineElementClass(ws, doc, "HTMLDivElement", "div", HTMLDivElementImpl.class);
+
+    defineInstantiator(ws, "Text", JavaClassWrapperFactory.getInstance().getClassWrapper(TextImpl.class), new JavaInstantiator() {
+      public Object newInstance(final Object[] args) {
+        return document.createTextNode(args[0].toString());
+      }
+    });
   }
 
   private static void defineInstantiator(
