@@ -670,7 +670,10 @@ public class HtmlParser {
           parent.appendChild(doc.createProcessingInstruction(tag, data.toString()));
           return TOKEN_FULL_ELEMENT;
         } else {
-          Element element = doc.createElement(tag);
+          final int localIndex = normalTag.indexOf(':');
+          final boolean tagHasPrefix = localIndex > 0;
+          final String localName = tagHasPrefix ? normalTag.substring(localIndex + 1) : normalTag;
+          Element element = doc.createElement(localName);
           element.setUserData(MODIFYING_KEY, Boolean.TRUE, null);
           try {
             if (!this.justReadTagEnd) {
@@ -688,7 +691,7 @@ public class HtmlParser {
             // This is necessary for incremental rendering.
             parent.appendChild(element);
             if (!this.justReadEmptyElement) {
-              ElementInfo einfo = ELEMENT_INFOS.get(normalTag);
+              ElementInfo einfo = ELEMENT_INFOS.get(localName);
               int endTagType = einfo == null ? ElementInfo.END_ELEMENT_REQUIRED : einfo.endElementType;
               if (endTagType != ElementInfo.END_ELEMENT_FORBIDDEN) {
                 boolean childrenOk = einfo == null ? true : einfo.childElementOk;
@@ -893,12 +896,23 @@ public class HtmlParser {
             }
             sb.append("</");
             sb.append(tempBuffer);
+          } else if (ch == '!') {
+            final String nextSeven = readN(reader, 7);
+            if ("[CDATA[".equals(nextSeven)) {
+              readCData(reader, sb);
+            } else {
+              sb.append('!');
+              if (nextSeven != null) {
+                sb.append(nextSeven);
+              }
+            }
           } else {
             sb.append('<');
           }
         }
+      } else {
+        sb.append(ch);
       }
-      sb.append(ch);
     }
     this.justReadTagBegin = false;
     this.justReadTagEnd = false;
@@ -914,6 +928,56 @@ public class HtmlParser {
       }
     }
     return HtmlParser.TOKEN_EOD;
+  }
+
+  private static void readCData(LineNumberReader reader, StringBuffer sb) throws IOException {
+
+    int next = reader.read();
+
+    while (next >= 0 ) {
+      final char nextCh = (char) next;
+      if (nextCh == ']') {
+        final String next2 = readN(reader, 2);
+        if (next2 != null) {
+          if ("]>".equals(next2)) {
+            break;
+          } else {
+            sb.append(next2);
+          }
+        } else {
+          break;
+        }
+      } else {
+        sb.append(nextCh);
+        next = reader.read();
+      }
+    }
+  }
+
+  // Tries to read at most n characters.
+  private static String readN(final LineNumberReader reader, final int n) {
+    char[] chars = new char[n];
+    int i = 0;
+    while(i < n) {
+      int ich = -1;
+      try {
+        ich = reader.read();
+      } catch (IOException e) {
+        break;
+      }
+      if (ich >= 0) {
+        chars[i] = (char) ich;
+        i += 1;
+      } else {
+        break;
+      }
+    }
+
+    if (i == 0) {
+      return null;
+    } else {
+      return new String(chars, 0, i);
+    }
   }
 
   /**
