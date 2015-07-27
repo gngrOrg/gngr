@@ -824,7 +824,8 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
 
     defineInstantiator(ws, "Text", JavaClassWrapperFactory.getInstance().getClassWrapper(TextImpl.class), new JavaInstantiator() {
       public Object newInstance(final Object[] args) {
-        return document.createTextNode(args[0].toString());
+        final String data = (args != null && args.length > 0 && args[0] != null) ? args[0].toString() : "";
+        return document.createTextNode(data);
       }
     });
   }
