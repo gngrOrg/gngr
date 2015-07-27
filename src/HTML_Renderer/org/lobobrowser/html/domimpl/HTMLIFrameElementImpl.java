@@ -180,26 +180,32 @@ public class HTMLIFrameElementImpl extends HTMLAbstractUIElement implements HTML
     if (frame != null) {
       try {
         final URL fullURL = this.getFullURL(value);
-        if (getUserAgentContext().isRequestPermitted(new Request(fullURL, RequestKind.Frame))) {
-          getContentWindow().setJobFinishedHandler(new Runnable() {
-            public void run() {
-              System.out.println("Iframes window's job over!");
-              if (onload != null) {
-                // TODO: onload event object?
-                final Window window = ((HTMLDocumentImpl) document).getWindow();
-                window.addJSTask(new JSRunnableTask(0, "IFrame onload handler", () -> {
-                  Executor.executeFunction(HTMLIFrameElementImpl.this, onload, null, window.getContextFactory());
-                }));
+        if (fullURL != null) {
+          if (getUserAgentContext().isRequestPermitted(new Request(fullURL, RequestKind.Frame))) {
+            getContentWindow().setJobFinishedHandler(new Runnable() {
+              public void run() {
+                System.out.println("Iframes window's job over!");
+                if (onload != null) {
+                  // TODO: onload event object?
+                  final Window window = ((HTMLDocumentImpl) document).getWindow();
+                  window.addJSTask(new JSRunnableTask(0, "IFrame onload handler", () -> {
+                    Executor.executeFunction(HTMLIFrameElementImpl.this, onload, null, window.getContextFactory());
+                  }));
+                }
+                markJobDone();
               }
-              markJobDone();
-            }
-          });
-          System.out.println("Loading url into frame: " + frame);
-          // frame.loadURL(fullURL);
-          getContentWindow().open(fullURL.toExternalForm(), "iframe", "", true);
+            });
+            // frame.loadURL(fullURL);
+            // ^^ Using window.open is better because it fires the various events correctly.
+            getContentWindow().open(fullURL.toExternalForm(), "iframe", "", true);
+          }
+        } else {
+          this.warn("Can't load URL: " + value);
+          markJobDone();
         }
       } catch (final java.net.MalformedURLException mfu) {
         this.warn("loadURLIntoFrame(): Unable to navigate to src.", mfu);
+        markJobDone();
       } finally {
         /* TODO: Implement an onload handler
         // Copied from image element
