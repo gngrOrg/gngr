@@ -622,7 +622,7 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
   }
 
   public Element createElementNS(final String namespaceURI, final String qualifiedName) throws DOMException {
-    if ("http://www.w3.org/1999/xhtml".equalsIgnoreCase(namespaceURI)) {
+    if (namespaceURI == null || "http://www.w3.org/1999/xhtml".equalsIgnoreCase(namespaceURI)) {
       return createElement(qualifiedName);
     }
     System.out.println("unhandled request to create element in NS: " + namespaceURI + " with tag: " + qualifiedName);
