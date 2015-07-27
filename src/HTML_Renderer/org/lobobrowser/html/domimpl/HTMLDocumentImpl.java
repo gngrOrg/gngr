@@ -96,6 +96,7 @@ import org.w3c.dom.events.EventTarget;
 import org.w3c.dom.html.HTMLCollection;
 import org.w3c.dom.html.HTMLDocument;
 import org.w3c.dom.html.HTMLElement;
+import org.w3c.dom.ranges.Range;
 import org.w3c.dom.stylesheets.DocumentStyle;
 import org.w3c.dom.stylesheets.LinkStyle;
 import org.w3c.dom.stylesheets.StyleSheetList;
@@ -1563,5 +1564,9 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
 
   public Event createEvent(final String type ) {
     return new Event(type, this);
+  }
+
+  public Range createRange() {
+    return new RangeImpl(this);
   }
 }
