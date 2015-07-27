@@ -908,7 +908,10 @@ public class HtmlParser {
             }
           } else {
             sb.append('<');
+            sb.append(ch);
           }
+        } else {
+          sb.append('<');
         }
       } else {
         sb.append(ch);
