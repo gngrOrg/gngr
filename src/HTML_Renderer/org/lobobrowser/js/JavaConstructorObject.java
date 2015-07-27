@@ -67,7 +67,7 @@ public class JavaConstructorObject extends ScriptableObject implements Function 
     } catch (final EcmaError err) {
       throw err;
     } catch (final Exception err) {
-      throw new IllegalStateException(err.getMessage());
+      throw new IllegalStateException(err);
     }
   }
 
