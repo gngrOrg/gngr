@@ -149,7 +149,7 @@ public class CSSUtilities {
     CSSFactory.setAutoImportMedia(new MediaSpecNone());
     try {
       final URL base = new URL(cssURI);
-      return CSSParserFactory.parse(processedText, new SafeNetworkProcessor(bcontext), null, SourceType.EMBEDDED, base);
+      return CSSParserFactory.getInstance().parse(processedText, new SafeNetworkProcessor(bcontext), null, SourceType.EMBEDDED, base);
     } catch (IOException | CSSException e) {
       logger.log(Level.SEVERE, "Unable to parse CSS. URI=[" + cssURI + "].", e);
       return getEmptyStyleSheet();
@@ -191,7 +191,7 @@ public class CSSUtilities {
   public static StyleSheet jParseInlineStyle(final String style, final String encoding,
       final HTMLElementImpl element, final boolean inlinePriority) {
     try {
-      return CSSParserFactory.parse(style, new SafeNetworkProcessor(null), null, SourceType.INLINE, element, inlinePriority, element.getDocumentURL());
+      return CSSParserFactory.getInstance().parse(style, new SafeNetworkProcessor(null), null, SourceType.INLINE, element, inlinePriority, element.getDocumentURL());
     } catch (IOException | CSSException e) {
       logger.log(Level.SEVERE, "Unable to parse CSS. CSS=[" + style + "].", e);
       return getEmptyStyleSheet();
