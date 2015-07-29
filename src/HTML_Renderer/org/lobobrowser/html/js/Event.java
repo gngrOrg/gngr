@@ -195,14 +195,14 @@ public class Event extends AbstractScriptableDelegate implements org.w3c.dom.eve
 
   @Override
   public EventTarget getTarget() {
-    System.out.println("Event.getTarget()");
+    System.out.println("TODO: Event.getTarget()");
     // TODO: Target and source may not be always same. Need to add a constructor param for target.
     return (EventTarget) srcElement;
   }
 
   @Override
   public EventTarget getCurrentTarget() {
-    System.out.println("Event.getCurrentTarget()");
+    System.out.println("TODO: Event.getCurrentTarget()");
     return null;
   }
 
@@ -221,13 +221,13 @@ public class Event extends AbstractScriptableDelegate implements org.w3c.dom.eve
 
   @Override
   public boolean getBubbles() {
-    System.out.println("Event.getBubbles()");
+    System.out.println("TODO: Event.getBubbles()");
     return false;
   }
 
   @Override
   public boolean getCancelable() {
-    System.out.println("Event.getCancelable()");
+    System.out.println("TODO: Event.getCancelable()");
     return false;
   }
 
@@ -250,12 +250,12 @@ public class Event extends AbstractScriptableDelegate implements org.w3c.dom.eve
 
   @Override
   public void preventDefault() {
-    System.out.println("Event.preventDefault()");
+    System.out.println("TODO: Event.preventDefault()");
   }
 
   @Override
   public void initEvent(final String eventTypeArg, final boolean canBubbleArg, final boolean cancelableArg) {
-    System.out.println("Event.initEvent()");
+    System.out.println("TODO: Event.initEvent()");
   }
 
   @Override
