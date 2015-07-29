@@ -113,7 +113,7 @@ public class DocumentBuilderImpl extends DocumentBuilder {
    */
   @Override
   public Document parse(final InputSource is) throws org.xml.sax.SAXException, IOException {
-    final HTMLDocumentImpl document = (HTMLDocumentImpl) this.createDocument(is);
+    final HTMLDocumentImpl document = (HTMLDocumentImpl) this.createDocument(is, "");
     document.load();
     return document;
   }
@@ -128,7 +128,7 @@ public class DocumentBuilderImpl extends DocumentBuilder {
    *          source must provide either an input stream or a reader.
    * @see HTMLDocumentImpl#load()
    */
-  public Document createDocument(final InputSource is) throws SAXException, IOException {
+  public Document createDocument(final InputSource is, final String contentType) throws SAXException, IOException {
     final String encoding = is.getEncoding();
     String charset = encoding;
     if (charset == null) {
@@ -162,7 +162,7 @@ public class DocumentBuilderImpl extends DocumentBuilder {
         throw new IllegalArgumentException("The InputSource must have either a reader, an input stream or a URI.");
       }
     }
-    final HTMLDocumentImpl document = new HTMLDocumentImpl(this.bcontext, this.rcontext, wis, uri);
+    final HTMLDocumentImpl document = new HTMLDocumentImpl(this.bcontext, this.rcontext, wis, uri, contentType);
     return document;
   }
 

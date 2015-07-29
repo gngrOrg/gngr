@@ -121,24 +121,26 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
   private String documentURI;
   private java.net.URL documentURL;
   protected final StyleSheetManager styleSheetManager = new StyleSheetManager();
+  private final String contentType;
 
   private WritableLineReader reader;
 
   public HTMLDocumentImpl(final HtmlRendererContext rcontext) {
-    this(rcontext.getUserAgentContext(), rcontext, null, null);
+    this(rcontext.getUserAgentContext(), rcontext, null, null, null);
   }
 
   public HTMLDocumentImpl(final UserAgentContext ucontext) {
-    this(ucontext, null, null, null);
+    this(ucontext, null, null, null, null);
   }
 
   public HTMLDocumentImpl(final UserAgentContext ucontext, final HtmlRendererContext rcontext, final WritableLineReader reader,
-      final String documentURI) {
+      final String documentURI, final String contentType) {
     this.factory = ElementFactory.getInstance();
     this.rcontext = rcontext;
     this.ucontext = ucontext;
     this.reader = reader;
     this.documentURI = documentURI;
+    this.contentType = contentType;
     try {
       final java.net.URL docURL = new java.net.URL(documentURI);
       final SecurityManager sm = System.getSecurityManager();
@@ -444,7 +446,7 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
         final ErrorHandler errorHandler = new LocalErrorHandler();
         final String systemId = this.documentURI;
         final String publicId = systemId;
-        final HtmlParser parser = new HtmlParser(this.ucontext, this, errorHandler, publicId, systemId);
+        final HtmlParser parser = new HtmlParser(this.ucontext, this, errorHandler, publicId, systemId, isXML());
         parser.parse(reader);
       } finally {
         if (closeReader) {
@@ -459,6 +461,11 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
         }
       }
     }
+  }
+
+  private boolean isXML() {
+    // TODO: Consider doc type when that is implemented. GH #124
+    return "application/xhtml+xml".equals(contentType);
   }
 
   public void close() {
@@ -509,7 +516,7 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
     final ErrorHandler errorHandler = new LocalErrorHandler();
     final String systemId = this.documentURI;
     final String publicId = systemId;
-    final HtmlParser parser = new HtmlParser(this.ucontext, this, errorHandler, publicId, systemId);
+    final HtmlParser parser = new HtmlParser(this.ucontext, this, errorHandler, publicId, systemId, false /* TODO */);
     final StringReader strReader = new StringReader(text);
     try {
       // This sets up another Javascript scope Window. Does it matter?
@@ -1259,7 +1266,7 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
 
   @Override
   protected Node createSimilarNode() {
-    return new HTMLDocumentImpl(this.ucontext, this.rcontext, this.reader, this.documentURI);
+    return new HTMLDocumentImpl(this.ucontext, this.rcontext, this.reader, this.documentURI, this.contentType);
   }
 
   private static class ImageInfo {

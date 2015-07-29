@@ -146,7 +146,7 @@ public final class HtmlClientlet implements Clientlet {
         logger.info("process(): charset=" + charset + " for URI=[" + uri + "]");
       }
       final InputSourceImpl is = new InputSourceImpl(rin, uri, charset);
-      final HTMLDocumentImpl document = (HTMLDocumentImpl) builder.createDocument(is);
+      final HTMLDocumentImpl document = (HTMLDocumentImpl) builder.createDocument(is, response.getContentType());
       document.setLocales(locales);
       final String referrer = cc.getRequest().getReferrer();
       document.setReferrer(referrer == null ? "" : referrer);

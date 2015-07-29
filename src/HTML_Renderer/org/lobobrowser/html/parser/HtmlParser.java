@@ -62,6 +62,7 @@ public class HtmlParser {
   private final ErrorHandler errorHandler;
   private final String publicId;
   private final String systemId;
+  private final boolean isXML;
 
   private static final Map<String, Character> ENTITIES = new HashMap<>(256);
   private static final Map<String, ElementInfo> ELEMENT_INFOS = new HashMap<>(35);
@@ -447,6 +448,7 @@ public class HtmlParser {
     this.errorHandler = errorHandler;
     this.publicId = publicId;
     this.systemId = systemId;
+    this.isXML = false;
   }
 
   /**
@@ -462,14 +464,16 @@ public class HtmlParser {
    *          The public ID of the document.
    * @param systemId
    *          The system ID of the document.
+   * @param isXML
    */
   public HtmlParser(final UserAgentContext ucontext, final Document document, final ErrorHandler errorHandler, final String publicId,
-      final String systemId) {
+      final String systemId, final boolean isXML) {
     this.ucontext = ucontext;
     this.document = document;
     this.errorHandler = errorHandler;
     this.publicId = publicId;
     this.systemId = systemId;
+    this.isXML = isXML;
   }
 
   /**
@@ -486,11 +490,16 @@ public class HtmlParser {
     this.errorHandler = null;
     this.publicId = null;
     this.systemId = null;
+    this.isXML = false;
   }
 
   public static boolean isDecodeEntities(final String elementName) {
     final ElementInfo einfo = ELEMENT_INFOS.get(elementName.toUpperCase());
     return einfo == null ? true : einfo.decodeEntities;
+  }
+
+  private boolean shouldDecodeEntities(final ElementInfo einfo) {
+    return isXML || (einfo == null ? true : einfo.decodeEntities);
   }
 
   /**
@@ -543,7 +552,7 @@ public class HtmlParser {
 
   public void parse(final LineNumberReader reader) throws IOException, SAXException {
     final Document doc = this.document;
-    this.parse(reader, doc);
+    this.parse(reader, doc, true);
   }
 
   /**
@@ -558,7 +567,7 @@ public class HtmlParser {
    * @throws SAXException
    */
   public void parse(final Reader reader, final Node parent) throws IOException, SAXException {
-    this.parse(new LineNumberReader(reader), parent);
+    this.parse(new LineNumberReader(reader), parent, false);
   }
 
   /**
@@ -572,12 +581,12 @@ public class HtmlParser {
    * @throws IOException
    * @throws SAXException
    */
-  public void parse(final LineNumberReader reader, final Node parent) throws IOException, SAXException {
+  public void parse(final LineNumberReader reader, final Node parent, final boolean needRoot) throws IOException, SAXException {
     // Note: Parser does not clear document. It could be used incrementally.
     try {
       parent.setUserData(MODIFYING_KEY, Boolean.TRUE, null);
       try {
-        while (this.parseToken(parent, reader, null, new LinkedList<String>()) != TOKEN_EOD) {
+        while (this.parseToken(parent, reader, null, new LinkedList<String>(), needRoot) != TOKEN_EOD) {
           ;
         }
       } catch (final StopException se) {
@@ -605,6 +614,22 @@ public class HtmlParser {
    */
   private boolean justReadEmptyElement = false;
 
+  // We return false always. This is just a convenience for the caller to reset the needRoot flag in one line.
+  private boolean safeAppendChild(final Node parent, final Node child, final boolean needRoot) {
+    if (needRoot) {
+      if (!"HTML".equals(child.getNodeName())) {
+        final Element rootElement = document.createElement("html");
+        parent.appendChild(rootElement);
+        rootElement.appendChild(child);
+      } else {
+        parent.appendChild(child);
+      }
+    } else {
+      parent.appendChild(child);
+    }
+    return false;
+  }
+
   /**
    * Parses text followed by one element.
    *
@@ -621,7 +646,7 @@ public class HtmlParser {
    * @throws SAXException
    */
   private final int parseToken(final Node parent, final LineNumberReader reader, final Set<String> stopTags,
-      final LinkedList<String> ancestors)
+      final LinkedList<String> ancestors, boolean needRoot)
       throws IOException, StopException, SAXException {
     final Document doc = this.document;
     final StringBuffer textSb = this.readUpToTagBegin(reader);
@@ -633,7 +658,7 @@ public class HtmlParser {
       final StringBuffer decText = entityDecode(textSb);
       final Node textNode = doc.createTextNode(decText.toString());
       try {
-        parent.appendChild(textNode);
+        needRoot = safeAppendChild(parent, textNode, needRoot);
       } catch (final DOMException de) {
         if ((parent.getNodeType() != Node.DOCUMENT_NODE) || (de.code != DOMException.HIERARCHY_REQUEST_ERR)) {
           logger.log(Level.WARNING, "parseToken(): Unable to append child to " + parent + ".", de);
@@ -652,10 +677,12 @@ public class HtmlParser {
             // int commentLine = reader.getLineNumber();
             final StringBuffer comment = this.passEndOfComment(reader);
             final StringBuffer decText = entityDecode(comment);
-            parent.appendChild(doc.createComment(decText.toString()));
+
+            needRoot = safeAppendChild(parent, doc.createComment(decText.toString()), needRoot);
+
             return TOKEN_COMMENT;
           } else {
-            // TODO: DOCTYPE node
+            // TODO: DOCTYPE node GH #124
             this.passEndOfTag(reader);
             return TOKEN_BAD;
           }
@@ -667,7 +694,9 @@ public class HtmlParser {
         } else if (tag.startsWith("?")) {
           tag = tag.substring(1);
           final StringBuffer data = readProcessingInstruction(reader);
-          parent.appendChild(doc.createProcessingInstruction(tag, data.toString()));
+
+          needRoot = safeAppendChild(parent, doc.createProcessingInstruction(tag, data.toString()), needRoot);
+
           return TOKEN_FULL_ELEMENT;
         } else {
           final int localIndex = normalTag.indexOf(':');
@@ -689,7 +718,7 @@ public class HtmlParser {
             }
             // Add element to parent before children are added.
             // This is necessary for incremental rendering.
-            parent.appendChild(element);
+            needRoot = safeAppendChild(parent, element, needRoot);
             if (!this.justReadEmptyElement) {
               ElementInfo einfo = ELEMENT_INFOS.get(localName);
               int endTagType = einfo == null ? ElementInfo.END_ELEMENT_REQUIRED : einfo.endElementType;
@@ -719,14 +748,15 @@ public class HtmlParser {
                       if ((einfo != null) && einfo.noScriptElement) {
                         final UserAgentContext ucontext = this.ucontext;
                         if ((ucontext == null) || ucontext.isScriptingEnabled()) {
-                          token = this.parseForEndTag(parent, reader, tag, false, einfo.decodeEntities);
+                          token = this.parseForEndTag(parent, reader, tag, false, shouldDecodeEntities(einfo), needRoot);
                         } else {
-                          token = this.parseToken(element, reader, newStopSet, ancestors);
+                          token = this.parseToken(element, reader, newStopSet, ancestors, needRoot);
                         }
                       } else {
-                        token = childrenOk ? this.parseToken(element, reader, newStopSet, ancestors) : this.parseForEndTag(element, reader,
-                            tag, true, einfo.decodeEntities);
+                        token = childrenOk ? this.parseToken(element, reader, newStopSet, ancestors, needRoot) : this.parseForEndTag(element, reader,
+                            tag, true, shouldDecodeEntities(einfo), needRoot);
                       }
+                      needRoot = false;
                       if (token == TOKEN_END_ELEMENT) {
                         final String normalLastTag = this.normalLastTag;
                         if (normalTag.equals(normalLastTag)) {
@@ -786,7 +816,7 @@ public class HtmlParser {
                       // newElement should have been suspended.
                       element = newElement;
                       // Add to parent
-                      parent.appendChild(element);
+                      needRoot = safeAppendChild(parent, element, needRoot);
                       if (this.justReadEmptyElement) {
                         return TOKEN_BEGIN_ELEMENT;
                       }
@@ -854,7 +884,7 @@ public class HtmlParser {
    * @throws IOException
    */
   private final int parseForEndTag(final Node parent, final LineNumberReader reader, final String tagName, final boolean addTextNode,
-      final boolean decodeEntities)
+      final boolean decodeEntities, boolean needRoot)
       throws IOException, SAXException {
     final Document doc = this.document;
     int intCh;
@@ -883,7 +913,7 @@ public class HtmlParser {
                     final String text = sb.toString();
                     if (text.length() != 0) {
                       final Node textNode = doc.createTextNode(text);
-                      parent.appendChild(textNode);
+                      needRoot = safeAppendChild(parent, textNode, needRoot);
                     }
                   }
                   return HtmlParser.TOKEN_END_ELEMENT;
@@ -927,7 +957,7 @@ public class HtmlParser {
       final String text = sb.toString();
       if (text.length() != 0) {
         final Node textNode = doc.createTextNode(text);
-        parent.appendChild(textNode);
+        safeAppendChild(parent, textNode, needRoot);
       }
     }
     return HtmlParser.TOKEN_EOD;
