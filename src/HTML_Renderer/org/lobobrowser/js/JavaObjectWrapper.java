@@ -110,6 +110,12 @@ public class JavaObjectWrapper extends ScriptableObject {
 
         @Override
         public Object getArrayElement(final int index) {
+          if (index < 0) {
+            // TODO: The interface's javadoc says that this method is only called for indices are within range.
+            //       Need to check if negative values are considered in range. Negative indices are being used in
+            //       one of the web-platform-tests
+            return org.mozilla.javascript.Undefined.instance;
+          }
           try {
             final Object result = JavaScript.getInstance().getJavascriptObject(
                 integerIndexer.getGetter().invoke(delegate, new Object[] { index }), null);
