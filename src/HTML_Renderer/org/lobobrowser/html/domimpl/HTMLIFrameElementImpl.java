@@ -41,14 +41,24 @@ public class HTMLIFrameElementImpl extends HTMLAbstractUIElement implements HTML
         } else {
           ((HTMLDocumentImpl) document).addJob(() -> loadURLIntoFrame(src), 0);
         }
+      } else {
+        markJobDone(0);
       }
     }
   }
 
-  private void markJobDone() {
+  private void markJobDone(final int jobs) {
     synchronized (this) {
-      ((HTMLDocumentImpl) document).markJobsFinished(1);
+      ((HTMLDocumentImpl) document).markJobsFinished(jobs);
       jobCreated = false;
+
+      if (onload != null) {
+        // TODO: onload event object?
+        final Window window = ((HTMLDocumentImpl) document).getWindow();
+        window.addJSTask(new JSRunnableTask(0, "IFrame onload handler", () -> {
+          Executor.executeFunction(HTMLIFrameElementImpl.this, onload, null, window.getContextFactory());
+        }));
+      }
 
       dispatchEvent(new Event("load", this));
     }
@@ -179,20 +189,13 @@ public class HTMLIFrameElementImpl extends HTMLAbstractUIElement implements HTML
     final BrowserFrame frame = this.browserFrame;
     if (frame != null) {
       try {
-        final URL fullURL = this.getFullURL(value);
+        final URL fullURL = value == null ? null : this.getFullURL(value);
         if (fullURL != null) {
           if (getUserAgentContext().isRequestPermitted(new Request(fullURL, RequestKind.Frame))) {
             getContentWindow().setJobFinishedHandler(new Runnable() {
               public void run() {
                 System.out.println("Iframes window's job over!");
-                if (onload != null) {
-                  // TODO: onload event object?
-                  final Window window = ((HTMLDocumentImpl) document).getWindow();
-                  window.addJSTask(new JSRunnableTask(0, "IFrame onload handler", () -> {
-                    Executor.executeFunction(HTMLIFrameElementImpl.this, onload, null, window.getContextFactory());
-                  }));
-                }
-                markJobDone();
+                markJobDone(1);
               }
             });
             // frame.loadURL(fullURL);
@@ -201,11 +204,11 @@ public class HTMLIFrameElementImpl extends HTMLAbstractUIElement implements HTML
           }
         } else {
           this.warn("Can't load URL: " + value);
-          markJobDone();
+          markJobDone(1);
         }
       } catch (final java.net.MalformedURLException mfu) {
         this.warn("loadURLIntoFrame(): Unable to navigate to src.", mfu);
-        markJobDone();
+        markJobDone(1);
       } finally {
         /* TODO: Implement an onload handler
         // Copied from image element
