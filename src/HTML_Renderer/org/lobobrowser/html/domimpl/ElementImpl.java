@@ -42,8 +42,12 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 import org.w3c.dom.TypeInfo;
+import org.w3c.dom.events.Event;
+import org.w3c.dom.events.EventException;
+import org.w3c.dom.events.EventListener;
+import org.w3c.dom.events.EventTarget;
 
-public class ElementImpl extends NodeImpl implements Element {
+public class ElementImpl extends NodeImpl implements Element, EventTarget {
   private final String name;
 
   public ElementImpl(final String name) {
@@ -575,5 +579,24 @@ public class ElementImpl extends NodeImpl implements Element {
     }
 
     return count;
+  }
+
+  @Override
+  public void addEventListener(String type, EventListener listener, boolean useCapture) {
+    // TODO Auto-generated method stub
+    System.out.println("TODO: addEventListener() in ElementImpl");
+  }
+
+  @Override
+  public void removeEventListener(String type, EventListener listener, boolean useCapture) {
+    // TODO Auto-generated method stub
+    System.out.println("TODO: removeEventListener() in ElementImpl");
+  }
+
+  @Override
+  public boolean dispatchEvent(Event evt) throws EventException {
+    // TODO Auto-generated method stub
+    System.out.println("TODO: dispatchEvent() in ElementImpl");
+    return false;
   }
 }
