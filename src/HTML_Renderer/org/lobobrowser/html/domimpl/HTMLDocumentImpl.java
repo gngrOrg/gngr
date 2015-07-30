@@ -159,6 +159,11 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
     } catch (final java.net.MalformedURLException mfu) {
       logger.warning("HTMLDocumentImpl(): Document URI [" + documentURI + "] is malformed.");
     }
+
+    // TODO: This should be inside the try block above. That is, if there is a malformed URL, the below shouldn't be allowed.
+    //       It is currently being allowed to quickly bootstrap and run web-platform-tests.
+    //       One failure case is: The methods in DOMImplemenationImpl call those constructors which have null document URIs.
+    //       Such constructors should be ideally removed.
     this.document = this;
     // Get Window object
     Window window;
