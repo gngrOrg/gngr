@@ -640,6 +640,7 @@ public class HtmlParser {
   private final static String[] elementsThatDontNeedBodyElement = {
     // TODO: More tags
     "HTML",
+    "HEAD",
     "META",
     "TITLE",
     "LINK",
