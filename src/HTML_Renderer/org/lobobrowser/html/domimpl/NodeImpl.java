@@ -1626,4 +1626,14 @@ public abstract class NodeImpl extends AbstractScriptableDelegate implements Nod
     final String query = Arrays.stream(classNamesArray).collect(Collectors.joining(","));
     return querySelectorAll(query);
   }
+
+  // TODO: This is a plug
+  public String getNameSpaceURI() {
+    final short nodeType = getNodeType();
+    if (nodeType == ELEMENT_NODE || nodeType == ATTRIBUTE_NODE) {
+      return "http://www.w3.org/1999/xhtml";
+    } else {
+      return null;
+    }
+  }
 }
