@@ -637,6 +637,9 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
   public Element createElementNS(final String namespaceURI, final String qualifiedName) throws DOMException {
     if (namespaceURI == null || "http://www.w3.org/1999/xhtml".equalsIgnoreCase(namespaceURI)) {
       return createElement(qualifiedName);
+    } else if ("http://www.w3.org/2000/svg".equalsIgnoreCase(namespaceURI)) {
+      // TODO: This is a plug
+      return createElement(qualifiedName);
     }
     System.out.println("unhandled request to create element in NS: " + namespaceURI + " with tag: " + qualifiedName);
     return null;
