@@ -42,25 +42,27 @@ public class HTMLIFrameElementImpl extends HTMLAbstractUIElement implements HTML
           ((HTMLDocumentImpl) document).addJob(() -> loadURLIntoFrame(src), 0);
         }
       } else {
-        markJobDone(0);
+        markJobDone(0, isAttachedToDocument());
       }
     }
   }
 
-  private void markJobDone(final int jobs) {
+  private void markJobDone(final int jobs, final boolean loaded) {
     synchronized (this) {
       ((HTMLDocumentImpl) document).markJobsFinished(jobs);
       jobCreated = false;
 
-      if (onload != null) {
-        // TODO: onload event object?
-        final Window window = ((HTMLDocumentImpl) document).getWindow();
-        window.addJSTask(new JSRunnableTask(0, "IFrame onload handler", () -> {
-          Executor.executeFunction(HTMLIFrameElementImpl.this, onload, null, window.getContextFactory());
-        }));
-      }
+      if (loaded) {
+        if (onload != null) {
+          // TODO: onload event object?
+          final Window window = ((HTMLDocumentImpl) document).getWindow();
+          window.addJSTask(new JSRunnableTask(0, "IFrame onload handler", () -> {
+            Executor.executeFunction(HTMLIFrameElementImpl.this, onload, null, window.getContextFactory());
+          }));
+        }
 
-      dispatchEvent(new Event("load", this));
+        dispatchEvent(new Event("load", this));
+      }
     }
   }
 
@@ -195,20 +197,25 @@ public class HTMLIFrameElementImpl extends HTMLAbstractUIElement implements HTML
             getContentWindow().setJobFinishedHandler(new Runnable() {
               public void run() {
                 System.out.println("Iframes window's job over!");
-                markJobDone(1);
+                markJobDone(1, true);
               }
             });
             // frame.loadURL(fullURL);
             // ^^ Using window.open is better because it fires the various events correctly.
             getContentWindow().open(fullURL.toExternalForm(), "iframe", "", true);
+          } else {
+            System.out.println("Request not permitted: " + fullURL);
+            markJobDone(1, false);
           }
         } else {
           this.warn("Can't load URL: " + value);
-          markJobDone(1);
+          // TODO: Plug: marking as load=true because we are not handling javascript URIs currently.
+          //       javascript URI is being used in some of the web-platform-tests.
+          markJobDone(1, true);
         }
       } catch (final java.net.MalformedURLException mfu) {
         this.warn("loadURLIntoFrame(): Unable to navigate to src.", mfu);
-        markJobDone(1);
+        markJobDone(1, false);
       } finally {
         /* TODO: Implement an onload handler
         // Copied from image element
