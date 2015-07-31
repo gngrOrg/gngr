@@ -65,6 +65,8 @@ public class PermissionSystem {
     final String protocol = request.url.getProtocol();
     if ("http".equals(protocol) || "https".equals(protocol) || "data".equals(protocol)) {
       return getLastBoard().isRequestPermitted(request);
+    } else if ("about".equals(protocol)) {
+      return request.url.toString().equals("about:blank");
     } else {
       // Constrain all other protocols. Especially worrying is the file:// protocol
       // ... for issue #18
