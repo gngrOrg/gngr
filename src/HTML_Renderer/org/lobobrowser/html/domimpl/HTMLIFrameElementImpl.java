@@ -177,6 +177,16 @@ public class HTMLIFrameElementImpl extends HTMLAbstractUIElement implements HTML
     }
   }
 
+  @Override
+  protected void handleDocumentAttachmentChanged() {
+    super.handleDocumentAttachmentChanged();
+    if (isAttachedToDocument()) {
+      if (hasAttribute("onload")) {
+        setOnload(getEventFunction(null, "onload"));
+      }
+    }
+  }
+
   private Function onload;
 
   public Function getOnload() {
