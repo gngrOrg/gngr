@@ -1584,4 +1584,9 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
   public Range createRange() {
     return new RangeImpl(this);
   }
+
+  public boolean hasFocus() {
+    // TODO: Plug
+    return true;
+  }
 }
