@@ -127,4 +127,13 @@ public class ArrayUtilities {
       throw new UnsupportedOperationException();
     }
   }
+
+  public static <T> boolean contains(final T[] ts, final T t) {
+    for (final T e: ts) {
+      if (Objects.equals(e, t)) {
+        return true;
+      }
+    }
+    return false;
+  }
 }

@@ -724,7 +724,7 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
       this.warn("setInnerHTML(): Element " + this + " does not belong to a document.");
       return;
     }
-    final HtmlParser parser = new HtmlParser(document.getUserAgentContext(), document, null, null, null, false /* TODO */);
+    final HtmlParser parser = new HtmlParser(document.getUserAgentContext(), document, null, null, null, false /* TODO */, false);
     synchronized (this) {
       removeAllChildrenImpl();
     }

@@ -451,7 +451,7 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
         final ErrorHandler errorHandler = new LocalErrorHandler();
         final String systemId = this.documentURI;
         final String publicId = systemId;
-        final HtmlParser parser = new HtmlParser(this.ucontext, this, errorHandler, publicId, systemId, isXML());
+        final HtmlParser parser = new HtmlParser(this.ucontext, this, errorHandler, publicId, systemId, isXML(), true);
         parser.parse(reader);
       } finally {
         if (closeReader) {
@@ -521,7 +521,7 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
     final ErrorHandler errorHandler = new LocalErrorHandler();
     final String systemId = this.documentURI;
     final String publicId = systemId;
-    final HtmlParser parser = new HtmlParser(this.ucontext, this, errorHandler, publicId, systemId, false /* TODO */);
+    final HtmlParser parser = new HtmlParser(this.ucontext, this, errorHandler, publicId, systemId, false /* TODO */, true);
     final StringReader strReader = new StringReader(text);
     try {
       // This sets up another Javascript scope Window. Does it matter?
