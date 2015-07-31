@@ -44,6 +44,7 @@ import org.lobobrowser.html.js.Event;
 import org.lobobrowser.html.style.RenderState;
 import org.lobobrowser.html.style.StyleSheetRenderState;
 import org.lobobrowser.js.AbstractScriptableDelegate;
+import org.lobobrowser.js.HideFromJS;
 import org.lobobrowser.ua.UserAgentContext;
 import org.lobobrowser.util.Objects;
 import org.lobobrowser.util.Strings;
@@ -89,11 +90,13 @@ public abstract class NodeImpl extends AbstractScriptableDelegate implements Nod
     super();
   }
 
+  @HideFromJS
   public void setUINode(final UINode uiNode) {
     // Called in GUI thread always.
     this.uiNode = uiNode;
   }
 
+  @HideFromJS
   public UINode getUINode() {
     // Called in GUI thread always.
     return this.uiNode;
@@ -104,6 +107,7 @@ public abstract class NodeImpl extends AbstractScriptableDelegate implements Nod
    * tries ancestors recursively. This method will return the closest
    * <i>block-level</i> renderer node, if any.
    */
+  @HideFromJS
   public UINode findUINode() {
     // Called in GUI thread always.
     final UINode uiNode = this.uiNode;
@@ -544,7 +548,7 @@ public abstract class NodeImpl extends AbstractScriptableDelegate implements Nod
     return oldChild;
   }
 
-  // TODO used internally, hide from JS
+  @HideFromJS
   public Node removeChildAt(final int index) throws DOMException {
     try {
       synchronized (this.treeLock) {
@@ -833,7 +837,7 @@ public abstract class NodeImpl extends AbstractScriptableDelegate implements Nod
     }
   }
 
-  // TODO used internally, hide from JS
+  @HideFromJS
   public Node insertAfter(final Node newChild, final Node refChild) {
     synchronized (this.treeLock) {
       final ArrayList<Node> nl = this.nodeList;
@@ -852,7 +856,7 @@ public abstract class NodeImpl extends AbstractScriptableDelegate implements Nod
     return newChild;
   }
 
-  // TODO used internally, hide from JS
+  @HideFromJS
   public Text replaceAdjacentTextNodes(final Text node, final String textContent) {
     try {
       synchronized (this.treeLock) {
@@ -892,7 +896,7 @@ public abstract class NodeImpl extends AbstractScriptableDelegate implements Nod
     }
   }
 
-  // TODO used internally only in this class, hide from JS
+  @HideFromJS
   public Text replaceAdjacentTextNodes(final Text node) {
     try {
       synchronized (this.treeLock) {
