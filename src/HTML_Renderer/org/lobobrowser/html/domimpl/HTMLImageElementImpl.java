@@ -212,6 +212,8 @@ public class HTMLImageElementImpl extends HTMLAbstractUIElement implements HTMLI
       }
       if (src != null) {
         document.loadImage(src, new LocalImageListener(src));
+      } else {
+        document.markJobsFinished(1);
       }
     }
   }
