@@ -82,7 +82,9 @@ public class JavaClassWrapper {
     final int len = methods.length;
     for (int i = 0; i < len; i++) {
       final Method method = methods[i];
-      if (!method.isAnnotationPresent(HideFromJS.class)) {
+      // TODO: Need a more robust blocking mechanism. GH #125
+      final boolean blocked = method.getDeclaringClass().getCanonicalName().startsWith("java");
+      if (!(blocked || method.isAnnotationPresent(HideFromJS.class))) {
         final String name = method.getName();
         if (isPropertyMethod(name, method)) {
           this.ensurePropertyKnown(name, method);
