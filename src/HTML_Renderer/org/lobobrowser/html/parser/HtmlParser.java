@@ -69,7 +69,7 @@ public class HtmlParser {
   private static final boolean QUIRKS_MODE = true;
   private Node lastRootElement = null;
   private Node lastBodyElement = null;
-  private boolean needRoot = false;
+  private final boolean needRoot;
 
   private static final Map<String, Character> ENTITIES = new HashMap<>(256);
   private static final Map<String, ElementInfo> ELEMENT_INFOS = new HashMap<>(35);
@@ -456,6 +456,7 @@ public class HtmlParser {
     this.publicId = publicId;
     this.systemId = systemId;
     this.isXML = false;
+    this.needRoot = true;
   }
 
   /**
@@ -499,6 +500,7 @@ public class HtmlParser {
     this.publicId = null;
     this.systemId = null;
     this.isXML = false;
+    this.needRoot = true;
   }
 
   public static boolean isDecodeEntities(final String elementName) {
@@ -601,6 +603,10 @@ public class HtmlParser {
         throw new SAXException("Unexpected flow exception", se);
       }
     } finally {
+      if (QUIRKS_MODE && needRoot) {
+        ensureRootElement(parent);
+        ensureBodyElement(lastRootElement);
+      }
       parent.setUserData(MODIFYING_KEY, Boolean.FALSE, null);
     }
   }
@@ -658,15 +664,19 @@ public class HtmlParser {
       if ("HTML".equalsIgnoreCase(nodeName)) {
         lastRootElement = child;
       } else if ((child instanceof Element) && (!hasAncestorTag(parent, "HTML"))) {
-        if (lastRootElement == null) {
-          lastRootElement = document.createElement("html");
-          parent.appendChild(lastRootElement);
-        }
+        ensureRootElement(parent);
         newParent = lastRootElement;
       }
     }
 
     ensureBodyAppendChild(newParent, child);
+  }
+
+  private void ensureRootElement(final Node parent) {
+    if (lastRootElement == null) {
+      lastRootElement = document.createElement("HTML");
+      parent.appendChild(lastRootElement);
+    }
   }
 
   private void ensureBodyAppendChild(final Node parent, final Node child) {
@@ -676,14 +686,18 @@ public class HtmlParser {
       if ("BODY".equalsIgnoreCase(nodeName)) {
         lastBodyElement = child;
       } else if ((child instanceof Element) && (!hasAncestorTag(parent, "BODY")) && (!ArrayUtilities.contains(elementsThatDontNeedBodyElement, nodeName))) {
-        if (lastBodyElement == null) {
-          lastBodyElement = document.createElement("body");
-          parent.appendChild(lastBodyElement);
-        }
+        ensureBodyElement(parent);
         newParent = lastBodyElement;
       }
     }
     newParent.appendChild(child);
+  }
+
+  private void ensureBodyElement(final Node parent) {
+    if (lastBodyElement == null) {
+      lastBodyElement = document.createElement("BODY");
+      parent.appendChild(lastBodyElement);
+    }
   }
 
   /**
