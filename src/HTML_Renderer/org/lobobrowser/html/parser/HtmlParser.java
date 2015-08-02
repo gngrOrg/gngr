@@ -611,6 +611,21 @@ public class HtmlParser {
       }
       parent.setUserData(MODIFYING_KEY, Boolean.FALSE, null);
     }
+
+    /*
+    org.lobobrowser.util.Nodes.forEachNode(parent, (node) -> {
+      int depth = 0;
+      Node p = node.getParentNode();
+      while (p != null) {
+        p = p.getParentNode();
+        depth++;
+      }
+      for (int i = 0; i < depth; i++) {
+        System.out.print(".");
+      }
+      System.out.println(node.getNodeName() + ": " + node.getClass().getCanonicalName());
+    });
+    */
   }
 
   private static final int TOKEN_EOD = 0;
