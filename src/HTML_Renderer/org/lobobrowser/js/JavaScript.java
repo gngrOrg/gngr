@@ -183,4 +183,8 @@ public class JavaScript {
   }
   */
 
+  // Convenience method; useful when debugging
+  public static String getStackTrace() {
+    return org.mozilla.javascript.ScriptRuntime.constructError("", "").getScriptStackTrace();
+  }
 }
