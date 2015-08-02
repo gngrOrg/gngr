@@ -171,6 +171,7 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
     }
   }
 
+  @HideFromJS
   public void setDocument(final Document document) {
     synchronized (this) {
 
