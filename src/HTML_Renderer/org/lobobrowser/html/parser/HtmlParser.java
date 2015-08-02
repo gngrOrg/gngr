@@ -68,6 +68,7 @@ public class HtmlParser {
   // TODO: The quirks mode should go
   private static final boolean QUIRKS_MODE = true;
   private Node lastRootElement = null;
+  private Node lastHeadElement = null;
   private Node lastBodyElement = null;
   private final boolean needRoot;
 
@@ -605,6 +606,7 @@ public class HtmlParser {
     } finally {
       if (QUIRKS_MODE && needRoot) {
         ensureRootElement(parent);
+        ensureHeadElement(lastRootElement);
         ensureBodyElement(lastRootElement);
       }
       parent.setUserData(MODIFYING_KEY, Boolean.FALSE, null);
@@ -648,6 +650,18 @@ public class HtmlParser {
     "STYLE"
   };
 
+  private final static String[] elementsThatDontNeedHeadElement = {
+    // TODO: More tags
+    "HTML",
+    "P",
+    "DIV",
+    "SPAN",
+    "UL",
+    "LI",
+    "TABLE",
+    "MATHML"
+  };
+
   private static boolean hasAncestorTag(final Node node, final String tag) {
     if (node == null) {
       return false;
@@ -664,7 +678,7 @@ public class HtmlParser {
       final String nodeName = child.getNodeName();
       if ("HTML".equalsIgnoreCase(nodeName)) {
         lastRootElement = child;
-      } else if ((child instanceof Element) && (!hasAncestorTag(parent, "HTML"))) {
+      } else if ((child instanceof Element) && (depthAtMost(parent, 1)) && (!hasAncestorTag(parent, "HTML"))) {
         ensureRootElement(parent);
         newParent = lastRootElement;
       }
@@ -680,15 +694,33 @@ public class HtmlParser {
     }
   }
 
+  private static boolean depthAtMost(final Node n, final int maxDepth) {
+    if (maxDepth <= 0) {
+      return false;
+    } else {
+      final Node parent = n.getParentNode();
+      return parent == null ? true : depthAtMost(parent, maxDepth - 1);
+    }
+  }
+
   private void ensureBodyAppendChild(final Node parent, final Node child) {
     Node newParent = parent;
     if (QUIRKS_MODE && needRoot) {
       final String nodeName = child.getNodeName();
       if ("BODY".equalsIgnoreCase(nodeName)) {
         lastBodyElement = child;
-      } else if ((child instanceof Element) && (!hasAncestorTag(parent, "BODY")) && (!ArrayUtilities.contains(elementsThatDontNeedBodyElement, nodeName))) {
-        ensureBodyElement(parent);
-        newParent = lastBodyElement;
+      } else if ("HEAD".equalsIgnoreCase(nodeName)) {
+        lastHeadElement = child;
+      } else if ((child instanceof Element) && (depthAtMost(parent, 2))) {
+        final boolean dontNeedBody = ArrayUtilities.contains(elementsThatDontNeedBodyElement, nodeName);
+        final boolean dontNeedHead = ArrayUtilities.contains(elementsThatDontNeedHeadElement, nodeName);
+        if((!hasAncestorTag(parent, "BODY")) && (!dontNeedBody)) {
+          ensureBodyElement(parent);
+          newParent = lastBodyElement;
+        } else if((!hasAncestorTag(parent, "HEAD")) && (!dontNeedHead)) {
+          ensureHeadElement(parent);
+          newParent = lastHeadElement;
+        }
       }
     }
     newParent.appendChild(child);
@@ -698,6 +730,14 @@ public class HtmlParser {
     if (lastBodyElement == null) {
       lastBodyElement = document.createElement("BODY");
       parent.appendChild(lastBodyElement);
+    }
+  }
+
+  private void ensureHeadElement(final Node parent) {
+    if (lastHeadElement == null) {
+      System.out.println("Inserting HEAD");
+      lastHeadElement = document.createElement("HEAD");
+      parent.appendChild(lastHeadElement);
     }
   }
 
