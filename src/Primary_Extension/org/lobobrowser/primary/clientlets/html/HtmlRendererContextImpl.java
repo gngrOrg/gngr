@@ -108,6 +108,10 @@ public class HtmlRendererContextImpl implements HtmlRendererContext {
     return null;
   }
 
+  public void setContentDocument(final Document d) {
+    this.htmlPanel.setDocument(d, this);
+  }
+
   public HtmlPanel getHtmlPanel() {
     return this.htmlPanel;
   }
@@ -559,4 +563,5 @@ public class HtmlRendererContextImpl implements HtmlRendererContext {
     final Cursor cursor = cursorOpt.orElse(Cursor.getDefaultCursor());
     htmlPanel.setCursor(cursor);
   }
+
 }

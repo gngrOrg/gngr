@@ -51,6 +51,11 @@ public interface BrowserFrame {
   public Document getContentDocument();
 
   /**
+   * Sets the content document.
+   */
+  public void setContentDocument(Document d);
+
+  /**
    * Gets the {@link HtmlRendererContext} of the frame.
    */
   public HtmlRendererContext getHtmlRendererContext();

@@ -60,6 +60,10 @@ public class BrowserFrameImpl implements BrowserFrame {
     return this.rcontext.getContentDocument();
   }
 
+  public void setContentDocument(final org.w3c.dom.Document d) {
+    this.rcontext.setContentDocument(d);
+  }
+
   public void loadURL(final URL url) {
     if (logger.isLoggable(Level.INFO)) {
       logger.info("loadURL(): frame=" + frame + ",url=" + url);

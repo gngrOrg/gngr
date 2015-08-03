@@ -84,6 +84,15 @@ public class HTMLIFrameElementImpl extends HTMLAbstractUIElement implements HTML
     return frame.getContentDocument();
   }
 
+  public void setContentDocument(final Document d) {
+    final BrowserFrame frame = this.browserFrame;
+    if (frame == null) {
+      // TODO: This needs to be handled.
+      return;
+    }
+    frame.setContentDocument(d);
+  }
+
   public Window getContentWindow() {
     final BrowserFrame frame = this.browserFrame;
     if (frame == null) {
