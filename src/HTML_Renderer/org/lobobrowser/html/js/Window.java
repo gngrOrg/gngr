@@ -1497,4 +1497,25 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
     throw new UnsupportedOperationException();
   }
 
+  private void shutdown() {
+    // TODO: Add the sync below, when/if the scheduleLock is added
+    // synchronized (scheduleLock) {
+      forgetAllTasks();
+
+      if (jsScheduler != null) {
+        AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+          jsScheduler.stopAndWindUp();
+          jsScheduler = null;
+          return null;
+        });
+      }
+    // }
+  }
+
+  // TODO: More thorough research and design needs to be done here. GH-127
+  @Override
+  protected void finalize() throws Throwable {
+    shutdown();
+    super.finalize();
+  }
 }
