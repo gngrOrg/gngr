@@ -359,11 +359,11 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
           e.printStackTrace();
         }
       }
-      System.out.println("Exiting loop\n\n");
+      // System.out.println("Exiting loop\n\n");
     }
 
     public void stopAndWindUp() {
-      System.out.println("Going to stop JS scheduler");
+      // System.out.println("Going to stop JS scheduler");
       windowClosing = true;
 
       // TODO: Check if interrupt is needed if stop is anyway being called.
@@ -375,7 +375,7 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
         e.printStackTrace();
       }
       this.stop();
-      System.out.println("Finished interrupting");
+      // System.out.println("Finished interrupting");
     }
 
     public void addJSTask(final JSTask task) {
