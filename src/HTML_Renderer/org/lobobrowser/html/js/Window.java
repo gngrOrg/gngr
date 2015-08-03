@@ -322,17 +322,16 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
     // If they are always freshly created, the taskIdCounter will be more reliable.
     private volatile AtomicInteger taskIdCounter = new AtomicInteger(0);
 
-    // TODO: Remove, added just for debugging
-    private final Window window;
+    private String name;
 
     public JSScheduler(final Window window) {
       super("JS Scheduler");
-      this.window = window;
+      this.name = "JS Sched " + (window.document == null ? "" : "" + window.document.getBaseURI());
     }
 
     @Override
     public void run() {
-      System.out.println("\n\nIn " + window.document.getBaseURI() + " Running loop");
+      setName(name);
       while (!windowClosing) {
         try {
           ScheduledTask scheduledTask;
@@ -343,6 +342,7 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
           final PrivilegedAction<Object> action = new PrivilegedAction<Object>() {
             public Object run() {
               // System.out.println("In " + window.document.getBaseURI() + "\n  Running task: " + scheduledTask);
+              // System.out.println("In " + name + "\n  Running task: " + scheduledTask);
               scheduledTask.task.run();
               // System.out.println("Done task: " + scheduledTask);
               // System.out.println("  Remaining tasks: " + jsQueue.size());
