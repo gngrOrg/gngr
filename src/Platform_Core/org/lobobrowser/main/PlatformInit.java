@@ -434,6 +434,9 @@ public class PlatformInit {
       } catch (final Exception err) {
         err.printStackTrace(System.err);
       }
+
+      System.out.println("Number of active threads: " + Thread.activeCount());
+
       System.exit(0);
       return null;
     });
