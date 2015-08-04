@@ -171,6 +171,11 @@ public class LocalSecurityPolicy extends Policy {
           CORE_PERMISSIONS.add(fp);
         }
       }
+
+      // Java 9 early access requires this while loading resources in Swing internal code.
+      // TODO: This could be reported upstream. The Swing code should call doPrivileged().
+      //       Alternatively, check if it is still required when final release of Java 9 is available.
+      CORE_PERMISSIONS.add(new FilePermission(JAVA_HOME + recursiveSuffix, "read"));
     }
 
   }
@@ -272,6 +277,8 @@ public class LocalSecurityPolicy extends Policy {
         return false;
       }
     } else if (ExtensionManager.ZIPENTRY_PROTOCOL.equalsIgnoreCase(scheme)) {
+      return true;
+    } else if ("jrt".equals(scheme)) {
       return true;
     } else {
       return false;
@@ -433,6 +440,8 @@ public class LocalSecurityPolicy extends Policy {
 
         permissions.add(new RuntimePermission("accessClassInPackage.*"));
         permissions.add(new SecurityPermission("putProviderProperty.*"));
+      } else if (path.startsWith("jrt:/jdk")) {
+        permissions.add(new RuntimePermission("accessClassInPackage.sun.*"));
       }
     } else {
       // TODO: Check why the following are required and add comments for each
