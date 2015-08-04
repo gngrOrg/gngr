@@ -37,6 +37,7 @@ import java.security.Policy;
 import java.security.PrivilegedAction;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.EventObject;
 import java.util.Locale;
@@ -66,6 +67,7 @@ import org.lobobrowser.util.Urls;
 
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.OkUrlFactory;
+import com.squareup.okhttp.Protocol;
 
 /**
  * A singleton class that is used to initialize a browser session in the current
@@ -114,6 +116,12 @@ public class PlatformInit {
     final PlatformStreamHandlerFactory factory = PlatformStreamHandlerFactory.getInstance();
     URL.setURLStreamHandlerFactory(factory);
     final OkHttpClient okHttpClient = new OkHttpClient();
+
+    final ArrayList<Protocol> protocolList = new ArrayList<>(2);
+    protocolList.add(Protocol.HTTP_1_1);
+    protocolList.add(Protocol.HTTP_2);
+    okHttpClient.setProtocols(protocolList);
+
     // HttpsURLConnection.setDefaultSSLSocketFactory(sslSocketFactory);
     okHttpClient.setSslSocketFactory(sslSocketFactory);
     okHttpClient.setFollowRedirects(false);
