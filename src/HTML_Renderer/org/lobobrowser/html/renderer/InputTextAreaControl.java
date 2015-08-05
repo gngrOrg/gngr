@@ -26,6 +26,10 @@ package org.lobobrowser.html.renderer;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Insets;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -42,6 +46,23 @@ class InputTextAreaControl extends BaseInputControl {
     super(modelNode);
     this.setLayout(WrapperLayout.getInstance());
     final JTextComponent widget = this.createTextField();
+    widget.addKeyListener(new KeyListener() {
+
+      @Override
+      public void keyTyped(final KeyEvent e) {
+        System.out.println("InputTextAreaControl.InputTextAreaControl(...).new KeyListener() {...}.keyTyped()" + e);
+      }
+
+      @Override
+      public void keyReleased(final KeyEvent e) {
+        System.out.println("InputTextAreaControl.InputTextAreaControl(...).new KeyListener() {...}.keyReleased()" + e);
+      }
+
+      @Override
+      public void keyPressed(final KeyEvent e) {
+        System.out.println("InputTextAreaControl.InputTextAreaControl(...).new KeyListener() {...}.keyPressed(): " + e);
+      }
+    });
     this.widget = widget;
     this.add(new JScrollPane(widget));
 
@@ -78,7 +99,16 @@ class InputTextAreaControl extends BaseInputControl {
   }
 
   protected JTextComponent createTextField() {
-    return new JTextArea();
+    // Creating with privileges; otherwise the AWT events generated for this component
+    // capture the current stack of priviliges. If the component is created from javascript
+    // it fails for AccessController.checkPermission('accessClipboard')
+    return AccessController.doPrivileged(new PrivilegedAction<JTextComponent>() {
+
+      @Override
+      public JTextComponent run() {
+        return new JTextArea();
+      }
+    });
   }
 
   /*

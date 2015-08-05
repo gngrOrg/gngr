@@ -10,6 +10,9 @@ import org.lobobrowser.html.js.Window.JSRunnableTask;
 import org.lobobrowser.html.style.IFrameRenderState;
 import org.lobobrowser.html.style.RenderState;
 import org.lobobrowser.js.HideFromJS;
+import org.lobobrowser.ua.ParameterInfo;
+import org.lobobrowser.ua.RequestType;
+import org.lobobrowser.ua.TargetType;
 import org.lobobrowser.ua.UserAgentContext.Request;
 import org.lobobrowser.ua.UserAgentContext.RequestKind;
 import org.mozilla.javascript.Function;
@@ -251,5 +254,35 @@ public class HTMLIFrameElementImpl extends HTMLAbstractUIElement implements HTML
   @Override
   protected RenderState createRenderState(final RenderState prevRenderState) {
     return new IFrameRenderState(prevRenderState, this);
+  }
+
+  // Trying out a way for a frame's target to be set to an iframe. for issue #96
+
+  public void navigate(final URL url, final String method, final ParameterInfo pinfo, final TargetType targetType, final RequestType form) {
+    final Window window = ((HTMLDocumentImpl) document).getWindow();
+    window.addJSTask(new JSRunnableTask(0, "Frame navigation to " + url, () -> {
+      final BrowserFrame frame = this.browserFrame;
+      if (frame != null) {
+        if (getUserAgentContext().isRequestPermitted(new Request(url, RequestKind.Frame))) {
+          getContentWindow().setJobFinishedHandler(new Runnable() {
+            public void run() {
+              System.out.println("Iframes window's job over!");
+              if (onload != null) {
+                // TODO: onload event object?
+                final Window window = ((HTMLDocumentImpl) document).getWindow();
+                window.addJSTask(new JSRunnableTask(0, "IFrame onload handler", () -> {
+                  Executor.executeFunction(HTMLIFrameElementImpl.this, onload, null, window.getContextFactory());
+                }));
+              }
+              // markJobDone();
+            }
+          });
+          // frame.loadURL(fullURL);
+          browserFrame.navigate(url, method, pinfo, targetType, form);
+        }
+        // browserFrame.navigate(url, method, pinfo, targetType, form);
+      }
+    }
+        ));
   }
 }

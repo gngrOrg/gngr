@@ -1462,9 +1462,24 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
     jobFinishedHandler = handler;
   }
 
+  /*
   @PropertyName("Element")
   public Class<Element> getElement() {
     return Element.class;
+  }*/
+
+  /* changed from above For prototype.js */
+  private Object element = Element.class;
+
+  @PropertyName("Element")
+  public Object getElement() {
+    return element;
+  }
+
+  @PropertyName("Element")
+  public void setElement(final Object o) {
+    System.out.println("Setting element to: " + o);
+    element = o;
   }
 
   @PropertyName("Node")

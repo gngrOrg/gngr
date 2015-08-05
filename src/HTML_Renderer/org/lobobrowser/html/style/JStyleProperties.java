@@ -651,7 +651,8 @@ abstract public class JStyleProperties extends AbstractScriptableDelegate implem
     return helperGetProperty("float");
   }
 
-  abstract protected NodeData getNodeData();
+  // TODO: temporary made public
+  abstract public NodeData getNodeData();
 
   private static final Pattern inchPattern = Pattern.compile("[0-9]+(.[0-9]+)?in");
 
