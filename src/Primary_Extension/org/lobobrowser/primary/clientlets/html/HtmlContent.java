@@ -132,10 +132,7 @@ public class HtmlContent implements ComponentContent {
   }
 
   public void setProperty(final String name, final Object value) {
-    if ("defaultMarginInsets".equals(name) && (value instanceof java.awt.Insets)) {
-      this.panel.setDefaultMarginInsets((java.awt.Insets) value);
-      ;
-    } else if ("defaultOverflowX".equals(name) && (value instanceof Integer)) {
+    if ("defaultOverflowX".equals(name) && (value instanceof Integer)) {
       this.panel.setDefaultOverflowX((Integer) value);
     } else if ("defaultOverflowY".equals(name) && (value instanceof Integer)) {
       this.panel.setDefaultOverflowY((Integer) value);

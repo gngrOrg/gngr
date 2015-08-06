@@ -79,7 +79,6 @@ import org.lobobrowser.html.renderer.RenderableSpot;
 import org.lobobrowser.html.style.RenderState;
 import org.lobobrowser.ua.UserAgentContext;
 import org.lobobrowser.util.Nodes;
-import org.lobobrowser.util.Objects;
 import org.lobobrowser.util.gui.ColorFactory;
 import org.w3c.dom.Node;
 
@@ -104,8 +103,6 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
   protected RenderableSpot endSelection;
   protected RBlock rblock;
   protected int preferredWidth = -1;
-  protected Insets defaultMarginInsets = null;
-  // protected Insets defaultPaddingInsets = null;
   protected int defaultOverflowX = RenderState.OVERFLOW_AUTO;
   protected int defaultOverflowY = RenderState.OVERFLOW_SCROLL;
 
@@ -398,14 +395,6 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
     }
   }
 
-  // public void setDefaultPaddingInsets(Insets insets) {
-  // this.defaultPaddingInsets = insets;
-  // RBlock block = this.rblock;
-  // if(block != null) {
-  // block.setDefaultPaddingInsets(insets);
-  // }
-  // }
-
   public int getFirstLineHeight() {
     final RBlock block = this.rblock;
     return block == null ? 0 : block.getFirstLineHeight();
@@ -442,8 +431,6 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
   public void setRootNode(final NodeImpl node) {
     if (node != null) {
       final RBlock block = new RBlock(node, 0, this.ucontext, this.rcontext, this.frameContext, this);
-      block.setDefaultMarginInsets(this.defaultMarginInsets);
-      // block.setDefaultPaddingInsets(this.defaultPaddingInsets);
       block.setDefaultOverflowX(this.defaultOverflowX);
       block.setDefaultOverflowY(this.defaultOverflowY);
       node.setUINode(block);
@@ -892,32 +879,6 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
     }
   }
 
-  public Insets getDefaultMarginInsets() {
-    return defaultMarginInsets;
-  }
-
-  /**
-   * Sets the default margin insets. Note that in the root block, the margin
-   * behaves like padding.
-   *
-   * @param defaultMarginInsets
-   *          The default margin insets.
-   */
-  public void setDefaultMarginInsets(final Insets defaultMarginInsets) {
-    if (!Objects.equals(this.defaultMarginInsets, defaultMarginInsets)) {
-      this.defaultMarginInsets = defaultMarginInsets;
-      final RBlock block = this.rblock;
-      if (block != null) {
-        block.setDefaultMarginInsets(defaultMarginInsets);
-        block.relayoutIfValid();
-      }
-    }
-  }
-
-  // public Insets getDefaultPaddingInsets() {
-  // return defaultPaddingInsets;
-  // }
-  //
   public int getDefaultOverflowX() {
     return defaultOverflowX;
   }

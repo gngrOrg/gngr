@@ -75,7 +75,6 @@ public class HtmlPanel extends JComponent implements FrameContext {
   private volatile NodeRenderer nodeRenderer = null;
   private volatile NodeImpl rootNode;
   private volatile int preferredWidth = -1;
-  private volatile Insets defaultMarginInsets = new Insets(8, 8, 8, 8);
   private volatile int defaultOverflowX = RenderState.OVERFLOW_AUTO;
   private volatile int defaultOverflowY = RenderState.OVERFLOW_AUTO;
 
@@ -194,7 +193,6 @@ public class HtmlPanel extends JComponent implements FrameContext {
   private void setUpAsBlock(final UserAgentContext ucontext, final HtmlRendererContext rcontext) {
     final HtmlBlockPanel shp = this.createHtmlBlockPanel(ucontext, rcontext);
     shp.setPreferredWidth(this.preferredWidth);
-    shp.setDefaultMarginInsets(this.defaultMarginInsets);
     shp.setDefaultOverflowX(this.defaultOverflowX);
     shp.setDefaultOverflowY(this.defaultOverflowY);
     this.htmlBlockPanel = shp;
@@ -641,23 +639,6 @@ public class HtmlPanel extends JComponent implements FrameContext {
    */
   public void removeSelectionChangeListener(final SelectionChangeListener listener) {
     this.selectionDispatch.removeListener(listener);
-  }
-
-  /**
-   * Sets the default margin insets. Note that in the root block, the margin
-   * behaves like padding.
-   * <p>
-   * This method has no effect on FRAMESETs.
-   *
-   * @param insets
-   *          The default margin insets.
-   */
-  public void setDefaultMarginInsets(final Insets insets) {
-    this.defaultMarginInsets = insets;
-    final HtmlBlockPanel block = this.htmlBlockPanel;
-    if (block != null) {
-      block.setDefaultMarginInsets(insets);
-    }
   }
 
   /**
