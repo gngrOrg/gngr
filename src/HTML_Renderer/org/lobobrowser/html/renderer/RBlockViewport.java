@@ -1411,13 +1411,10 @@ public class RBlockViewport extends BaseRCollection {
       final Iterator<PositionedRenderable> i = others.iterator();
       while (i.hasNext()) {
         final PositionedRenderable pr = i.next();
-        final Object r = pr.renderable;
-        if (r instanceof BoundableRenderable) {
-          final BoundableRenderable br = (BoundableRenderable) r;
-          final Rectangle rbounds = br.getBounds();
-          if (clipBounds.intersects(rbounds)) {
-            matches.add(pr);
-          }
+        final BoundableRenderable br = pr.renderable;
+        final Rectangle rbounds = br.getBounds();
+        if (clipBounds.intersects(rbounds)) {
+          matches.add(pr);
         }
       }
       if (matches.size() == 0) {
