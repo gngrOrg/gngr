@@ -621,9 +621,9 @@ public class HtmlParser {
         depth++;
       }
       for (int i = 0; i < depth; i++) {
-        System.out.print(".");
+        System.out.print(". ");
       }
-      System.out.println(node.getNodeName() + ": " + node.getClass().getCanonicalName());
+      System.out.println(node.getNodeName() + ":    " + node.getClass().getSimpleName());
     });
     */
   }
