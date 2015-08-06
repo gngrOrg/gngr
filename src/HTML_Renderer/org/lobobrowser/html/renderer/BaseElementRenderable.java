@@ -455,7 +455,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
       this.lastBackgroundImageUri = backgroundImageUri;
       this.loadBackgroundImage(backgroundImageUri);
     }
-    if (updateLayout) {
+    if ((!isRootBlock) && updateLayout) {
       final JStyleProperties props = rootElement.getCurrentStyle();
       if (props == null) {
         this.clearStyle(isRootBlock);
