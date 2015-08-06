@@ -148,10 +148,7 @@ public class CSSNorm
   public static String userStyleSheet()
   {
     return
-        // reason for commenting out body sytle
-        // test case - http://test.csswg.org/suites/css2.1/20110323/html4/c5526c-display-000.htm
-        // if html's color is set then body should be able to inherit it.
-        // "body   { color: black; background-color: #fafafa;}"+
+        "body   { color: black; background-color: #fafafa;}"+
 
         // makes sure that a links do not inherit cursor, they should have a default value
         "a[href]{ cursor: pointer; color: blue; text-decoration: underline; }" +
