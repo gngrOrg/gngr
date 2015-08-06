@@ -662,7 +662,8 @@ public class HtmlParser {
     "TITLE",
     "LINK",
     "SCRIPT",
-    "STYLE"
+    "STYLE",
+    "FRAMESET"
   };
 
   private final static String[] elementsThatDontNeedHeadElement = {
@@ -674,7 +675,8 @@ public class HtmlParser {
     "UL",
     "LI",
     "TABLE",
-    "MATHML"
+    "MATHML",
+    "FRAMESET"
   };
 
   private static boolean hasAncestorTag(final Node node, final String tag) {
