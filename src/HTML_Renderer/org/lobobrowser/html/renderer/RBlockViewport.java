@@ -2128,6 +2128,7 @@ public class RBlockViewport extends BaseRCollection {
   private static abstract class CommonWidgetLayout implements MarkupLayout {
     protected static final int ADD_INLINE = 0;
     protected static final int ADD_AS_BLOCK = 1;
+    protected static final int ADD_INLINE_BLOCK = 2;
     private final int method;
     private final boolean useAlignAttribute;
 
@@ -2149,6 +2150,8 @@ public class RBlockViewport extends BaseRCollection {
             currMethod = ADD_AS_BLOCK;
           } else if ("inline".equalsIgnoreCase(display)) {
             currMethod = ADD_INLINE;
+          } else if ("display-inline".equalsIgnoreCase(display)) {
+            currMethod = ADD_INLINE_BLOCK;
           }
         }
       }
@@ -2169,6 +2172,7 @@ public class RBlockViewport extends BaseRCollection {
       renderable.setOriginalParent(bodyLayout);
       switch (currMethod) {
       case ADD_INLINE:
+      case ADD_INLINE_BLOCK:
         bodyLayout.addRenderableToLineCheckStyle(renderable, markupElement, this.useAlignAttribute);
         break;
       case ADD_AS_BLOCK:
