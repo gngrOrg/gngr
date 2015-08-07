@@ -53,6 +53,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -486,6 +487,7 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
   }
 
   private BoundableRenderable mousePressTarget;
+  private Map<?, ?> desktopHints = null;
 
   private void onMousePressed(final MouseEvent event) {
     this.requestFocus();
@@ -590,11 +592,19 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
     }
     if (g instanceof Graphics2D) {
       final Graphics2D g2 = (Graphics2D) g;
-      try {
-        g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_GASP);
-      } catch (final NoSuchFieldError e) {
-        g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+      if (desktopHints == null) {
+        desktopHints = (Map<?, ?>) (Toolkit.getDefaultToolkit().getDesktopProperty("awt.font.desktophints"));
       }
+      if (desktopHints != null) {
+        g2.addRenderingHints(desktopHints);
+      } else {
+        try {
+          g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_GASP);
+        } catch (final NoSuchFieldError e) {
+          g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        }
+      }
+
       g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
     }
     final RBlock block = this.rblock;
