@@ -818,19 +818,20 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
     }
   }
 
-  public void addDelayedPair(final DelayedPair pair) {
-    // NOP
-  }
-
   public RenderableContainer getParentContainer() {
     return null;
   }
 
+  public void addDelayedPair(final DelayedPair pair) {
+    throw new UnsupportedOperationException("Delayed pairs are not being handled at this level.");
+  }
+
   public Collection<DelayedPair> getDelayedPairs() {
-    return null;
+    throw new UnsupportedOperationException("Delayed pairs are not being handled at this level.");
   }
 
   public void clearDelayedPairs() {
+    throw new UnsupportedOperationException("Delayed pairs are not being handled at this level.");
   }
 
   private Set<Component> components;
@@ -927,7 +928,6 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
 
   @Override
   public Insets getInsetsMarginBorder(final boolean hscroll, final boolean vscroll) {
-    throw new UnsupportedOperationException(
-        "Method added while fixing #32. Not implemented yet.");
+    throw new UnsupportedOperationException("Method added while fixing #32. Not implemented yet.");
   }
 }
