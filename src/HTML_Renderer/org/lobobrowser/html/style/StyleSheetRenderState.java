@@ -1025,4 +1025,25 @@ public class StyleSheetRenderState implements RenderState {
       }
     }
   }
+
+  public String getLeft() {
+    final JStyleProperties props = this.getCssProperties();
+    return props == null ? null : props.getLeft();
+  }
+
+  public String getTop() {
+    final JStyleProperties props = this.getCssProperties();
+    return props == null ? null : props.getTop();
+  }
+
+  public String getRight() {
+    final JStyleProperties props = this.getCssProperties();
+    return props == null ? null : props.getRight();
+  }
+
+  public String getBottom() {
+    final JStyleProperties props = this.getCssProperties();
+    return props == null ? null : props.getBottom();
+  }
+
 }

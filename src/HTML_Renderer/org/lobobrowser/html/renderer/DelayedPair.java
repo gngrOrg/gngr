@@ -35,10 +35,11 @@ public class DelayedPair {
   private final String right;
   private final RenderState rs;
   private final int currY;
+  final boolean isFixed;
 
   public DelayedPair(final RenderableContainer immediateContainingBlock, final RenderableContainer containingBlock,
       final BoundableRenderable child, final String left, final String right, final String top, final String bottom, final RenderState rs,
-      final int currY) {
+      final int currY, final boolean isFixed) {
     this.immediateContainingBlock = immediateContainingBlock;
     this.containingBlock = containingBlock;
     this.child = child;
@@ -48,6 +49,7 @@ public class DelayedPair {
     this.bottom = bottom;
     this.rs = rs;
     this.currY = currY;
+    this.isFixed = isFixed;
   }
 
   private static Integer helperGetPixelSize(final String spec, final RenderState rs, final int errorValue, final int avail) {

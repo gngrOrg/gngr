@@ -169,4 +169,20 @@ public abstract class RenderStateDelegator implements RenderState {
   public Optional<Cursor> getCursor() {
     return this.delegate.getCursor();
   }
+
+  public String getLeft() {
+    return this.delegate.getLeft();
+  }
+
+  public String getTop() {
+    return this.delegate.getTop();
+  }
+
+  public String getBottom() {
+    return this.delegate.getBottom();
+  }
+
+  public String getRight() {
+    return this.delegate.getRight();
+  }
 }

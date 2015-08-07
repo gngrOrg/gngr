@@ -47,6 +47,7 @@ import org.lobobrowser.html.domimpl.ModelNode;
 import org.lobobrowser.html.domimpl.NodeFilter;
 import org.lobobrowser.html.domimpl.NodeImpl;
 import org.lobobrowser.html.style.BlockRenderState;
+import org.lobobrowser.html.style.HtmlValues;
 import org.lobobrowser.html.style.RenderState;
 import org.lobobrowser.html.style.RenderThreadState;
 import org.lobobrowser.ua.UserAgentContext;
@@ -69,6 +70,11 @@ public class RBlock extends BaseElementRenderable {
   protected final int listNesting;
   protected final HtmlRendererContext rendererContext;
   protected final RBlockViewport bodyLayout;
+
+  // Used for relative positioning
+  private int relativeOffsetX = 0;
+  private int relativeOffsetY = 0;
+
   protected final Map<LayoutKey, LayoutValue> cachedLayout = new Hashtable<>(5);
 
   protected RenderableSpot startSelection;
@@ -216,14 +222,21 @@ public class RBlock extends BaseElementRenderable {
   }
 
   @Override
-  public void paint(final Graphics g) {
+  public void paint(final Graphics gIn) {
     final RenderState rs = this.modelNode.getRenderState();
     if ((rs != null) && (rs.getVisibility() != RenderState.VISIBILITY_VISIBLE)) {
       // Just don't paint it.
       return;
     }
-    this.prePaint(g);
+
+    final boolean isRelative = (relativeOffsetX | relativeOffsetY) != 0;
+    final Graphics g = isRelative ? gIn.create() : gIn;
+    if (isRelative) {
+      g.translate(relativeOffsetX, relativeOffsetY);
+    }
+
     try {
+      this.prePaint(g);
       final Insets insets = this.getInsetsMarginBorder(this.hasHScrollBar, this.hasVScrollBar);
       final RBlockViewport bodyLayout = this.bodyLayout;
       if (bodyLayout != null) {
@@ -291,8 +304,11 @@ public class RBlock extends BaseElementRenderable {
       }
 
     } finally {
+      if (isRelative) {
+        g.dispose();
+      }
       // Must always call super implementation
-      super.paint(g);
+      super.paint(gIn);
     }
   }
 
@@ -684,7 +700,45 @@ public class RBlock extends BaseElementRenderable {
       this.height = resultingHeight;
     }
 
+    setupRelativePosition(rs);
+
     return new LayoutValue(resultingWidth, resultingHeight, hscroll, vscroll);
+  }
+
+  private void setupRelativePosition(final RenderState rs) {
+    if (rs.getPosition() == RenderState.POSITION_RELATIVE) {
+      final String leftText = rs.getLeft();
+      final String topText = rs.getTop();
+
+      int left = 0;
+
+      if (leftText != null) {
+        left = HtmlValues.getPixelSize(leftText, rs, 0, this.width);
+      } else {
+        final String rightText = rs.getRight();
+        if (rightText != null) {
+          final int right = HtmlValues.getPixelSize(rightText, rs, 0, this.width);
+          left = -right;
+          // If right==0 and renderable.width is larger than the parent's width,
+          // the expected behavior is for newLeft to be negative.
+        }
+      }
+
+      int top = 0;
+
+      if (topText != null) {
+        top = HtmlValues.getPixelSize(topText, rs, top, this.height);
+      } else {
+        final String bottomText = rs.getBottom();
+        if (bottomText != null) {
+          final int bottom = HtmlValues.getPixelSize(bottomText, rs, 0, this.height);
+          top = -bottom;
+        }
+      }
+
+      this.relativeOffsetX = left;
+      this.relativeOffsetY = top;
+    }
   }
 
   // /**
@@ -1128,8 +1182,12 @@ public class RBlock extends BaseElementRenderable {
   @Override
   protected void clearStyle(final boolean isRootBlock) {
     super.clearStyle(isRootBlock);
+
     this.overflowX = this.defaultOverflowX;
     this.overflowY = this.defaultOverflowY;
+
+    this.relativeOffsetX = 0;
+    this.relativeOffsetY = 0;
   }
 
   /*
@@ -1494,7 +1552,7 @@ public class RBlock extends BaseElementRenderable {
       return null;
     }
     final Insets insets = this.getInsetsMarginBorder(this.hasHScrollBar, this.hasVScrollBar);
-    return new FloatingInfo(info.shiftX + insets.left, info.shiftY + insets.top, info.floats);
+    return new FloatingInfo(info.shiftX + insets.left + relativeOffsetX, info.shiftY + insets.top + relativeOffsetY, info.floats);
   }
 
   private class LocalAdjustmentListener implements AdjustmentListener {

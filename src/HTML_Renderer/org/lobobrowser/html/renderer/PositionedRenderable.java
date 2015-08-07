@@ -26,13 +26,15 @@ class PositionedRenderable {
   public final boolean verticalAlignable;
   public final int ordinal;
   public final boolean isFloat;
+  public final boolean isFixed;
 
   public PositionedRenderable(final BoundableRenderable renderable, final boolean verticalAlignable, final int ordinal,
-      final boolean isFloat) {
+      final boolean isFloat, final boolean isFixed) {
     super();
     this.renderable = renderable;
     this.verticalAlignable = verticalAlignable;
     this.ordinal = ordinal;
     this.isFloat = isFloat;
+    this.isFixed = isFixed;
   }
 }

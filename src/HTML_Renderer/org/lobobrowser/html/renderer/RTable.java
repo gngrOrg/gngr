@@ -348,14 +348,14 @@ class RTable extends BaseElementRenderable {
     return this.container.getPaintedBackgroundColor();
   }
 
-  private final void addPositionedRenderable(final BoundableRenderable renderable, final boolean verticalAlignable, final boolean isFloat) {
+  private final void addPositionedRenderable(final BoundableRenderable renderable, final boolean verticalAlignable, final boolean isFloat, final boolean isFixed) {
     // Expected to be called only in GUI thread.
     SortedSet<PositionedRenderable> others = this.positionedRenderables;
     if (others == null) {
       others = new TreeSet<>(new ZIndexComparator());
       this.positionedRenderables = others;
     }
-    others.add(new PositionedRenderable(renderable, verticalAlignable, this.otherOrdinal++, isFloat));
+    others.add(new PositionedRenderable(renderable, verticalAlignable, this.otherOrdinal++, isFloat, isFixed));
     renderable.setParent(this);
     if (renderable instanceof RUIControl) {
       this.container.addComponent(((RUIControl) renderable).widget.getComponent());
@@ -365,7 +365,7 @@ class RTable extends BaseElementRenderable {
   private void importDelayedPair(final DelayedPair pair) {
     pair.positionPairChild();
     final BoundableRenderable r = pair.child;
-    this.addPositionedRenderable(r, false, false);
+    this.addPositionedRenderable(r, false, false, pair.isFixed);
   }
 
   @Override

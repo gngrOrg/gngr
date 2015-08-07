@@ -41,8 +41,6 @@ public interface RElement extends RCollection, UINode {
    */
   public void layout(int availWidth, int availHeight, boolean sizeOnly);
 
-  public void layout(int availWidth, int availHeight, boolean expandWidth, boolean sizeOnly);
-
   /**
    * Vertical alignment for elements rendered in a line. Returns one of the
    * constants defined in this class.

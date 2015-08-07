@@ -144,4 +144,9 @@ public interface RenderState {
   public BorderInfo getBorderInfo();
 
   public Optional<Cursor> getCursor();
+
+  public String getLeft();
+  public String getTop();
+  public String getRight();
+  public String getBottom();
 }
