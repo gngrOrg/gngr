@@ -468,6 +468,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
           this.borderBottomColor = null;
           this.borderRightColor = null;
         }
+        // TODO: Why is props from root element being used here and not the renderstate of the current element?
         final String zIndex = props.getZIndex();
         if (zIndex != null) {
           try {
