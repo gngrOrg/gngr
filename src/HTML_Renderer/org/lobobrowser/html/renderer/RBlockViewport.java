@@ -2203,7 +2203,7 @@ public class RBlockViewport extends BaseRCollection {
     public void layoutMarkup(final RBlockViewport bodyLayout, final HTMLElementImpl markupElement) {
       final RenderState rs = markupElement.getRenderState();
       int display = rs == null ? this.display : rs.getDisplay();
-      if (display == RenderState.DISPLAY_INLINE) {
+      if (display == RenderState.DISPLAY_INLINE || display == RenderState.DISPLAY_INLINE_BLOCK) {
         // Inline elements with absolute or fixed positions need
         // to be treated as blocks.
         final int position = rs == null ? RenderState.POSITION_STATIC : rs.getPosition();
