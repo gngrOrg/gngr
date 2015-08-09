@@ -136,7 +136,11 @@ public class Urls {
 
     // For issue #99
     // When there is no cache setting; assume a 60 second cache expiry time, for now.
-    return baseTime + (60 * 1000);
+    // return baseTime + (60 * 1000);
+    // ^^ Update: Assume expiry time only if ETag header is present.
+    //            We have not implemented the ETag header yet, but the presence of it is a good indicator that the response could be cached.
+    final String etag = connection.getHeaderField("Etag");
+    return etag == null ? 0 : baseTime + (60 * 1000);
   }
 
   public static List<NameValuePair> getHeaders(final URLConnection connection) {
