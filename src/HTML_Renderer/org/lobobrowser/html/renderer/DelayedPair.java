@@ -60,19 +60,19 @@ public class DelayedPair {
     }
   }
 
-  public Integer getLeft() {
+  private Integer getLeft() {
     return helperGetPixelSize(left, rs, 0, containingBlock.getInnerWidth());
   }
 
-  public Integer getRight() {
+  private Integer getRight() {
     return helperGetPixelSize(right, rs, 0, containingBlock.getInnerWidth());
   }
 
-  public Integer getTop() {
+  private Integer getTop() {
     return helperGetPixelSize(top, rs, 0, containingBlock.getInnerHeight());
   }
 
-  public Integer getBottom() {
+  private Integer getBottom() {
     return helperGetPixelSize(bottom, rs, 0, containingBlock.getInnerHeight());
   }
 
