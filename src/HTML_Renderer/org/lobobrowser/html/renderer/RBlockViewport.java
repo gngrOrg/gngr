@@ -1348,6 +1348,7 @@ public class RBlockViewport extends BaseRCollection {
 
   @Override
   public BoundableRenderable getRenderable(final int x, final int y) {
+    // TODO: Optimize. Find only the first renderable instead of all of them
     final Iterator<? extends Renderable> i = this.getRenderables(x, y);
     return i == null ? null : (i.hasNext() ? (BoundableRenderable) i.next() : null);
   }
@@ -2204,8 +2205,8 @@ public class RBlockViewport extends BaseRCollection {
       final RenderState rs = markupElement.getRenderState();
       int display = rs == null ? this.display : rs.getDisplay();
       if (display == RenderState.DISPLAY_INLINE || display == RenderState.DISPLAY_INLINE_BLOCK) {
-        // Inline elements with absolute or fixed positions need
-        // to be treated as blocks.
+        // Inline elements with absolute or fixed positions need to be treated as blocks.
+        // TODO: ^^Verify; is that an internal hack or a spec requirement?
         final int position = rs == null ? RenderState.POSITION_STATIC : rs.getPosition();
         if ((position == RenderState.POSITION_ABSOLUTE) || (position == RenderState.POSITION_FIXED)) {
           display = RenderState.DISPLAY_BLOCK;
