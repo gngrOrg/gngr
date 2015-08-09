@@ -34,12 +34,13 @@ public class DelayedPair {
   private final String bottom;
   private final String right;
   private final RenderState rs;
-  private final int currY;
+  private final int initX;
+  private final int initY;
   final boolean isFixed;
 
   public DelayedPair(final RenderableContainer immediateContainingBlock, final RenderableContainer containingBlock,
       final BoundableRenderable child, final String left, final String right, final String top, final String bottom, final RenderState rs,
-      final int currY, final boolean isFixed) {
+      final int initX, final int initY, final boolean isFixed) {
     this.immediateContainingBlock = immediateContainingBlock;
     this.containingBlock = containingBlock;
     this.child = child;
@@ -48,7 +49,8 @@ public class DelayedPair {
     this.top = top;
     this.bottom = bottom;
     this.rs = rs;
-    this.currY = currY;
+    this.initX = initX;
+    this.initY = initY;
     this.isFixed = isFixed;
   }
 
@@ -99,19 +101,16 @@ public class DelayedPair {
         y = parent.getInnerHeight() - child.getHeight() - bottom;
       }
     }
-    if (x != null) {
-      child.setX(x);
-    } else {
-      child.setX(0);
-    }
+    child.setX(x == null ? initX : x);
+
     if (y != null) {
       child.setY(y);
     } else {
       if (this.immediateContainingBlock != parent) {
         final Insets immediateInsets = this.immediateContainingBlock.getInsets(false, false);
-        child.setY((this.currY + (this.immediateContainingBlock.getY() + immediateInsets.top)) - parent.getY());
+        child.setY((this.initY + (this.immediateContainingBlock.getY() + immediateInsets.top)) - parent.getY());
       } else {
-        child.setY(this.currY);
+        child.setY(this.initY);
       }
     }
     if (width != null) {
