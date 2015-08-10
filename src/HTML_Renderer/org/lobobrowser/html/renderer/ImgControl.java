@@ -53,6 +53,7 @@ class ImgControl extends BaseControl implements ImageListener {
     final Dimension size = this.getSize();
     final Insets insets = this.getInsets();
     synchronized (this) {
+      // TODO: Why is this empty
     }
     final Image image = this.image;
     if (image != null) {
