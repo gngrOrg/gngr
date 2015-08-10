@@ -120,4 +120,9 @@ public class DelayedPair {
       child.setHeight(height);
     }
   }
+
+  @Override
+  public String toString() {
+    return "DP " + child + " containing block: " + containingBlock;
+  }
 }
