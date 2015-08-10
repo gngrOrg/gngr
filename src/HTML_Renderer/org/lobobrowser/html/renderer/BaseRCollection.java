@@ -34,7 +34,8 @@ abstract class BaseRCollection extends BaseBoundableRenderable implements RColle
     final Iterator<? extends Renderable> i = this.getRenderables();
     if (i != null) {
       while (i.hasNext()) {
-        final Object r = i.next();
+        final Renderable rn = i.next();
+        final Renderable r = (rn instanceof PositionedRenderable) ? ((PositionedRenderable) rn).renderable : rn;
         if (r instanceof RCollection) {
           // RUIControl is a RCollection too.
           final RCollection rc = (RCollection) r;
@@ -161,7 +162,8 @@ abstract class BaseRCollection extends BaseBoundableRenderable implements RColle
     final Iterator<? extends Renderable> i = this.getRenderables();
     if (i != null) {
       while (i.hasNext()) {
-        final Object robj = i.next();
+        final Renderable rn = i.next();
+        final Renderable robj = (rn instanceof PositionedRenderable) ? ((PositionedRenderable) rn).renderable : rn;
         if (robj instanceof BoundableRenderable) {
           final BoundableRenderable renderable = (BoundableRenderable) robj;
           if (!inSelection) {
@@ -209,7 +211,8 @@ abstract class BaseRCollection extends BaseBoundableRenderable implements RColle
     final Iterator<? extends Renderable> renderables = this.getRenderables();
     if (renderables != null) {
       while (renderables.hasNext()) {
-        final Object r = renderables.next();
+        final Renderable rn = renderables.next();
+        final Renderable r = (rn instanceof PositionedRenderable) ? ((PositionedRenderable) rn).renderable : rn;
         if (r instanceof RCollection) {
           ((RCollection) r).invalidateLayoutDeep();
         }
@@ -264,7 +267,8 @@ abstract class BaseRCollection extends BaseBoundableRenderable implements RColle
     final Iterator<? extends Renderable> i = this.getRenderables();
     if (i != null) {
       while (i.hasNext()) {
-        final Object r = i.next();
+        final Renderable rn = i.next();
+        final Renderable r = (rn instanceof PositionedRenderable) ? ((PositionedRenderable) rn).renderable : rn;
         if (r instanceof BoundableRenderable) {
           final BoundableRenderable br = (BoundableRenderable) r;
           if (br instanceof RBlockViewport) {

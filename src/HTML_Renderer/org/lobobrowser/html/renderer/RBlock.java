@@ -244,15 +244,7 @@ public class RBlock extends BaseElementRenderable {
         final int overflowY = this.overflowY;
         if (((overflowX == RenderState.OVERFLOW_NONE) || (overflowX == RenderState.OVERFLOW_VISIBLE))
             && ((overflowY == RenderState.OVERFLOW_NONE) || (overflowY == RenderState.OVERFLOW_VISIBLE))) {
-          // Simply translate.
-          final int bx = bodyLayout.x;
-          final int by = bodyLayout.y;
-          g.translate(bx, by);
-          try {
-            bodyLayout.paint(g);
-          } finally {
-            g.translate(-bx, -by);
-          }
+          bodyLayout.paint(g);
         } else {
           // Clip when there potential scrolling or hidden overflow
           // was requested.
@@ -260,7 +252,7 @@ public class RBlock extends BaseElementRenderable {
               - insets.bottom);
           try {
             // Second, translate
-            newG.translate(bodyLayout.x - insets.left, bodyLayout.y - insets.top);
+            newG.translate(-insets.left, -insets.top);
             // Third, paint in clipped + translated region.
             bodyLayout.paint(newG);
           } finally {

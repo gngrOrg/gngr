@@ -55,7 +55,6 @@ import org.lobobrowser.html.domimpl.ModelNode;
 import org.lobobrowser.html.domimpl.NodeImpl;
 import org.lobobrowser.html.domimpl.UINode;
 import org.lobobrowser.html.style.HtmlInsets;
-import org.lobobrowser.html.style.HtmlValues;
 import org.lobobrowser.html.style.JStyleProperties;
 import org.lobobrowser.html.style.RenderState;
 import org.lobobrowser.ua.UserAgentContext;
@@ -1261,10 +1260,10 @@ public class RBlockViewport extends BaseRCollection {
       final PositionedRenderable pr = i1.next();
       final BoundableRenderable r = pr.renderable;
       if (r.getZIndex() >= 0) {
-        pending = r;
+        pending = pr;
         break;
       }
-      destination.add(r);
+      destination.add(pr);
     }
 
     // Second, sequential renderables
@@ -1280,8 +1279,7 @@ public class RBlockViewport extends BaseRCollection {
       destination.add(pending);
       while (i1.hasNext()) {
         final PositionedRenderable pr = i1.next();
-        final Renderable r = pr.renderable;
-        destination.add(r);
+        destination.add(pr);
       }
     }
   }
@@ -1332,7 +1330,7 @@ public class RBlockViewport extends BaseRCollection {
       final Iterator<PositionedRenderable> i = others.iterator();
       while (i.hasNext()) {
         final PositionedRenderable pr = i.next();
-        if (pr.isFixed || clipBounds.intersects(pr.renderable.getBounds())) {
+        if (pr.isFixed() || clipBounds.intersects(pr.renderable.getBounds())) {
           matches.add(pr);
         }
       }
@@ -1800,20 +1798,33 @@ public class RBlockViewport extends BaseRCollection {
     return true;
   }
 
-  public void paint(final Graphics g) {
-    final Rectangle clipBounds = g.getClipBounds();
-    final Iterator<Renderable> i = this.getRenderables(clipBounds);
-    if (i != null) {
-      while (i.hasNext()) {
-        final Renderable robj = i.next();
-        // The expected behavior in HTML is for boxes
-        // not to be clipped unless overflow=hidden.
-        if (robj instanceof BoundableRenderable) {
-          final BoundableRenderable renderable = (BoundableRenderable) robj;
-          renderable.paintTranslated(g);
-        } else {
-          robj.paint(g);
+  public void paint(final Graphics gIn) {
+    final boolean translationRequired = (x | y) != 0;
+    final Graphics g = translationRequired ? gIn.create() : gIn;
+    if (translationRequired) {
+      g.translate(x, y);
+    }
+    try {
+      final Rectangle clipBounds = g.getClipBounds();
+      final Iterator<Renderable> i = this.getRenderables(clipBounds);
+      if (i != null) {
+        while (i.hasNext()) {
+          final Renderable robj = i.next();
+          // The expected behavior in HTML is for boxes
+          // not to be clipped unless overflow=hidden.
+          if (robj instanceof BoundableRenderable) {
+            final BoundableRenderable renderable = (BoundableRenderable) robj;
+            renderable.paintTranslated(g);
+          } else {
+            // PositionedRenderable, etc because they don't inherit from BoundableRenderable
+            final Graphics selectedG = robj.isFixed() ? gIn : g;
+            robj.paint(selectedG);
+          }
         }
+      }
+    } finally {
+      if (translationRequired) {
+        g.dispose();
       }
     }
   }

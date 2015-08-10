@@ -20,13 +20,17 @@
  */
 package org.lobobrowser.html.renderer;
 
-class PositionedRenderable {
+import java.awt.Graphics;
+
+import org.lobobrowser.html.domimpl.ModelNode;
+
+public class PositionedRenderable implements Renderable {
   public static final PositionedRenderable[] EMPTY_ARRAY = new PositionedRenderable[0];
   public final BoundableRenderable renderable;
   public final boolean verticalAlignable;
   public final int ordinal;
   public final boolean isFloat;
-  public final boolean isFixed;
+  private final boolean isFixed;
 
   public PositionedRenderable(final BoundableRenderable renderable, final boolean verticalAlignable, final int ordinal,
       final boolean isFloat, final boolean isFixed) {
@@ -36,5 +40,20 @@ class PositionedRenderable {
     this.ordinal = ordinal;
     this.isFloat = isFloat;
     this.isFixed = isFixed;
+  }
+
+  @Override
+  public void paint(final Graphics g) {
+   this.renderable.paintTranslated(g);
+  }
+
+  @Override
+  public ModelNode getModelNode() {
+    return this.renderable.getModelNode();
+  }
+
+  @Override
+  public boolean isFixed() {
+    return isFixed;
   }
 }

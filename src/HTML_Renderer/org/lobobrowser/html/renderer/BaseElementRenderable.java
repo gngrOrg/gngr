@@ -116,7 +116,8 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
       final Iterator<? extends Renderable> i = this.getRenderables();
       if (i != null) {
         while (i.hasNext()) {
-          final Object r = i.next();
+          final Renderable rn = i.next();
+          final Renderable r = (rn instanceof PositionedRenderable) ? ((PositionedRenderable) rn).renderable : rn;
           if (r instanceof RCollection) {
             ((RCollection) r).invalidateLayoutDeep();
           }

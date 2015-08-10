@@ -71,6 +71,7 @@ import org.lobobrowser.html.renderer.BoundableRenderable;
 import org.lobobrowser.html.renderer.DelayedPair;
 import org.lobobrowser.html.renderer.FrameContext;
 import org.lobobrowser.html.renderer.NodeRenderer;
+import org.lobobrowser.html.renderer.PositionedRenderable;
 import org.lobobrowser.html.renderer.RBlock;
 import org.lobobrowser.html.renderer.RCollection;
 import org.lobobrowser.html.renderer.RElement;
@@ -288,7 +289,8 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
     BoundableRenderable prevBoundable = null;
     if (i != null) {
       while (i.hasNext()) {
-        final Renderable r = i.next();
+        final Renderable rn = i.next();
+        final Renderable r = rn instanceof PositionedRenderable ? (((PositionedRenderable)rn).renderable) : rn;
         Rectangle subBounds = null;
         if (r instanceof RCollection) {
           final RCollection rc = (RCollection) r;
