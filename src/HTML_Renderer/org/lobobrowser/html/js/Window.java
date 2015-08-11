@@ -1432,9 +1432,9 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
 
   // private Function windowLoadListeners;
 
-  // TODO: Hide from JS
   // TODO: Move job scheduling logic into Window class
   // private AtomicBoolean jobsOver = new AtomicBoolean(false);
+  @HideFromJS
   public void jobsFinished() {
     final Event windowLoadEvent = new Event("load", document);
     eventTargetManager.dispatchEvent((NodeImpl) document, windowLoadEvent);
