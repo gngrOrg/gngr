@@ -1333,7 +1333,6 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
   }
 
   private List<Runnable> jobs = new LinkedList<>();
-  // private int registeredJobs = 0;
   private final AtomicInteger registeredJobs = new AtomicInteger(0);
   private final AtomicInteger layoutBlockingJobs = new AtomicInteger(0);
   private final Semaphore doneAllJobs = new Semaphore(0);
@@ -1511,7 +1510,7 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
             scanElementStyleSheets(docStyles, HTMLDocumentImpl.this);
           }
           styleSheets.addAll(docStyles);
-          System.out.println("Found stylesheets: " + this.styleSheets.size());
+          // System.out.println("Found stylesheets: " + this.styleSheets.size());
         }
         return this.styleSheets;
       }
@@ -1562,7 +1561,7 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
       synchronized (this) {
         this.enabledJStyleSheets = null;
       }
-      System.out.println("Stylesheets set to null");
+      // System.out.println("Stylesheets set to null");
       allInvalidated(true);
     }
 
