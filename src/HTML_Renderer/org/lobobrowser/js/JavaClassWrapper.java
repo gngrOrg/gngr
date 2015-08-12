@@ -23,6 +23,7 @@ package org.lobobrowser.js;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.security.AccessControlException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -69,8 +70,28 @@ public class JavaClassWrapper {
     return this.properties.get(name);
   }
 
+  private static Field[] extractFields(final Class<?> jClass) {
+    try {
+      return jClass.getFields();
+    } catch (final AccessControlException ace) {
+      // TODO: Try looking at individual interfaces implemented by the class
+      //return new Field[0];
+      throw new RuntimeException("Couldn't access fields of a class");
+    }
+  }
+
+  private static Method[] extractMethods(final Class<?> jClass) {
+    try {
+      return jClass.getMethods();
+    } catch (final AccessControlException ace) {
+      // TODO: Try looking at individual interfaces implemented by the class
+      // return new Method[0];
+      throw new RuntimeException("Couldn't access methods of a class");
+    }
+  }
+
   private void scanMethods() {
-    final Field[] fields = javaClass.getFields();
+    final Field[] fields = extractFields(javaClass);
     for (final Field f : fields) {
       final int modifiers = f.getModifiers();
       if (Modifier.isPublic(modifiers) && Modifier.isStatic(modifiers) && Modifier.isFinal(modifiers)) {
@@ -78,7 +99,7 @@ public class JavaClassWrapper {
       }
     }
 
-    final Method[] methods = this.javaClass.getMethods();
+    final Method[] methods = extractMethods(javaClass);
     final int len = methods.length;
     for (int i = 0; i < len; i++) {
       final Method method = methods[i];
