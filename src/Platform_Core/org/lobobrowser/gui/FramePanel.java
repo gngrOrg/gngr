@@ -603,6 +603,11 @@ public class FramePanel extends JPanel implements NavigatorFrame {
         // TODO: Why?
         wc.handleDocumentRendering(this, response, content);
       }
+    } else {
+      // Notify so that lazy layouting algorithm can know that layouting is not blocked
+      if (content != null) {
+        content.navigatedNotify();
+      }
     }
     this.dispatchContentSet(new ContentEvent(this, content, response));
   }

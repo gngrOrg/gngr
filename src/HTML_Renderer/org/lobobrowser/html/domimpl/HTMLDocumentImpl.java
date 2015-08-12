@@ -1335,6 +1335,7 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
   private List<Runnable> jobs = new LinkedList<>();
   // private int registeredJobs = 0;
   private final AtomicInteger registeredJobs = new AtomicInteger(0);
+  private final AtomicInteger layoutBlockingJobs = new AtomicInteger(0);
   private final Semaphore doneAllJobs = new Semaphore(0);
   private final AtomicBoolean stopRequested = new AtomicBoolean(false);
   private int oldPendingTaskId = -1;
@@ -1359,14 +1360,18 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
   }
 
   @HideFromJS
-  public void addJob(final Runnable job) {
-    addJob(job, 1);
+  public void addJob(final Runnable job, final boolean layoutBlocker) {
+    addJob(job, layoutBlocker, 1);
   }
 
   @HideFromJS
-  public void addJob(final Runnable job, final int incr) {
+  public void addJob(final Runnable job, final boolean layoutBlocker, final int incr) {
     synchronized (jobs) {
       registeredJobs.addAndGet(incr);
+      if (layoutBlocker) {
+        layoutBlockingJobs.addAndGet(incr);
+      }
+
       jobs.add(job);
 
       // Added into synch block because of the JS Uniq task change. (old Id should be protected from parallel mod)
@@ -1413,8 +1418,15 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
   }
 
   @HideFromJS
-  public void markJobsFinished(final int numJobs) {
+  public void markJobsFinished(final int numJobs, final boolean layoutBlocker) {
     final int curr = registeredJobs.addAndGet(-numJobs);
+    final int layoutBlockers = layoutBlocker ? layoutBlockingJobs.addAndGet(-numJobs) : layoutBlockingJobs.get();
+    if (layoutBlocked.get()) {
+      if (layoutBlockers == 0) {
+        layoutBlocked.set(false);
+        allInvalidated();
+      }
+    }
     if (curr < 0) {
       throw new IllegalStateException("More jobs over than registered!");
     } else if (curr == 0) {
@@ -1431,6 +1443,7 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
   private final AtomicBoolean modificationsStarted = new AtomicBoolean(false);
   private final AtomicBoolean modificationsOver = new AtomicBoolean(false);
   private final AtomicBoolean loadOver = new AtomicBoolean(false);
+  public final AtomicBoolean layoutBlocked = new AtomicBoolean(true);
 
   @HideFromJS
   public void finishModifications() {
@@ -1445,7 +1458,7 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
     // This is to trigger a check in the no external resource case.
     // On second thoughts, this may not be required. The window load event need only be fired if there is a script
     // On third thoughs, this also affects frame that embed iframes
-    markJobsFinished(0);
+    markJobsFinished(0, false);
 
     /* Nodes.forEachNode(document, node -> {
       if (node instanceof NodeImpl) {

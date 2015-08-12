@@ -186,7 +186,7 @@ public class HTMLImageElementImpl extends HTMLAbstractUIElement implements HTMLI
   protected void handleAttributeChanged(final String name, final String oldValue, final String newValue) {
     super.handleAttributeChanged(name, oldValue, newValue);
     if ("src".equals(name)) {
-      ((HTMLDocumentImpl) document).addJob(() -> loadImage(getSrc()));
+      ((HTMLDocumentImpl) document).addJob(() -> loadImage(getSrc()), false);
     }
   }
 
@@ -213,7 +213,7 @@ public class HTMLImageElementImpl extends HTMLAbstractUIElement implements HTMLI
       if (src != null) {
         document.loadImage(src, new LocalImageListener(src));
       } else {
-        document.markJobsFinished(1);
+        document.markJobsFinished(1, false);
       }
     }
   }
@@ -227,7 +227,7 @@ public class HTMLImageElementImpl extends HTMLAbstractUIElement implements HTMLI
   @Override
   public Object setUserData(final String key, final Object data, final UserDataHandler handler) {
     if (org.lobobrowser.html.parser.HtmlParser.MODIFYING_KEY.equals(key) && (data != Boolean.TRUE)) {
-      ((HTMLDocumentImpl) document).addJob(() -> loadImage(getSrc()));
+      ((HTMLDocumentImpl) document).addJob(() -> loadImage(getSrc()), false);
       // this.loadImage(getSrc());
     }
     return super.setUserData(key, data, handler);
@@ -304,14 +304,14 @@ public class HTMLImageElementImpl extends HTMLAbstractUIElement implements HTMLI
       dispatchEvent(this.expectedImgSrc, event);
       if (document instanceof HTMLDocumentImpl) {
         final HTMLDocumentImpl htmlDocumentImpl = (HTMLDocumentImpl) document;
-        htmlDocumentImpl.markJobsFinished(1);
+        htmlDocumentImpl.markJobsFinished(1, false);
       }
     }
 
     public void imageAborted() {
       if (document instanceof HTMLDocumentImpl) {
         final HTMLDocumentImpl htmlDocumentImpl = (HTMLDocumentImpl) document;
-        htmlDocumentImpl.markJobsFinished(1);
+        htmlDocumentImpl.markJobsFinished(1, false);
       }
     }
   }

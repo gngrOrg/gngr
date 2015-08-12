@@ -131,7 +131,7 @@ public class HTMLScriptElementImpl extends HTMLElementImpl implements HTMLScript
     final String scriptType = getType();
     if (scriptType != null) {
       if (Arrays.stream(jsTypes).noneMatch(e -> e.equals(scriptType))) {
-        ((HTMLDocumentImpl) HTMLScriptElementImpl.this.document).markJobsFinished(1);
+        ((HTMLDocumentImpl) HTMLScriptElementImpl.this.document).markJobsFinished(1, false);
         return;
       }
     }
@@ -211,7 +211,7 @@ public class HTMLScriptElementImpl extends HTMLElementImpl implements HTMLScript
               }
             } finally {
               Context.exit();
-              ((HTMLDocumentImpl) HTMLScriptElementImpl.this.document).markJobsFinished(1);
+              ((HTMLDocumentImpl) HTMLScriptElementImpl.this.document).markJobsFinished(1, false);
             }
           }
         }));
@@ -227,7 +227,7 @@ public class HTMLScriptElementImpl extends HTMLElementImpl implements HTMLScript
   @Override
   protected void handleDocumentAttachmentChanged() {
     if (isAttachedToDocument()) {
-      ((HTMLDocumentImpl) document).addJob(() -> processScript());
+      ((HTMLDocumentImpl) document).addJob(() -> processScript(), false);
     } else {
       // TODO What does script element do when detached?
     }

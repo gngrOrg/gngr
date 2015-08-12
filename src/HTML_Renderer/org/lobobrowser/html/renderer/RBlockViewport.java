@@ -2156,7 +2156,7 @@ public class RBlockViewport extends BaseRCollection {
         final String display = style.getDisplay();
         if (display != null) {
           if ("none".equalsIgnoreCase(display)) {
-            // For hidden iframes
+            // For hidden iframes: GH-140
             // return;
           } else if ("block".equalsIgnoreCase(display)) {
             currMethod = ADD_AS_BLOCK;

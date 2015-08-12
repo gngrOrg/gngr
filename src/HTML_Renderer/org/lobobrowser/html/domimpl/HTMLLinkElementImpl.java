@@ -335,7 +335,7 @@ public class HTMLLinkElementImpl extends HTMLAbstractUIElement implements HTMLLi
         }
       }
     } finally {
-      doc.markJobsFinished(1);
+      doc.markJobsFinished(1, true);
     }
   }
 
@@ -354,14 +354,14 @@ public class HTMLLinkElementImpl extends HTMLAbstractUIElement implements HTMLLi
         this.styleSheet = this.getEmptyStyleSheet();
         doc.styleSheetManager.invalidateStyles();
         //TODO need to think how to schedule this. refer issue #69
-        doc.addJob(() -> this.processLinkHelper(false));
+        doc.addJob(() -> this.processLinkHelper(false), true);
       } else {
         processLink();
       }
     } else {
       this.detachStyleSheet();
       if (!defer) {
-        doc.markJobsFinished(1);
+        doc.markJobsFinished(1, true);
       }
     }
   }

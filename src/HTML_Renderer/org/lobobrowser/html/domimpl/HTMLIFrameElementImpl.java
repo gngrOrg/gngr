@@ -36,10 +36,10 @@ public class HTMLIFrameElementImpl extends HTMLAbstractUIElement implements HTML
       final String src = this.getAttribute("src");
       if (src != null) {
         if (!jobCreated) {
-          ((HTMLDocumentImpl) document).addJob(() -> loadURLIntoFrame(src));
+          ((HTMLDocumentImpl) document).addJob(() -> loadURLIntoFrame(src), false);
           jobCreated = true;
         } else {
-          ((HTMLDocumentImpl) document).addJob(() -> loadURLIntoFrame(src), 0);
+          ((HTMLDocumentImpl) document).addJob(() -> loadURLIntoFrame(src), false, 0);
         }
       } else {
         markJobDone(0, isAttachedToDocument());
@@ -49,7 +49,7 @@ public class HTMLIFrameElementImpl extends HTMLAbstractUIElement implements HTML
 
   private void markJobDone(final int jobs, final boolean loaded) {
     synchronized (this) {
-      ((HTMLDocumentImpl) document).markJobsFinished(jobs);
+      ((HTMLDocumentImpl) document).markJobsFinished(jobs, false);
       jobCreated = false;
 
       if (loaded) {
@@ -81,6 +81,23 @@ public class HTMLIFrameElementImpl extends HTMLAbstractUIElement implements HTML
       // Not loaded yet
       return null;
     }
+
+    {
+      // TODO: Remove this very ugly hack.
+      // This is required because the content document is sometimes not ready, even though the browser frame is.
+      // The browser frame is created by the layout thread, but the iframe is loaded in the window's JS Scheduler thread.
+      // See GH #140
+      int count = 10;
+      while (count > 0 && frame.getContentDocument() == null) {
+        try {
+          Thread.sleep(100);
+        } catch (final InterruptedException e) {
+          throw new RuntimeException("Error while waiting for iframe document");
+        }
+        count--;
+      }
+    }
+
     return frame.getContentDocument();
   }
 

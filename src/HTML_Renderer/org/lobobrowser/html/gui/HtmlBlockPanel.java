@@ -63,6 +63,7 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
 import org.lobobrowser.html.HtmlRendererContext;
+import org.lobobrowser.html.domimpl.HTMLDocumentImpl;
 import org.lobobrowser.html.domimpl.HTMLElementImpl;
 import org.lobobrowser.html.domimpl.ModelNode;
 import org.lobobrowser.html.domimpl.NodeImpl;
@@ -625,6 +626,11 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
 
   @Override
   public void doLayout() {
+    final NodeImpl rootNode = getRootNode();
+    final boolean layoutBlocked = ((HTMLDocumentImpl)rootNode).layoutBlocked.get();
+    if (layoutBlocked) {
+      return;
+    }
     try {
       final Dimension size = this.getSize();
       this.clearComponents();
