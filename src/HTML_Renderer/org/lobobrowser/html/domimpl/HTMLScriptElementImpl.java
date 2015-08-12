@@ -215,7 +215,11 @@ public class HTMLScriptElementImpl extends HTMLElementImpl implements HTMLScript
             }
           }
         }));
+      } else {
+        ((HTMLDocumentImpl) HTMLScriptElementImpl.this.document).markJobsFinished(1, false);
       }
+    } else {
+      ((HTMLDocumentImpl) HTMLScriptElementImpl.this.document).markJobsFinished(1, false);
     }
   }
 
