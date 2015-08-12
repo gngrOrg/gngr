@@ -437,6 +437,11 @@ public class NetworkRequestImpl implements NetworkRequest {
 
     public Document getResponseXML() {
       Document doc = this.document;
+      // TODO: GH #138
+      // Although the following works, it has two issues
+      //   1. It returns an internal class (com.sun.*) after parsing, and security policy has not given permission yet
+      //   2. Even if permission is given, need to check if it will work
+      /*
       if ((doc == null) && this.complete) {
         final byte[] bytes = this.getResponseBytes();
         if (bytes != null) {
@@ -448,7 +453,7 @@ public class NetworkRequestImpl implements NetworkRequest {
           }
           this.document = doc;
         }
-      }
+      }*/
       return doc;
     }
   }
