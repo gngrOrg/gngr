@@ -53,6 +53,7 @@ public class JavaClassWrapperFactory {
         jcw = (JavaClassWrapper) jcwr.get();
       }
       if (jcw == null) {
+        // TODO: need to check with the class shutter here. GH #136
         jcw = new JavaClassWrapper(clazz);
         this.classWrappers.put(clazz, new WeakReference<>(jcw));
       }
