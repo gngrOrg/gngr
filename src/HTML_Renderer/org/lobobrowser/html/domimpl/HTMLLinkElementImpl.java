@@ -139,8 +139,7 @@ public class HTMLLinkElementImpl extends HTMLAbstractUIElement implements HTMLLi
       Urls.createURL(baseURL, this.getHref());
       return true;
     } catch (final MalformedURLException mfe) {
-      this.warn("Will not parse CSS. URI=[" + this.getHref() + "] with BaseURI=[" + doc.getBaseURI()
-          + "] does not appear to be a valid URI.");
+      // this.warn("Will not parse CSS. URI=[" + this.getHref() + "] with BaseURI=[" + doc.getBaseURI() + "] does not appear to be a valid URI.");
       return false;
     }
   }
