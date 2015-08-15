@@ -1490,7 +1490,9 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
   @HideFromJS
   public void finishModifications() {
     StyleElements.normalizeHTMLTree(this);
-    // Not sure if this should be run in new thread. But this blocks the UI sometimes when it is in the same thread, and a network request hangs.
+    // TODO: Not sure if this should be run in new thread. But this blocks the UI sometimes when it is in the same thread, and a network request hangs.
+    //       There is a race condition here, when iframes are involved.
+    //       The thread creation can probably be removed as part of GH #140
     new Thread(() -> {
       modificationsStarted.set(true);
       runAllPending();
