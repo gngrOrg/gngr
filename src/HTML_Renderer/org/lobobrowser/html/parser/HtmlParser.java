@@ -673,8 +673,17 @@ public class HtmlParser {
     "DIV",
     "SPAN",
     "UL",
+    "OL",
     "LI",
+    "A",
+    "IMG",
+    "IFRAME",
     "TABLE",
+    "TBODY",
+    "THEAD",
+    "TR",
+    "TH",
+    "TD",
     "MATHML",
     "FRAMESET"
   };
