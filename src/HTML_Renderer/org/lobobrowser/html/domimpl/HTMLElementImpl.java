@@ -137,7 +137,7 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
    * Gets the style object associated with the element. It may return null only
    * if the type of element does not handle stylesheets.
    */
-  // TODO hide from JS
+  // TODO hide from JS, because it is not a part of standard apparently. GH #141
   public JStyleProperties getCurrentStyle() {
     synchronized (this) {
       if (currentStyle != null) {
