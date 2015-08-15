@@ -1476,6 +1476,7 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
         dispatchLoadEvent();
         System.out.println("In " + baseURI);
         System.out.println("  calling window.jobsFinished()");
+        rcontext.jobsFinished();
         window.jobsFinished();
       }
     }

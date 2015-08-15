@@ -408,4 +408,8 @@ public interface HtmlRendererContext {
   public void goToHistoryURL(String url);
 
   public void setCursor(Optional<Cursor> cursorOpt);
+
+  public void jobsFinished();
+
+  public void setJobFinishedHandler(Runnable runnable);
 }

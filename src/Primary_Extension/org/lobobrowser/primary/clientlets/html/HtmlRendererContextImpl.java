@@ -564,4 +564,16 @@ public class HtmlRendererContextImpl implements HtmlRendererContext {
     htmlPanel.setCursor(cursor);
   }
 
+  private Runnable jobFinishedHandler = null;
+
+  public synchronized void setJobFinishedHandler(Runnable runnable) {
+    jobFinishedHandler = runnable;
+  }
+
+  public synchronized void jobsFinished() {
+    if (jobFinishedHandler != null) {
+      jobFinishedHandler.run();
+      jobFinishedHandler = null;
+    }
+  }
 }

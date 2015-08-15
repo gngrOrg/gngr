@@ -58,6 +58,7 @@ public final class TextClientlet implements Clientlet {
           @Override
           public void navigatedNotify() {
             System.out.println("Navigated");
+            rcontext.jobsFinished();
             Window.getWindow(rcontext).jobsFinished();
           }
         });

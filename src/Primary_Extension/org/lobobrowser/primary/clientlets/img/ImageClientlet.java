@@ -95,6 +95,7 @@ public final class ImageClientlet implements Clientlet {
     }
 
     public void navigatedNotify() {
+      context.jobsFinished();
       Window.getWindow(context).jobsFinished();
     }
 

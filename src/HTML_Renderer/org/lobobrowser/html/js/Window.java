@@ -167,7 +167,6 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
 
       // This will ensure that a fresh scope will be created by getWindowScope() on the next call
       this.windowScope = null;
-      jobFinishedHandler = null;
     }
   }
 
@@ -1449,17 +1448,7 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
       // Executor.executeFunction(document, handler, windowLoadEvent);
     }
 
-    if (jobFinishedHandler != null) {
-      jobFinishedHandler.run();
-    }
     // jobsOver.set(true);
-  }
-
-  private volatile Runnable jobFinishedHandler = null;
-
-  @HideFromJS
-  public void setJobFinishedHandler(final Runnable handler) {
-    jobFinishedHandler = handler;
   }
 
   @PropertyName("Element")

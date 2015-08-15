@@ -230,7 +230,7 @@ public class HTMLIFrameElementImpl extends HTMLAbstractUIElement implements HTML
         final URL fullURL = value == null ? null : this.getFullURL(value);
         if (fullURL != null) {
           if (getUserAgentContext().isRequestPermitted(new Request(fullURL, RequestKind.Frame))) {
-            getContentWindow().setJobFinishedHandler(new Runnable() {
+            frame.getHtmlRendererContext().setJobFinishedHandler(new Runnable() {
               public void run() {
                 System.out.println("Iframes window's job over!");
                 markJobDone(1, true);
