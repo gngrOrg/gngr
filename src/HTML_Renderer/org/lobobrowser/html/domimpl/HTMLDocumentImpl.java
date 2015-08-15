@@ -60,6 +60,7 @@ import org.lobobrowser.html.js.Location;
 import org.lobobrowser.html.js.Window;
 import org.lobobrowser.html.js.Window.JSRunnableTask;
 import org.lobobrowser.html.parser.HtmlParser;
+import org.lobobrowser.html.style.CSSNorm;
 import org.lobobrowser.html.style.RenderState;
 import org.lobobrowser.html.style.StyleElements;
 import org.lobobrowser.html.style.StyleSheetRenderState;
@@ -107,6 +108,12 @@ import org.xml.sax.SAXException;
 
 import co.uproot.css.domimpl.JStyleSheetWrapper;
 import co.uproot.css.domimpl.StyleSheetBridge;
+import cz.vutbr.web.css.CSSException;
+import cz.vutbr.web.css.CSSFactory;
+import cz.vutbr.web.css.MediaSpec;
+import cz.vutbr.web.css.StyleSheet;
+import cz.vutbr.web.domassign.Analyzer.Holder;
+import cz.vutbr.web.domassign.AnalyzerUtil;
 
 /**
  * Implementation of the W3C <code>HTMLDocument</code> interface.
@@ -1416,6 +1423,41 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
     doneAllJobs.release();
   }
 
+  private Holder classifiedRules = null;
+  private static final StyleSheet recommendedStyle = parseStyle(CSSNorm.stdStyleSheet(), StyleSheet.Origin.AGENT);
+  private static final StyleSheet userAgentStyle = parseStyle(CSSNorm.userStyleSheet(), StyleSheet.Origin.AGENT);
+  private void updateStyleRules() {
+    synchronized (treeLock) {
+      if (classifiedRules == null) {
+        final List<StyleSheet> jSheets = new ArrayList<>();
+        jSheets.add(recommendedStyle);
+        jSheets.add(userAgentStyle);
+        jSheets.addAll(styleSheetManager.getEnabledJStyleSheets());
+        classifiedRules = AnalyzerUtil.getClassifiedRules(jSheets, new MediaSpec("screen"));
+      }
+    }
+  }
+
+  Holder getClassifiedRules() {
+    synchronized (treeLock) {
+      if (classifiedRules == null) {
+        updateStyleRules();
+      }
+      return classifiedRules;
+    }
+  }
+
+  private static StyleSheet parseStyle(final String cssdata, final StyleSheet.Origin origin) {
+    try {
+      final StyleSheet newsheet = CSSFactory.parse(cssdata);
+      newsheet.setOrigin(origin);
+      return newsheet;
+    } catch (IOException | CSSException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+
   @HideFromJS
   public void markJobsFinished(final int numJobs, final boolean layoutBlocker) {
     final int curr = registeredJobs.addAndGet(-numJobs);
@@ -1492,6 +1534,7 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
             }
           }
         }
+        invalidateStyles();
         allInvalidated();
       }
 
@@ -1560,6 +1603,9 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
       }
       synchronized (this) {
         this.enabledJStyleSheets = null;
+      }
+      synchronized (treeLock) {
+        HTMLDocumentImpl.this.classifiedRules = null;
       }
       // System.out.println("Stylesheets set to null");
       allInvalidated(true);

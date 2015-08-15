@@ -63,19 +63,19 @@ import cz.vutbr.web.css.CSSProperty;
 import cz.vutbr.web.css.MatchCondition;
 import cz.vutbr.web.css.MediaSpec;
 import cz.vutbr.web.css.NodeData;
+import cz.vutbr.web.css.RuleSet;
 import cz.vutbr.web.css.Selector;
 import cz.vutbr.web.css.Selector.PseudoDeclaration;
 import cz.vutbr.web.css.StyleSheet;
 import cz.vutbr.web.css.Term;
 import cz.vutbr.web.csskit.MatchConditionOnElements;
+import cz.vutbr.web.domassign.Analyzer.Holder;
 import cz.vutbr.web.domassign.Analyzer.OrderedRule;
 import cz.vutbr.web.domassign.AnalyzerUtil;
 
 public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2PropertiesContext {
   private final boolean noStyleSheet;
   private static final MatchConditionOnElements elementMatchCondition = new MatchConditionOnElements();
-  private static final StyleSheet recommendedStyle = parseStyle(CSSNorm.stdStyleSheet(), StyleSheet.Origin.AGENT);
-  private static final StyleSheet userAgentStyle = parseStyle(CSSNorm.userStyleSheet(), StyleSheet.Origin.AGENT);
 
   public HTMLElementImpl(final String name, final boolean noStyleSheet) {
     super(name);
@@ -149,16 +149,6 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
     }
   }
 
-  private static StyleSheet parseStyle(final String cssdata, final StyleSheet.Origin origin) {
-    try {
-      final StyleSheet newsheet = CSSFactory.parse(cssdata);
-      newsheet.setOrigin(origin);
-      return newsheet;
-    } catch (IOException | CSSException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
   private NodeData cachedNodeData = null;
   private volatile OrderedRule[] cachedRules = null;
 
@@ -172,23 +162,19 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
         }
 
         if (cachedRules == null) {
-          final HTMLDocumentImpl doc = (HTMLDocumentImpl) this.document;
-          final List<StyleSheet> jSheets = new ArrayList<>();
-          jSheets.add(recommendedStyle);
-          jSheets.add(userAgentStyle);
-          jSheets.addAll(doc.styleSheetManager.getEnabledJStyleSheets());
-
+          final ArrayList<RuleSet> jSheets = new ArrayList<>(2);
           final StyleSheet attributeStyle = StyleElements.convertAttributesToStyles(this);
-          if (attributeStyle != null) {
-            jSheets.add(attributeStyle);
+          if (attributeStyle != null && attributeStyle.size() > 0) {
+            jSheets.add((RuleSet) attributeStyle.get(0));
           }
 
           final StyleSheet inlineStyle = this.getInlineJStyle();
-          if (inlineStyle != null) {
-            jSheets.add(inlineStyle);
+          if (inlineStyle != null && inlineStyle.size() > 0 ) {
+            jSheets.add((RuleSet) inlineStyle.get(0));
           }
 
-          cachedRules = AnalyzerUtil.getApplicableRules(jSheets, this, new MediaSpec("screen"));
+          final HTMLDocumentImpl doc = (HTMLDocumentImpl) this.document;
+          cachedRules = AnalyzerUtil.getApplicableRules(this, doc.getClassifiedRules(), jSheets.size() > 0 ? jSheets.toArray(new RuleSet[jSheets.size()]) : null);
         }
 
         final NodeData nodeData = AnalyzerUtil.getElementStyle(this, psuedoElement, elementMatchCondition, cachedRules);
