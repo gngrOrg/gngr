@@ -1458,6 +1458,7 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
   }
 
 
+  // TODO: Synchronize?
   @HideFromJS
   public void markJobsFinished(final int numJobs, final boolean layoutBlocker) {
     final int curr = registeredJobs.addAndGet(-numJobs);

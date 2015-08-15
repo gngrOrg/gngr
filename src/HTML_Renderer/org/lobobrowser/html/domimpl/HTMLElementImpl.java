@@ -316,6 +316,7 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
   private boolean isMouseOver = false;
 
   public void setMouseOver(final boolean mouseOver) {
+    // TODO: Synchronize with treeLock here instead of in invalidateDescendtsForHover?
     if (this.isMouseOver != mouseOver) {
       if (mouseOver) {
         elementMatchCondition.addMatch(this, PseudoDeclaration.HOVER);

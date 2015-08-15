@@ -263,6 +263,7 @@ public abstract class NodeImpl extends AbstractScriptableDelegate implements Nod
   protected abstract Node createSimilarNode();
 
   public Node cloneNode(final boolean deep) {
+    // TODO: Synchronize with treeLock?
     try {
       final Node newNode = this.createSimilarNode();
       final NodeList children = this.getChildNodes();
