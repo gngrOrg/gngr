@@ -663,7 +663,7 @@ abstract public class JStyleProperties extends AbstractScriptableDelegate implem
       final String valueStr = value == null ? null : value.toString().trim();
       // TODO
       // hack for inch support. need to implement it where it is actually processed.
-      if ((valueStr != null) && inchPattern.matcher(valueStr).matches()) {
+      if ((valueStr != null) && (valueStr.endsWith("in") && inchPattern.matcher(valueStr).matches())) {
         return inch2Pixel(value);
       }
       return valueStr;
