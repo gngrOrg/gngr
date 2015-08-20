@@ -1452,7 +1452,7 @@ class TableMatrix {
     final int numCells = allCells.size();
     for (int i = 0; i < numCells; i++) {
       final RTableCell cell = (RTableCell) allCells.get(i);
-      final Rectangle bounds = cell.getBounds();
+      final Rectangle bounds = cell.getVisualBounds();
       if (bounds.contains(x, y)) {
         final RenderableSpot rp = cell.getLowestRenderableSpot(x - bounds.x, y - bounds.y);
         if (rp != null) {
@@ -1475,7 +1475,7 @@ class TableMatrix {
     final int numCells = allCells.size();
     for (int i = 0; i < numCells; i++) {
       final RTableCell cell = (RTableCell) allCells.get(i);
-      final Rectangle bounds = cell.getBounds();
+      final Rectangle bounds = cell.getVisualBounds();
       if (bounds.contains(x, y)) {
         if (!cell.onMouseClick(event, x - bounds.x, y - bounds.y)) {
           return false;
@@ -1491,7 +1491,7 @@ class TableMatrix {
     final int numCells = allCells.size();
     for (int i = 0; i < numCells; i++) {
       final RTableCell cell = (RTableCell) allCells.get(i);
-      final Rectangle bounds = cell.getBounds();
+      final Rectangle bounds = cell.getVisualBounds();
       if (bounds.contains(x, y)) {
         if (!cell.onDoubleClick(event, x - bounds.x, y - bounds.y)) {
           return false;
@@ -1533,7 +1533,7 @@ class TableMatrix {
     final int numCells = allCells.size();
     for (int i = 0; i < numCells; i++) {
       final RTableCell cell = (RTableCell) allCells.get(i);
-      final Rectangle bounds = cell.getBounds();
+      final Rectangle bounds = cell.getVisualBounds();
       if (bounds.contains(x, y)) {
         if (!cell.onMousePressed(event, x - bounds.x, y - bounds.y)) {
           this.armedRenderable = cell;
@@ -1558,7 +1558,7 @@ class TableMatrix {
     boolean found = false;
     for (int i = 0; i < numCells; i++) {
       final RTableCell cell = (RTableCell) allCells.get(i);
-      final Rectangle bounds = cell.getBounds();
+      final Rectangle bounds = cell.getVisualBounds();
       if (bounds.contains(x, y)) {
         found = true;
         final BoundableRenderable oldArmedRenderable = this.armedRenderable;

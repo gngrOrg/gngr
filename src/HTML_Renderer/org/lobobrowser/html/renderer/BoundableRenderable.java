@@ -81,6 +81,10 @@ public interface BoundableRenderable extends Renderable {
 
   public int getY();
 
+  public int getVisualX();
+
+  public int getVisualY();
+
   public int getHeight();
 
   public int getWidth();

@@ -135,7 +135,7 @@ class RLine extends BaseRCollection {
           // RElements should be translated.
           final RElement relement = (RElement) r;
           final Graphics newG = g.create();
-          newG.translate(relement.getX(), relement.getY());
+          newG.translate(relement.getVisualX(), relement.getVisualY());
           try {
             relement.paint(newG);
           } finally {
@@ -564,7 +564,7 @@ class RLine extends BaseRCollection {
     final BoundableRenderable r = MarkupUtilities.findRenderable(rarray, x, y, false);
     if (r != null) {
       this.mousePressTarget = r;
-      final Rectangle rbounds = r.getVisualBounds();
+      final Rectangle rbounds = r.getBounds();
       return r.onMousePressed(event, x - rbounds.x, y - rbounds.y);
     } else {
       return true;

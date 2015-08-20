@@ -93,7 +93,7 @@ abstract class BaseRCollection extends BaseBoundableRenderable implements RColle
         final Object robj = i.next();
         if (robj instanceof BoundableRenderable) {
           final BoundableRenderable renderable = (BoundableRenderable) robj;
-          final Rectangle bounds = renderable.getBounds();
+          final Rectangle bounds = renderable.getVisualBounds();
           if (!inSelection) {
             if ((checkPoint1 != null) && checkStartSelection(bounds, checkPoint1)) {
               if (checkPoint2 != null) {
@@ -167,7 +167,7 @@ abstract class BaseRCollection extends BaseBoundableRenderable implements RColle
         if (robj instanceof BoundableRenderable) {
           final BoundableRenderable renderable = (BoundableRenderable) robj;
           if (!inSelection) {
-            final Rectangle bounds = renderable.getBounds();
+            final Rectangle bounds = renderable.getVisualBounds();
             if ((checkPoint1 != null) && checkStartSelection(bounds, checkPoint1)) {
               if (checkPoint2 != null) {
                 checkPoint1 = checkPoint2;
@@ -237,13 +237,13 @@ abstract class BaseRCollection extends BaseBoundableRenderable implements RColle
     final boolean changed = oldRenderable != newRenderable;
     if (changed) {
       if (oldRenderable != null) {
-        oldRenderable.onMouseOut(event, x - oldRenderable.getX(), y - oldRenderable.getY(), newLimit);
+        oldRenderable.onMouseOut(event, x - oldRenderable.getVisualX(), y - oldRenderable.getVisualY(), newLimit);
       }
       this.renderableWithMouse = newRenderable;
     }
     // Must recurse always
     if (newRenderable != null) {
-      newRenderable.onMouseMoved(event, x - newRenderable.getX(), y - newRenderable.getY(), changed, newLimit);
+      newRenderable.onMouseMoved(event, x - newRenderable.getVisualX(), y - newRenderable.getVisualY(), changed, newLimit);
     }
   }
 
@@ -259,7 +259,7 @@ abstract class BaseRCollection extends BaseBoundableRenderable implements RColle
       } else {
         newLimit = limit;
       }
-      oldRenderable.onMouseOut(event, x - oldRenderable.getX(), y - oldRenderable.getY(), newLimit);
+      oldRenderable.onMouseOut(event, x - oldRenderable.getVisualX(), y - oldRenderable.getVisualY(), newLimit);
     }
   }
 
@@ -289,7 +289,7 @@ abstract class BaseRCollection extends BaseBoundableRenderable implements RColle
     if (br == null) {
       return HtmlController.getInstance().onContextMenu(this.modelNode, event, x, y);
     } else {
-      return br.onRightClick(event, x - br.getX(), y - br.getY());
+      return br.onRightClick(event, x - br.getVisualX(), y - br.getVisualY());
     }
   }
 }

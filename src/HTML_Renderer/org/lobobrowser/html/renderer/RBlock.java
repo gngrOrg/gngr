@@ -737,12 +737,12 @@ public class RBlock extends BaseElementRenderable {
   }
 
   @Override
-  public int getX() {
+  public int getVisualX() {
     return super.getX() + relativeOffsetX;
   }
 
   @Override
-  public int getY() {
+  public int getVisualY() {
     return super.getY() + relativeOffsetY;
   }
 

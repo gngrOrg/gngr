@@ -98,6 +98,14 @@ abstract class BaseBoundableRenderable extends BaseRenderable implements Boundab
     this.width = width;
   }
 
+  public int getVisualX() {
+    return getX();
+  }
+
+  public int getVisualY() {
+    return getY();
+  }
+
   public int getVisualHeight() {
     return getHeight();
   }
@@ -115,8 +123,8 @@ abstract class BaseBoundableRenderable extends BaseRenderable implements Boundab
   }
 
   public boolean contains(final int x, final int y) {
-    final int mx = this.getX();
-    final int my = this.getY();
+    final int mx = this.getVisualX();
+    final int my = this.getVisualY();
     return (x >= mx) && (y >= my) && (x < (mx + this.getVisualWidth())) && (y < (my + this.getVisualHeight()));
   }
 
@@ -128,7 +136,7 @@ abstract class BaseBoundableRenderable extends BaseRenderable implements Boundab
    *  They are distinct from layout bounds when {overflow:visible} or {position:relative} is set on the element
    */
   public Rectangle getVisualBounds() {
-    return new Rectangle(getX(), getY(), getVisualWidth(), getVisualHeight());
+    return new Rectangle(getVisualX(), getVisualY(), getVisualWidth(), getVisualHeight());
   }
 
   public Dimension getSize() {
@@ -284,7 +292,7 @@ abstract class BaseBoundableRenderable extends BaseRenderable implements Boundab
   public void repaint(final int x, final int y, final int width, final int height) {
     final Renderable parent = this.parent;
     if (parent instanceof BoundableRenderable) {
-      ((BoundableRenderable) parent).repaint(x + this.getX(), y + this.getY(), width, height);
+      ((BoundableRenderable) parent).repaint(x + this.getVisualX(), y + this.getVisualY(), getVisualWidth(), getVisualHeight());
     } else if (parent == null) {
       // Has to be top RBlock.
       this.container.repaint(x, y, width, height);
@@ -356,8 +364,8 @@ abstract class BaseBoundableRenderable extends BaseRenderable implements Boundab
       if (parent == ancestor) {
         return new Point(x, y);
       }
-      x += parent.getX();
-      y += parent.getY();
+      x += parent.getVisualX();
+      y += parent.getVisualY();
       parent = parent.getParent();
     }
   }

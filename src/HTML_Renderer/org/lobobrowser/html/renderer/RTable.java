@@ -183,8 +183,8 @@ class RTable extends BaseElementRenderable {
       while (i.hasNext()) {
         final PositionedRenderable pr = i.next();
         final BoundableRenderable r = pr.renderable;
-        final int childX = x - r.getX();
-        final int childY = y - r.getY();
+        final int childX = x - r.getVisualX();
+        final int childY = y - r.getVisualY();
         final RenderableSpot rs = r.getLowestRenderableSpot(childX, childY);
         if (rs != null) {
           return rs;
@@ -212,10 +212,10 @@ class RTable extends BaseElementRenderable {
       while (i.hasNext()) {
         final PositionedRenderable pr = i.next();
         final BoundableRenderable r = pr.renderable;
-        final Rectangle bounds = r.getBounds();
+        final Rectangle bounds = r.getVisualBounds();
         if (bounds.contains(x, y)) {
-          final int childX = x - r.getX();
-          final int childY = y - r.getY();
+          final int childX = x - r.getVisualX();
+          final int childY = y - r.getVisualY();
           if (!r.onMouseClick(event, childX, childY)) {
             return false;
           }
@@ -232,10 +232,10 @@ class RTable extends BaseElementRenderable {
       while (i.hasNext()) {
         final PositionedRenderable pr = i.next();
         final BoundableRenderable r = pr.renderable;
-        final Rectangle bounds = r.getBounds();
+        final Rectangle bounds = r.getVisualBounds();
         if (bounds.contains(x, y)) {
-          final int childX = x - r.getX();
-          final int childY = y - r.getY();
+          final int childX = x - r.getVisualX();
+          final int childY = y - r.getVisualY();
           if (!r.onDoubleClick(event, childX, childY)) {
             return false;
           }
@@ -270,10 +270,10 @@ class RTable extends BaseElementRenderable {
       while (i.hasNext()) {
         final PositionedRenderable pr = i.next();
         final BoundableRenderable r = pr.renderable;
-        final Rectangle bounds = r.getBounds();
+        final Rectangle bounds = r.getVisualBounds();
         if (bounds.contains(x, y)) {
-          final int childX = x - r.getX();
-          final int childY = y - r.getY();
+          final int childX = x - r.getVisualX();
+          final int childY = y - r.getVisualY();
           if (!r.onMousePressed(event, childX, childY)) {
             return false;
           }
@@ -297,10 +297,10 @@ class RTable extends BaseElementRenderable {
       while (i.hasNext()) {
         final PositionedRenderable pr = i.next();
         final BoundableRenderable r = pr.renderable;
-        final Rectangle bounds = r.getBounds();
+        final Rectangle bounds = r.getVisualBounds();
         if (bounds.contains(x, y)) {
-          final int childX = x - r.getX();
-          final int childY = y - r.getY();
+          final int childX = x - r.getVisualX();
+          final int childY = y - r.getVisualY();
           if (!r.onMouseReleased(event, childX, childY)) {
             return false;
           }
