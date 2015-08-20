@@ -543,13 +543,52 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
     }
   }
 
+  private Renderable getInnerMostRenderable(final int x, final int y) {
+    final RBlock block = this.rblock;
+    Renderable r = block.getRenderable(x - block.getVisualX(), y - block.getVisualY());
+    Renderable inner = null;
+    do {
+      if (r instanceof RCollection) {
+        RCollection rc = (RCollection) r;
+        inner = rc.getRenderable(x - rc.getVisualX(), y - rc.getVisualY());
+        if (inner != null) {
+          r = inner;
+        }
+      } else {
+        inner = null;
+      }
+    } while (inner != null);
+
+    return r;
+  }
+
+  private RBlock getContainingBlock(final Renderable r) {
+    if (r instanceof RBlock) {
+      return (RBlock) r;
+    } else if (r == null) {
+      return null;
+    } else if (r instanceof BoundableRenderable) {
+      return getContainingBlock(((BoundableRenderable)r).getParent());
+    } else {
+      return null;
+    }
+  }
+
   private void onMouseWheelMoved(final MouseWheelEvent mwe) {
     final RBlock block = this.rblock;
     if (block != null) {
       switch (mwe.getScrollType()) {
       case MouseWheelEvent.WHEEL_UNIT_SCROLL:
         final int units = mwe.getWheelRotation() * mwe.getScrollAmount();
-        block.scrollByUnits(Adjustable.VERTICAL, units);
+        final Renderable innerMostRenderable = getInnerMostRenderable(mwe.getX(), mwe.getY());
+        boolean consumed = false;
+        RBlock innerBlock = getContainingBlock(innerMostRenderable);
+        do {
+          if (innerBlock != null) {
+            consumed = innerBlock.scrollByUnits(Adjustable.VERTICAL, units);
+            innerBlock = getContainingBlock(innerBlock.getParent());
+          }
+        } while ((!consumed) && (innerBlock != null));
         break;
       }
     }

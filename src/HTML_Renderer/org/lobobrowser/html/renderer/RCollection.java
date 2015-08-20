@@ -42,4 +42,6 @@ public interface RCollection extends BoundableRenderable {
   public void focus();
 
   public void blur();
+
+  public BoundableRenderable getRenderable(final int x, final int y);
 }

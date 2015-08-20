@@ -1419,11 +1419,12 @@ public class RBlock extends BaseElementRenderable {
     }
   }
 
-  public void scrollHorizontalTo(final int newX) {
+  public boolean scrollHorizontalTo(final int newX) {
     final RBlockViewport bodyLayout = this.bodyLayout;
     if (bodyLayout != null) {
       final Insets insets = this.getInsetsMarginBorder(this.hasHScrollBar, this.hasVScrollBar);
       final int viewPortX = newX;
+      final int prevX = bodyLayout.x;
       if (viewPortX > insets.left) {
         bodyLayout.x = insets.left;
       } else if (viewPortX < (this.width - insets.right - bodyLayout.width)) {
@@ -1434,14 +1435,19 @@ public class RBlock extends BaseElementRenderable {
       this.resetScrollBars(null);
       this.updateWidgetBounds();
       this.repaint();
+
+      return bodyLayout.x != prevX;
     }
+
+    return false;
   }
 
-  public void scrollVerticalTo(final int newY) {
+  public boolean scrollVerticalTo(final int newY) {
     final RBlockViewport bodyLayout = this.bodyLayout;
     if (bodyLayout != null) {
       final Insets insets = this.getInsetsMarginBorder(this.hasHScrollBar, this.hasVScrollBar);
       final int viewPortY = newY;
+      final int prevY = bodyLayout.y;
       if (viewPortY > insets.top) {
         bodyLayout.y = insets.top;
       } else if (viewPortY < (this.height - insets.bottom - bodyLayout.height)) {
@@ -1452,26 +1458,29 @@ public class RBlock extends BaseElementRenderable {
       this.resetScrollBars(null);
       this.updateWidgetBounds();
       this.repaint();
+      return bodyLayout.y != prevY;
     }
+
+    return false;
   }
 
-  public void scrollByUnits(final int orientation, final int units) {
+  public boolean scrollByUnits(final int orientation, final int units) {
     final int offset = orientation == Adjustable.VERTICAL ? getVUnitIncrement(null) * units : units;
-    this.scrollBy(orientation, offset);
+    return this.scrollBy(orientation, offset);
   }
 
-  public void scrollBy(final int orientation, final int offset) {
+  public boolean scrollBy(final int orientation, final int offset) {
     final RBlockViewport bodyLayout = this.bodyLayout;
     if (bodyLayout != null) {
       switch (orientation) {
       case Adjustable.HORIZONTAL:
-        this.scrollHorizontalTo(bodyLayout.x - offset);
-        break;
+        return this.scrollHorizontalTo(bodyLayout.x - offset);
       case Adjustable.VERTICAL:
-        this.scrollVerticalTo(bodyLayout.y - offset);
-        break;
+        return this.scrollVerticalTo(bodyLayout.y - offset);
       }
     }
+
+    return false;
   }
 
   /**
