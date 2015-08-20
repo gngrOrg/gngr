@@ -1568,7 +1568,10 @@ public class RBlock extends BaseElementRenderable {
       return null;
     }
     final Insets insets = this.getInsetsMarginBorder(this.hasHScrollBar, this.hasVScrollBar);
-    return new FloatingInfo(info.shiftX + insets.left + relativeOffsetX, info.shiftY + insets.top + relativeOffsetY, info.floats);
+    for (final ExportableFloat f : info.floats) {
+      f.addVisualShift(relativeOffsetX, relativeOffsetY);
+    }
+    return new FloatingInfo(info.shiftX + insets.left, info.shiftY + insets.top, info.floats);
   }
 
   private class LocalAdjustmentListener implements AdjustmentListener {

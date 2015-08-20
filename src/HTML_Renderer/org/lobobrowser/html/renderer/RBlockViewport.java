@@ -2593,13 +2593,15 @@ public class RBlockViewport extends BaseRCollection {
     }
   }
 
-  private void addExportableFloat(final BoundableRenderable element, final boolean leftFloat, final int origX, final int origY) {
+  private void addExportableFloat(final BoundableRenderable element, final boolean leftFloat, final int origX, final int origY, final int visualX, final int visualY) {
     ArrayList<ExportableFloat> ep = this.exportableFloats;
     if (ep == null) {
       ep = new ArrayList<>(1);
       this.exportableFloats = ep;
     }
-    ep.add(new ExportableFloat(element, leftFloat, origX, origY));
+    ExportableFloat ef = new ExportableFloat(element, leftFloat, origX, origY);
+    ef.addVisualShift(visualX, visualY);
+    ep.add(ef);
   }
 
   /**
@@ -2671,7 +2673,7 @@ public class RBlockViewport extends BaseRCollection {
     if (isFloatLimit) {
       this.addPositionedRenderable(element, true, true, false);
     } else {
-      this.addExportableFloat(element, leftFloat, boxX, boxY);
+      this.addExportableFloat(element, leftFloat, boxX, boxY, 0, 0);
     }
     // Adjust maxX based on float.
     if ((boxX + boxWidth) > this.maxX) {
@@ -2776,7 +2778,7 @@ public class RBlockViewport extends BaseRCollection {
     final BoundableRenderable renderable = ef.element;
     final int newX = ef.origX + shiftX;
     final int newY = ef.origY + shiftY;
-    renderable.setOrigin(newX, newY);
+    renderable.setOrigin(newX + ef.visualX, newY + ef.visualY);
     final FloatingBounds prevBounds = this.floatBounds;
     int offsetFromBorder;
     final boolean leftFloat = ef.leftFloat;
@@ -2789,7 +2791,7 @@ public class RBlockViewport extends BaseRCollection {
     if (this.isFloatLimit()) {
       this.addPositionedRenderable(renderable, true, true, false);
     } else {
-      this.addExportableFloat(renderable, leftFloat, newX, newY);
+      this.addExportableFloat(renderable, leftFloat, newX, newY, ef.visualX, ef.visualY);
     }
   }
 

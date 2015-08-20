@@ -24,8 +24,9 @@ public class ExportableFloat {
   public static final ExportableFloat[] EMPTY_ARRAY = new ExportableFloat[0];
   public final BoundableRenderable element;
   public final boolean leftFloat;
-  public final int origX;
-  public final int origY;
+  public final int origX, origY;
+
+  public int visualX = 0, visualY = 0;
 
   public ExportableFloat(final BoundableRenderable element, final boolean leftFloat, final int origX, final int origY) {
     super();
@@ -33,5 +34,10 @@ public class ExportableFloat {
     this.leftFloat = leftFloat;
     this.origX = origX;
     this.origY = origY;
+  }
+
+  public void addVisualShift(final int x, final int y) {
+    visualX += x;
+    visualY += y;
   }
 }
