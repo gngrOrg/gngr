@@ -99,7 +99,7 @@ public interface BoundableRenderable extends Renderable {
 
   public RenderableSpot getLowestRenderableSpot(int x, int y);
 
-  public Point getRenderablePoint(int guiX, int guiY);
+  // public Point getRenderablePoint(int guiX, int guiY);
 
   public void repaint();
 

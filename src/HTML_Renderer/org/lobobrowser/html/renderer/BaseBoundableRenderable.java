@@ -75,6 +75,7 @@ abstract class BaseBoundableRenderable extends BaseRenderable implements Boundab
     }
   }
 
+  /*
   public Point getRenderablePoint(final int guiX, final int guiY) {
     final Renderable parent = this.getParent();
     if (parent instanceof BoundableRenderable) {
@@ -84,7 +85,7 @@ abstract class BaseBoundableRenderable extends BaseRenderable implements Boundab
     } else {
       throw new IllegalStateException("parent=" + parent);
     }
-  }
+  }*/
 
   public int getHeight() {
     return height;
