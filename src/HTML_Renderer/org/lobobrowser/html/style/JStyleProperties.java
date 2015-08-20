@@ -641,8 +641,8 @@ abstract public class JStyleProperties extends AbstractScriptableDelegate implem
     this.context.informLookInvalid();
   }
 
-  // TODO this needs to be changed and the reference where it is being used also.
-  // we can implement specific methods like we have for other properties
+  // TODO references to this in internal code can use a more specific method.
+  //      (we can implement specific methods like we have for other properties)
   public String getPropertyValue(final String string) {
     return helperGetProperty(string);
   }
