@@ -500,7 +500,7 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
       this.mousePressTarget = block;
       final int rx = point.x;
       final int ry = point.y;
-      block.onMousePressed(event, point.x, point.y);
+      block.onMousePressed(event, rx, ry);
       final RenderableSpot rp = block.getLowestRenderableSpot(rx, ry);
       if (rp != null) {
         this.frameContext.resetSelection(rp);
