@@ -644,7 +644,7 @@ abstract public class JStyleProperties extends AbstractScriptableDelegate implem
   // TODO this needs to be changed and the reference where it is being used also.
   // we can implement specific methods like we have for other properties
   public String getPropertyValue(final String string) {
-    return getCursor();
+    return helperGetProperty(string);
   }
 
   public String getFloat() {
