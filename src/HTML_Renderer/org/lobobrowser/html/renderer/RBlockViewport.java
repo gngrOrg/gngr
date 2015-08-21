@@ -882,9 +882,11 @@ public class RBlockViewport extends BaseRCollection {
       final String rightText = style.getRight();
       final String bottomText = style.getBottom();
       final String topText = style.getTop();
+      final String widthText = style.getWidth();
+      final String heightText = style.getHeight();
 
       // Schedule as delayed pair. Will be positioned after everything else.
-      this.scheduleAbsDelayedPair(renderable, leftText, rightText, topText, bottomText, rs, currentLine.getX(), currentLine.getY() + currentLine.getHeight(), absolute);
+      this.scheduleAbsDelayedPair(renderable, leftText, rightText, topText, bottomText, widthText, heightText, rs, currentLine.getX(), currentLine.getY() + currentLine.getHeight(), absolute);
       // Does not affect bounds of this viewport yet.
       return true;
     } else {
@@ -1557,11 +1559,12 @@ public class RBlockViewport extends BaseRCollection {
    */
   private void scheduleAbsDelayedPair(final BoundableRenderable renderable,
       final String leftText, final String rightText, final String topText, final String bottomText,
+      final String widthText, final String heightText,
       final RenderState rs, final int currX, final int currY, final boolean absolute) {
     // It gets reimported in the local
     // viewport if it turns out it can't be exported up.
     final RenderableContainer containingBlock = absolute ? getPositionedAncestor(this.container) : getRootContainer(container);
-    final DelayedPair pair = new DelayedPair(this.container, containingBlock, renderable, leftText, rightText, topText, bottomText, rs, currX, currY, !absolute);
+    final DelayedPair pair = new DelayedPair(this.container, containingBlock, renderable, leftText, rightText, topText, bottomText, widthText, heightText, rs, currX, currY, !absolute);
     this.container.addDelayedPair(pair);
   }
 

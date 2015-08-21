@@ -33,13 +33,17 @@ public class DelayedPair {
   private final String top;
   private final String bottom;
   private final String right;
+  private final String width;
+  private final String height;
   private final RenderState rs;
   private final int initX;
   private final int initY;
   final boolean isFixed;
 
   public DelayedPair(final RenderableContainer immediateContainingBlock, final RenderableContainer containingBlock,
-      final BoundableRenderable child, final String left, final String right, final String top, final String bottom, final RenderState rs,
+      final BoundableRenderable child, final String left, final String right, final String top, final String bottom,
+      final String width, final String height,
+      final RenderState rs,
       final int initX, final int initY, final boolean isFixed) {
     this.immediateContainingBlock = immediateContainingBlock;
     this.containingBlock = containingBlock;
@@ -48,6 +52,8 @@ public class DelayedPair {
     this.right = right;
     this.top = top;
     this.bottom = bottom;
+    this.width = width;
+    this.height = height;
     this.rs = rs;
     this.initX = initX;
     this.initY = initY;
@@ -64,6 +70,14 @@ public class DelayedPair {
 
   private Integer getLeft() {
     return helperGetPixelSize(left, rs, 0, containingBlock.getInnerWidth());
+  }
+
+  private Integer getWidth() {
+    return helperGetPixelSize(width, rs, 0, containingBlock.getInnerWidth());
+  }
+
+  private Integer getHeight() {
+    return helperGetPixelSize(height, rs, 0, containingBlock.getInnerHeight());
   }
 
   private Integer getRight() {
@@ -83,22 +97,24 @@ public class DelayedPair {
     final BoundableRenderable child = this.child;
     Integer x = this.getLeft();
     Integer y = this.getTop();
-    Integer width = null;
-    Integer height = null;
+    Integer width = getWidth();
+    Integer height = getHeight();
     final Integer right = this.getRight();
     final Integer bottom = this.getBottom();
     if (right != null) {
       if (x != null) {
         width = parent.getInnerWidth() - (x + right);
       } else {
-        x = parent.getInnerWidth() - (child.getWidth() + right);
+        final int childWidth = width == null? child.getWidth() : width;
+        x = parent.getInnerWidth() - (childWidth + right);
       }
     }
     if (bottom != null) {
       if (y != null) {
         height = parent.getInnerHeight() - (y + bottom);
       } else {
-        y = parent.getInnerHeight() - child.getHeight() - bottom;
+        final int childHeight = height == null? child.getHeight() : height;
+        y = parent.getInnerHeight() - (childHeight + bottom);
       }
     }
     child.setX(x == null ? initX : x);
