@@ -312,9 +312,9 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
           // This would have to be a RStyleChanger. We rely on these
           // when the target node has blank content.
           if (Nodes.isSameOrAncestorOf(node, (Node) r.getModelNode())) {
-            final int xInRoot = prevBoundable == null ? 0 : prevBoundable.getX() + prevBoundable.getWidth();
+            final int xInRoot = prevBoundable == null ? 0 : prevBoundable.getVisualX() + prevBoundable.getVisualWidth();
             final Point rootOrigin = root.getOriginRelativeTo(relativeTo);
-            subBounds = new Rectangle(rootOrigin.x + xInRoot, rootOrigin.y, 0, root.getHeight());
+            subBounds = new Rectangle(rootOrigin.x + xInRoot, rootOrigin.y, 0, root.getVisualHeight());
           }
         }
         if (subBounds != null) {

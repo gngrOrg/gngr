@@ -1169,13 +1169,13 @@ public class RBlock extends BaseElementRenderable {
     final RBlockViewport bodyLayout = this.bodyLayout;
     if (bodyLayout != null) {
       final Insets insets = this.getInsetsMarginBorder(this.hasHScrollBar, this.hasVScrollBar);
-      if ((x > insets.left) && (x < (this.width - insets.right)) && (y > insets.top) && (y < (this.height - insets.bottom))) {
-        return bodyLayout.getLowestRenderableSpot(x - bodyLayout.x, y - bodyLayout.y);
+      if ((x - relativeOffsetX > insets.left) && (x - relativeOffsetX < (this.width - insets.right)) && (y - relativeOffsetY > insets.top) && (y - relativeOffsetY < (this.height - insets.bottom))) {
+        return bodyLayout.getLowestRenderableSpot(x - relativeOffsetX - bodyLayout.x, y - relativeOffsetY - bodyLayout.y);
       } else {
-        return new RenderableSpot(this, x, y);
+        return new RenderableSpot(this, x - relativeOffsetX, y - relativeOffsetY);
       }
     } else {
-      return new RenderableSpot(this, x, y);
+      return new RenderableSpot(this, x - relativeOffsetX, y - relativeOffsetY);
     }
   }
 
