@@ -353,6 +353,9 @@ public class RBlockViewport extends BaseRCollection {
     // Remove exporatable floats...
     this.exportableFloats = null;
 
+    this.cachedVisualHeight = null;
+    this.cachedVisualWidth = null;
+
     // Call addLine after setting margins
     this.currentLine = this.addLine(rootNode, null, this.paddingInsets.top);
 
@@ -2812,8 +2815,14 @@ public class RBlockViewport extends BaseRCollection {
     }
   }
 
+  private Integer cachedVisualHeight = null;
+  private Integer cachedVisualWidth = null;
+
   @Override
   public int getVisualHeight() {
+    if (cachedVisualHeight != null) {
+      return cachedVisualHeight;
+    }
     double maxY = getHeight();
     final Iterator<? extends Renderable> renderables = getRenderables();
     if (renderables != null) {
@@ -2843,11 +2852,15 @@ public class RBlockViewport extends BaseRCollection {
         }
       }
     }
-    return (int) maxY;
+    cachedVisualHeight = (int) maxY;
+    return cachedVisualHeight;
   }
 
   @Override
   public int getVisualWidth() {
+    if (cachedVisualWidth != null) {
+      return cachedVisualWidth;
+    }
     double maxX = getWidth();
     final Iterator<? extends Renderable> renderables = getRenderables();
     if (renderables != null) {
@@ -2877,6 +2890,7 @@ public class RBlockViewport extends BaseRCollection {
         }
       }
     }
-    return (int) maxX;
+    cachedVisualWidth = (int) maxX;
+    return cachedVisualWidth;
   }
 }
