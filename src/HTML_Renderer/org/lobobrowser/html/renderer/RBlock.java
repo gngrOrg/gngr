@@ -748,12 +748,20 @@ public class RBlock extends BaseElementRenderable {
 
   @Override
   public int getVisualWidth() {
-    return Math.max(super.getVisualWidth(), bodyLayout.getVisualWidth());
+    if (hasHScrollBar) {
+      return super.getVisualWidth();
+    } else {
+      return Math.max(super.getVisualWidth(), bodyLayout.getVisualWidth());
+    }
   }
 
   @Override
   public int getVisualHeight() {
-    return Math.max(super.getVisualHeight(), bodyLayout.getVisualHeight());
+    if (hasVScrollBar) {
+      return super.getVisualHeight();
+    } else {
+      return Math.max(super.getVisualHeight(), bodyLayout.getVisualHeight());
+    }
   }
 
   // /**
