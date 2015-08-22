@@ -1526,6 +1526,7 @@ public class RBlock extends BaseElementRenderable {
       }
       if (needCorrection) {
         this.correctViewportOrigin(insets, this.width, this.height);
+        this.resetScrollBars(null);
       }
     }
   }

@@ -108,6 +108,7 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
   protected int preferredWidth = -1;
   protected int defaultOverflowX = RenderState.OVERFLOW_AUTO;
   protected int defaultOverflowY = RenderState.OVERFLOW_SCROLL;
+  private volatile boolean scrollCompleted = false;
 
   public HtmlBlockPanel(final UserAgentContext pcontext, final HtmlRendererContext rcontext, final FrameContext frameContext) {
     this(ColorFactory.TRANSPARENT, false, pcontext, rcontext, frameContext);
@@ -203,7 +204,9 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
   public void scrollTo(final Rectangle bounds, final boolean xIfNeeded, final boolean yIfNeeded) {
     final RBlock block = this.rblock;
     if (block != null) {
-      block.scrollTo(bounds, xIfNeeded, yIfNeeded);
+      final HTMLDocumentImpl doc = (HTMLDocumentImpl) getRootNode();
+      RBlock bodyBlock = (RBlock)((HTMLElementImpl) doc.getBody()).getUINode();
+      bodyBlock.scrollTo(bounds, xIfNeeded, yIfNeeded);
     }
   }
 
@@ -433,6 +436,7 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
    * dispatch thread.
    */
   public void setRootNode(final NodeImpl node) {
+    scrollCompleted = false;
     if (node != null) {
       final RBlock block = new RBlock(node, 0, this.ucontext, this.rcontext, this.frameContext, this);
       block.setDefaultOverflowX(this.defaultOverflowX);
@@ -666,7 +670,8 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
   @Override
   public void doLayout() {
     final NodeImpl rootNode = getRootNode();
-    final boolean layoutBlocked = ((HTMLDocumentImpl)rootNode).layoutBlocked.get();
+    final HTMLDocumentImpl doc = (HTMLDocumentImpl)rootNode;
+    final boolean layoutBlocked = doc.layoutBlocked.get();
     if (layoutBlocked) {
       return;
     }
@@ -680,6 +685,13 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
         block.setOrigin(0, 0);
         block.updateWidgetBounds(0, 0);
         this.updateGUIComponents();
+        if (!scrollCompleted) {
+          scrollCompleted = true;
+          final String ref = doc.getDocumentURL().getRef();
+          if (ref != null && ref.length() > 0) {
+            scrollTo(doc.getElementById(ref));
+          }
+        }
       } else {
         if (this.getComponentCount() > 0) {
           this.removeAll();

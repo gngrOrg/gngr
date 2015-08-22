@@ -173,11 +173,14 @@ public final class HtmlClientlet implements Clientlet {
       // We're done parsing, but let's make sure
       // the listener actually renderered the document.
       listener.ensureSwitchedToRendering();
+
       // Scroll to see anchor.
+      /* This is now disabled, because we now layout lazily. There is no point in scrolling until the layout is done.
       final String ref = responseURL.getRef();
       if ((ref != null) && (ref.length() != 0)) {
         panel.scrollToElement(ref);
-      }
+      }*/
+
       if (refresh != null) {
         final String destUri = refresh.destinationUrl;
         final java.net.URL currentURL = response.getResponseURL();
