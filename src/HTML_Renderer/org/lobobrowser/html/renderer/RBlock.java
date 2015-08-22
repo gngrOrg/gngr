@@ -578,7 +578,7 @@ public class RBlock extends BaseElementRenderable {
       actualAvailWidth = availWidth - paddingTotalWidth - insetsTotalWidth;
       final Integer dwNew = this.getDeclaredWidth(renderState, actualAvailWidth);
       declaredWidth = dwNew == null ? -1 : dwNew.intValue();
-      desiredViewportWidth = tentativeWidth - paddingTotalWidth - insetsTotalWidth;
+      desiredViewportWidth = tentativeWidth - insetsTotalWidth;
       if (blockFloatBounds != null) {
         viewportFloatBounds = new ShiftedFloatingBounds(blockFloatBounds, -insets.left, -insets.right, -insets.top);
       }
