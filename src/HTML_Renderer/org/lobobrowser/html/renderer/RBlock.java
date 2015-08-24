@@ -671,11 +671,15 @@ public class RBlock extends BaseElementRenderable {
       final JScrollBar sb = this.getVScrollBar();
       this.addComponent(sb);
       // Bounds set by updateWidgetBounds
+    } else {
+      this.vScrollBar = null;
     }
     if (hscroll) {
       final JScrollBar sb = this.getHScrollBar();
       this.addComponent(sb);
       // Bounds set by updateWidgetBounds
+    } else {
+      this.hScrollBar = null;
     }
 
     if (hscroll || vscroll) {
