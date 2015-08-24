@@ -148,10 +148,16 @@ public class AboutURLConnection extends URLConnection {
         "</div>"
         +
         "<div style='padding:1em;border:1px solid #bbb;background:#efe;width:50em;margin:0 auto'>" +
-        "<p>Tip: Checkout the Request Manager button on the right of the URL bar. " +
+        "<p><span style='border-bottom:2px solid red; font-weight:bold'>Tip:</span> Checkout the Request Manager button on the right of the URL bar. " +
         "The Request Manager allows you to control which URL requests are allowed on a given webpage.</p>" +
         "<p>By default, cookies, scripts and frames are disabled on all websites. " +
         "You can change these rules as per your preferences.</p>" +
+        "<p>Note: the button is disabled on this page since it is an internal page and there are no external requests.</p>" +
+        "<div style='position:fixed; right: 0; top: 0; background: #efe; color:#222; padding: 0.33em 1em; border:2px dotted #9e9; border-top:0'>" +
+          "<p style='margin:0; font-weight:bold; text-align:right; font-size:120% '>&#11014;</p>" +
+          "<p style='margin:0; font-weight:bold'>Request Manager</p>" +
+          "<p style='margin:0; font-size: 90%'>(read the tip below)</p>" +
+        "</div>" +
         "</div>" +
         "</div>";
   }
