@@ -27,6 +27,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.ImageObserver;
 import java.util.Collection;
@@ -1106,5 +1107,27 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
   @Override
   public void invalidateRenderStyle() {
     applyLook();
+  }
+
+  public Point translateDescendentPoint(BoundableRenderable descendent, int x, int y) {
+    final Point p = descendent.getOriginRelativeTo(this);
+    p.translate(x, y);
+    return p;
+
+    /* The following is the original implementation. It should be equivalent to the above */
+    /*
+    while (descendent != this) {
+      if (descendent == null) {
+        // throw new IllegalStateException("Not descendent");
+        System.err.println("Descendant not found!");
+        return new java.awt.Point(x, y);
+      }
+      x += descendent.getVisualX();
+      y += descendent.getVisualY();
+      // Coordinates are always relative to actual parent?
+      descendent = descendent.getParent();
+    }
+    return new java.awt.Point(x, y);
+    */
   }
 }

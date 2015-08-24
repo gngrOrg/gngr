@@ -1004,4 +1004,8 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
   public Rectangle getVisualBounds() {
     return new Rectangle(getX(), getY(), getVisualWidth(), getVisualHeight());
   }
+
+  public java.awt.Point translateDescendentPoint(BoundableRenderable descendent, int x, int y) {
+    return rblock.translateDescendentPoint(descendent, x, y);
+  }
 }

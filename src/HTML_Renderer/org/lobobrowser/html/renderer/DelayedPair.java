@@ -117,18 +117,15 @@ public class DelayedPair {
         y = parent.getInnerHeight() - (childHeight + bottom);
       }
     }
-    child.setX(x == null ? initX : x);
-
-    if (y != null) {
-      child.setY(y);
-    } else {
-      if (this.immediateContainingBlock != parent) {
-        final Insets immediateInsets = this.immediateContainingBlock.getInsets(false, false);
-        child.setY((this.initY + (this.immediateContainingBlock.getY() + immediateInsets.top)) - parent.getY());
-      } else {
-        child.setY(this.initY);
-      }
+    final java.awt.Point tp = containingBlock.translateDescendentPoint((BoundableRenderable)(immediateContainingBlock), initX, initY);
+    if (this.immediateContainingBlock != parent) {
+        final Insets immediateInsets = this.immediateContainingBlock.getInsetsMarginBorder(false, false);
+        tp.translate(immediateInsets.left, immediateInsets.top);
     }
+
+    child.setX((x == null ? tp.x : x));
+    child.setY((y == null ? tp.y : y));
+
     if (width != null) {
       child.setWidth(width);
     }
@@ -141,4 +138,5 @@ public class DelayedPair {
   public String toString() {
     return "DP " + child + " containing block: " + containingBlock;
   }
+
 }

@@ -81,4 +81,5 @@ public interface RenderableContainer {
   public int getVisualWidth();
   public int getVisualHeight();
 
+  java.awt.Point translateDescendentPoint(BoundableRenderable descendent, int x, int y);
 }
