@@ -70,6 +70,7 @@ import org.lobobrowser.ua.NetworkRequest;
 import org.lobobrowser.ua.UserAgentContext;
 import org.lobobrowser.ua.UserAgentContext.Request;
 import org.lobobrowser.ua.UserAgentContext.RequestKind;
+import org.lobobrowser.util.Nodes;
 import org.lobobrowser.util.SecurityUtil;
 import org.lobobrowser.util.Urls;
 import org.lobobrowser.util.WeakValueHashMap;
@@ -1436,6 +1437,21 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
         classifiedRules = AnalyzerUtil.getClassifiedRules(jSheets, new MediaSpec("screen"));
       }
     }
+  }
+
+  /**
+   * Visits all elements and computes their styles. This is faster than
+   * computing them separately when needed. Note: If styles were to be stored as
+   * soft / weak references, this method will lose its value.
+   */
+  @HideFromJS
+  public void primeNodeData() {
+    visit((node) -> {
+      if (node instanceof HTMLElementImpl) {
+        HTMLElementImpl he = (HTMLElementImpl) node;
+        he.getCurrentStyle();
+      }
+    });
   }
 
   Holder getClassifiedRules() {

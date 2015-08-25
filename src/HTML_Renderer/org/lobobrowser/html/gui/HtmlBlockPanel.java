@@ -675,6 +675,9 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
     if (layoutBlocked) {
       return;
     }
+
+    doc.primeNodeData();
+
     try {
       final Dimension size = this.getSize();
       this.clearComponents();
