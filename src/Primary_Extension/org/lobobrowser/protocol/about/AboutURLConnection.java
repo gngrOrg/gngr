@@ -141,9 +141,11 @@ public class AboutURLConnection extends URLConnection {
         +
         "<p>Other ways of reaching us:</p>" +
         "<ul>" +
-        "<li>#gngr and #gngr-dev on Freenode IRC</li>" +
-        "<li><a href='https://reddit.com/r/gngr'>/r/gngr</a> on Reddit</li>" +
-        "<li><a href='https://twitter.com/gngrInfo'>@gngrInfo</a> on Twitter</li>" +
+          "<li style='margin:1em 0'><a href='https://github.com/uprootlabs/gngr'>Source code and issues</a> on GitHub</li>" +
+          "<li style='margin:1em 0'>#gngr and #gngr-dev on Freenode IRC</li>" +
+          "<li style='margin:1em 0'><a href='https://reddit.com/r/gngr'>/r/gngr</a> on Reddit</li>" +
+          "<li style='margin:1em 0'><a href='https://twitter.com/gngrInfo'>@gngrInfo</a> on Twitter</li>" +
+          "<li style='margin:1em 0'>Project <a href='https://gngr.info'>Home</a></li>" +
         "</ul>" +
         "</div>"
         +
@@ -153,7 +155,7 @@ public class AboutURLConnection extends URLConnection {
         "<p>By default, cookies, scripts and frames are disabled on all websites. " +
         "You can change these rules as per your preferences.</p>" +
         "<p>Note: the button is disabled on this page since it is an internal page and there are no external requests.</p>" +
-        "<div style='position:fixed; right: 0; top: 0; background: #efe; color:#222; padding: 0.33em 1em; border:2px dotted #9e9; border-top:0'>" +
+        "<div style='position:fixed; right: 0; top: 0; background: #efe; color:#595; padding: 0.33em 1em; border:2px dotted #9f9; border-top:0'>" +
           "<p style='margin:0; font-weight:bold; text-align:right; font-size:120% '>&#11014;</p>" +
           "<p style='margin:0; font-weight:bold'>Request Manager</p>" +
           "<p style='margin:0; font-size: 90%'>(read the tip below)</p>" +
