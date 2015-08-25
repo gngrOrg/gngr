@@ -414,51 +414,12 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
       this.lastBackgroundImageUri = backgroundImageUri;
       this.loadBackgroundImage(backgroundImageUri);
     }
-    if ((!isRootBlock) && updateLayout) {
+    if (!isRootBlock) {
       final JStyleProperties props = rootElement.getCurrentStyle();
       if (props == null) {
         this.clearStyle(isRootBlock);
       } else {
         final BorderInfo borderInfo = rs.getBorderInfo();
-        this.borderInfo = borderInfo;
-        final HtmlInsets binsets = borderInfo == null ? null : borderInfo.insets;
-        final HtmlInsets minsets = rs.getMarginInsets();
-        final HtmlInsets pinsets = rs.getPaddingInsets();
-        int dmleft = 0, dmright = 0, dmtop = 0, dmbottom = 0;
-        int dpleft = 0, dpright = 0, dptop = 0, dpbottom = 0;
-        Insets borderInsets = binsets == null ? null : binsets.getAWTInsets(0, 0, 0, 0, availWidth, availHeight, 0, 0);
-        if (borderInsets == null) {
-          borderInsets = RBlockViewport.ZERO_INSETS;
-        }
-        Insets paddingInsets = pinsets == null ? null : pinsets.getAWTInsets(dptop, dpleft, dpbottom, dpright, availWidth,
-            availHeight, 0, 0);
-        if (paddingInsets == null) {
-          paddingInsets = RBlockViewport.ZERO_INSETS;
-        }
-        Insets tentativeMarginInsets = minsets == null ? null : minsets.getAWTInsets(dmtop, dmleft, dmbottom, dmright,
-            availWidth, availHeight, 0, 0);
-        if (tentativeMarginInsets == null) {
-          tentativeMarginInsets = RBlockViewport.ZERO_INSETS;
-        }
-        // TODO: Get rid of autoMarginX and autoMarginY. They will be always zero
-        final int autoMarginX = 0, autoMarginY = 0;
-        this.borderInsets = borderInsets;
-        if (isRootBlock) {
-          // In the root block, the margin behaves like an extra padding.
-          Insets regularMarginInsets = ((autoMarginX == 0) && (autoMarginY == 0)) ? tentativeMarginInsets
-              : (minsets == null ? null : minsets.getAWTInsets(dmtop, dmleft, dmbottom, dmright, availWidth, availHeight,
-                  autoMarginX, autoMarginY));
-          if (regularMarginInsets == null) {
-            regularMarginInsets = RBlockViewport.ZERO_INSETS;
-          }
-          this.marginInsets = null;
-          this.paddingInsets = new Insets(paddingInsets.top + regularMarginInsets.top, paddingInsets.left + regularMarginInsets.left,
-              paddingInsets.bottom + regularMarginInsets.bottom, paddingInsets.right + regularMarginInsets.right);
-        } else {
-          this.paddingInsets = paddingInsets;
-          this.marginInsets = ((autoMarginX == 0) && (autoMarginY == 0)) ? tentativeMarginInsets : (minsets == null ? null
-              : minsets.getAWTInsets(dmtop, dmleft, dmbottom, dmright, availWidth, availHeight, autoMarginX, autoMarginY));
-        }
         if (borderInfo != null) {
           this.borderTopColor = borderInfo.topColor;
           this.borderLeftColor = borderInfo.leftColor;
@@ -470,20 +431,61 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
           this.borderBottomColor = null;
           this.borderRightColor = null;
         }
-        // TODO: Why is props from root element being used here and not the renderstate of the current element?
-        final String zIndex = props.getZIndex();
-        if (zIndex != null) {
-          try {
-            this.zIndex = Integer.parseInt(zIndex);
-          } catch (final NumberFormatException err) {
-            logger.log(Level.WARNING, "Unable to parse z-index [" + zIndex + "] in element " + this.modelNode + ".", err);
+        if (updateLayout) {
+          this.borderInfo = borderInfo;
+          final HtmlInsets binsets = borderInfo == null ? null : borderInfo.insets;
+          final HtmlInsets minsets = rs.getMarginInsets();
+          final HtmlInsets pinsets = rs.getPaddingInsets();
+          int dmleft = 0, dmright = 0, dmtop = 0, dmbottom = 0;
+          int dpleft = 0, dpright = 0, dptop = 0, dpbottom = 0;
+          Insets borderInsets = binsets == null ? null : binsets.getAWTInsets(0, 0, 0, 0, availWidth, availHeight, 0, 0);
+          if (borderInsets == null) {
+            borderInsets = RBlockViewport.ZERO_INSETS;
+          }
+          Insets paddingInsets = pinsets == null ? null : pinsets.getAWTInsets(dptop, dpleft, dpbottom, dpright, availWidth,
+              availHeight, 0, 0);
+          if (paddingInsets == null) {
+            paddingInsets = RBlockViewport.ZERO_INSETS;
+          }
+          Insets tentativeMarginInsets = minsets == null ? null : minsets.getAWTInsets(dmtop, dmleft, dmbottom, dmright,
+              availWidth, availHeight, 0, 0);
+          if (tentativeMarginInsets == null) {
+            tentativeMarginInsets = RBlockViewport.ZERO_INSETS;
+          }
+          // TODO: Get rid of autoMarginX and autoMarginY. They will be always zero
+          final int autoMarginX = 0, autoMarginY = 0;
+          this.borderInsets = borderInsets;
+          if (isRootBlock) {
+            // In the root block, the margin behaves like an extra padding.
+            Insets regularMarginInsets = ((autoMarginX == 0) && (autoMarginY == 0)) ? tentativeMarginInsets
+                : (minsets == null ? null : minsets.getAWTInsets(dmtop, dmleft, dmbottom, dmright, availWidth, availHeight,
+                    autoMarginX, autoMarginY));
+            if (regularMarginInsets == null) {
+              regularMarginInsets = RBlockViewport.ZERO_INSETS;
+            }
+            this.marginInsets = null;
+            this.paddingInsets = new Insets(paddingInsets.top + regularMarginInsets.top, paddingInsets.left + regularMarginInsets.left,
+                paddingInsets.bottom + regularMarginInsets.bottom, paddingInsets.right + regularMarginInsets.right);
+          } else {
+            this.paddingInsets = paddingInsets;
+            this.marginInsets = ((autoMarginX == 0) && (autoMarginY == 0)) ? tentativeMarginInsets : (minsets == null ? null
+                : minsets.getAWTInsets(dmtop, dmleft, dmbottom, dmright, availWidth, availHeight, autoMarginX, autoMarginY));
+          }
+          // TODO: Why is props from root element being used here and not the renderstate of the current element?
+          final String zIndex = props.getZIndex();
+          if (zIndex != null) {
+            try {
+              this.zIndex = Integer.parseInt(zIndex);
+            } catch (final NumberFormatException err) {
+              logger.log(Level.WARNING, "Unable to parse z-index [" + zIndex + "] in element " + this.modelNode + ".", err);
+              this.zIndex = 0;
+            }
+          } else {
             this.zIndex = 0;
           }
-        } else {
-          this.zIndex = 0;
+          this.overflowX = rs.getOverflowX();
+          this.overflowY = rs.getOverflowY();
         }
-        this.overflowX = rs.getOverflowX();
-        this.overflowY = rs.getOverflowY();
       }
     }
 
