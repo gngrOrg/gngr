@@ -59,6 +59,7 @@ import org.w3c.dom.html.HTMLFormElement;
 import cz.vutbr.web.css.CSSException;
 import cz.vutbr.web.css.CSSFactory;
 import cz.vutbr.web.css.CSSProperty;
+import cz.vutbr.web.css.CombinedSelector;
 import cz.vutbr.web.css.MatchCondition;
 import cz.vutbr.web.css.MediaSpec;
 import cz.vutbr.web.css.NodeData;
@@ -151,6 +152,11 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
   private NodeData cachedNodeData = null;
   private volatile OrderedRule[] cachedRules = null;
 
+  /** True if there is any hover rule that is applicable to this element or descendants.
+   *  This is a very crude measure, but highly effective with most web-sites.
+   */
+  private boolean cachedHasHoverRule = false;
+
   private NodeData getNodeData(final Selector.PseudoDeclaration psuedoElement) {
     // The analyzer needs the tree lock, when traversing the DOM.
     // To break deadlocks, we take the tree lock before taking the element lock (priority based dead-lock break).
@@ -174,6 +180,7 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
 
           final HTMLDocumentImpl doc = (HTMLDocumentImpl) this.document;
           cachedRules = AnalyzerUtil.getApplicableRules(this, doc.getClassifiedRules(), jSheets.size() > 0 ? jSheets.toArray(new RuleSet[jSheets.size()]) : null);
+          cachedHasHoverRule = hasHoverRule(cachedRules);
         }
 
         final NodeData nodeData = AnalyzerUtil.getElementStyle(this, psuedoElement, elementMatchCondition, cachedRules);
@@ -187,6 +194,20 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
         return nodeData;
       }
     }
+  }
+
+  private static boolean hasHoverRule(OrderedRule[] rules) {
+    for (final OrderedRule or : rules) {
+      final RuleSet r = or.getRule();
+      for (final CombinedSelector cs : r.getSelectors()) {
+        for (final Selector s : cs) {
+          if (s.hasPseudoDeclaration(PseudoDeclaration.HOVER)) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
   }
 
   /**
@@ -328,9 +349,11 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
       // TODO: If informLocalInvalid detects a layout change, then there is no need to do descendant invalidation.
 
       // Check if descendents are affected (e.g. div:hover a { ... } )
-      this.invalidateDescendentsForHover(mouseOver);
-      if (this.hasHoverStyle()) {
-        this.informLocalInvalid();
+      if (cachedHasHoverRule) {
+        this.invalidateDescendentsForHover(mouseOver);
+        if (this.hasHoverStyle()) {
+          this.informLocalInvalid();
+        }
       }
     }
   }
