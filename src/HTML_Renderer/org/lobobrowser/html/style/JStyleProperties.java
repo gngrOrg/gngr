@@ -54,8 +54,8 @@ abstract public class JStyleProperties extends AbstractScriptableDelegate implem
   }
 
   public String getBackground() {
-    // TODO need to implement this method
-    throw new UnsupportedOperationException();
+    // TODO need to implement this method. GH #143
+    return "";
   }
 
   public String getBackgroundAttachment() {
