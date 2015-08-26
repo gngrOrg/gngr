@@ -731,6 +731,9 @@ public class RBlock extends BaseElementRenderable {
 
       this.relativeOffsetX = left;
       this.relativeOffsetY = top;
+    } else {
+      this.relativeOffsetX = 0;
+      this.relativeOffsetY = 0;
     }
   }
 
