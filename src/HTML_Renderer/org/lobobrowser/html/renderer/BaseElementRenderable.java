@@ -23,6 +23,7 @@ package org.lobobrowser.html.renderer;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Image;
@@ -564,7 +565,9 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
               final int h = img.getHeight(BaseElementRenderable.this);
               // Maybe image already done...
               if ((w != -1) && (h != -1)) {
-                BaseElementRenderable.this.repaint();
+                EventQueue.invokeLater(() -> {
+                  BaseElementRenderable.this.repaint();
+                });
               }
             }
           }
