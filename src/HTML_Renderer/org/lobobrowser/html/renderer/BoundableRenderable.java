@@ -37,6 +37,10 @@ public interface BoundableRenderable extends Renderable {
 
   public Rectangle getBounds();
 
+  public Rectangle getVisualBounds();
+
+  public boolean contains(final int x, final int y);
+
   public Dimension getSize();
 
   public Point getOrigin();
@@ -80,6 +84,10 @@ public interface BoundableRenderable extends Renderable {
   public int getHeight();
 
   public int getWidth();
+
+  public int getVisualHeight();
+
+  public int getVisualWidth();
 
   public void setHeight(int height);
 

@@ -25,6 +25,8 @@ package org.lobobrowser.html.renderer;
 
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.lobobrowser.util.Diagnostics;
 
@@ -64,6 +66,37 @@ class MarkupUtilities {
 
   private static BoundableRenderable findRenderable(final Renderable[] renderables, final int x, final int y, final int firstIndex,
       final int length, final boolean vertical) {
+    for (int i = firstIndex + length - 1; i >= firstIndex; i--) {
+      if (renderables[i] instanceof BoundableRenderable) {
+        final BoundableRenderable br2 = (BoundableRenderable) renderables[i];
+        if (br2.contains(x, y)) {
+          return br2;
+        }
+      }
+    }
+    return null;
+  }
+
+  // Linear scan version
+  public static List<BoundableRenderable> findRenderables(final Renderable[] renderables, final int x, final int y, final boolean vertical) {
+    List<BoundableRenderable> found = null;
+    for (int i = 0; i < renderables.length; i++) {
+      if (renderables[i] instanceof BoundableRenderable) {
+        final BoundableRenderable br = (BoundableRenderable) renderables[i];
+        if (br.contains(x, y)) {
+          if (found == null) {
+            found = new ArrayList<>();
+          }
+          found.add(br);
+        }
+      }
+    }
+    return found;
+  }
+
+  /*
+  private static BoundableRenderable findRenderable(final Renderable[] renderables, final int x, final int y, final int firstIndex,
+      final int length, final boolean vertical) {
     if (length == 0) {
       return null;
     }
@@ -73,16 +106,28 @@ class MarkupUtilities {
         return null;
       }
       final BoundableRenderable br = (BoundableRenderable) r;
-      final Rectangle rbounds = br.getBounds();
-      return rbounds.contains(x, y) ? br : null;
+      // return br.contains(x, y) ? br : null;
+      if (br.contains(x, y)) {
+        return br;
+      } else {
+        for (int i = firstIndex; i>= 0; i--) {
+          if (renderables[i] instanceof BoundableRenderable) {
+            final BoundableRenderable br2 = (BoundableRenderable) renderables[i];
+            if (br2.contains(x, y)) {
+              return br2;
+            }
+          }
+        }
+        return null;
+      }
     } else {
       final int middleIndex = firstIndex + (length / 2);
       final Renderable r = renderables[middleIndex];
       Rectangle rbounds;
       if (r instanceof BoundableRenderable) {
-        rbounds = ((BoundableRenderable) r).getBounds();
+        rbounds = ((BoundableRenderable) r).getVisualBounds();
       } else {
-        final BoundableRenderable rleft = findRenderable(renderables, x, y, firstIndex, middleIndex - firstIndex, vertical);
+        final BoundableRenderable rleft = findRenderable(renderables, x, y, firstIndex, middleIndex + 1 - firstIndex, vertical);
         if (rleft != null) {
           return rleft;
         }
@@ -105,7 +150,7 @@ class MarkupUtilities {
         }
       }
     }
-  }
+  }*/
 
   public static Range findRenderables(final Renderable[] renderables, final Rectangle clipArea, final boolean vertical) {
     return findRenderables(renderables, clipArea, 0, renderables.length, vertical);
@@ -136,6 +181,7 @@ class MarkupUtilities {
     return new Range(offset1, (offset2 - offset1) + 1);
   }
 
+  /*
   private static int findFirstIndex(final Renderable[] renderables, final Rectangle clipArea, final int index, final int length,
       final boolean vertical) {
     Diagnostics.Assert(length > 0, "length=" + length);
@@ -143,7 +189,7 @@ class MarkupUtilities {
       final Renderable r = renderables[index];
       Rectangle rbounds;
       if (r instanceof BoundableRenderable) {
-        rbounds = ((BoundableRenderable) r).getBounds();
+        rbounds = ((BoundableRenderable) r).getVisualBounds();
       } else {
         return -1;
       }
@@ -157,7 +203,7 @@ class MarkupUtilities {
       final Renderable r = renderables[middleIndex];
       Rectangle rbounds;
       if (r instanceof BoundableRenderable) {
-        rbounds = ((BoundableRenderable) r).getBounds();
+        rbounds = ((BoundableRenderable) r).getVisualBounds();
       } else {
         final int leftIndex = findFirstIndex(renderables, clipArea, index, middleIndex - index, vertical);
         if (leftIndex != -1) {
@@ -193,8 +239,36 @@ class MarkupUtilities {
         }
       }
     }
+  } */
+
+  private static int findFirstIndex(final Renderable[] renderables, final Rectangle clipArea, final int index, final int length,
+      final boolean vertical) {
+    for (int i = index; i < length; i++) {
+      final Renderable ri = renderables[i];
+      if (ri instanceof BoundableRenderable) {
+        final BoundableRenderable br = (BoundableRenderable) ri;
+        if (intersects(clipArea, br.getVisualBounds(), vertical)) {
+          return i;
+        }
+      }
+    }
+    return -1;
   }
 
+  private static int findLastIndex(final Renderable[] renderables, final Rectangle clipArea, final int index, final int length,
+      final boolean vertical) {
+    for (int i = index + length - 1; i >= index; i--) {
+      final Renderable ri = renderables[i];
+      if (ri instanceof BoundableRenderable) {
+        final BoundableRenderable br = (BoundableRenderable) ri;
+        if (intersects(clipArea, br.getVisualBounds(), vertical)) {
+          return i;
+        }
+      }
+    }
+    return -1;
+  }
+  /*
   private static int findLastIndex(final Renderable[] renderables, final Rectangle clipArea, final int index, final int length,
       final boolean vertical) {
     Diagnostics.Assert(length > 0, "length<=0");
@@ -202,7 +276,7 @@ class MarkupUtilities {
       final Renderable r = renderables[index];
       Rectangle rbounds;
       if (r instanceof BoundableRenderable) {
-        rbounds = ((BoundableRenderable) r).getBounds();
+        rbounds = ((BoundableRenderable) r).getVisualBounds();
       } else {
         return -1;
       }
@@ -216,7 +290,7 @@ class MarkupUtilities {
       final Renderable r = renderables[middleIndex];
       Rectangle rbounds;
       if (r instanceof BoundableRenderable) {
-        rbounds = ((BoundableRenderable) r).getBounds();
+        rbounds = ((BoundableRenderable) r).getVisualBounds();
       } else {
         final int rightIndex = findLastIndex(renderables, clipArea, middleIndex + 1, length - ((middleIndex - index) + 1), vertical);
         if (rightIndex != -1) {
@@ -251,7 +325,7 @@ class MarkupUtilities {
         }
       }
     }
-  }
+  } */
 
   private static boolean intersects(final Rectangle rect1, final Rectangle rect2, final boolean vertical) {
     if (vertical) {

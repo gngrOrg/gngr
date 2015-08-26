@@ -537,7 +537,7 @@ class RLine extends BaseRCollection {
     final Renderable[] rarray = this.renderables.toArray(Renderable.EMPTY_ARRAY);
     final BoundableRenderable r = MarkupUtilities.findRenderable(rarray, x, y, false);
     if (r != null) {
-      final Rectangle rbounds = r.getBounds();
+      final Rectangle rbounds = r.getVisualBounds();
       return r.onMouseClick(event, x - rbounds.x, y - rbounds.y);
     } else {
       return true;
@@ -548,7 +548,7 @@ class RLine extends BaseRCollection {
     final Renderable[] rarray = this.renderables.toArray(Renderable.EMPTY_ARRAY);
     final BoundableRenderable r = MarkupUtilities.findRenderable(rarray, x, y, false);
     if (r != null) {
-      final Rectangle rbounds = r.getBounds();
+      final Rectangle rbounds = r.getVisualBounds();
       return r.onDoubleClick(event, x - rbounds.x, y - rbounds.y);
     } else {
       return true;
@@ -562,7 +562,7 @@ class RLine extends BaseRCollection {
     final BoundableRenderable r = MarkupUtilities.findRenderable(rarray, x, y, false);
     if (r != null) {
       this.mousePressTarget = r;
-      final Rectangle rbounds = r.getBounds();
+      final Rectangle rbounds = r.getVisualBounds();
       return r.onMousePressed(event, x - rbounds.x, y - rbounds.y);
     } else {
       return true;
@@ -573,7 +573,7 @@ class RLine extends BaseRCollection {
     final Renderable[] rarray = this.renderables.toArray(Renderable.EMPTY_ARRAY);
     final BoundableRenderable br = MarkupUtilities.findRenderable(rarray, x, y, false);
     if (br != null) {
-      final Rectangle rbounds = br.getBounds();
+      final Rectangle rbounds = br.getVisualBounds();
       return br.getLowestRenderableSpot(x - rbounds.x, y - rbounds.y);
     } else {
       return new RenderableSpot(this, x, y);
@@ -584,7 +584,7 @@ class RLine extends BaseRCollection {
     final Renderable[] rarray = this.renderables.toArray(Renderable.EMPTY_ARRAY);
     final BoundableRenderable r = MarkupUtilities.findRenderable(rarray, x, y, false);
     if (r != null) {
-      final Rectangle rbounds = r.getBounds();
+      final Rectangle rbounds = r.getVisualBounds();
       final BoundableRenderable oldArmedRenderable = this.mousePressTarget;
       if ((oldArmedRenderable != null) && (r != oldArmedRenderable)) {
         oldArmedRenderable.onMouseDisarmed(event);

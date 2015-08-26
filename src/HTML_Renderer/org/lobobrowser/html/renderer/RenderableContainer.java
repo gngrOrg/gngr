@@ -24,6 +24,7 @@ package org.lobobrowser.html.renderer;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Insets;
+import java.awt.Rectangle;
 
 /**
  * A RenderableContainer is either usually a parent block or the root GUI
@@ -75,5 +76,9 @@ public interface RenderableContainer {
     final Insets insets = getInsetsMarginBorder(false, false);
     return getHeight() - (insets.top + insets.bottom);
   }
+
+  public Rectangle getVisualBounds();
+  public int getVisualWidth();
+  public int getVisualHeight();
 
 }

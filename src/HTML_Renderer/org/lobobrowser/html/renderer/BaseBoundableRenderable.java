@@ -47,7 +47,8 @@ abstract class BaseBoundableRenderable extends BaseRenderable implements Boundab
   protected final RenderableContainer container;
   protected final ModelNode modelNode;
 
-  public int x, y, width, height;
+  protected int x, y;
+  public int width, height;
 
   /**
    * Starts as true because ancestors could be invalidated.
@@ -97,6 +98,14 @@ abstract class BaseBoundableRenderable extends BaseRenderable implements Boundab
     this.width = width;
   }
 
+  public int getVisualHeight() {
+    return getHeight();
+  }
+
+  public int getVisualWidth() {
+    return getWidth();
+  }
+
   public int getX() {
     return x;
   }
@@ -106,11 +115,20 @@ abstract class BaseBoundableRenderable extends BaseRenderable implements Boundab
   }
 
   public boolean contains(final int x, final int y) {
-    return (x >= this.x) && (y >= this.y) && (x < (this.x + this.width)) && (y < (this.y + this.height));
+    final int mx = this.getX();
+    final int my = this.getY();
+    return (x >= mx) && (y >= my) && (x < (mx + this.getVisualWidth())) && (y < (my + this.getVisualHeight()));
   }
 
   public Rectangle getBounds() {
     return new Rectangle(this.x, this.y, this.width, this.height);
+  }
+
+  /** returns the visual bounds
+   *  They are distinct from layout bounds when {overflow:visible} or {position:relative} is set on the element
+   */
+  public Rectangle getVisualBounds() {
+    return new Rectangle(getX(), getY(), getVisualWidth(), getVisualHeight());
   }
 
   public Dimension getSize() {
@@ -266,7 +284,7 @@ abstract class BaseBoundableRenderable extends BaseRenderable implements Boundab
   public void repaint(final int x, final int y, final int width, final int height) {
     final Renderable parent = this.parent;
     if (parent instanceof BoundableRenderable) {
-      ((BoundableRenderable) parent).repaint(x + this.x, y + this.y, width, height);
+      ((BoundableRenderable) parent).repaint(x + this.getX(), y + this.getY(), width, height);
     } else if (parent == null) {
       // Has to be top RBlock.
       this.container.repaint(x, y, width, height);

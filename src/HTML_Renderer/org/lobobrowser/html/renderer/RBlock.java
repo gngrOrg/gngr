@@ -531,6 +531,7 @@ public class RBlock extends BaseElementRenderable {
     // there's no wrapping.
     tentativeWidth = declaredWidth == -1 ? availWidth : declaredWidth + insetsTotalWidth + paddingTotalWidth;
     tentativeHeight = declaredHeight == -1 ? availHeight : declaredHeight + insetsTotalHeight + paddingTotalHeight;
+
     if ((declaredWidth == -1) && !expandWidth && (availWidth > (insetsTotalWidth + paddingTotalWidth))) {
       final RenderThreadState state = RenderThreadState.getState();
       final boolean prevOverrideNoWrap = state.overrideNoWrap;
@@ -552,8 +553,7 @@ public class RBlock extends BaseElementRenderable {
       }
     }
 
-    // Step # 2: Do a layout with the tentativeWidth (adjusted if Step # 1 was
-    // done),
+    // Step # 2: Do a layout with the tentativeWidth (adjusted if Step # 1 was done),
     // but in case overflow-y is "auto", then we check for possible overflow.
     FloatingBounds viewportFloatBounds = null;
     FloatingBounds blockFloatBounds = null;
@@ -626,6 +626,7 @@ public class RBlock extends BaseElementRenderable {
         bodyLayout.alignX(alignmentXPercent, canvasWidth, paddingInsets);
       }
     }
+
     if (adjDeclaredHeight == -1) {
       resultingHeight = expandHeight ? Math.max(prelimBlockHeight, tentativeHeight) : prelimBlockHeight;
       if (vscroll && (resultingHeight > tentativeHeight)) {
@@ -731,6 +732,26 @@ public class RBlock extends BaseElementRenderable {
       this.relativeOffsetX = left;
       this.relativeOffsetY = top;
     }
+  }
+
+  @Override
+  public int getX() {
+    return super.getX() + relativeOffsetX;
+  }
+
+  @Override
+  public int getY() {
+    return super.getY() + relativeOffsetY;
+  }
+
+  @Override
+  public int getVisualWidth() {
+    return Math.max(super.getVisualWidth(), bodyLayout.getVisualWidth());
+  }
+
+  @Override
+  public int getVisualHeight() {
+    return Math.max(super.getVisualHeight(), bodyLayout.getVisualHeight());
   }
 
   // /**
