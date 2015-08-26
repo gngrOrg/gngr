@@ -148,7 +148,8 @@ public class CSSNorm
   public static String userStyleSheet()
   {
     return
-        "body   { color: black; background-color: #fafafa;}"+
+        "html   { overflow: auto; }"+
+        "body   { color: black; background-color: #fafafa}"+
 
         // makes sure that a links do not inherit cursor, they should have a default value
         "a[href]{ cursor: pointer; color: blue; text-decoration: underline; }" +
