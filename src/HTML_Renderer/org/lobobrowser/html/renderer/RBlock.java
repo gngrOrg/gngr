@@ -693,12 +693,11 @@ public class RBlock extends BaseElementRenderable {
       this.height = resultingHeight;
     }
 
-    setupRelativePosition(rs);
-
+    setupRelativePosition(rs, availWidth);
     return new LayoutValue(resultingWidth, resultingHeight, hscroll, vscroll);
   }
 
-  private void setupRelativePosition(final RenderState rs) {
+  private void setupRelativePosition(final RenderState rs, final int availWidth) {
     if (rs.getPosition() == RenderState.POSITION_RELATIVE) {
       final String leftText = rs.getLeft();
       final String topText = rs.getTop();
@@ -706,11 +705,11 @@ public class RBlock extends BaseElementRenderable {
       int left = 0;
 
       if (leftText != null) {
-        left = HtmlValues.getPixelSize(leftText, rs, 0, this.width);
+        left = HtmlValues.getPixelSize(leftText, rs, 0, availWidth);
       } else {
         final String rightText = rs.getRight();
         if (rightText != null) {
-          final int right = HtmlValues.getPixelSize(rightText, rs, 0, this.width);
+          final int right = HtmlValues.getPixelSize(rightText, rs, 0, availWidth);
           left = -right;
           // If right==0 and renderable.width is larger than the parent's width,
           // the expected behavior is for newLeft to be negative.
