@@ -1101,6 +1101,7 @@ public class RBlock extends BaseElementRenderable {
   @Override
   public boolean paintSelection(final Graphics g, final boolean inSelection, final RenderableSpot startPoint, final RenderableSpot endPoint) {
     final Graphics newG = g.create();
+    newG.translate(relativeOffsetX, relativeOffsetY);
     try {
       final Insets insets = this.getInsetsMarginBorder(this.hasHScrollBar, this.hasVScrollBar);
       // Just clip, don't translate.
