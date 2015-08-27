@@ -127,9 +127,10 @@ class RLine extends BaseRCollection {
     // Note that partial paints of the line can only be done
     // if all RStyleChanger's are applied first.
     final Iterator<Renderable> i = this.renderables.iterator();
+    // TODO: Null check required for `i` ?
     if (i != null) {
       while (i.hasNext()) {
-        final Object r = i.next();
+        final Renderable r = i.next();
         if (r instanceof RElement) {
           // RElements should be translated.
           final RElement relement = (RElement) r;
@@ -144,7 +145,7 @@ class RLine extends BaseRCollection {
           final BoundableRenderable br = (BoundableRenderable) r;
           br.paintTranslated(g);
         } else {
-          ((Renderable) r).paint(g);
+          r.paint(g);
         }
       }
     }
