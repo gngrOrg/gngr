@@ -602,8 +602,8 @@ public class RBlock extends BaseElementRenderable {
       prelimBlockHeight = bodyHeight + insetsTotalHeight;
     }
 
-    final boolean visibleX = (overflowX == RenderState.OVERFLOW_VISIBLE) || (overflowX == RenderState.OVERFLOW_NONE);
-    final boolean visibleY = (overflowY == RenderState.OVERFLOW_VISIBLE) || (overflowY == RenderState.OVERFLOW_NONE);
+    // final boolean visibleX = (overflowX == RenderState.OVERFLOW_VISIBLE) || (overflowX == RenderState.OVERFLOW_NONE);
+    // final boolean visibleY = (overflowY == RenderState.OVERFLOW_VISIBLE) || (overflowY == RenderState.OVERFLOW_NONE);
     int resultingWidth;
     int resultingHeight;
     if (adjDeclaredWidth == -1) {
@@ -612,7 +612,8 @@ public class RBlock extends BaseElementRenderable {
         resultingWidth = Math.max(tentativeWidth, SCROLL_BAR_THICKNESS);
       }
     } else {
-      resultingWidth = visibleX ? Math.max(prelimBlockWidth, adjDeclaredWidth) : adjDeclaredWidth;
+      // resultingWidth = visibleX ? Math.max(prelimBlockWidth, adjDeclaredWidth) : adjDeclaredWidth;
+      resultingWidth = adjDeclaredWidth;
     }
     if (!sizeOnly) {
       // Align horizontally now. This may change canvas height.
@@ -633,7 +634,8 @@ public class RBlock extends BaseElementRenderable {
         resultingHeight = Math.max(tentativeHeight, SCROLL_BAR_THICKNESS);
       }
     } else {
-      resultingHeight = visibleY ? Math.max(prelimBlockHeight, adjDeclaredHeight) : adjDeclaredHeight;
+      // resultingHeight = visibleY ? Math.max(prelimBlockHeight, adjDeclaredHeight) : adjDeclaredHeight;
+      resultingHeight = adjDeclaredHeight;
     }
     if (!sizeOnly) {
       // Align vertically now
