@@ -676,7 +676,8 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
       return;
     }
 
-    doc.primeNodeData();
+    // TODO: This causes an exception when running web-platform-tests. GH #147
+    // doc.primeNodeData();
 
     try {
       final Dimension size = this.getSize();
