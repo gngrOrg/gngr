@@ -61,6 +61,7 @@ import org.lobobrowser.html.style.RenderState;
 import org.lobobrowser.ua.UserAgentContext;
 import org.lobobrowser.util.ArrayUtilities;
 import org.w3c.dom.Node;
+import org.w3c.dom.html.HTMLHtmlElement;
 
 /**
  * A substantial portion of the HTML rendering logic of the package can be found
@@ -1589,6 +1590,9 @@ public class RBlockViewport extends BaseRCollection {
     return prevC;
   }
 
+  /** Gets an ancestor which is "positioned" (that is whose position is not static).
+   *  Stops searching when HTML element is encountered.
+   */
   private static RenderableContainer getPositionedAncestor(RenderableContainer containingBlock) {
     for (;;) {
       if (containingBlock instanceof Renderable) {
@@ -1596,7 +1600,7 @@ public class RBlockViewport extends BaseRCollection {
         if (node instanceof HTMLElementImpl) {
           final HTMLElementImpl element = (HTMLElementImpl) node;
           final int position = getPosition(element);
-          if (position != RenderState.POSITION_STATIC) {
+          if (position != RenderState.POSITION_STATIC || (element instanceof HTMLHtmlElement)) {
             break;
           }
           final RenderableContainer newContainer = containingBlock.getParentContainer();
