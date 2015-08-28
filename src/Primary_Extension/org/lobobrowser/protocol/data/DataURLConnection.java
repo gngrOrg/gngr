@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLDecoder;
 import java.util.Base64;
 import java.util.HashMap;
 
@@ -77,6 +78,10 @@ public class DataURLConnection extends URLConnection {
       }
       value = removeSpaceCharacters(value);
       if (base64) {
+
+        // TODO: Fix for GH #15, but need to verify if this is specified by a standard
+        value = URLDecoder.decode(value, "UTF-8");
+
         this.content = Base64.getDecoder().decode(value);
       } else {
         this.content = decodeUrl(value.toCharArray());
