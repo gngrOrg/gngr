@@ -283,4 +283,10 @@ public class TranslatedRenderable extends BaseBoundableRenderable implements RCo
 
     return null;
   }
+  @Override
+
+  public Rectangle getClipBoundsWithoutInsets() {
+    // TODO: Stub
+    return getClipBounds();
+  }
 }

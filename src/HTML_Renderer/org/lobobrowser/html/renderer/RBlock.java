@@ -247,6 +247,18 @@ public class RBlock extends BaseElementRenderable {
   }
 
   @Override
+  public Rectangle getClipBoundsWithoutInsets() {
+    final int hInset = this.hasHScrollBar ? SCROLL_BAR_THICKNESS : 0;
+    final int vInset = this.hasVScrollBar ? SCROLL_BAR_THICKNESS : 0;
+    if (!(this.hasHScrollBar || this.hasVScrollBar)) {
+      return null;
+    } else {
+      // return new Rectangle( - relativeOffsetX,  - relativeOffsetY, this.width, this.height);
+      return new Rectangle( - relativeOffsetX,  - relativeOffsetY, this.width - hInset, this.height - vInset);
+    }
+  }
+
+  @Override
   public void paint(final Graphics gIn) {
     final RenderState rs = this.modelNode.getRenderState();
     if ((rs != null) && (rs.getVisibility() != RenderState.VISIBILITY_VISIBLE)) {

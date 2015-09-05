@@ -91,7 +91,8 @@ public class PositionedRenderable implements Renderable {
       // System.out.println("  orNoScroll: " + orNoScroll);
       // System.out.println("  or        : " + or);
 
-      final Rectangle bounds = originalParent.getClipBounds();
+      // final Rectangle bounds = originalParent.getClipBounds();
+      final Rectangle bounds = getRelativeBounds();
       // System.out.println("  clip bounds: " + bounds);
       Graphics g2;
       if (bounds != null) {
@@ -114,6 +115,34 @@ public class PositionedRenderable implements Renderable {
         g2.dispose();
       }
     }
+  }
+
+  private Rectangle getRelativeBoundsx() {
+    return new Rectangle(0, 0, 200, 200);
+  }
+
+  private Rectangle getRelativeBounds() {
+    final RCollection origParent = this.renderable.getOriginalParent();
+    RCollection current = origParent;
+    Rectangle currentBounds = current.getClipBoundsWithoutInsets();
+    final RCollection parent = this.renderable.getParent();
+    while (current != parent) {
+      current = current.getParent();
+      if (current.getModelNode() instanceof HTMLHtmlElement) {
+        break;
+      }
+      final Rectangle newBounds = current.getClipBoundsWithoutInsets();
+      if (newBounds != null) {
+        final Point or = origParent.getOriginRelativeToNoScroll(current);
+        newBounds.translate(-or.x, -or.y);
+        if (currentBounds == null) {
+          currentBounds = newBounds;
+        } else {
+          currentBounds = currentBounds.intersection(newBounds);
+        }
+      }
+    }
+    return currentBounds;
   }
 
   @Override

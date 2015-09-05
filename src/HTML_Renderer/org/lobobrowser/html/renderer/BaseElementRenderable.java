@@ -50,6 +50,7 @@ import org.lobobrowser.ua.NetworkRequest;
 import org.lobobrowser.ua.UserAgentContext;
 import org.lobobrowser.ua.UserAgentContext.Request;
 import org.lobobrowser.ua.UserAgentContext.RequestKind;
+import org.lobobrowser.util.NotImplementedYetException;
 import org.lobobrowser.util.SecurityUtil;
 import org.lobobrowser.util.Strings;
 import org.lobobrowser.util.gui.GUITasks;
@@ -1145,6 +1146,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
 
   @Override
   public Rectangle getClipBounds() {
+    // TODO: Check when this is called and see whether to use margin-border insets just as in rblock's override
     final Insets insets = this.getInsetsPadding(false, false);
     final int hInset = insets.left + insets.right;
     final int vInset = insets.top + insets.bottom;
@@ -1154,5 +1156,11 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
     } else {
       return new Rectangle(insets.left, insets.top, this.width - hInset, this.height - vInset);
     }
+  }
+
+  @Override
+  public Rectangle getClipBoundsWithoutInsets() {
+    // TODO: Stub
+    return null;
   }
 }

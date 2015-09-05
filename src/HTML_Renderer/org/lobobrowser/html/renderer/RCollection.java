@@ -58,4 +58,5 @@ public interface RCollection extends BoundableRenderable {
   public BoundableRenderable getRenderable(final int x, final int y);
 
   public Rectangle getClipBounds();
+  public Rectangle getClipBoundsWithoutInsets();
 }

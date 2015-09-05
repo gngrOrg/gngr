@@ -355,4 +355,10 @@ abstract class BaseRCollection extends BaseBoundableRenderable implements RColle
       return br.onRightClick(event, x - or.x, y - or.y);
     }
   }
+
+  @Override
+  public Rectangle getClipBoundsWithoutInsets() {
+    // TODO
+    return getClipBounds();
+  }
 }
