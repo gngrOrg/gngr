@@ -65,6 +65,7 @@ import org.lobobrowser.util.ArrayUtilities;
 import org.lobobrowser.util.CollectionUtilities;
 import org.lobobrowser.util.Threads;
 import org.w3c.dom.Node;
+import org.w3c.dom.html.HTMLDocument;
 import org.w3c.dom.html.HTMLHtmlElement;
 
 /**
@@ -260,6 +261,9 @@ public class RBlockViewport extends BaseRCollection {
    */
   public void layout(final int desiredWidth, final int desiredHeight, final Insets paddingInsets, final int yLimit,
       final FloatingBounds floatBounds, final boolean sizeOnly) {
+    this.cachedVisualHeight = null;
+    this.cachedVisualWidth = null;
+
     // Expected in GUI thread. It's possible it may be invoked during pack()
     // outside of the GUI thread.
     if (!EventQueue.isDispatchThread() && logger.isLoggable(Level.INFO)) {
@@ -362,7 +366,6 @@ public class RBlockViewport extends BaseRCollection {
 
     this.cachedVisualHeight = null;
     this.cachedVisualWidth = null;
-
     // Call addLine after setting margins
     this.currentLine = this.addLine(rootNode, null, this.paddingInsets.top);
 
@@ -1914,7 +1917,27 @@ public class RBlockViewport extends BaseRCollection {
           } else {
             // PositionedRenderable, etc because they don't inherit from BoundableRenderable
             final Graphics selectedG = robj.isFixed() ? gIn : g;
-            robj.paint(selectedG);
+
+            if (getModelNode() instanceof HTMLDocument) {
+              final Renderable htmlRenderable = RenderUtils.findHtmlRenderable(this);
+              if (htmlRenderable != null) {
+                final Rectangle htmlBounds = ((RBlock) htmlRenderable).getClipBoundsWithoutInsets();
+                if (htmlBounds != null) {
+                  final Graphics clippedG = selectedG.create(0, 0, htmlBounds.width, htmlBounds.height);
+                  try {
+                    robj.paint(clippedG);
+                  } finally {
+                    clippedG.dispose();
+                  }
+                } else {
+                  robj.paint(selectedG);
+                }
+              } else {
+                robj.paint(selectedG);
+              }
+            } else {
+              robj.paint(selectedG);
+            }
           }
         }
       }
@@ -2952,7 +2975,9 @@ public class RBlockViewport extends BaseRCollection {
           final RenderableContainer rc = (RenderableContainer) r;
           // double rcMaxY = rc.getVisualBounds().getMaxY();
           final Insets rcInsets = rc.getInsetsMarginBorder(false, false);
-          double rcMaxY = rc.getY() + rc.getVisualHeight() + rcInsets.top + rcInsets.bottom;
+          // double rcMaxY = rc.getY() + rc.getVisualHeight() + rcInsets.top + rcInsets.bottom;
+          // double rcMaxY = rc.getVisualBounds().getMaxY() + rcInsets.top + rcInsets.bottom;
+          double rcMaxY = rc.getVisualBounds().getMaxY() + rcInsets.bottom;
           if (rcMaxY > maxY) {
             maxY = rcMaxY;
           }

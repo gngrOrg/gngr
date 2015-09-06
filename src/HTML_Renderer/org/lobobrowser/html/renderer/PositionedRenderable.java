@@ -185,22 +185,17 @@ public class PositionedRenderable implements Renderable {
     return offset;
   }
 
+  // TODO: name this function well: what exactly does it compute?
   private Point getSome() {
     final RCollection rparent = renderable.getParent();
     if (!isFixed && rparent.getModelNode() instanceof HTMLDocument) {
-      final Iterator<? extends Renderable> rs = rparent.getRenderables();
-      if (rs != null) {
-        while (rs.hasNext()) {
-          final Renderable r = rs.next();
-          if (r.getModelNode() instanceof HTMLHtmlElement) {
-            final RBlock htmlBlock = ((RBlock) r);
-            final Point htmlOffset = htmlBlock.bodyLayout.getOrigin();
-            final Insets htmlInsets = htmlBlock.getInsetsMarginBorder(htmlBlock.hasHScrollBar, htmlBlock.hasVScrollBar);
+      Renderable htmlRenderable = RenderUtils.findHtmlRenderable(rparent);
+      if (htmlRenderable != null) {
+        final RBlock htmlBlock = ((RBlock) htmlRenderable);
+        final Point htmlOffset = htmlBlock.bodyLayout.getOrigin();
+        final Insets htmlInsets = htmlBlock.getInsetsMarginBorder(htmlBlock.hasHScrollBar, htmlBlock.hasVScrollBar);
 
-            return new Point((int) htmlOffset.getX() - htmlInsets.left, (int) htmlOffset.getY() - htmlInsets.top);
-
-          }
-        }
+        return new Point((int) htmlOffset.getX() - htmlInsets.left, (int) htmlOffset.getY() - htmlInsets.top);
       }
     }
 

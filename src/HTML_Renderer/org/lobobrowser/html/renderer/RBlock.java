@@ -248,8 +248,8 @@ public class RBlock extends BaseElementRenderable {
 
   @Override
   public Rectangle getClipBoundsWithoutInsets() {
-    final int hInset = this.hasHScrollBar ? SCROLL_BAR_THICKNESS : 0;
-    final int vInset = this.hasVScrollBar ? SCROLL_BAR_THICKNESS : 0;
+    final int hInset = this.hasVScrollBar ? SCROLL_BAR_THICKNESS : 0;
+    final int vInset = this.hasHScrollBar ? SCROLL_BAR_THICKNESS : 0;
     if (!(this.hasHScrollBar || this.hasVScrollBar)) {
       return null;
     } else {
@@ -659,7 +659,7 @@ public class RBlock extends BaseElementRenderable {
       prelimBlockHeight = bodyHeight + insetsTotalHeight;
     }
 
-    if (vauto && ((prelimBlockHeight - insetsTotalHeight) < bodyLayout.getVisualHeight())) {
+    if ((vauto || vscroll) && ((prelimBlockHeight - insetsTotalHeight) < bodyLayout.getVisualHeight())) {
       if (isHtmlElem) {
         prelimBlockHeight = bodyLayout.getVisualHeight() + insetsTotalHeight;
       } else {
