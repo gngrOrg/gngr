@@ -346,6 +346,16 @@ abstract class BaseRCollection extends BaseBoundableRenderable implements RColle
     return null;
   }
 
+  public boolean onMiddleClick(final MouseEvent event, final int x, final int y) {
+    final BoundableRenderable br = this.getRenderable(x, y);
+    if (br == null) {
+      return HtmlController.getInstance().onMiddleClick(this.modelNode, event, x, y);
+    } else {
+      final Point or = br.getOriginRelativeTo(this);
+      return br.onMiddleClick(event, x - or.x, y - or.y);
+    }
+  }
+
   public boolean onRightClick(final MouseEvent event, final int x, final int y) {
     final BoundableRenderable br = this.getRenderable(x, y);
     if (br == null) {

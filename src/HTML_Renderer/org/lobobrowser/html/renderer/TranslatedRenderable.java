@@ -150,6 +150,10 @@ public class TranslatedRenderable extends BaseBoundableRenderable implements RCo
     return translatedChild.onMouseClick(event, x, y);
   }
 
+  public boolean onMiddleClick(final MouseEvent event, final int x, final int y) {
+    return translatedChild.onMiddleClick(event, x, y);
+  }
+
   public boolean onDoubleClick(final MouseEvent event, final int x, final int y) {
     return translatedChild.onDoubleClick(event, x, y);
   }

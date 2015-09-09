@@ -124,6 +124,18 @@ public interface HtmlRendererContext {
   public HtmlObject getHtmlObject(HTMLElement element);
 
   /**
+   * This method is called when a visual element is middle-clicked.
+   *
+   * @param element
+   *          The narrowest element enclosing the mouse location.
+   * @param event
+   *          The mouse event.
+   * @return The method should return true to continue propagating the event, or
+   *         false to stop propagating it.
+   */
+  public boolean onMiddleClick(HTMLElement element, java.awt.event.MouseEvent event);
+
+  /**
    * This method is called when a visual element is right-clicked.
    *
    * @param element

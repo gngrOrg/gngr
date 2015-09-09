@@ -430,4 +430,13 @@ abstract class BaseBoundableRenderable extends BaseRenderable implements Boundab
   public boolean isDelegated() {
     return delegator != null;
   }
+
+  public boolean onMiddleClick(final MouseEvent event, final int x, final int y) {
+    final ModelNode me = this.modelNode;
+    if (me != null) {
+      return HtmlController.getInstance().onMiddleClick(me, event, x, y);
+    } else {
+      return true;
+    }
+  }
 }

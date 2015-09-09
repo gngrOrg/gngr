@@ -24,6 +24,7 @@ GNU GENERAL PUBLIC LICENSE
 package org.lobobrowser.primary.clientlets.html;
 
 import java.awt.Cursor;
+import java.awt.EventQueue;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
@@ -328,6 +329,43 @@ public class HtmlRendererContextImpl implements HtmlRendererContext {
   public boolean isVisitedLink(final HTMLLinkElement link) {
     // TODO
     return false;
+  }
+
+  private Runnable getMiddleClickTask(final Node element) {
+    Node currElement = element;
+    Runnable task = null;
+
+    while ((task == null) && currElement != null) {
+      if (currElement instanceof HTMLLinkElementImpl) {
+        final HTMLLinkElementImpl link = (HTMLLinkElementImpl) currElement;
+        task = (() -> {
+          HtmlRendererContextImpl.this.open(link.getAbsoluteHref(), "new window", null, false);
+        });
+
+      } else if (currElement instanceof HTMLImageElementImpl) {
+
+        final HTMLImageElementImpl img = (HTMLImageElementImpl) currElement;
+        try {
+          final URL srcUrl = img.getFullURL(img.getSrc());
+          task = (() -> {
+            HtmlRendererContextImpl.this.open(srcUrl, "new window", null, false);
+          });
+        } catch (final MalformedURLException e) {
+          logger.log(Level.INFO, "Couldn't get Image URL", e);
+        }
+      }
+      currElement = currElement.getParentNode();
+    }
+    return task;
+  }
+
+  public boolean onMiddleClick(final HTMLElement element, final MouseEvent event) {
+    final Runnable task = getMiddleClickTask(element);
+    if (task != null) {
+      EventQueue.invokeLater(task);
+      return false;
+    }
+    return true;
   }
 
   public boolean onContextMenu(final HTMLElement element, final MouseEvent event) {

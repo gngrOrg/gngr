@@ -489,6 +489,8 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
         // a single click via mouse release.
         final Point point = event.getPoint();
         block.onDoubleClick(event, point.x, point.y);
+      } else if ((button == MouseEvent.BUTTON2) && (clickCount == 1)) {
+        block.onMiddleClick(event, event.getX(), event.getY());
       } else if ((button == MouseEvent.BUTTON3) && (clickCount == 1)) {
         block.onRightClick(event, event.getX(), event.getY());
       }

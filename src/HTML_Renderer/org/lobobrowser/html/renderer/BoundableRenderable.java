@@ -117,6 +117,8 @@ public interface BoundableRenderable extends Renderable {
 
   public boolean onDoubleClick(MouseEvent event, int x, int y);
 
+  public boolean onMiddleClick(MouseEvent event, int x, int y);
+
   public boolean onRightClick(MouseEvent event, int x, int y);
 
   public void onMouseMoved(MouseEvent event, int x, int y, boolean triggerEvent, ModelNode limit);

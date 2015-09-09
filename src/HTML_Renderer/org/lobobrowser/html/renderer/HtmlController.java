@@ -186,6 +186,25 @@ class HtmlController {
     return this.onMouseClick(parent, event, x, y);*/
   }
 
+  public boolean onMiddleClick(ModelNode node, MouseEvent event, int x, int y) {
+    if (node instanceof HTMLAbstractUIElement) {
+      final HTMLAbstractUIElement uiElement = (HTMLAbstractUIElement) node;
+      final HtmlRendererContext rcontext = uiElement.getHtmlRendererContext();
+      if (rcontext != null) {
+        // Needs to be done after Javascript, so the script
+        // is able to prevent it.
+        if (!rcontext.onMiddleClick(uiElement, event)) {
+          return false;
+        }
+      }
+    }
+    final ModelNode parent = node.getParentModelNode();
+    if (parent == null) {
+      return true;
+    }
+    return this.onMiddleClick(parent, event, x, y);
+  }
+
   public boolean onContextMenu(final ModelNode node, final MouseEvent event, final int x, final int y) {
     if (logger.isLoggable(Level.INFO)) {
       logger.info("onContextMenu(): node=" + node + ",class=" + node.getClass().getName());
