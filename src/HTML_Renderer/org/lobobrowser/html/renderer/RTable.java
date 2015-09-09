@@ -69,30 +69,29 @@ class RTable extends BaseElementRenderable {
   }
 
   @Override
-  public void paint(final Graphics g) {
+  public void paintShifted(final Graphics g) {
     final RenderState rs = this.modelNode.getRenderState();
     if ((rs != null) && (rs.getVisibility() != RenderState.VISIBILITY_VISIBLE)) {
       // Just don't paint it.
       return;
     }
-    try {
-      this.prePaint(g);
-      final Dimension size = this.getSize();
-      // TODO: No scrollbars
-      final TableMatrix tm = this.tableMatrix;
-      tm.paint(g, size);
-      final Collection<PositionedRenderable> prs = this.positionedRenderables;
-      if (prs != null) {
-        final Iterator<PositionedRenderable> i = prs.iterator();
-        while (i.hasNext()) {
-          final PositionedRenderable pr = i.next();
-          final BoundableRenderable r = pr.renderable;
-          r.paintTranslated(g);
-        }
+
+    this.prePaint(g);
+    final Dimension size = this.getSize();
+    // TODO: No scrollbars
+    final TableMatrix tm = this.tableMatrix;
+    tm.paint(g, size);
+    final Collection<PositionedRenderable> prs = this.positionedRenderables;
+    if (prs != null) {
+      final Iterator<PositionedRenderable> i = prs.iterator();
+      while (i.hasNext()) {
+        final PositionedRenderable pr = i.next();
+        pr.paint(g);
+        /*
+        final BoundableRenderable r = pr.renderable;
+        r.paintTranslated(g);
+        */
       }
-    } finally {
-      // Must always call super implementation
-      super.paint(g);
     }
   }
 

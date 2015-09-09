@@ -99,8 +99,8 @@ class RListItem extends BaseRListElement {
   }
 
   @Override
-  public void paint(final Graphics g) {
-    super.paint(g);
+  public void paintShifted(final Graphics g) {
+    super.paintShifted(g);
     final RenderState rs = this.modelNode.getRenderState();
     final Insets marginInsets = this.marginInsets;
     final RBlockViewport layout = this.bodyLayout;

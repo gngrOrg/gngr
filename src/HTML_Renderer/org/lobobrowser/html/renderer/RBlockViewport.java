@@ -678,14 +678,20 @@ public class RBlockViewport extends BaseRCollection {
   }
 
   /* This is used to bubble up relative elements (on the z-axis) */
-  private void bubbleUpIfRelative(final HTMLElementImpl markupElement, final BoundableRenderable renderable) {
+  private boolean bubbleUpIfRelative(final HTMLElementImpl markupElement, final RElement renderable) {
     final int position = getPosition(markupElement);
     final boolean isRelative = position == RenderState.POSITION_RELATIVE;
     if (isRelative) {
       final RenderableContainer con = getPositionedAncestor(container);
       final DelayedPair dp = new DelayedPair(container, con, renderable, null, null, null, null, null, null, null, 0, 0, position);
       container.addDelayedPair(dp);
+      if (renderable instanceof RUIControl) {
+        this.container.addComponent(((RUIControl) renderable).widget.getComponent());
+      }
+      return true;
     }
+
+    return false;
   }
 
   private final void positionRElement(final HTMLElementImpl markupElement, final RElement renderable, final boolean usesAlignAttribute,
@@ -710,6 +716,7 @@ public class RBlockViewport extends BaseRCollection {
         centerBlock = (align != null) && align.equalsIgnoreCase("center");
       }
       this.addAsSeqBlock(renderable, obeysFloats, false, true, centerBlock, false);
+      bubbleUpIfRelative(markupElement, renderable);
     }
   }
 
@@ -800,7 +807,7 @@ public class RBlockViewport extends BaseRCollection {
     this.currentLine = this.addLine(startNode, line, newLineY);
   }
 
-  private boolean addElsewhereIfFloat(final BoundableRenderable renderable, final HTMLElementImpl element,
+  private boolean addElsewhereIfFloat(final RElement renderable, final HTMLElementImpl element,
       final boolean usesAlignAttribute,
       final JStyleProperties style, final boolean layout) {
     // "static" handled here
@@ -1595,7 +1602,7 @@ public class RBlockViewport extends BaseRCollection {
     }
   }
 
-  private final void layoutFloat(final BoundableRenderable renderable, final boolean layout, final boolean leftFloat) {
+  private final void layoutFloat(final RElement renderable, final boolean layout, final boolean leftFloat) {
     renderable.setOriginalParent(this);
     if (layout) {
       final int availWidth = this.availContentWidth;
@@ -1607,6 +1614,7 @@ public class RBlockViewport extends BaseRCollection {
       } else if (renderable instanceof RElement) {
         final RElement e = (RElement) renderable;
         e.layout(availWidth, availHeight, this.sizeOnly);
+        renderable.layout(availWidth, availHeight, this.sizeOnly);
       } else {
         // TODO Check other types of renderabls
         System.err.println("TODO: Unhandled renderable type");
@@ -2711,7 +2719,7 @@ public class RBlockViewport extends BaseRCollection {
     }
   }
 
-  private void addExportableFloat(final BoundableRenderable element, final boolean leftFloat, final int origX, final int origY, final int visualX, final int visualY, final boolean pendingPlacement) {
+  private void addExportableFloat(final RElement element, final boolean leftFloat, final int origX, final int origY, final int visualX, final int visualY, final boolean pendingPlacement) {
     ArrayList<ExportableFloat> ep = this.exportableFloats;
     if (ep == null) {
       ep = new ArrayList<>(1);
@@ -2725,6 +2733,12 @@ public class RBlockViewport extends BaseRCollection {
     ep.add(ef);
   }
 
+  private void addFloat(final RElement renderable) {
+    if (!bubbleUpIfRelative((HTMLElementImpl) renderable.getModelNode(), renderable)) {
+      this.addPositionedRenderable(renderable, true, true, false);
+    }
+  }
+
   /**
    *
    * @param element
@@ -2733,7 +2747,7 @@ public class RBlockViewport extends BaseRCollection {
    * @param floatType
    *          -1 (left) or +1 (right)
    */
-  private void placeFloat(final BoundableRenderable element, final int y, final boolean leftFloat) {
+  private void placeFloat(final RElement element, final int y, final boolean leftFloat) {
     final Insets insets = this.paddingInsets;
     int boxY = y;
     int boxWidth = element.getWidth();
@@ -2794,7 +2808,7 @@ public class RBlockViewport extends BaseRCollection {
 
     boolean placementPending = true;
     if (getPosition((HTMLElementImpl)modelNode) != RenderState.POSITION_STATIC) {
-      this.addPositionedRenderable(element, true, true, false);
+      addFloat(element);
       placementPending = false;
     }
 
@@ -2802,7 +2816,7 @@ public class RBlockViewport extends BaseRCollection {
       // System.out.println("Created float as renderable in " + this);
       // System.out.println("  r: " + element);
       if (placementPending) {
-        this.addPositionedRenderable(element, true, true, false);
+        addFloat(element);
       }
     } else {
       this.addExportableFloat(element, leftFloat, boxX, boxY, 0, 0, placementPending);
@@ -2907,7 +2921,7 @@ public class RBlockViewport extends BaseRCollection {
   }
 
   private void importFloat(final ExportableFloat ef, final int shiftX, final int shiftY) {
-    final BoundableRenderable renderable = ef.element;
+    final RElement renderable = ef.element;
     final int newX = ef.origX + shiftX;
     final int newY = ef.origY + shiftY;
     // final int newX = ef.origX;
@@ -2926,7 +2940,7 @@ public class RBlockViewport extends BaseRCollection {
     if (ef.pendingPlacement && getPosition((HTMLElementImpl)modelNode) != RenderState.POSITION_STATIC) {
       // System.out.println("Adding float as renderable to " + this);
       renderable.setOrigin(newX + ef.visualX, newY + ef.visualY);
-      this.addPositionedRenderable(renderable, true, true, false);
+      addFloat(renderable);
       ef.pendingPlacement = false;
     }
 
@@ -2936,7 +2950,7 @@ public class RBlockViewport extends BaseRCollection {
         // System.out.println("importing float as renderable to " + this);
         // System.out.println("  r: " + renderable);
         renderable.setOrigin(newX + ef.visualX, newY + ef.visualY);
-        this.addPositionedRenderable(renderable, true, true, false);
+        addFloat(renderable);
         ef.pendingPlacement = false;
       }
     } else {

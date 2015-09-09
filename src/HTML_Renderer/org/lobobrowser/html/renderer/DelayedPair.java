@@ -97,7 +97,9 @@ public class DelayedPair {
   }
 
   public BoundableRenderable positionPairChild() {
+    final RenderableContainer parent = this.containingBlock;
     if (isRelative) {
+      ((RElement) child).setupRelativePosition(this.immediateContainingBlock);
       TranslatedRenderable tr = new TranslatedRenderable(child);
       // tr.setX(child.getX() + tp.x);
       // tr.setY(child.getY() + tp.y);
@@ -105,7 +107,6 @@ public class DelayedPair {
       return tr;
     }
 
-    final RenderableContainer parent = this.containingBlock;
     final BoundableRenderable child = this.child;
     /*
     System.out.println("DP: " + this);

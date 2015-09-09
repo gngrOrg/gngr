@@ -74,6 +74,16 @@ public interface RenderableContainer {
     return getWidth() - (insets.left + insets.right);
   }
 
+  default public int getInnerMostWidth() {
+    final Insets insets = getInsets(false, false);
+    return getWidth() - (insets.left + insets.right);
+  }
+
+  default public int getInnerMostHeight() {
+    final Insets insets = getInsets(false, false);
+    return getHeight() - (insets.top + insets.bottom);
+  }
+
   default public int getInnerHeight() {
     final Insets insets = getInsetsMarginBorder(false, false);
     return getHeight() - (insets.top + insets.bottom);
@@ -86,4 +96,5 @@ public interface RenderableContainer {
   java.awt.Point translateDescendentPoint(BoundableRenderable descendent, int x, int y);
 
   public Point getOriginRelativeTo(RCollection bodyLayout);
+
 }

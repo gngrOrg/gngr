@@ -85,7 +85,7 @@ class RUIControl extends BaseElementRenderable {
   }
 
   @Override
-  public final void paint(final Graphics g) {
+  public final void paintShifted(final Graphics g) {
     final RenderState rs = this.modelNode.getRenderState();
     if ((rs != null) && (rs.getVisibility() != RenderState.VISIBILITY_VISIBLE)) {
       // Just don't paint it.

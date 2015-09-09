@@ -262,8 +262,25 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
   /**
    * All overriders should call super implementation.
    */
-  public void paint(final Graphics g) {
+  final public void paint(final Graphics gIn) {
+    final boolean isRelative = (relativeOffsetX | relativeOffsetY) != 0;
+    final Graphics g = isRelative ? gIn.create() : gIn;
+    if (isRelative) {
+      g.translate(relativeOffsetX, relativeOffsetY);
+    }
+
+    try {
+      paintShifted(g);
+
+    } finally {
+      if (isRelative) {
+        g.dispose();
+      }
+    }
+
   }
+
+  protected abstract void paintShifted(final Graphics g);
 
   /**
    * Lays out children, and deals with "valid" state. Override doLayout method
@@ -1152,7 +1169,8 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
     final int vInset = insets.top + insets.bottom;
     if (((overflowX == RenderState.OVERFLOW_NONE) || (overflowX == RenderState.OVERFLOW_VISIBLE))
         && ((overflowY == RenderState.OVERFLOW_NONE) || (overflowY == RenderState.OVERFLOW_VISIBLE))) {
-      return new Rectangle(insets.left, insets.top, this.getVisualWidth() - hInset, this.getVisualHeight() - vInset);
+      // return new Rectangle(insets.left, insets.top, this.getVisualWidth() - hInset, this.getVisualHeight() - vInset);
+      return null;
     } else {
       return new Rectangle(insets.left, insets.top, this.width - hInset, this.height - vInset);
     }
@@ -1163,4 +1181,64 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
     // TODO: Stub
     return null;
   }
+
+  // Used for relative positioning
+  protected int relativeOffsetX = 0;
+  protected int relativeOffsetY = 0;
+
+  private void setupRelativePosition(final RenderState rs, final int containerWidth, final int containerHeight) {
+    if (rs.getPosition() == RenderState.POSITION_RELATIVE) {
+      final String leftText = rs.getLeft();
+      final String topText = rs.getTop();
+
+      int left = 0;
+
+      if (leftText != null) {
+        left = HtmlValues.getPixelSize(leftText, rs, 0, containerWidth);
+      } else {
+        final String rightText = rs.getRight();
+        if (rightText != null) {
+          final int right = HtmlValues.getPixelSize(rightText, rs, 0, containerWidth);
+          left = -right;
+          // If right==0 and renderable.width is larger than the parent's width,
+          // the expected behavior is for newLeft to be negative.
+        }
+      }
+
+      int top = 0;
+
+      if (topText != null) {
+        top = HtmlValues.getPixelSize(topText, rs, top, containerHeight);
+      } else {
+        final String bottomText = rs.getBottom();
+        if (bottomText != null) {
+          final int bottom = HtmlValues.getPixelSize(bottomText, rs, 0, containerHeight);
+          top = -bottom;
+        }
+      }
+
+      this.relativeOffsetX = left;
+      this.relativeOffsetY = top;
+    } else {
+      this.relativeOffsetX = 0;
+      this.relativeOffsetY = 0;
+    }
+  }
+
+  @Override
+  public int getVisualX() {
+    return super.getVisualX() + relativeOffsetX;
+  }
+
+  @Override
+  public int getVisualY() {
+    return super.getVisualY() + relativeOffsetY;
+  }
+
+  public void setupRelativePosition(final RenderableContainer container) {
+    // TODO Use parent height
+    setupRelativePosition(getModelNode().getRenderState(), container.getInnerMostWidth(), container.getInnerMostHeight());
+  }
+
+
 }

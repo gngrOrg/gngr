@@ -67,4 +67,6 @@ public interface RElement extends RCollection, UINode {
   public static final int VALIGN_BASELINE = 5;
 
   public void invalidateRenderStyle();
+
+  void setupRelativePosition(final RenderableContainer container);
 }

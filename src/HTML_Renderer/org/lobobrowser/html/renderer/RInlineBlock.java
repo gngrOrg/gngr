@@ -77,7 +77,7 @@ public class RInlineBlock extends BaseElementRenderable {
   }
 
   @Override
-  public void paint(final Graphics g) {
+  public void paintShifted(final Graphics g) {
     this.child.paint(g);
   }
 

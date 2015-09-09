@@ -75,8 +75,8 @@ public class RBlock extends BaseElementRenderable {
   protected final RBlockViewport bodyLayout;
 
   // Used for relative positioning
-  private int relativeOffsetX = 0;
-  private int relativeOffsetY = 0;
+  // private int relativeOffsetX = 0;
+  // private int relativeOffsetY = 0;
 
   // protected final Map<LayoutKey, LayoutValue> cachedLayout = new Hashtable<>(5);
 
@@ -234,7 +234,7 @@ public class RBlock extends BaseElementRenderable {
     final int hInset = insets.left + insets.right;
     final int vInset = insets.top + insets.bottom;
     // if (((overflowX == RenderState.OVERFLOW_NONE) || (overflowX == RenderState.OVERFLOW_VISIBLE))
-        // && ((overflowY == RenderState.OVERFLOW_NONE) || (overflowY == RenderState.OVERFLOW_VISIBLE))) {
+        // && ((overflowY == RenderState.OVERFLOW_NONE) || (overflowY == RenderState.OVERFLOW_VISIBLE))
     if (!(this.hasHScrollBar || this.hasVScrollBar)) {
       // return new Rectangle(insets.left - relativeOffsetX, insets.top - relativeOffsetY, this.getVisualWidth() - hInset, this.getVisualHeight() - vInset);
       // return new Rectangle(insets.left - relativeOffsetX, insets.top - relativeOffsetY, this.width - hInset, this.height - vInset);
@@ -259,88 +259,72 @@ public class RBlock extends BaseElementRenderable {
   }
 
   @Override
-  public void paint(final Graphics gIn) {
+  public void paintShifted(final Graphics g) {
+    // TODO: Move this to common logic in BaseElementEenderable.pain();
     final RenderState rs = this.modelNode.getRenderState();
     if ((rs != null) && (rs.getVisibility() != RenderState.VISIBILITY_VISIBLE)) {
       // Just don't paint it.
       return;
     }
 
-    final boolean isRelative = (relativeOffsetX | relativeOffsetY) != 0;
-    final Graphics g = isRelative ? gIn.create() : gIn;
-    if (isRelative) {
-      g.translate(relativeOffsetX, relativeOffsetY);
+    this.prePaint(g);
+
+    final Insets insets = this.getInsetsMarginBorder(this.hasHScrollBar, this.hasVScrollBar);
+    final RBlockViewport bodyLayout = this.bodyLayout;
+    if (bodyLayout != null) {
+      final int overflowX = this.overflowX;
+      final int overflowY = this.overflowY;
+      if ((((overflowX == RenderState.OVERFLOW_NONE) || (overflowX == RenderState.OVERFLOW_VISIBLE))
+          && ((overflowY == RenderState.OVERFLOW_NONE) || (overflowY == RenderState.OVERFLOW_VISIBLE)))
+          && (!(this.hasHScrollBar || this.hasVScrollBar))) {
+        bodyLayout.paint(g);
+      } else {
+        // Clip when there potential scrolling or hidden overflow  was requested.
+        final Graphics newG = g.create(insets.left, insets.top, this.width - insets.left - insets.right, this.height - insets.top
+            - insets.bottom);
+        try {
+          // Second, translate
+          newG.translate(-insets.left, -insets.top);
+          // Third, paint in clipped + translated region.
+          bodyLayout.paint(newG);
+        } finally {
+          newG.dispose();
+        }
+      }
+
+    } else {
+      // nop
     }
 
-    try {
-      this.prePaint(g);
+    // Paint FrameContext selection.
+    // This is only done by root RBlock.
 
-      final Insets insets = this.getInsetsMarginBorder(this.hasHScrollBar, this.hasVScrollBar);
-      final RBlockViewport bodyLayout = this.bodyLayout;
-      if (bodyLayout != null) {
-        /*
-        final int overflowX = this.overflowX;
-        final int overflowY = this.overflowY;
-        if (((overflowX == RenderState.OVERFLOW_NONE) || (overflowX == RenderState.OVERFLOW_VISIBLE))
-            && ((overflowY == RenderState.OVERFLOW_NONE) || (overflowY == RenderState.OVERFLOW_VISIBLE))) {
-            */
-        if (!(this.hasHScrollBar || this.hasVScrollBar)) {
-          bodyLayout.paint(g);
-        } else {
-          // Clip when there potential scrolling or hidden overflow  was requested.
-          final Graphics newG = g.create(insets.left, insets.top, this.width - insets.left - insets.right, this.height - insets.top
-              - insets.bottom);
-          try {
-            // Second, translate
-            newG.translate(-insets.left, -insets.top);
-            // Third, paint in clipped + translated region.
-            bodyLayout.paint(newG);
-          } finally {
-            newG.dispose();
-          }
-        }
-
-      } else {
-        // nop
+    final RenderableSpot start = this.startSelection;
+    final RenderableSpot end = this.endSelection;
+    final boolean inSelection = false;
+    if ((start != null) && (end != null) && !start.equals(end)) {
+      this.paintSelection(g, inSelection, start, end);
+    }
+    // Must paint scrollbars too.
+    final JScrollBar hsb = this.hScrollBar;
+    if (hsb != null) {
+      final Graphics sbg = g.create(insets.left, this.height - insets.bottom, this.width - insets.left - insets.right,
+          SCROLL_BAR_THICKNESS);
+      try {
+        hsb.paint(sbg);
+      } finally {
+        sbg.dispose();
       }
-
-      // Paint FrameContext selection.
-      // This is only done by root RBlock.
-
-      final RenderableSpot start = this.startSelection;
-      final RenderableSpot end = this.endSelection;
-      final boolean inSelection = false;
-      if ((start != null) && (end != null) && !start.equals(end)) {
-        this.paintSelection(g, inSelection, start, end);
+    }
+    final JScrollBar vsb = this.vScrollBar;
+    if (vsb != null) {
+      final Graphics sbg = g
+          .create(this.width - insets.right, insets.top, SCROLL_BAR_THICKNESS, this.height - insets.top - insets.bottom);
+      try {
+        vsb.paint(sbg);
+      } finally {
+        sbg.dispose();
       }
-      // Must paint scrollbars too.
-      final JScrollBar hsb = this.hScrollBar;
-      if (hsb != null) {
-        final Graphics sbg = g.create(insets.left, this.height - insets.bottom, this.width - insets.left - insets.right,
-            SCROLL_BAR_THICKNESS);
-        try {
-          hsb.paint(sbg);
-        } finally {
-          sbg.dispose();
-        }
-      }
-      final JScrollBar vsb = this.vScrollBar;
-      if (vsb != null) {
-        final Graphics sbg = g
-            .create(this.width - insets.right, insets.top, SCROLL_BAR_THICKNESS, this.height - insets.top - insets.bottom);
-        try {
-          vsb.paint(sbg);
-        } finally {
-          sbg.dispose();
-        }
-      }
-
-    } finally {
-      if (isRelative) {
-        g.dispose();
-      }
-      // Must always call super implementation
-      super.paint(gIn);
     }
   }
 
@@ -478,8 +462,8 @@ public class RBlock extends BaseElementRenderable {
     if (viewPortY > insets.top) {
       bodyLayout.y = insets.top;
       corrected = true;
-    } else if (viewPortY < (blockHeight - insets.bottom - bodyLayout.height)) {
-      bodyLayout.y = Math.min(insets.top, blockHeight - insets.bottom - bodyLayout.height);
+    } else if (viewPortY < (blockHeight - insets.bottom - bodyLayout.getVisualHeight())) {
+      bodyLayout.y = Math.min(insets.top, blockHeight - insets.bottom - bodyLayout.getVisualHeight());
       corrected = true;
     }
     return corrected;
@@ -766,10 +750,11 @@ public class RBlock extends BaseElementRenderable {
       this.height = resultingHeight;
     }
 
-    setupRelativePosition(rs, availWidth);
+    // setupRelativePosition(rs, availWidth);
     return new LayoutValue(resultingWidth, resultingHeight, hscroll, vscroll);
   }
 
+  /*
   private void setupRelativePosition(final RenderState rs, final int availWidth) {
     if (rs.getPosition() == RenderState.POSITION_RELATIVE) {
       final String leftText = rs.getLeft();
@@ -807,8 +792,9 @@ public class RBlock extends BaseElementRenderable {
       this.relativeOffsetX = 0;
       this.relativeOffsetY = 0;
     }
-  }
+  }*/
 
+  /*
   @Override
   public int getVisualX() {
     return super.getX() + relativeOffsetX;
@@ -818,6 +804,7 @@ public class RBlock extends BaseElementRenderable {
   public int getVisualY() {
     return super.getY() + relativeOffsetY;
   }
+  */
 
   @Override
   public int getVisualWidth() {

@@ -26,10 +26,10 @@ import org.lobobrowser.html.domimpl.ModelNode;
 
 final class RFloatInfo implements Renderable {
   private final ModelNode modelNode;
-  private final BoundableRenderable element;
+  private final RElement element;
   private final boolean leftFloat;
 
-  public RFloatInfo(final ModelNode node, final BoundableRenderable element, final boolean leftFloat) {
+  public RFloatInfo(final ModelNode node, final RElement element, final boolean leftFloat) {
     this.modelNode = node;
     this.element = element;
     this.leftFloat = leftFloat;
@@ -47,7 +47,7 @@ final class RFloatInfo implements Renderable {
     // nop
   }
 
-  public final BoundableRenderable getRenderable() {
+  public final RElement getRenderable() {
     return element;
   }
 }
