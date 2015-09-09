@@ -256,19 +256,19 @@ public class TranslatedRenderable extends BaseBoundableRenderable implements RCo
   @Override
   public void invalidateLayoutDeep() {
     // TODO Auto-generated method stub
-    Thread.dumpStack();
+    Threads.dumpStack(8);
   }
 
   @Override
   public void focus() {
     // TODO Auto-generated method stub
-    Thread.dumpStack();
+    Threads.dumpStack(8);
   }
 
   @Override
   public void blur() {
     // TODO Auto-generated method stub
-    Thread.dumpStack();
+    Threads.dumpStack(8);
   }
 
   @Override
