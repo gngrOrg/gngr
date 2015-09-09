@@ -92,6 +92,7 @@ public class DirectorySource {
     final JMenu menu = new JMenu("Tech News");
     menu.add(ComponentSource.menuItem("Hacker News", this.actionPool.createNavigateAction("https://news.ycombinator.com/news")));
     menu.add(ComponentSource.menuItem("Slashdot", this.actionPool.createNavigateAction("https://slashdot.org")));
+    menu.add(ComponentSource.menuItem("LWN", this.actionPool.createNavigateAction("https://lwn.net/")));
     menu.add(ComponentSource.menuItem("DZone", this.actionPool.createNavigateAction("http://dzone.com")));
     return menu;
   }
