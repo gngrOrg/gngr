@@ -256,7 +256,11 @@ public class TranslatedRenderable extends BaseBoundableRenderable implements RCo
   @Override
   public void invalidateLayoutDeep() {
     // TODO Auto-generated method stub
-    Threads.dumpStack(8);
+    if (translatedChild instanceof RCollection) {
+      final RCollection tc = (RCollection) translatedChild;
+      tc.invalidateLayoutDeep();
+    }
+
   }
 
   @Override
