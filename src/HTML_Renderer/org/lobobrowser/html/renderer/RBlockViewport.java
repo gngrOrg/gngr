@@ -2826,7 +2826,7 @@ public class RBlockViewport extends BaseRCollection {
       this.maxX = boxX + boxWidth;
     }
     // Adjust maxY based on float, but only if this viewport is the float limit.
-    if (this.isFloatLimit()) {
+    if (isFloatLimit) {
       if ((boxY + boxHeight) > this.maxY) {
         this.maxY = boxY + boxHeight;
       }
