@@ -2723,7 +2723,7 @@ public class RBlockViewport extends BaseRCollection {
     }
   }
 
-  private void addExportableFloat(final RElement element, final boolean leftFloat, final int origX, final int origY, final int visualX, final int visualY, final boolean pendingPlacement) {
+  private void addExportableFloat(final RElement element, final boolean leftFloat, final int origX, final int origY, final boolean pendingPlacement) {
     ArrayList<ExportableFloat> ep = this.exportableFloats;
     if (ep == null) {
       ep = new ArrayList<>(1);
@@ -2731,9 +2731,6 @@ public class RBlockViewport extends BaseRCollection {
     }
     ExportableFloat ef = new ExportableFloat(element, leftFloat, origX, origY);
     ef.pendingPlacement = pendingPlacement;
-    if (pendingPlacement) {
-      ef.addVisualShift(visualX, visualY);
-    }
     ep.add(ef);
   }
 
@@ -2825,7 +2822,7 @@ public class RBlockViewport extends BaseRCollection {
         addFloat(element);
       }
     } else {
-      this.addExportableFloat(element, leftFloat, boxX, boxY, 0, 0, placementPending);
+      this.addExportableFloat(element, leftFloat, boxX, boxY, placementPending);
     }
     // Adjust maxX based on float.
     if ((boxX + boxWidth) > this.maxX) {
@@ -2945,7 +2942,7 @@ public class RBlockViewport extends BaseRCollection {
 
     if (ef.pendingPlacement && getPosition((HTMLElementImpl)modelNode) != RenderState.POSITION_STATIC) {
       // System.out.println("Adding float as renderable to " + this);
-      renderable.setOrigin(newX + ef.visualX, newY + ef.visualY);
+      renderable.setOrigin(newX, newY);
       addFloat(renderable);
       ef.pendingPlacement = false;
     }
@@ -2955,12 +2952,12 @@ public class RBlockViewport extends BaseRCollection {
       if (ef.pendingPlacement) {
         // System.out.println("importing float as renderable to " + this);
         // System.out.println("  r: " + renderable);
-        renderable.setOrigin(newX + ef.visualX, newY + ef.visualY);
+        renderable.setOrigin(newX, newY);
         addFloat(renderable);
         ef.pendingPlacement = false;
       }
     } else {
-      this.addExportableFloat(renderable, leftFloat, newX, newY, ef.visualX, ef.visualY, ef.pendingPlacement);
+      this.addExportableFloat(renderable, leftFloat, newX, newY, ef.pendingPlacement);
     }
   }
 

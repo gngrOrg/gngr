@@ -26,8 +26,6 @@ public class ExportableFloat {
   public final boolean leftFloat;
   public final int origX, origY;
 
-  public int visualX = 0, visualY = 0;
-
   public boolean pendingPlacement = true;
 
   public ExportableFloat(final RElement element, final boolean leftFloat, final int origX, final int origY) {
@@ -38,10 +36,4 @@ public class ExportableFloat {
     this.origY = origY;
   }
 
-  public void addVisualShift(final int x, final int y) {
-    /*
-    visualX += x;
-    visualY += y;
-    */
-  }
 }

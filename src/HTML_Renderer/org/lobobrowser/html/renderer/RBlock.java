@@ -1270,9 +1270,6 @@ public class RBlock extends BaseElementRenderable {
 
     this.overflowX = this.defaultOverflowX;
     this.overflowY = this.defaultOverflowY;
-
-    this.relativeOffsetX = 0;
-    this.relativeOffsetY = 0;
   }
 
   /*
@@ -1644,11 +1641,6 @@ public class RBlock extends BaseElementRenderable {
       return null;
     }
     final Insets insets = this.getInsetsMarginBorder(this.hasHScrollBar, this.hasVScrollBar);
-    for (final ExportableFloat f : info.floats) {
-      if (f.pendingPlacement) {
-      // f.addVisualShift(relativeOffsetX, relativeOffsetY);
-      }
-    }
     return new FloatingInfo(info.shiftX + insets.left, info.shiftY + insets.top, info.floats);
   }
 

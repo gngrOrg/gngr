@@ -383,6 +383,9 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
 
     this.marginInsets = null;
     this.paddingInsets = null;
+
+    this.relativeOffsetX = 0;
+    this.relativeOffsetY = 0;
   }
 
   protected void applyLook() {
