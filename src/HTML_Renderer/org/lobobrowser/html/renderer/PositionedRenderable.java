@@ -39,15 +39,17 @@ public class PositionedRenderable implements Renderable {
   public final int ordinal;
   public final boolean isFloat;
   private final boolean isFixed;
+  private final boolean isDelegated;
 
   public PositionedRenderable(final BoundableRenderable renderable, final boolean verticalAlignable, final int ordinal,
-      final boolean isFloat, final boolean isFixed) {
+      final boolean isFloat, final boolean isFixed, final boolean isDelegated) {
     super();
     this.renderable = renderable;
     this.verticalAlignable = verticalAlignable;
     this.ordinal = ordinal;
     this.isFloat = isFloat;
     this.isFixed = isFixed;
+    this.isDelegated = isDelegated;
   }
 
   public RCollection getOriginalParent() {
@@ -56,6 +58,10 @@ public class PositionedRenderable implements Renderable {
 
   @Override
   public void paint(final Graphics gIn) {
+    if (isDelegated) {
+      return;
+    }
+
     final RCollection originalParent = this.renderable.getOriginalParent();
     final RCollection rparent = renderable.getParent();
 

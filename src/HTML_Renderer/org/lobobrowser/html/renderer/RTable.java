@@ -361,7 +361,7 @@ class RTable extends BaseElementRenderable {
       others = new TreeSet<>(new ZIndexComparator());
       this.positionedRenderables = others;
     }
-    others.add(new PositionedRenderable(renderable, verticalAlignable, this.otherOrdinal++, isFloat, isFixed));
+    others.add(new PositionedRenderable(renderable, verticalAlignable, this.otherOrdinal++, isFloat, isFixed, false));
     renderable.setParent(this);
     if (renderable instanceof RUIControl) {
       this.container.addComponent(((RUIControl) renderable).widget.getComponent());

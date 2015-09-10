@@ -1698,8 +1698,12 @@ public class RBlockViewport extends BaseRCollection {
   }
 
   private final void addPositionedRenderable(final BoundableRenderable renderable, final boolean verticalAlignable, final boolean isFloat, final boolean isFixed) {
+    addPositionedRenderable(renderable, verticalAlignable, isFloat, isFixed, false);
+  }
+
+  private final void addPositionedRenderable(final BoundableRenderable renderable, final boolean verticalAlignable, final boolean isFloat, final boolean isFixed, final boolean isDelegated) {
     // Expected to be called only in GUI thread.
-    final PositionedRenderable pr = new PositionedRenderable(renderable, verticalAlignable, this.positionedOrdinal++, isFloat, isFixed);
+    final PositionedRenderable pr = new PositionedRenderable(renderable, verticalAlignable, this.positionedOrdinal++, isFloat, isFixed, isDelegated);
     addPosRenderable(pr);
     renderable.setParent(this);
     if (renderable instanceof RUIControl) {
@@ -2736,6 +2740,8 @@ public class RBlockViewport extends BaseRCollection {
   private void addFloat(final RElement renderable) {
     if (!bubbleUpIfRelative((HTMLElementImpl) renderable.getModelNode(), renderable)) {
       this.addPositionedRenderable(renderable, true, true, false);
+    } else {
+      this.addPositionedRenderable(renderable, true, true, false, true);
     }
   }
 
