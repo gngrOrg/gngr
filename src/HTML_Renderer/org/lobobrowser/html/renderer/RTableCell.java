@@ -62,8 +62,9 @@ class RTableCell extends RBlock {
   protected Dimension doCellLayout(final int width, final int height, final boolean expandWidth, final boolean expandHeight,
       final boolean sizeOnly, final boolean useCache) {
     try {
-      this.doLayout(width, height, expandWidth, expandHeight, null, RenderState.OVERFLOW_NONE, RenderState.OVERFLOW_NONE, sizeOnly,
-          useCache);
+      /* TODO: This was being called along with the layout call. Investigate if the repeat calls serve some purpose.
+      this.doLayout(width, height, expandWidth, expandHeight, null, RenderState.OVERFLOW_NONE, RenderState.OVERFLOW_NONE, sizeOnly, useCache);
+      */
       this.layout(width, height, expandWidth, expandHeight, null, sizeOnly);
       return new Dimension(this.width, this.height);
     } finally {
