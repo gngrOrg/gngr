@@ -1779,4 +1779,37 @@ public class RBlock extends BaseElementRenderable {
     height = newHeight + vInset;
   }
 
+  private static boolean isSimpleLine(final Renderable r) {
+    if (r instanceof RLine) {
+      final RLine rLine = (RLine) r;
+      for (Iterator<? extends Renderable> rends = rLine.getRenderables(); rends.hasNext();) {
+        Renderable rend = rends.next();
+        if (!(rend instanceof RWord || rend instanceof RBlank || rend instanceof RStyleChanger)) {
+          return false;
+        }
+      }
+      return true;
+    }
+    return false;
+  }
+
+  public static void dumpRndTree(final int indent, final Renderable r) {
+    final String indentStr = indent == 0 ? "" : String.format("%"+indent+"s", "");
+    System.out.println(indentStr + r);
+    if (isSimpleLine(r)) {
+    } else {
+    if (r instanceof RCollection) {
+      final RCollection rCollection = (RCollection) r;
+      final Iterator<? extends Renderable> rnds = rCollection.getRenderables();
+      if (rnds == null) {
+        System.out.print(indentStr + " [empty]");
+      } else {
+        while (rnds.hasNext()) {
+          dumpRndTree(indent + 2, rnds.next());
+        }
+      }
+    }
+    }
+
+  }
 }

@@ -1042,4 +1042,11 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
     // TODO Auto-generated method stub
     return null;
   }
+
+  private static void dumpRndTree(final Renderable root) {
+    System.out.println("------------------------------");
+    RBlock.dumpRndTree(0, root);
+    System.out.println("------------------------------");
+  }
+
 }
