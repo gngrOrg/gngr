@@ -1112,6 +1112,7 @@ public class HtmlParser {
             break;
           } else {
             sb.append(next2);
+            next = reader.read();
           }
         } else {
           break;
