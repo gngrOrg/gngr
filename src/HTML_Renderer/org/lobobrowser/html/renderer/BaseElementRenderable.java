@@ -928,9 +928,9 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
     // This is so that a loading image doesn't cause
     // too many repaint events.
     if (((infoflags & ImageObserver.ALLBITS) != 0) || ((infoflags & ImageObserver.FRAMEBITS) != 0)) {
-      // EventQueue.invokeLater(() -> {
+      EventQueue.invokeLater(() -> {
         this.repaint();
-      // });
+      });
     }
     return true;
   }
