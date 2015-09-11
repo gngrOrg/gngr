@@ -190,4 +190,52 @@ public class CollectionUtilities {
   public static <T> Iterator<T> reverseIterator(final List<T> sr) {
     return new ListReverser<>(sr).iterator();
   }
+
+  // Filter iterator adapted from an implementation found in http://erikras.com/2008/01/18/the-filter-pattern-java-conditional-abstraction-with-iterables/
+  public static <T> Iterator<T> filter(final Iterator<T> iterator, final FilterFunction<T> filterFunction) {
+    return new FilterIterator<>(iterator, filterFunction);
+  }
+
+  public static interface FilterFunction<T> {
+    public boolean passes(T object);
+  }
+
+  public static class FilterIterator<T> implements Iterator<T> {
+    private final Iterator<T> iterator;
+    private T next;
+    private final FilterFunction<T> filterFunction;
+
+    private FilterIterator(final Iterator<T> iterator, final FilterFunction<T> filterFunction) {
+      this.iterator = iterator;
+      this.filterFunction = filterFunction;
+      toNext();
+    }
+
+    public boolean hasNext() {
+      return next != null;
+    }
+
+    public T next() {
+      if (next == null)
+        throw new NoSuchElementException();
+      final T returnValue = next;
+      toNext();
+      return returnValue;
+    }
+
+    public void remove() {
+      throw new UnsupportedOperationException();
+    }
+
+    private void toNext() {
+      next = null;
+      while (iterator.hasNext()) {
+        final T item = iterator.next();
+        if (item != null && filterFunction.passes(item)) {
+          next = item;
+          break;
+        }
+      }
+    }
+  }
 }

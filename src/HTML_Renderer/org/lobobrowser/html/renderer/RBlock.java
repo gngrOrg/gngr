@@ -1793,23 +1793,56 @@ public class RBlock extends BaseElementRenderable {
     return false;
   }
 
-  public static void dumpRndTree(final int indent, final Renderable r) {
-    final String indentStr = indent == 0 ? "" : String.format("%"+indent+"s", "");
-    System.out.println(indentStr + r);
+  public static void dumpRndTree(final String indentStr, final boolean isLast, final Renderable r, final boolean condense) {
+    final String nextIndentStr =  indentStr + ((r instanceof RBlockViewport) ? "  " : (isLast ? "  " : "│ "));
+    final String selfIndentStr = (isLast ? "└ " : "├ ");
     if (isSimpleLine(r)) {
+      System.out.println(indentStr + selfIndentStr + "─────");
     } else {
-    if (r instanceof RCollection) {
-      final RCollection rCollection = (RCollection) r;
-      final Iterator<? extends Renderable> rnds = rCollection.getRenderables();
-      if (rnds == null) {
-        System.out.print(indentStr + " [empty]");
+      if (r instanceof RBlockViewport) {
+        // System.out.println(indentStr + "^RBV");
       } else {
-        while (rnds.hasNext()) {
-          dumpRndTree(indent + 2, rnds.next());
+        final String selfStr = makeSelfStr(r);
+        System.out.println(indentStr + selfIndentStr + selfStr);
+      }
+      if (r instanceof RBlock) {
+        final RBlock rb = (RBlock) r;
+        if ((!condense) || !rb.isDelegated()) {
+          dumpRndTree(nextIndentStr, true, rb.bodyLayout, rb.isDelegated() || condense);
+        }
+      } else {
+        if (r instanceof RCollection) {
+          final RCollection rCollection = (RCollection) r;
+          if ((!condense) || !rCollection.isDelegated()) {
+            final Iterator<? extends Renderable> rnds = rCollection.getRenderables();
+            if (rnds == null) {
+              System.out.println(indentStr + selfIndentStr + " [empty]");
+            } else {
+              final Iterator<? extends Renderable> filteredRnds = CollectionUtilities.filter(rnds, (fr) -> !isSimpleLine(fr));
+              while (filteredRnds.hasNext()) {
+                final Renderable rnd = filteredRnds.next();
+                dumpRndTree(nextIndentStr, !filteredRnds.hasNext(), rnd, condense);
+              }
+            }
+          }
+        } else if (r instanceof PositionedRenderable) {
+          final PositionedRenderable pr = (PositionedRenderable) r;
+          dumpRndTree(nextIndentStr, true, pr.renderable, false);
         }
       }
     }
-    }
 
+  }
+
+  private static String makeSelfStr(final Renderable r) {
+    if (r instanceof PositionedRenderable) {
+      final PositionedRenderable pr = (PositionedRenderable) r;
+      return "Pos-Rend: " + (pr.isFloat ? " <float> " : "") + (pr.isFixed() ? " <fixed> " : "");
+    } else if (r instanceof TranslatedRenderable) {
+      return "Trans-Rend";
+    } else {
+      final String delgStr = (r instanceof RCollection) ? (((RCollection) r).isDelegated() ? "<deleg> " : "") : "";
+      return delgStr + r.toString();
+    }
   }
 }

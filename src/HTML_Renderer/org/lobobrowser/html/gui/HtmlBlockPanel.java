@@ -74,7 +74,6 @@ import org.lobobrowser.html.renderer.FrameContext;
 import org.lobobrowser.html.renderer.NodeRenderer;
 import org.lobobrowser.html.renderer.PositionedRenderable;
 import org.lobobrowser.html.renderer.RBlock;
-import org.lobobrowser.html.renderer.RBlockViewport;
 import org.lobobrowser.html.renderer.RCollection;
 import org.lobobrowser.html.renderer.RElement;
 import org.lobobrowser.html.renderer.Renderable;
@@ -711,6 +710,7 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
         block.setOrigin(0, 0);
         block.updateWidgetBounds(0, 0);
         this.updateGUIComponents();
+        // dumpRndTree(block);
         if (!scrollCompleted) {
           scrollCompleted = true;
           final String ref = doc.getDocumentURL().getRef();
@@ -1045,7 +1045,7 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
 
   private static void dumpRndTree(final Renderable root) {
     System.out.println("------------------------------");
-    RBlock.dumpRndTree(0, root);
+    RBlock.dumpRndTree("", true, root, true);
     System.out.println("------------------------------");
   }
 
