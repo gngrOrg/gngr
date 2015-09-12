@@ -274,9 +274,10 @@ public class RBlock extends BaseElementRenderable {
     if (bodyLayout != null) {
       final int overflowX = this.overflowX;
       final int overflowY = this.overflowY;
-      if ((((overflowX == RenderState.OVERFLOW_NONE) || (overflowX == RenderState.OVERFLOW_VISIBLE))
-          && ((overflowY == RenderState.OVERFLOW_NONE) || (overflowY == RenderState.OVERFLOW_VISIBLE)))
-          && (!(this.hasHScrollBar || this.hasVScrollBar))) {
+      final boolean isHtmlElem = (this.getModelNode() instanceof HTMLHtmlElement);
+      // if (isHtmlElem || (((overflowX == RenderState.OVERFLOW_NONE) || (overflowX == RenderState.OVERFLOW_VISIBLE))
+          // && ((overflowY == RenderState.OVERFLOW_NONE) || (overflowY == RenderState.OVERFLOW_VISIBLE)))) {
+      if (isHtmlElem || (!(this.hasHScrollBar || this.hasVScrollBar))) {
         bodyLayout.paint(g);
       } else {
         // Clip when there potential scrolling or hidden overflow  was requested.
