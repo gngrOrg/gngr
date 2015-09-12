@@ -433,6 +433,7 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
     }
   }
 
+  // TODO: Also look at GH #149
   // TODO: Try to refactor this so that all tasks are checked here rather than in caller
   // TODO: Some tasks are added unchecked for various reasons that need to be reviewed:
   //       1. Timer task. The logic is that a script that was permitted to create the timer already has the permission to execute it.
