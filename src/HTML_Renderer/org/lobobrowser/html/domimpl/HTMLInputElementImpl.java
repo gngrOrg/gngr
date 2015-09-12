@@ -176,7 +176,7 @@ public class HTMLInputElementImpl extends HTMLBaseInputElement implements HTMLIn
     if (type == null) {
       return new FormInput[] { new FormInput(name, this.getValue()) };
     } else {
-      if ("text".equals(type) || "password".equals(type) || "hidden".equals(type) || "url".equals(type) || "number".equals(type) || "".equals(type)) {
+      if ("text".equals(type) || "password".equals(type) || "hidden".equals(type) || "url".equals(type) || "number".equals(type) || "search".equals(type) || "".equals(type)) {
         return new FormInput[] { new FormInput(name, this.getValue()) };
       } else if ("submit".equals(type)) {
         // It's done as an "extra" form input
