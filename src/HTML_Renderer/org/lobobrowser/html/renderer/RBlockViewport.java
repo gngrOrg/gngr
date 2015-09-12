@@ -1621,7 +1621,10 @@ public class RBlockViewport extends BaseRCollection {
       }
     }
     final RFloatInfo floatInfo = new RFloatInfo(renderable.getModelNode(), renderable, leftFloat);
+
+    // TODO: WHy is this required? Could RFloatInfo be removed completely?
     this.currentLine.simplyAdd(floatInfo);
+
     this.scheduleFloat(floatInfo);
   }
 
