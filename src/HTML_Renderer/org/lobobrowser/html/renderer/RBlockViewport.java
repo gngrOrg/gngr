@@ -2739,10 +2739,12 @@ public class RBlockViewport extends BaseRCollection {
 
   private void addFloat(final RElement renderable, final int newX, final int newY) {
     renderable.setOrigin(newX, newY);
+    // TODO: Enabling this causes problems in some cases. See GH #153
+    // if (!bubbleUpIfRelative((HTMLElementImpl) renderable.getModelNode(), renderable)) {
       this.addPositionedRenderable(renderable, true, true, false);
-    } else {
-      this.addPositionedRenderable(renderable, true, true, false, true);
-    }
+    // } else {
+      // this.addPositionedRenderable(renderable, true, true, false, true);
+    // }
   }
 
   /**
