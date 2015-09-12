@@ -43,6 +43,7 @@ import java.util.EventObject;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -121,6 +122,8 @@ public class PlatformInit {
     protocolList.add(Protocol.HTTP_1_1);
     protocolList.add(Protocol.HTTP_2);
     okHttpClient.setProtocols(protocolList);
+
+    okHttpClient.setConnectTimeout(100, TimeUnit.SECONDS);
 
     // HttpsURLConnection.setDefaultSSLSocketFactory(sslSocketFactory);
     okHttpClient.setSslSocketFactory(sslSocketFactory);
