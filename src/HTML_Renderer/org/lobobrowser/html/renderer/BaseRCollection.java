@@ -31,7 +31,7 @@ abstract class BaseRCollection extends BaseBoundableRenderable implements RColle
    * Updates bounds of all descendent's GUI components, based on root bounds.
    */
   public void updateWidgetBounds(final int guiX, final int guiY) {
-    final Iterator<? extends Renderable> i = this.getRenderables();
+    final Iterator<? extends Renderable> i = this.getRenderables(false);
     if (i != null) {
       while (i.hasNext()) {
         final Renderable rn = i.next();
@@ -39,8 +39,30 @@ abstract class BaseRCollection extends BaseBoundableRenderable implements RColle
         if (r instanceof RCollection) {
           // RUIControl is a RCollection too.
           final RCollection rc = (RCollection) r;
-          rc.updateWidgetBounds(guiX + rc.getX(), guiY + rc.getY());
+          final Point or = rc.getOriginRelativeTo(this);
+          // rc.updateWidgetBounds(guiX + rc.getX(), guiY + rc.getY());
+          rc.updateWidgetBounds(guiX + or.x, guiY + or.y);
         }
+
+        /*
+        int ox = guiX;
+        int oy = guiY;
+        Renderable r = rn;
+        if (rn instanceof PositionedRenderable) {
+          final PositionedRenderable pr = (PositionedRenderable) rn;
+          final Point pro = pr.getOffset();
+          ox += pro.x;
+          oy += pro.y;
+          r = pr.renderable;
+        }
+        if (r instanceof RCollection) {
+          // RUIControl is a RCollection too.
+          final RCollection rc = (RCollection) r;
+          final Point or = rc.getOriginRelativeTo(this);
+          // rc.updateWidgetBounds(guiX + rc.getX(), guiY + rc.getY());
+          rc.updateWidgetBounds(ox + or.x, oy + or.y);
+        }
+        */
       }
     }
   }
@@ -87,7 +109,7 @@ abstract class BaseRCollection extends BaseBoundableRenderable implements RColle
         checkPoint1 = endPoint.getPoint();
       }
     }
-    final Iterator<? extends Renderable> i = this.getRenderables();
+    final Iterator<? extends Renderable> i = this.getRenderables(true);
     if (i != null) {
       while (i.hasNext()) {
         final Object robj = i.next();
@@ -159,7 +181,7 @@ abstract class BaseRCollection extends BaseBoundableRenderable implements RColle
         checkPoint1 = endPoint.getPoint();
       }
     }
-    final Iterator<? extends Renderable> i = this.getRenderables();
+    final Iterator<? extends Renderable> i = this.getRenderables(true);
     if (i != null) {
       while (i.hasNext()) {
         final Renderable rn = i.next();
@@ -208,7 +230,7 @@ abstract class BaseRCollection extends BaseBoundableRenderable implements RColle
     // if it's true that non-layable components
     // are not in RLine's anymore.
     this.invalidateLayoutLocal();
-    final Iterator<? extends Renderable> renderables = this.getRenderables();
+    final Iterator<? extends Renderable> renderables = this.getRenderables(true);
     if (renderables != null) {
       while (renderables.hasNext()) {
         final Renderable rn = renderables.next();
@@ -243,8 +265,42 @@ abstract class BaseRCollection extends BaseBoundableRenderable implements RColle
     }
     // Must recurse always
     if (newRenderable != null) {
-      newRenderable.onMouseMoved(event, x - newRenderable.getVisualX(), y - newRenderable.getVisualY(), changed, newLimit);
+      // newRenderable.onMouseMoved(event, x - newRenderable.getVisualX(), y - newRenderable.getVisualY(), changed, newLimit);
+      final Point or = newRenderable.getOriginRelativeTo(this);
+      newRenderable.onMouseMoved(event, x - or.x, y - or.y, changed, newLimit);
     }
+  }
+
+  @Override
+  public boolean onMousePressed(MouseEvent event, int x, int y) {
+    final Renderable r = this.getRenderable(x, y);
+    final RCollection newRenderable = r instanceof RCollection ? (RCollection) r : null;
+    if (newRenderable != null) {
+      final Point or = newRenderable.getOriginRelativeTo(this);
+      if(!newRenderable.onMousePressed(event, x - or.x, y - or.y)) {
+        return false;
+      }
+    }
+    if (!HtmlController.getInstance().onMouseDown(this.modelNode, event, x, y)) {
+      return false;
+    }
+    return true;
+  }
+
+  @Override
+  public boolean onMouseClick(MouseEvent event, int x, int y) {
+    final Renderable r = this.getRenderable(x, y);
+    final RCollection newRenderable = r instanceof RCollection ? (RCollection) r : null;
+    if (newRenderable != null) {
+      final Point or = newRenderable.getOriginRelativeTo(this);
+      if(!newRenderable.onMouseClick(event, x - or.x, y - or.y)) {
+        return false;
+      }
+    }
+    if (!HtmlController.getInstance().onMouseClick(this.modelNode, event, x, y)) {
+      return false;
+    }
+    return true;
   }
 
   @Override
@@ -259,24 +315,30 @@ abstract class BaseRCollection extends BaseBoundableRenderable implements RColle
       } else {
         newLimit = limit;
       }
-      oldRenderable.onMouseOut(event, x - oldRenderable.getVisualX(), y - oldRenderable.getVisualY(), newLimit);
+      final Point or = oldRenderable.getOriginRelativeTo(this);
+      oldRenderable.onMouseOut(event, x - or.x, y - or.y, newLimit);
     }
   }
 
   public BoundableRenderable getRenderable(final int x, final int y) {
-    final Iterator<? extends Renderable> i = this.getRenderables();
+    final Iterator<? extends Renderable> i = this.getRenderables(true);
     if (i != null) {
       while (i.hasNext()) {
         final Renderable rn = i.next();
-        final Renderable r = (rn instanceof PositionedRenderable) ? ((PositionedRenderable) rn).renderable : rn;
+        final Renderable r = rn;
         if (r instanceof BoundableRenderable) {
           final BoundableRenderable br = (BoundableRenderable) r;
           /*
           if (br instanceof RBlockViewport) {
             return br;
           }*/
-          if (br.contains(x, y)) {
+          if ((!br.isDelegated()) && br.contains(x, y)) {
             return br;
+          }
+        } else if (r instanceof PositionedRenderable) {
+          PositionedRenderable pr = (PositionedRenderable) r;
+          if (pr.contains(x, y)) {
+            return pr.renderable;
           }
         }
       }
@@ -289,7 +351,8 @@ abstract class BaseRCollection extends BaseBoundableRenderable implements RColle
     if (br == null) {
       return HtmlController.getInstance().onContextMenu(this.modelNode, event, x, y);
     } else {
-      return br.onRightClick(event, x - br.getVisualX(), y - br.getVisualY());
+      final Point or = br.getOriginRelativeTo(this);
+      return br.onRightClick(event, x - or.x, y - or.y);
     }
   }
 }

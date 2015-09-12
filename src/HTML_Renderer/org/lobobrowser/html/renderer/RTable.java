@@ -31,8 +31,10 @@ import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -315,10 +317,10 @@ class RTable extends BaseElementRenderable {
    *
    * @see org.xamjwg.html.renderer.RCollection#getRenderables()
    */
-  public Iterator<Renderable> getRenderables() {
+  public Iterator<Renderable> getRenderables(final boolean topFirst) {
     final Collection<PositionedRenderable> prs = this.positionedRenderables;
     if (prs != null) {
-      final Collection<Renderable> c = new java.util.LinkedList<>();
+      final List<Renderable> c = new java.util.LinkedList<>();
       final Iterator<PositionedRenderable> i = prs.iterator();
       while (i.hasNext()) {
         final PositionedRenderable pr = i.next();
@@ -329,6 +331,11 @@ class RTable extends BaseElementRenderable {
       while (i2.hasNext()) {
         c.add(i2.next());
       }
+
+      if (topFirst) {
+        Collections.reverse(c);
+      }
+
       return c.iterator();
     } else {
       return this.tableMatrix.getRenderables();
@@ -363,8 +370,8 @@ class RTable extends BaseElementRenderable {
   }
 
   private void importDelayedPair(final DelayedPair pair) {
-    pair.positionPairChild();
-    final BoundableRenderable r = pair.child;
+    BoundableRenderable r = pair.positionPairChild();
+    // final BoundableRenderable r = pair.child;
     this.addPositionedRenderable(r, false, false, pair.isFixed);
   }
 

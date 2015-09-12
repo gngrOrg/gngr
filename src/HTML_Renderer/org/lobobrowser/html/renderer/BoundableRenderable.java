@@ -46,6 +46,7 @@ public interface BoundableRenderable extends Renderable {
   public Point getOrigin();
 
   public Point getOriginRelativeTo(RCollection ancestor);
+  public Point getOriginRelativeToNoScroll(RCollection ancestor);
 
   /**
    * Gets the parent where the renderable is rendered.
@@ -166,4 +167,10 @@ public interface BoundableRenderable extends Renderable {
   public int getZIndex();
 
   public void invalidateLayoutUpTree();
+
+  public void setInnerWidth(Integer newWidth);
+  public void setInnerHeight(Integer newHeight);
+
+  public void setDelegator(final BoundableRenderable pDelegator);
+  public boolean isDelegated();
 }

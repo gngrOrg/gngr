@@ -34,6 +34,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.lobobrowser.html.domimpl.ModelNode;
+import org.lobobrowser.util.Threads;
 
 /**
  * @author J. H. S.
@@ -291,6 +292,11 @@ abstract class BaseBoundableRenderable extends BaseRenderable implements Boundab
   }
 
   public void repaint(final int x, final int y, final int width, final int height) {
+    if (isDelegated()) {
+      delegator.repaint(x, y, width, height);
+      return;
+    }
+
     final Renderable parent = this.parent;
     if (parent instanceof BoundableRenderable) {
       ((BoundableRenderable) parent).repaint(x + this.getVisualX(), y + this.getVisualY(), getVisualWidth(), getVisualHeight());
@@ -342,17 +348,22 @@ abstract class BaseBoundableRenderable extends BaseRenderable implements Boundab
   }
 
   public Point getOriginRelativeTo(final RCollection ancestor) {
-    int x = this.x;
-    int y = this.y;
-
     if (ancestor == this) {
-      return new Point(x, y);
+      return new Point(0, 0);
     }
+
+    int x = this.getVisualX();
+    int y = this.getVisualY();
 
     RCollection parent = this.parent;
     for (;;) {
       if (parent == null) {
-        throw new java.lang.IllegalArgumentException("Not an ancestor: " + ancestor);
+        // throw new java.lang.IllegalArgumentException("Not an ancestor: " + ancestor);
+        /* This condition can legitimately happen when mousing-out of an old
+         * renderable which is no longer part of the render hierarchy due to a
+         * layout change between the mouse-in and mouse-out events.
+         */
+        return new Point(x, y);
       }
       if (parent == ancestor) {
         return new Point(x, y);
@@ -361,5 +372,62 @@ abstract class BaseBoundableRenderable extends BaseRenderable implements Boundab
       y += parent.getVisualY();
       parent = parent.getParent();
     }
+  }
+
+  public Point getOriginRelativeToNoScroll(final RCollection ancestor) {
+    if (ancestor == this) {
+      return new Point(0, 0);
+    }
+
+    int x = this.getVisualX();
+    int y = this.getVisualY();
+
+
+    if (this instanceof RBlockViewport) {
+      final RBlockViewport rBV = (RBlockViewport) this;
+      x -= rBV.scrollX;
+      y -= rBV.scrollY;
+    }
+
+    RCollection parent = this.parent;
+    for (;;) {
+      if (parent == null) {
+        // throw new java.lang.IllegalArgumentException("Not an ancestor: " + ancestor);
+        /* This condition can legitimately happen when mousing-out of an old
+         * renderable which is no longer part of the render hierarchy due to a
+         * layout change between the mouse-in and mouse-out events.
+         */
+        return new Point(x, y);
+      }
+      if (parent == ancestor) {
+        return new Point(x, y);
+      }
+      x += parent.getVisualX();
+      y += parent.getVisualY();
+      if (parent instanceof RBlockViewport) {
+        final RBlockViewport rBV = (RBlockViewport) parent;
+        // x -= rBV.scrollX;
+        // y -= rBV.scrollY;
+      }
+      parent = parent.getParent();
+    }
+  }
+
+  public void setInnerWidth(final Integer newWidth) {
+    setWidth(newWidth);
+  }
+
+  public void setInnerHeight(final Integer newHeight) {
+    setHeight(newHeight);
+  }
+
+  private BoundableRenderable delegator;
+
+  public void setDelegator(final BoundableRenderable pDelegator) {
+    this.delegator = pDelegator;
+  }
+
+  public boolean isDelegated() {
+    return delegator != null;
   }
 }

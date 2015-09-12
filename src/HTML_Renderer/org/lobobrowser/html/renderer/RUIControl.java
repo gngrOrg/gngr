@@ -38,6 +38,7 @@ import org.lobobrowser.html.domimpl.UINode;
 import org.lobobrowser.html.style.RenderState;
 import org.lobobrowser.ua.UserAgentContext;
 import org.lobobrowser.util.Objects;
+import org.lobobrowser.util.Threads;
 
 /**
  * @author J. H. S.
@@ -368,7 +369,7 @@ class RUIControl extends BaseElementRenderable {
     }
   }
 
-  public Iterator<Renderable> getRenderables() {
+  public Iterator<Renderable> getRenderables(final boolean topFirst) {
     // No children for GUI controls
     return null;
   }

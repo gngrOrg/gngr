@@ -28,6 +28,8 @@ public class ExportableFloat {
 
   public int visualX = 0, visualY = 0;
 
+  public boolean pendingPlacement = true;
+
   public ExportableFloat(final BoundableRenderable element, final boolean leftFloat, final int origX, final int origY) {
     super();
     this.element = element;
@@ -37,7 +39,9 @@ public class ExportableFloat {
   }
 
   public void addVisualShift(final int x, final int y) {
+    /*
     visualX += x;
     visualY += y;
+    */
   }
 }

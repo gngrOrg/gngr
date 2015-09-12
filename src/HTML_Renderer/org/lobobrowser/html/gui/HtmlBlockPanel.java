@@ -74,11 +74,13 @@ import org.lobobrowser.html.renderer.FrameContext;
 import org.lobobrowser.html.renderer.NodeRenderer;
 import org.lobobrowser.html.renderer.PositionedRenderable;
 import org.lobobrowser.html.renderer.RBlock;
+import org.lobobrowser.html.renderer.RBlockViewport;
 import org.lobobrowser.html.renderer.RCollection;
 import org.lobobrowser.html.renderer.RElement;
 import org.lobobrowser.html.renderer.Renderable;
 import org.lobobrowser.html.renderer.RenderableContainer;
 import org.lobobrowser.html.renderer.RenderableSpot;
+import org.lobobrowser.html.renderer.TranslatedRenderable;
 import org.lobobrowser.html.style.RenderState;
 import org.lobobrowser.ua.UserAgentContext;
 import org.lobobrowser.util.Nodes;
@@ -288,7 +290,7 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
    * Gets an aggregate of the bounds of renderer leaf nodes.
    */
   private Rectangle scanNodeBounds(final RCollection root, final Node node, final RCollection relativeTo) {
-    final Iterator<? extends Renderable> i = root.getRenderables();
+    final Iterator<? extends Renderable> i = root.getRenderables(false);
     Rectangle resultBounds = null;
     BoundableRenderable prevBoundable = null;
     if (i != null) {
@@ -549,13 +551,27 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
 
   private Renderable getInnerMostRenderable(final int x, final int y) {
     final RBlock block = this.rblock;
-    Renderable r = block.getRenderable(x - block.getVisualX(), y - block.getVisualY());
-    Renderable inner = null;
+    BoundableRenderable r = block.getRenderable(x - block.getVisualX(), y - block.getVisualY());
+
+    int xi = x, yi = y;
+    BoundableRenderable inner = null;
+    BoundableRenderable prevR = null;
     do {
       if (r instanceof RCollection) {
         RCollection rc = (RCollection) r;
-        inner = rc.getRenderable(x - rc.getVisualX(), y - rc.getVisualY());
+
+        if (prevR != null) {
+          final Point oi = prevR.getOriginRelativeTo(rc);
+          xi -= oi.x;
+          yi -= oi.y;
+        }
+
+        // xi -= rc.getVisualX();
+        // yi -= rc.getVisualY();
+
+        inner = rc.getRenderable(xi, yi);
         if (inner != null) {
+          prevR = r;
           r = inner;
         }
       } else {
@@ -569,6 +585,8 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
   private RBlock getContainingBlock(final Renderable r) {
     if (r instanceof RBlock) {
       return (RBlock) r;
+    } else if (r instanceof TranslatedRenderable) {
+      return getContainingBlock(((TranslatedRenderable) r).getChild());
     } else if (r == null) {
       return null;
     } else if (r instanceof BoundableRenderable) {
@@ -670,6 +688,7 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
   @Override
   public void doLayout() {
     final NodeImpl rootNode = getRootNode();
+    if (rootNode instanceof HTMLDocumentImpl) {
     final HTMLDocumentImpl doc = (HTMLDocumentImpl)rootNode;
     final boolean layoutBlocked = doc.layoutBlocked.get();
     if (layoutBlocked) {
@@ -703,6 +722,7 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
       }
     } catch (final Throwable thrown) {
       logger.log(Level.SEVERE, "Unexpected error in layout engine. Document is " + this.getRootNode(), thrown);
+    }
     }
   }
 
@@ -822,6 +842,7 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
             if (uiNode != null) {
               final RElement relement = (RElement) uiNode;
               relement.invalidateLayoutUpTree();
+              relement.invalidateLayoutDeep();
               // if(type == DocumentNotification.GENERIC) {
               // relement.invalidateRenderStyle();
               // }
@@ -1011,5 +1032,11 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
 
   public java.awt.Point translateDescendentPoint(BoundableRenderable descendent, int x, int y) {
     return rblock.translateDescendentPoint(descendent, x, y);
+  }
+
+  @Override
+  public Point getOriginRelativeTo(RCollection bodyLayout) {
+    // TODO Auto-generated method stub
+    return null;
   }
 }

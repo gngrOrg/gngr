@@ -34,6 +34,8 @@ import java.util.Iterator;
 
 import org.lobobrowser.html.domimpl.ModelNode;
 import org.lobobrowser.html.style.RenderState;
+import org.lobobrowser.util.CollectionUtilities;
+import org.lobobrowser.util.NotImplementedYetException;
 
 /**
  * @author J. H. S.
@@ -134,6 +136,7 @@ class RLine extends BaseRCollection {
         if (r instanceof RElement) {
           // RElements should be translated.
           final RElement relement = (RElement) r;
+          if (!relement.isDelegated()) {
           final Graphics newG = g.create();
           newG.translate(relement.getVisualX(), relement.getVisualY());
           try {
@@ -141,9 +144,12 @@ class RLine extends BaseRCollection {
           } finally {
             newG.dispose();
           }
+          }
         } else if (r instanceof BoundableRenderable) {
           final BoundableRenderable br = (BoundableRenderable) r;
-          br.paintTranslated(g);
+          if (!br.isDelegated()) {
+            br.paintTranslated(g);
+          }
         } else {
           r.paint(g);
         }
@@ -559,6 +565,7 @@ class RLine extends BaseRCollection {
 
   private BoundableRenderable mousePressTarget;
 
+  /*
   public boolean onMousePressed(final java.awt.event.MouseEvent event, final int x, final int y) {
     final Renderable[] rarray = this.renderables.toArray(Renderable.EMPTY_ARRAY);
     final BoundableRenderable r = MarkupUtilities.findRenderable(rarray, x, y, false);
@@ -569,7 +576,7 @@ class RLine extends BaseRCollection {
     } else {
       return true;
     }
-  }
+  }*/
 
   public RenderableSpot getLowestRenderableSpot(final int x, final int y) {
     final Renderable[] rarray = this.renderables.toArray(Renderable.EMPTY_ARRAY);
@@ -663,8 +670,16 @@ class RLine extends BaseRCollection {
    *
    * @see org.xamjwg.html.renderer.RCollection#getRenderables()
    */
-  public Iterator<Renderable> getRenderables() {
+  public Iterator<Renderable> getRenderables(final boolean topFirst) {
+    // TODO: Returning Renderables in order always, assuming that they don't overlap.
+    //       Need to check the assumption
     return this.renderables.iterator();
+    /*
+    if (topFirst) {
+      return CollectionUtilities.reverseIterator(this.renderables);
+    } else {
+      return this.renderables.iterator();
+    }*/
   }
 
   public boolean isContainedByNode() {
@@ -683,5 +698,16 @@ class RLine extends BaseRCollection {
 
   public boolean isEmpty() {
     return this.xoffset == 0;
+  }
+
+  @Override
+  public Rectangle getClipBounds() {
+    // throw new NotImplementedYetException("This method is not expected to be called for RLine");
+    return null;
+  }
+
+  @Override
+  public String toString() {
+    return "RLine belonging to: " + getParent();
   }
 }

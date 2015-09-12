@@ -115,7 +115,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
     if (this.layoutDeepCanBeInvalidated) {
       this.layoutDeepCanBeInvalidated = false;
       this.invalidateLayoutLocal();
-      final Iterator<? extends Renderable> i = this.getRenderables();
+      final Iterator<? extends Renderable> i = this.getRenderables(false);
       if (i != null) {
         while (i.hasNext()) {
           final Renderable rn = i.next();
@@ -134,6 +134,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
     if (rs != null) {
       rs.invalidate();
     }
+    this.delayedPairs = null;
     this.overflowX = RenderState.OVERFLOW_NONE;
     this.overflowY = RenderState.OVERFLOW_NONE;
     this.declaredWidth = INVALID_SIZE;
@@ -906,7 +907,9 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
     // This is so that a loading image doesn't cause
     // too many repaint events.
     if (((infoflags & ImageObserver.ALLBITS) != 0) || ((infoflags & ImageObserver.FRAMEBITS) != 0)) {
-      this.repaint();
+      // EventQueue.invokeLater(() -> {
+        this.repaint();
+      // });
     }
     return true;
   }
@@ -937,7 +940,11 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
     return getInsets(false, false, true, false, true);
   }
 
-  // TODO: This method maybe inlined for performance
+  public Insets getInsetsPadding(final boolean hscroll, final boolean vscroll) {
+    return getInsets(hscroll, vscroll, false, false, true);
+  }
+
+  // TODO: This method could be inlined manually for performance
   private Insets getInsets(final boolean hscroll, final boolean vscroll,
       final boolean includeMI, final boolean includeBI, final boolean includePI) {
     final Insets mi = this.marginInsets;
@@ -1114,9 +1121,9 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
     applyLook();
   }
 
-  public Point translateDescendentPoint(BoundableRenderable descendent, int x, int y) {
+  public Point translateDescendentPoint(BoundableRenderable descendent, int px, int py) {
     final Point p = descendent.getOriginRelativeTo(this);
-    p.translate(x, y);
+    p.translate(px, py);
     return p;
 
     /* The following is the original implementation. It should be equivalent to the above */
@@ -1134,5 +1141,18 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
     }
     return new java.awt.Point(x, y);
     */
+  }
+
+  @Override
+  public Rectangle getClipBounds() {
+    final Insets insets = this.getInsetsPadding(false, false);
+    final int hInset = insets.left + insets.right;
+    final int vInset = insets.top + insets.bottom;
+    if (((overflowX == RenderState.OVERFLOW_NONE) || (overflowX == RenderState.OVERFLOW_VISIBLE))
+        && ((overflowY == RenderState.OVERFLOW_NONE) || (overflowY == RenderState.OVERFLOW_VISIBLE))) {
+      return new Rectangle(insets.left, insets.top, this.getVisualWidth() - hInset, this.getVisualHeight() - vInset);
+    } else {
+      return new Rectangle(insets.left, insets.top, this.width - hInset, this.height - vInset);
+    }
   }
 }

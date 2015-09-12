@@ -24,6 +24,7 @@ package org.lobobrowser.html.renderer;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.Rectangle;
 
 /**
@@ -62,6 +63,7 @@ public interface RenderableContainer {
 
   public int getWidth();
 
+  public int getX();
   public int getY();
 
   public Insets getInsets(final boolean hscroll, final boolean vscroll);
@@ -82,4 +84,6 @@ public interface RenderableContainer {
   public int getVisualHeight();
 
   java.awt.Point translateDescendentPoint(BoundableRenderable descendent, int x, int y);
+
+  public Point getOriginRelativeTo(RCollection bodyLayout);
 }

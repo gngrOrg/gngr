@@ -48,7 +48,7 @@ public class RInlineBlock extends BaseElementRenderable {
     this.height = child.getHeight();
   }
 
-  public Iterator<? extends Renderable> getRenderables() {
+  public Iterator<? extends Renderable> getRenderables(final boolean topFirst) {
     return CollectionUtilities.singletonIterator((Renderable) this.child);
   }
 
@@ -89,6 +89,7 @@ public class RInlineBlock extends BaseElementRenderable {
 
   @Override
   public void repaint(final ModelNode modelNode) {
+    // TODO: Who calls this?
     this.child.repaint(modelNode);
   }
 
@@ -100,7 +101,10 @@ public class RInlineBlock extends BaseElementRenderable {
   @Override
   protected void doLayout(final int availWidth, final int availHeight, final boolean sizeOnly) {
     this.child.layout(availWidth, availHeight, false, false, null, sizeOnly);
+    // this.child.doLayout(availWidth, availHeight, sizeOnly);
+    sendDelayedPairsToParent();
     assignDimension();
+    markLayoutValid();
   }
 
   @Override
@@ -112,5 +116,34 @@ public class RInlineBlock extends BaseElementRenderable {
   @Override
   protected void doLayout(final int availWidth, final int availHeight, final boolean expand, final boolean sizeOnly) {
     this.child.doLayout(availWidth, availHeight, expand, expand, null, 0, 0, sizeOnly, true);
+    // TODO: Assign dimension?
+    // TODO: Is this method called?
+  }
+
+  @Override
+  public String toString() {
+    return "RInlineBlock [" + this.child + "]";
+  }
+
+  @Override
+  protected void applyLook() {
+    this.child.applyLook();
+  }
+
+  @Override
+  protected void invalidateLayoutLocal() {
+    super.invalidateLayoutLocal();
+    this.child.invalidateLayoutLocal();
+  }
+
+  @Override
+  public void markLayoutValid() {
+    super.markLayoutValid();
+    this.child.markLayoutValid();
+  }
+
+  @Override
+  public int getZIndex() {
+    return this.child.getZIndex();
   }
 }

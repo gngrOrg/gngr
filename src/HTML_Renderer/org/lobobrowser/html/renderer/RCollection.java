@@ -21,6 +21,7 @@
 
 package org.lobobrowser.html.renderer;
 
+import java.awt.Rectangle;
 import java.util.Iterator;
 
 /**
@@ -29,8 +30,19 @@ import java.util.Iterator;
 public interface RCollection extends BoundableRenderable {
   /**
    * Gets the collection of {@link Renderable} children.
+   * @param topFirst If true, then the renderable that is visually on top comes first in the iterator.
+   *                 Currently, topFirst=true is worse for performance, as it requires reversing.
    */
-  public Iterator<? extends Renderable> getRenderables();
+  public Iterator<? extends Renderable> getRenderables(final boolean topFirst);
+
+  /**
+   * Gets the collection of {@link Renderable} children in unspecified order.
+   * Call this variant when the order of the result doesn't matter.
+   * The order defaults to the order that is natural to the implementation.
+   */
+  default public Iterator<? extends Renderable> getRenderables() {
+    return getRenderables(false);
+  }
 
   public void updateWidgetBounds(int guiX, int guiY);
 
@@ -44,4 +56,6 @@ public interface RCollection extends BoundableRenderable {
   public void blur();
 
   public BoundableRenderable getRenderable(final int x, final int y);
+
+  public Rectangle getClipBounds();
 }

@@ -74,7 +74,7 @@ class RTableCell extends RBlock {
 
   void clearLayoutCache() {
     // test method
-    this.cachedLayout.clear();
+    // this.cachedLayout.clear();
   }
 
   // public void setCellPadding(int value) {
