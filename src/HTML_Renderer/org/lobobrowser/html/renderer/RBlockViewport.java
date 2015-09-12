@@ -2737,8 +2737,8 @@ public class RBlockViewport extends BaseRCollection {
     ep.add(ef);
   }
 
-  private void addFloat(final RElement renderable) {
-    if (!bubbleUpIfRelative((HTMLElementImpl) renderable.getModelNode(), renderable)) {
+  private void addFloat(final RElement renderable, final int newX, final int newY) {
+    renderable.setOrigin(newX, newY);
       this.addPositionedRenderable(renderable, true, true, false);
     } else {
       this.addPositionedRenderable(renderable, true, true, false, true);
@@ -2805,7 +2805,7 @@ public class RBlockViewport extends BaseRCollection {
       boxY = newY;
     }
     // Position element
-    element.setOrigin(boxX, boxY);
+    // element.setOrigin(boxX, boxY);
     // Update float bounds accordingly
     final int offsetFromBorder = leftFloat ? boxX + boxWidth : desiredWidth - boxX;
     this.floatBounds = new FloatingViewportBounds(this.floatBounds, leftFloat, boxY, offsetFromBorder, boxHeight);
@@ -2814,7 +2814,7 @@ public class RBlockViewport extends BaseRCollection {
 
     boolean placementPending = true;
     if (getPosition((HTMLElementImpl)modelNode) != RenderState.POSITION_STATIC) {
-      addFloat(element);
+      addFloat(element, boxX, boxY);
       placementPending = false;
     }
 
@@ -2822,7 +2822,7 @@ public class RBlockViewport extends BaseRCollection {
       // System.out.println("Created float as renderable in " + this);
       // System.out.println("  r: " + element);
       if (placementPending) {
-        addFloat(element);
+        addFloat(element, boxX, boxY);
       }
     } else {
       this.addExportableFloat(element, leftFloat, boxX, boxY, placementPending);
@@ -2945,18 +2945,15 @@ public class RBlockViewport extends BaseRCollection {
 
     if (ef.pendingPlacement && getPosition((HTMLElementImpl)modelNode) != RenderState.POSITION_STATIC) {
       // System.out.println("Adding float as renderable to " + this);
-      renderable.setOrigin(newX, newY);
-      addFloat(renderable);
+      addFloat(renderable, newX, newY);
       ef.pendingPlacement = false;
     }
 
     if (this.isFloatLimit()) {
       // this.addPositionedRenderable(renderable, true, true, false);
       if (ef.pendingPlacement) {
-        // System.out.println("importing float as renderable to " + this);
         // System.out.println("  r: " + renderable);
-        renderable.setOrigin(newX, newY);
-        addFloat(renderable);
+        addFloat(renderable, newX, newY);
         ef.pendingPlacement = false;
       }
     } else {
