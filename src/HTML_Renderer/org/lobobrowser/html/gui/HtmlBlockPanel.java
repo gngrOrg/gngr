@@ -691,10 +691,11 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
   public void doLayout() {
     final NodeImpl rootNode = getRootNode();
     if (rootNode instanceof HTMLDocumentImpl) {
-    final HTMLDocumentImpl doc = (HTMLDocumentImpl)rootNode;
-    final boolean layoutBlocked = doc.layoutBlocked.get();
-    if (layoutBlocked) {
-      return;
+      final HTMLDocumentImpl doc = (HTMLDocumentImpl) rootNode;
+      final boolean layoutBlocked = doc.layoutBlocked.get();
+      if (layoutBlocked) {
+        return;
+      }
     }
 
     // TODO: This causes an exception when running web-platform-tests. GH #147
@@ -713,9 +714,12 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
         // dumpRndTree(block);
         if (!scrollCompleted) {
           scrollCompleted = true;
-          final String ref = doc.getDocumentURL().getRef();
-          if (ref != null && ref.length() > 0) {
-            scrollTo(doc.getElementById(ref));
+          if (rootNode instanceof HTMLDocumentImpl) {
+            final HTMLDocumentImpl doc = (HTMLDocumentImpl) rootNode;
+            final String ref = doc.getDocumentURL().getRef();
+            if (ref != null && ref.length() > 0) {
+              scrollTo(doc.getElementById(ref));
+            }
           }
         }
       } else {
@@ -725,7 +729,6 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
       }
     } catch (final Throwable thrown) {
       logger.log(Level.SEVERE, "Unexpected error in layout engine. Document is " + this.getRootNode(), thrown);
-    }
     }
   }
 
