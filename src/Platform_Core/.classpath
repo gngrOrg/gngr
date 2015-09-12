@@ -7,9 +7,9 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/Common"/>
 	<classpathentry kind="lib" path="lib/jooq-3.4.2.jar"/>
 	<classpathentry kind="lib" path="lib/public-suffix-list_0.1_28Jun.jar"/>
-	<classpathentry kind="lib" path="lib/okhttp-2.4.0.jar"/>
-	<classpathentry kind="lib" path="lib/okhttp-urlconnection-2.4.0.jar"/>
-	<classpathentry kind="lib" path="lib/okio-1.4.0.jar"/>
+	<classpathentry kind="lib" path="lib/okhttp-2.5.0.jar"/>
+	<classpathentry kind="lib" path="lib/okhttp-urlconnection-2.5.0.jar"/>
+	<classpathentry kind="lib" path="lib/okio-1.6.0.jar"/>
 	<classpathentry kind="lib" path="lib/h2-1.4.187.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
