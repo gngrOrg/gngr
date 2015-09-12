@@ -79,10 +79,13 @@ public class DataURLConnection extends URLConnection {
       value = removeSpaceCharacters(value);
       if (base64) {
 
-        // TODO: Fix for GH #15, but need to verify if this is specified by a standard
-        value = URLDecoder.decode(value, "UTF-8");
-
-        this.content = Base64.getDecoder().decode(value);
+        try {
+          this.content = Base64.getDecoder().decode(value);
+        } catch (final IllegalArgumentException iae) {
+          // TODO: Fix for GH #15, but need to verify if this is specified by a standard
+          value = URLDecoder.decode(value, "UTF-8");
+          this.content = Base64.getDecoder().decode(value);
+        }
       } else {
         this.content = decodeUrl(value.toCharArray());
       }
