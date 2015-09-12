@@ -167,7 +167,10 @@ public class CSSNorm
         "abbr, acronym   { font-variant: small-caps; letter-spacing: 0.1em }" +
 
         // In both Firefox and Chromium, text-align for tables is reset and not inherited
-        "table {text-align: left}";
+        "table {text-align: left}" +
+
+        // Adding some new html5 block elements
+        "article, aside, footer, header, hgroup, main, nav, section {display:block}";
   }
 
   /**
