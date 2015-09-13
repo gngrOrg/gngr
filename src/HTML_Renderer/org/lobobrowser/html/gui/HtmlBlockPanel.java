@@ -481,16 +481,15 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
     // Rely on AWT mouse-click only for double-clicks
     final RBlock block = this.rblock;
     if (block != null) {
-      final int button = event.getButton();
       final int clickCount = event.getClickCount();
-      if ((button == MouseEvent.BUTTON1) && (clickCount > 1)) {
+      if (SwingUtilities.isLeftMouseButton(event) && (clickCount > 1)) {
         // TODO: Double-click must be revised. It generates
         // a single click via mouse release.
         final Point point = event.getPoint();
         block.onDoubleClick(event, point.x, point.y);
-      } else if ((button == MouseEvent.BUTTON2) && (clickCount == 1)) {
+      } else if (SwingUtilities.isMiddleMouseButton(event) && (clickCount == 1)) {
         block.onMiddleClick(event, event.getX(), event.getY());
-      } else if ((button == MouseEvent.BUTTON3) && (clickCount == 1)) {
+      } else if (SwingUtilities.isRightMouseButton(event) && (clickCount == 1)) {
         block.onRightClick(event, event.getX(), event.getY());
       }
     }
