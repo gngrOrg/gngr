@@ -33,7 +33,6 @@ import org.lobobrowser.ua.NavigatorFrame;
 import org.lobobrowser.ua.UserAgentContext;
 import org.lobobrowser.ua.UserAgentContext.Request;
 import org.lobobrowser.ua.UserAgentContext.RequestKind;
-import org.lobobrowser.util.Threads;
 import org.lobobrowser.util.gui.GUITasks;
 
 public final class RequestManager {

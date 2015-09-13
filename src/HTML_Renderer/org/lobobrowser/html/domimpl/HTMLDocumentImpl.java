@@ -70,7 +70,6 @@ import org.lobobrowser.ua.NetworkRequest;
 import org.lobobrowser.ua.UserAgentContext;
 import org.lobobrowser.ua.UserAgentContext.Request;
 import org.lobobrowser.ua.UserAgentContext.RequestKind;
-import org.lobobrowser.util.Nodes;
 import org.lobobrowser.util.SecurityUtil;
 import org.lobobrowser.util.Urls;
 import org.lobobrowser.util.WeakValueHashMap;

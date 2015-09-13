@@ -34,7 +34,6 @@ import java.util.Iterator;
 
 import org.lobobrowser.html.domimpl.ModelNode;
 import org.lobobrowser.html.style.RenderState;
-import org.lobobrowser.util.CollectionUtilities;
 import org.lobobrowser.util.NotImplementedYetException;
 
 /**

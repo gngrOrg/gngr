@@ -25,8 +25,6 @@ package org.lobobrowser.clientlet;
 import java.awt.Component;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URL;
-
 import org.lobobrowser.io.ManagedStore;
 import org.lobobrowser.ua.NavigatorFrame;
 import org.lobobrowser.ua.NavigatorProgressEvent;

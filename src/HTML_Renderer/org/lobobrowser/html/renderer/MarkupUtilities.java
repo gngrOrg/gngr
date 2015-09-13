@@ -28,8 +28,6 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.lobobrowser.util.Diagnostics;
-
 //import java.util.logging.*;
 
 /**

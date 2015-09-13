@@ -28,7 +28,6 @@ import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 
 public class CanvasPath2D {
 

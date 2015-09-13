@@ -20,13 +20,10 @@
  */
 package org.lobobrowser.html.renderer;
 
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.util.Iterator;
-
 import org.lobobrowser.html.domimpl.ModelNode;
 import org.lobobrowser.html.style.RenderState;
 import org.w3c.dom.html.HTMLDocument;

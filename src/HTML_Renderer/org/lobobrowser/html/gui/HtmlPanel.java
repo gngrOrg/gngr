@@ -25,7 +25,6 @@ package org.lobobrowser.html.gui;
 
 import java.awt.Cursor;
 import java.awt.EventQueue;
-import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.io.Reader;

@@ -34,10 +34,7 @@ import java.awt.Rectangle;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.event.MouseEvent;
-import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.logging.Logger;
 
 import javax.swing.JScrollBar;
@@ -47,7 +44,6 @@ import org.lobobrowser.html.domimpl.ModelNode;
 import org.lobobrowser.html.domimpl.NodeFilter;
 import org.lobobrowser.html.domimpl.NodeImpl;
 import org.lobobrowser.html.style.BlockRenderState;
-import org.lobobrowser.html.style.HtmlValues;
 import org.lobobrowser.html.style.RenderState;
 import org.lobobrowser.html.style.RenderThreadState;
 import org.lobobrowser.ua.UserAgentContext;

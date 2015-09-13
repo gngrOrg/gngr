@@ -50,7 +50,6 @@ import org.lobobrowser.ua.NetworkRequest;
 import org.lobobrowser.ua.UserAgentContext;
 import org.lobobrowser.ua.UserAgentContext.Request;
 import org.lobobrowser.ua.UserAgentContext.RequestKind;
-import org.lobobrowser.util.NotImplementedYetException;
 import org.lobobrowser.util.SecurityUtil;
 import org.lobobrowser.util.Strings;
 import org.lobobrowser.util.gui.GUITasks;

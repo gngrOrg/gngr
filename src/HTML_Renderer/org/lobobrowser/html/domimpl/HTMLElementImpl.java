@@ -22,7 +22,6 @@
  */
 package org.lobobrowser.html.domimpl;
 
-import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -30,7 +29,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -40,7 +38,6 @@ import java.util.logging.Level;
 import org.lobobrowser.html.FormInput;
 import org.lobobrowser.html.parser.HtmlParser;
 import org.lobobrowser.html.style.CSS2PropertiesContext;
-import org.lobobrowser.html.style.CSSNorm;
 import org.lobobrowser.html.style.CSSUtilities;
 import org.lobobrowser.html.style.ComputedJStyleProperties;
 import org.lobobrowser.html.style.JStyleProperties;
@@ -56,12 +53,9 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.html.HTMLElement;
 import org.w3c.dom.html.HTMLFormElement;
 
-import cz.vutbr.web.css.CSSException;
-import cz.vutbr.web.css.CSSFactory;
 import cz.vutbr.web.css.CSSProperty;
 import cz.vutbr.web.css.CombinedSelector;
 import cz.vutbr.web.css.MatchCondition;
-import cz.vutbr.web.css.MediaSpec;
 import cz.vutbr.web.css.NodeData;
 import cz.vutbr.web.css.RuleSet;
 import cz.vutbr.web.css.Selector;
@@ -69,7 +63,6 @@ import cz.vutbr.web.css.Selector.PseudoDeclaration;
 import cz.vutbr.web.css.StyleSheet;
 import cz.vutbr.web.css.Term;
 import cz.vutbr.web.csskit.MatchConditionOnElements;
-import cz.vutbr.web.domassign.Analyzer.Holder;
 import cz.vutbr.web.domassign.Analyzer.OrderedRule;
 import cz.vutbr.web.domassign.AnalyzerUtil;
 

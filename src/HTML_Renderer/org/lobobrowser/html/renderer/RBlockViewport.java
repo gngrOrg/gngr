@@ -31,7 +31,6 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -56,17 +55,14 @@ import org.lobobrowser.html.domimpl.HTMLTableElementImpl;
 import org.lobobrowser.html.domimpl.ModelNode;
 import org.lobobrowser.html.domimpl.NodeImpl;
 import org.lobobrowser.html.domimpl.UINode;
-import org.lobobrowser.html.gui.HtmlBlockPanel;
 import org.lobobrowser.html.style.HtmlInsets;
 import org.lobobrowser.html.style.JStyleProperties;
 import org.lobobrowser.html.style.RenderState;
 import org.lobobrowser.ua.UserAgentContext;
 import org.lobobrowser.util.ArrayUtilities;
 import org.lobobrowser.util.CollectionUtilities;
-import org.lobobrowser.util.Threads;
 import org.w3c.dom.Node;
 import org.w3c.dom.html.HTMLDocument;
-import org.w3c.dom.html.HTMLHtmlElement;
 
 /**
  * A substantial portion of the HTML rendering logic of the package can be found

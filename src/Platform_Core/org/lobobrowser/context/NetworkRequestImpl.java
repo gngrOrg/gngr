@@ -25,7 +25,6 @@ package org.lobobrowser.context;
 
 import java.awt.Image;
 import java.awt.Toolkit;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,8 +39,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.lobobrowser.clientlet.ClientletAccess;
 import org.lobobrowser.clientlet.ClientletContext;

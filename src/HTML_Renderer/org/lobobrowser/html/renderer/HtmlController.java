@@ -22,8 +22,6 @@ import org.lobobrowser.html.domimpl.ModelNode;
 import org.lobobrowser.html.domimpl.NodeImpl;
 import org.lobobrowser.html.js.Event;
 import org.lobobrowser.html.js.Executor;
-import org.lobobrowser.html.js.Window;
-import org.lobobrowser.html.js.Window.JSRunnableTask;
 import org.lobobrowser.html.style.RenderState;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Function;
