@@ -524,7 +524,11 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
       final int ry = point.y;
       if (SwingUtilities.isLeftMouseButton(event)) {
         // TODO: This will be raised twice on a double-click.
-        block.onMouseClick(event, rx, ry);
+        if (event.isControlDown()) {
+          block.onMiddleClick(event, rx, ry);
+        } else {
+          block.onMouseClick(event, rx, ry);
+        }
       } else if (SwingUtilities.isRightMouseButton(event)) {
         block.onRightClick(event, rx, ry);
       }
