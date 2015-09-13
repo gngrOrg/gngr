@@ -359,7 +359,7 @@ public class LocalSecurityPolicy extends Policy {
     if (isLocal) {
       final String path = location.toExternalForm();
 
-      if (path.endsWith("h2-1.4.187.jar")) {
+      if (path.endsWith("h2-1.4.188.jar")) {
         final String userDBPath = StorageManager.getInstance().userDBPath;
         permissions.add(new FilePermission(STORE_DIRECTORY_CANONICAL, "read"));
 

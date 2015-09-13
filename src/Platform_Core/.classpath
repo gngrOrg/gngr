@@ -10,6 +10,6 @@
 	<classpathentry kind="lib" path="lib/okhttp-2.5.0.jar"/>
 	<classpathentry kind="lib" path="lib/okhttp-urlconnection-2.5.0.jar"/>
 	<classpathentry kind="lib" path="lib/okio-1.6.0.jar"/>
-	<classpathentry kind="lib" path="lib/h2-1.4.187.jar"/>
+	<classpathentry kind="lib" path="lib/h2-1.4.188.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
