@@ -22,6 +22,7 @@
  */
 package org.lobobrowser.html.domimpl;
 
+import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -52,6 +53,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.html.HTMLElement;
 import org.w3c.dom.html.HTMLFormElement;
+import org.xml.sax.SAXException;
 
 import cz.vutbr.web.css.CSSProperty;
 import cz.vutbr.web.css.CombinedSelector;
@@ -732,15 +734,11 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
       removeAllChildrenImpl();
     }
     // Should not synchronize around parser probably.
-    try {
-      final Reader reader = new StringReader(newHtml);
-      try {
-        parser.parse(reader, this);
-      } finally {
-        reader.close();
-      }
-    } catch (final Exception thrown) {
-      this.warn("setInnerHTML(): Error setting inner HTML.", thrown);
+    try (
+      final Reader reader = new StringReader(newHtml) ) {
+      parser.parse(reader, this);
+    } catch (final IOException | SAXException e) {
+      this.warn("setInnerHTML(): Error setting inner HTML.", e);
     }
   }
 

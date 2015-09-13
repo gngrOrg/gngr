@@ -43,28 +43,24 @@ public final class TextClientlet implements Clientlet {
 
   public void process(final ClientletContext context) throws ClientletException {
     System.out.println("Processing text client");
-    try {
-      final InputStream in = context.getResponse().getInputStream();
-      try {
-        final String text = IORoutines.loadAsText(in, "ISO-8859-1");
-        final JTextArea textArea = new JTextArea(text);
-        textArea.setEditable(false);
-        final JScrollPane pane = new JScrollPane(textArea);
-        final HtmlRendererContextImpl rcontext = HtmlRendererContextImpl.getHtmlRendererContext(context.getNavigatorFrame());
-        rcontext.getHtmlPanel().setDocument(new SimpleDocument(context.getResponse().getMimeType()), rcontext);
-        // context.setResultingContent(pane, context.getResponse().getResponseURL());
-        context.setResultingContent(new SimpleComponentContent(pane) {
-          
-          @Override
-          public void navigatedNotify() {
-            System.out.println("Navigated");
-            rcontext.jobsFinished();
-            Window.getWindow(rcontext).jobsFinished();
-          }
-        });
-      } finally {
-        in.close();
-      }
+    try (
+      final InputStream in = context.getResponse().getInputStream()) {
+      final String text = IORoutines.loadAsText(in, "ISO-8859-1");
+      final JTextArea textArea = new JTextArea(text);
+      textArea.setEditable(false);
+      final JScrollPane pane = new JScrollPane(textArea);
+      final HtmlRendererContextImpl rcontext = HtmlRendererContextImpl.getHtmlRendererContext(context.getNavigatorFrame());
+      rcontext.getHtmlPanel().setDocument(new SimpleDocument(context.getResponse().getMimeType()), rcontext);
+      // context.setResultingContent(pane, context.getResponse().getResponseURL());
+      context.setResultingContent(new SimpleComponentContent(pane) {
+
+        @Override
+        public void navigatedNotify() {
+          System.out.println("Navigated");
+          rcontext.jobsFinished();
+          Window.getWindow(rcontext).jobsFinished();
+        }
+      });
     } catch (final IOException ioe) {
       throw new ClientletException(ioe);
     }

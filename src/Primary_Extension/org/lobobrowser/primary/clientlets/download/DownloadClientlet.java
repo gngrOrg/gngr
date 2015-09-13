@@ -52,27 +52,20 @@ public final class DownloadClientlet implements Clientlet {
     int transferSpeed = -1;
     final int contentLength = response.getContentLength();
     if (contentLength > 0) {
-      try {
-        final InputStream in = response.getInputStream();
-        try {
-          final long baseTime = System.currentTimeMillis();
-          final long maxElapsed = 1000;
-          final byte[] buffer = new byte[4096];
-          int numRead;
-          int totalRead = 0;
-          while (((System.currentTimeMillis() - baseTime) < maxElapsed) && ((numRead = in.read(buffer)) != -1)) {
-            totalRead += numRead;
-          }
-          // Note: This calcuation depends on
-          // content not being stored in cache.
-          // It works just because downloads
-          // are not stored in the cache.
-          final long elapsed = System.currentTimeMillis() - baseTime;
-          if (elapsed > 0) {
-            transferSpeed = (int) Math.round((double) totalRead / elapsed);
-          }
-        } finally {
-          in.close();
+      try (final InputStream in = response.getInputStream()) {
+        final long baseTime = System.currentTimeMillis();
+        final long maxElapsed = 1000;
+        final byte[] buffer = new byte[4096];
+        int numRead;
+        int totalRead = 0;
+        while (((System.currentTimeMillis() - baseTime) < maxElapsed) && ((numRead = in.read(buffer)) != -1)) {
+          totalRead += numRead;
+        }
+        // Note: This calculation depends on content not being stored in cache.
+        // It works just because downloads are not stored in the cache.
+        final long elapsed = System.currentTimeMillis() - baseTime;
+        if (elapsed > 0) {
+          transferSpeed = (int) Math.round((double) totalRead / elapsed);
         }
       } catch (final java.io.IOException ioe) {
         throw new ClientletException(ioe);

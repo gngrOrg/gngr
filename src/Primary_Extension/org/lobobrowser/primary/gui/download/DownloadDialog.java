@@ -471,27 +471,21 @@ public class DownloadDialog extends JFrame {
 
     @Override
     public void processResponse(final ClientletResponse response) throws ClientletException, IOException {
-      final OutputStream out = new FileOutputStream(this.file);
-      try {
-        final InputStream in = response.getInputStream();
-        try {
-          int totalRead = 0;
-          final byte[] buffer = new byte[8192];
-          int numRead;
-          while ((numRead = in.read(buffer)) != -1) {
-            if (this.isCancelled()) {
-              throw new IOException("cancelled");
-            }
-            totalRead += numRead;
-            out.write(buffer, 0, numRead);
+      try (
+        final OutputStream out = new FileOutputStream(this.file);
+        final InputStream in = response.getInputStream()) {
+        int totalRead = 0;
+        final byte[] buffer = new byte[8192];
+        int numRead;
+        while ((numRead = in.read(buffer)) != -1) {
+          if (this.isCancelled()) {
+            throw new IOException("cancelled");
           }
-          this.downloadDone = true;
-          doneWithDownload_Safe(totalRead);
-        } finally {
-          in.close();
+          totalRead += numRead;
+          out.write(buffer, 0, numRead);
         }
-      } finally {
-        out.close();
+        this.downloadDone = true;
+        doneWithDownload_Safe(totalRead);
       }
     }
   }

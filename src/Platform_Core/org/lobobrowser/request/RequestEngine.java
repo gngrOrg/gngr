@@ -244,12 +244,10 @@ public final class RequestEngine {
               writer.writeText(name, parameter.getTextValue(), "UTF-8");
             } else if (parameter.isFile()) {
               final File file = parameter.getFileValue();
-              final FileInputStream in = new FileInputStream(parameter.getFileValue());
-              try {
+              try (
+                final FileInputStream in = new FileInputStream(parameter.getFileValue())) {
                 final BufferedInputStream bin = new BufferedInputStream(in, 8192);
                 writer.writeFileData(name, file.getName(), Files.getContentType(file), bin);
-              } finally {
-                in.close();
               }
             } else {
               logger.warning("postData(): Skipping parameter " + name + " of unknown type for POST with encoding " + encoding + ".");
@@ -424,8 +422,8 @@ public final class RequestEngine {
     final int approxMemEntrySize = content.length + (altObject == null ? 0 : approxAltObjectSize);
     final CacheManager cm = CacheManager.getInstance();
     cm.putTransient(url, memEntry, approxMemEntrySize);
-    final ByteArrayOutputStream out = new ByteArrayOutputStream();
-    try {
+    try (
+      final ByteArrayOutputStream out = new ByteArrayOutputStream()) {
       boolean hadDate = false;
       boolean hadContentLength = false;
       for (int counter = 0; true; counter++) {
@@ -469,13 +467,11 @@ public final class RequestEngine {
       out.write(rtHeaderBytes);
       out.write(IORoutines.LINE_BREAK_BYTES);
       out.write(content);
-    } finally {
-      out.close();
-    }
-    try {
-      CacheManager.putPersistent(url, out.toByteArray(), false);
-    } catch (final Exception err) {
-      logger.log(Level.WARNING, "cache(): Unable to cache response content.", err);
+      try {
+        CacheManager.putPersistent(url, out.toByteArray(), false);
+      } catch (final IOException err) {
+        logger.log(Level.WARNING, "cache(): Unable to cache response content.", err);
+      }
     }
     if (altPersistentObject != null) {
       try {

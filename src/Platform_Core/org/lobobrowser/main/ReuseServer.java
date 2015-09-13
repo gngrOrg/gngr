@@ -108,8 +108,8 @@ public class ReuseServer implements Runnable {
         final Socket s = ss.accept();
         s.setSoTimeout(10000);
         s.setTcpNoDelay(true);
-        final InputStream in = s.getInputStream();
-        try {
+        try (
+          final InputStream in = s.getInputStream() ) {
           final Reader reader = new InputStreamReader(in);
           final BufferedReader br = new BufferedReader(reader);
           String line;
@@ -127,8 +127,6 @@ public class ReuseServer implements Runnable {
               PlatformInit.getInstance().launch();
             }
           }
-        } finally {
-          in.close();
         }
       } catch (final Throwable t) {
         t.printStackTrace(System.err);

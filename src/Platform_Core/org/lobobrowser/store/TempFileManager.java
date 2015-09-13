@@ -122,11 +122,9 @@ public class TempFileManager {
       }
     }
     final File file = this.newTempFile();
-    final OutputStream out = new FileOutputStream(file);
-    try {
+    try (
+      final OutputStream out = new FileOutputStream(file)) {
       out.write(bytes);
-    } finally {
-      out.close();
     }
     final JarFile jarFile = new JarFile(file);
     final String canonical = file.getCanonicalPath();

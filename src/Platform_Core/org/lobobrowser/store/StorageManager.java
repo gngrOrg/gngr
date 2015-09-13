@@ -105,10 +105,11 @@ public class StorageManager implements Runnable {
 
     if (tableCount == 0) {
       final InputStream schemaStream = getClass().getResourceAsStream("/info/gngr/schema.sql");
-      final Scanner scanner = new Scanner(schemaStream, "UTF-8");
-      final String text = scanner.useDelimiter("\\A").next();
-      userDB.execute(text);
-      scanner.close();
+      try (
+        final Scanner scanner = new Scanner(schemaStream, "UTF-8")) {
+        final String text = scanner.useDelimiter("\\A").next();
+        userDB.execute(text);
+      }
     }
 
   }

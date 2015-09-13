@@ -118,13 +118,10 @@ public class ArchiveClassLoader extends BaseClassLoader {
               if (entry == null) {
                 return null;
               }
-              final java.io.InputStream in = jarFile.getInputStream(entry);
-              try {
+              try (final java.io.InputStream in = jarFile.getInputStream(entry)) {
                 final byte[] bytes = IORoutines.loadExact(in, (int) entry.getSize());
                 foundAinfo[0] = ainfo;
                 return bytes;
-              } finally {
-                in.close();
               }
             } catch (final IOException ioe) {
               return null;

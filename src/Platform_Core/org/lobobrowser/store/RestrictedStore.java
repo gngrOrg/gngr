@@ -359,13 +359,11 @@ public final class RestrictedStore implements QuotaSource, ManagedStore {
 
   public void saveObject(final String path, final Serializable object) throws IOException {
     final ManagedFile file = this.getManagedFile(path);
-    final OutputStream out = file.openOutputStream();
-    try {
+    try (
+      final OutputStream out = file.openOutputStream()) {
       final ObjectOutputStream oout = new ObjectOutputStream(new BufferedOutputStream(out));
       oout.writeObject(object);
       oout.flush();
-    } finally {
-      out.close();
     }
   }
 
