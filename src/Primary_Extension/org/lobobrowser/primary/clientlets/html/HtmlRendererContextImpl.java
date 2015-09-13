@@ -339,7 +339,7 @@ public class HtmlRendererContextImpl implements HtmlRendererContext {
       if (currElement instanceof HTMLLinkElementImpl) {
         final HTMLLinkElementImpl link = (HTMLLinkElementImpl) currElement;
         task = (() -> {
-          HtmlRendererContextImpl.this.open(link.getAbsoluteHref(), "new window", null, false);
+          HtmlRendererContextImpl.this.open(link.getAbsoluteHref(), null, null, false);
         });
 
       } else if (currElement instanceof HTMLImageElementImpl) {
