@@ -474,14 +474,10 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
           if (tentativeMarginInsets == null) {
             tentativeMarginInsets = RBlockViewport.ZERO_INSETS;
           }
-          // TODO: Get rid of autoMarginX and autoMarginY. They will be always zero
-          final int autoMarginX = 0, autoMarginY = 0;
           this.borderInsets = borderInsets;
           if (isRootBlock) {
             // In the root block, the margin behaves like an extra padding.
-            Insets regularMarginInsets = ((autoMarginX == 0) && (autoMarginY == 0)) ? tentativeMarginInsets
-                : (minsets == null ? null : minsets.getAWTInsets(dmtop, dmleft, dmbottom, dmright, availWidth, availHeight,
-                    autoMarginX, autoMarginY));
+            Insets regularMarginInsets = tentativeMarginInsets;
             if (regularMarginInsets == null) {
               regularMarginInsets = RBlockViewport.ZERO_INSETS;
             }
@@ -490,8 +486,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
                 paddingInsets.bottom + regularMarginInsets.bottom, paddingInsets.right + regularMarginInsets.right);
           } else {
             this.paddingInsets = paddingInsets;
-            this.marginInsets = ((autoMarginX == 0) && (autoMarginY == 0)) ? tentativeMarginInsets : (minsets == null ? null
-                : minsets.getAWTInsets(dmtop, dmleft, dmbottom, dmright, availWidth, availHeight, autoMarginX, autoMarginY));
+            this.marginInsets = tentativeMarginInsets;
           }
           // TODO: Why is props from root element being used here and not the renderstate of the current element?
           final String zIndex = props.getZIndex();
