@@ -41,7 +41,6 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.lobobrowser.html.HtmlRendererContext;
 import org.lobobrowser.html.domimpl.NodeFilter.AnchorFilter;
@@ -119,7 +118,6 @@ import cz.vutbr.web.domassign.AnalyzerUtil;
  * Implementation of the W3C <code>HTMLDocument</code> interface.
  */
 public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, DocumentView, DocumentStyle, EventTarget {
-  private static final Logger logger = Logger.getLogger(HTMLDocumentImpl.class.getName());
   private final ElementFactory factory;
   private final HtmlRendererContext rcontext;
   private final UserAgentContext ucontext;
