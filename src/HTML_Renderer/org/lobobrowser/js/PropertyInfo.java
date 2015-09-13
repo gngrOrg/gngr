@@ -24,10 +24,10 @@ import java.lang.reflect.Method;
 
 public class PropertyInfo {
   private final String name;
-  private final Class propertyType;
+  private final Class<?> propertyType;
   private Method getter, setter;
 
-  public PropertyInfo(final String name, final Class propType) {
+  public PropertyInfo(final String name, final Class<?> propType) {
     super();
     this.name = name;
     this.propertyType = propType;
@@ -53,7 +53,7 @@ public class PropertyInfo {
     return this.name;
   }
 
-  public Class getPropertyType() {
+  public Class<?> getPropertyType() {
     return propertyType;
   }
 }

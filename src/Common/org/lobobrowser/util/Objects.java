@@ -37,14 +37,14 @@ public class Objects {
     return obj1 == null ? (obj2 == null) : (obj1.equals(obj2));
   }
 
-  public static boolean isBoxClass(final Class clazz) {
+  public static boolean isBoxClass(final Class<?> clazz) {
     return (clazz == Integer.class) || (clazz == Boolean.class) || (clazz == Double.class) || (clazz == Float.class)
         || (clazz == Long.class)
         || (clazz == Byte.class) || (clazz == Short.class) || (clazz == Character.class);
   }
 
   /* Checks whether the arguments are an exact match to the parameter types */
-  public static boolean areSameTo(final Object[] objects, final Class[] types) {
+  public static boolean areSameTo(final Object[] objects, final Class<?>[] types) {
     final int length = objects.length;
     if (length != types.length) {
       return false;
@@ -74,7 +74,7 @@ public class Objects {
     return false;
   }
 
-  public static boolean areAssignableTo(final Object[] objects, final Class[] types) {
+  public static boolean areAssignableTo(final Object[] objects, final Class<?>[] types) {
     final int length = objects.length;
     if (length != types.length) {
       return false;

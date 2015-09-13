@@ -28,7 +28,7 @@ import java.io.File;
 /**
  * @author J. H. S.
  */
-public class CacheFileInfo implements Comparable {
+public class CacheFileInfo implements Comparable<CacheFileInfo> {
   private final long size;
   private final String path;
   private final File file;
@@ -54,12 +54,12 @@ public class CacheFileInfo implements Comparable {
    *
    * @see java.lang.Comparable#compareTo(java.lang.Object)
    */
-  public int compareTo(final Object arg0) {
+  public int compareTo(final CacheFileInfo arg0) {
     // Tested 2/3/2008.
     // Yield on compare for potentially huge sort.
     Thread.yield();
     final CacheFileInfo cfi1 = this;
-    final CacheFileInfo cfi2 = (CacheFileInfo) arg0;
+    final CacheFileInfo cfi2 = arg0;
     final int fileCompare = cfi1.file.compareTo(cfi2.file);
     if (fileCompare == 0) {
       return 0;

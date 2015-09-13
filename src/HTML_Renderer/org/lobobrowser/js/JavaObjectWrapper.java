@@ -326,7 +326,7 @@ public class JavaObjectWrapper extends ScriptableObject {
   }
 
   @Override
-  public java.lang.Object getDefaultValue(final java.lang.Class hint) {
+  public java.lang.Object getDefaultValue(final java.lang.Class<?> hint) {
     if (loggableInfo) {
       logger.info("getDefaultValue(): hint=" + hint + ",this=" + this.getJavaObject());
     }
@@ -361,7 +361,7 @@ public class JavaObjectWrapper extends ScriptableObject {
   public boolean hasInstance(final Scriptable instance) {
     if ((instance instanceof JavaObjectWrapper) && (this.getJavaObject() instanceof Class)) {
       final JavaObjectWrapper instanceObj = (JavaObjectWrapper) instance;
-      final Class myClass = (Class) this.getJavaObject();
+      final Class<?> myClass = (Class<?>) this.getJavaObject();
       return myClass.isInstance(instanceObj.getJavaObject());
     } else {
       return super.hasInstance(instance);
