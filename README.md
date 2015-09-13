@@ -1,7 +1,8 @@
 gngr
 ====
 
-This is the source code of [gngr](https://gngr.info), a new cross-platform browser that champions privacy.
+This is the source code of [gngr](https://gngr.info), a new cross-platform browser that champions privacy. `gngr`
+is an independent implementation of web standards in pure Java. It is *not* a wrapper around other browser engines.
 Read [the introduction](https://gngr.info/doc/introduction.html) to know more.
 
 ![gngr Inception](https://gngr.info/media/img/screens/v03.10/gngrInception.png)
@@ -21,10 +22,10 @@ Security-wise, the code isn't hardened *at all!* Use the current version:
 Everyone is welcome to contribute. Issues that can be easily picked up are marked with the
 following tags:
 * [need-code](https://github.com/UprootLabs/gngr/labels/need-code) : if you are ready to jump in with code.
-* [need-advice](https://github.com/UprootLabs/gngr/labels/need-advice) : if you are an expert in the field of browsers.
+* [need-advice](https://github.com/UprootLabs/gngr/labels/need-advice) : if you have expertise on the topic.
 * [need-triage](https://github.com/UprootLabs/gngr/labels/need-triage) : if you would like to help test or analyse a particular issue.
 
-If you would like to take up something that is not listed above, you are welcome ofcourse, but please co-ordinate with us first
+Ofcourse, you are welcome to take up something that is not listed above, but please co-ordinate with us first
 before you spend effort on it.
 
 See [the contributing guide](CONTRIBUTING.md) for more details.
