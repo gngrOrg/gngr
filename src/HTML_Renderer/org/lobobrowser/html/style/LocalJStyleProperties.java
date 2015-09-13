@@ -631,8 +631,9 @@ public final class LocalJStyleProperties extends JStyleProperties {
     updateInlineStyle("z-index", zIndex);
   }
 
+  // TODO: Temp made public
   @Override
-  protected NodeData getNodeData() {
+  public NodeData getNodeData() {
     final HTMLElementImpl ele = this.element;
     final String inlineStyle = ele.getAttribute("style");
     if ((inlineStyle != null) && (inlineStyle.length() > 0)) {

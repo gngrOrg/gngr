@@ -646,9 +646,10 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
    *
    * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
    */
-  // protected void paintComponent(Graphics g) {
   @Override
-  public void paint(final Graphics g) {
+  protected void paintComponent(final Graphics g) {
+    // public void paint(final Graphics g) {
+    // Update to below: paintComponent seems to work fine too
     // We go against Sun's advice and override
     // paint() instead of paintComponent(). Scrollbars
     // do not repaint correctly if we use

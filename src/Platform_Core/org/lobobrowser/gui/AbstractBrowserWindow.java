@@ -27,11 +27,6 @@ import javax.swing.JFrame;
  */
 public abstract class AbstractBrowserWindow extends JFrame implements BrowserWindow {
   /**
-   * Gets the root {@link FramePanel} of the window.
-   */
-  public abstract FramePanel getTopFramePanel();
-
-  /**
    * Gets a {@link WindowCallback} instance that receives navigation
    * notifications. This method may return <code>null</code>.
    */

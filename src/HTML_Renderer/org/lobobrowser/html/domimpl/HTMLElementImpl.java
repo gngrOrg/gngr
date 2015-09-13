@@ -53,6 +53,10 @@ import org.w3c.css.sac.InputSource;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.events.Event;
+import org.w3c.dom.events.EventException;
+import org.w3c.dom.events.EventListener;
+import org.w3c.dom.events.EventTarget;
 import org.w3c.dom.html.HTMLElement;
 import org.w3c.dom.html.HTMLFormElement;
 
@@ -73,7 +77,7 @@ import cz.vutbr.web.domassign.Analyzer.Holder;
 import cz.vutbr.web.domassign.Analyzer.OrderedRule;
 import cz.vutbr.web.domassign.AnalyzerUtil;
 
-public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2PropertiesContext {
+public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2PropertiesContext, EventTarget {
   private final boolean noStyleSheet;
   private static final MatchConditionOnElements elementMatchCondition = new MatchConditionOnElements();
 
@@ -315,6 +319,9 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
     } else {
       if ("style".equals(normalName)) {
         this.forgetLocalStyle();
+        // informDocumentInvalid();
+        // informLayoutInvalid();
+        // invalidateDescendentsForHover();
       }
     }
     super.assignAttributeField(normalName, value);
@@ -923,4 +930,22 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
     /* TODO: stringifier; */
   }
 
+  @Override
+  public void addEventListener(final String type, final EventListener listener, final boolean useCapture) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void removeEventListener(final String type, final EventListener listener, final boolean useCapture) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean dispatchEvent(final Event evt) throws EventException {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException();
+    // return false;
+  }
 }
