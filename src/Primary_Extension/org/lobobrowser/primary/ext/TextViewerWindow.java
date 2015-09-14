@@ -23,7 +23,10 @@ package org.lobobrowser.primary.ext;
 import java.awt.Container;
 import java.awt.EventQueue;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
@@ -31,17 +34,24 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.KeyStroke;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
 
 import org.lobobrowser.gui.DefaultWindowFactory;
+import org.lobobrowser.main.OS;
+import org.lobobrowser.main.PlatformInit;
 import org.lobobrowser.ua.UserAgentContext;
 import org.lobobrowser.util.gui.WrapperLayout;
 
 public class TextViewerWindow extends JFrame {
   private final JTextArea textArea;
   private boolean scrollsOnAppends;
+
+  // Key Stroke for CMD in case of Mac and CTRL otherwise
+  private static final int CMD_CTRL_KS = PlatformInit.OS_NAME == OS.MAC ? Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()
+      : InputEvent.CTRL_MASK;
 
   public TextViewerWindow() {
     super("Lobo Text Viewer");
@@ -121,8 +131,8 @@ public class TextViewerWindow extends JFrame {
   private JMenu createEditMenu() {
     final JMenu fileMenu = new JMenu("Edit");
     fileMenu.setMnemonic('E');
-    fileMenu.add(ComponentSource.menuItem("Copy", 'C', "ctrl c", new CopyAction()));
-    fileMenu.add(ComponentSource.menuItem("Select All", 'A', new SelectAllAction()));
+    fileMenu.add(ComponentSource.menuItem("Copy", 'C', KeyStroke.getKeyStroke(KeyEvent.VK_C, CMD_CTRL_KS), new CopyAction()));
+    fileMenu.add(ComponentSource.menuItem("Select All", 'A', KeyStroke.getKeyStroke(KeyEvent.VK_A, CMD_CTRL_KS), new SelectAllAction()));
     return fileMenu;
   }
 

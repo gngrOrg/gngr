@@ -23,6 +23,7 @@ package org.lobobrowser.primary.ext;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.Collection;
@@ -79,9 +80,8 @@ public class AddressField extends JComboBox<String> {
       }
     });
 
-    KeyStroke editURLKS = (PlatformInit.OS_NAME == OS.MAC)
-        ? KeyStroke.getKeyStroke(KeyEvent.VK_L, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask())
-        : KeyStroke.getKeyStroke("ctrl L");
+    KeyStroke editURLKS = KeyStroke.getKeyStroke(KeyEvent.VK_L,
+        PlatformInit.OS_NAME == OS.MAC ? Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() : InputEvent.CTRL_MASK);
 
     getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
         .put(editURLKS, "edit URL");

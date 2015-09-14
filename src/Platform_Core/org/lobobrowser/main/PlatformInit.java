@@ -23,6 +23,7 @@
  */
 package org.lobobrowser.main;
 
+import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -86,6 +87,7 @@ public class PlatformInit {
       : (osName.indexOf("mac") > -1 ? OS.MAC
           : (osName.indexOf("sunos") > -1 ? OS.SOLARIS
               : (osName.indexOf("nix") > -1 || osName.indexOf("aix") > -1 || osName.indexOf("nux") > -1) ? OS.UNIX : OS.UNKNOWN));
+  
   private final SimpleThreadPool threadExecutor;
 
   // private final GeneralSettings generalSettings;

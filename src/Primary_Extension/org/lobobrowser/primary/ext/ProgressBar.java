@@ -56,7 +56,7 @@ public class ProgressBar extends JProgressBar {
         if (max == 0) {
           this.setString("");
         } else {
-          this.setString(((value * 100) / max) + "%");
+          this.setString((((value * 100) / max) > 100 ? 99.99 : (value * 100) / max) + "%");
         }
       }
       break;
