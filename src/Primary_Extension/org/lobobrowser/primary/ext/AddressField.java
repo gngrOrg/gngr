@@ -75,11 +75,14 @@ public class AddressField extends JComboBox<String> {
       }
     });
 
-    getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("ctrl L"), "edit URL");
+    getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+        .put(KeyStroke.getKeyStroke(KeyEvent.VK_L, ComponentSource.CMD_CTRL_KEY_MASK), "edit URL");
+
     getActionMap().put("edit URL", new AbstractAction() {
 
       public void actionPerformed(final ActionEvent e) {
         requestFocus();
+        getEditor().selectAll();        
       }
     });
 
