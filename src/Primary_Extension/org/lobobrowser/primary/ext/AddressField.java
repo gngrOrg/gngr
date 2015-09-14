@@ -35,6 +35,9 @@ import javax.swing.KeyStroke;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
+import org.lobobrowser.main.PlatformInit;
+import org.lobobrowser.main.OS;
+
 public class AddressField extends JComboBox<String> {
   private static final long serialVersionUID = 3726432852226425553L;
   private final ComponentSource componentSource;
@@ -76,17 +79,18 @@ public class AddressField extends JComboBox<String> {
       }
     });
 
-    if (System.getProperty("os.name").toLowerCase().startsWith("mac os x")) {
-      getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_L, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()), "edit URL");
-    } else {
-      getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("ctrl L"), "edit URL");
-    }
-    final JComboBox<String> combo = this;
+    KeyStroke editURLKS = (PlatformInit.OS_NAME == OS.MAC)
+        ? KeyStroke.getKeyStroke(KeyEvent.VK_L, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask())
+        : KeyStroke.getKeyStroke("ctrl L");
+
+    getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+        .put(editURLKS, "edit URL");
+
     getActionMap().put("edit URL", new AbstractAction() {
 
       public void actionPerformed(final ActionEvent e) {
         requestFocus();
-        combo.getEditor().selectAll();
+        getEditor().selectAll();
       }
     });
 
