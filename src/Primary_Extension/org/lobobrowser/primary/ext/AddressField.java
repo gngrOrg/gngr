@@ -20,10 +20,8 @@
  */
 package org.lobobrowser.primary.ext;
 
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.Collection;
@@ -35,9 +33,6 @@ import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
-
-import org.lobobrowser.main.PlatformInit;
-import org.lobobrowser.main.OS;
 
 public class AddressField extends JComboBox<String> {
   private static final long serialVersionUID = 3726432852226425553L;
@@ -81,7 +76,7 @@ public class AddressField extends JComboBox<String> {
     });
 
     getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
-        .put(KeyStroke.getKeyStroke(KeyEvent.VK_L, ComponentSource.CMD_CTRL_KS), "edit URL");
+        .put(KeyStroke.getKeyStroke(KeyEvent.VK_L, ComponentSource.CMD_CTRL_KEY_MASK), "edit URL");
 
     getActionMap().put("edit URL", new AbstractAction() {
 

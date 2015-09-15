@@ -23,8 +23,6 @@
  */
 package org.lobobrowser.main;
 
-import java.awt.Toolkit;
-import java.awt.event.InputEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
