@@ -49,10 +49,6 @@ public class TextViewerWindow extends JFrame {
   private final JTextArea textArea;
   private boolean scrollsOnAppends;
 
-  // Key Stroke for CMD in case of Mac and CTRL otherwise
-  private static final int CMD_CTRL_KS = PlatformInit.OS_NAME == OS.MAC ? Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()
-      : InputEvent.CTRL_MASK;
-
   public TextViewerWindow() {
     super("Lobo Text Viewer");
     final UserAgentContext uaContext = null; // TODO
@@ -131,8 +127,8 @@ public class TextViewerWindow extends JFrame {
   private JMenu createEditMenu() {
     final JMenu fileMenu = new JMenu("Edit");
     fileMenu.setMnemonic('E');
-    fileMenu.add(ComponentSource.menuItem("Copy", 'C', KeyStroke.getKeyStroke(KeyEvent.VK_C, CMD_CTRL_KS), new CopyAction()));
-    fileMenu.add(ComponentSource.menuItem("Select All", 'A', KeyStroke.getKeyStroke(KeyEvent.VK_A, CMD_CTRL_KS), new SelectAllAction()));
+    fileMenu.add(ComponentSource.menuItem("Copy", 'C', KeyStroke.getKeyStroke(KeyEvent.VK_C, PlatformInit.CMD_CTRL_KS), new CopyAction()));
+    fileMenu.add(ComponentSource.menuItem("Select All", 'A', KeyStroke.getKeyStroke(KeyEvent.VK_A, PlatformInit.CMD_CTRL_KS), new SelectAllAction()));
     return fileMenu;
   }
 

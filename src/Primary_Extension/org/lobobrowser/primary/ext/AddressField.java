@@ -80,11 +80,8 @@ public class AddressField extends JComboBox<String> {
       }
     });
 
-    KeyStroke editURLKS = KeyStroke.getKeyStroke(KeyEvent.VK_L,
-        PlatformInit.OS_NAME == OS.MAC ? Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() : InputEvent.CTRL_MASK);
-
     getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
-        .put(editURLKS, "edit URL");
+        .put(KeyStroke.getKeyStroke(KeyEvent.VK_L, PlatformInit.CMD_CTRL_KS), "edit URL");
 
     getActionMap().put("edit URL", new AbstractAction() {
 
