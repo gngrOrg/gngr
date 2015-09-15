@@ -201,8 +201,7 @@ public class PlatformInit {
     if (this.isCodeLocationDirectory()) {
       // Should only be shown when running from Eclipse.
       oldOut
-          .println(
-              "WARNING: initConsole(): Switching standard output and standard error to application console. If running EntryPoint, pass -debug to avoid this.");
+          .println("WARNING: initConsole(): Switching standard output and standard error to application console. If running EntryPoint, pass -debug to avoid this.");
     }
   }
 
