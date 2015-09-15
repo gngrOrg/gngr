@@ -76,10 +76,17 @@ import com.squareup.okhttp.Protocol;
  *
  * @see #getInstance()
  */
+
 public class PlatformInit {
   private static final String NATIVE_DIR_NAME = "native";
   private static final long DAYS_MILLIS = 24 * 60 * 60 * 1000L;
   private static final long TIMEOUT_DAYS = 120;
+  private static final String osName = System.getProperty("os.name").toLowerCase();
+  public static final OS OS_NAME = osName.indexOf("win") > -1 ? OS.WINDOWS
+      : (osName.indexOf("mac") > -1 ? OS.MAC
+          : (osName.indexOf("sunos") > -1 ? OS.SOLARIS
+              : (osName.indexOf("nix") > -1 || osName.indexOf("aix") > -1 || osName.indexOf("nux") > -1) ? OS.UNIX : OS.UNKNOWN));
+
   private final SimpleThreadPool threadExecutor;
 
   // private final GeneralSettings generalSettings;
@@ -335,7 +342,8 @@ public class PlatformInit {
             + version
             + "</p><p>Released on: "
             + releaseDate
-            + "</p><p>This version is more than " + TIMEOUT_DAYS + " days old and was not intended for long-time use.</p><p>Please check if a newer version is available on https://gngr.info</p></html>";
+            + "</p><p>This version is more than " + TIMEOUT_DAYS
+            + " days old and was not intended for long-time use.</p><p>Please check if a newer version is available on https://gngr.info</p></html>";
         JOptionPane.showMessageDialog(null, checkForUpdatesMessage);
       }
     } catch (IOException | ParseException e) {

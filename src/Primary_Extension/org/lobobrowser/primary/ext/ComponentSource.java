@@ -22,6 +22,7 @@ package org.lobobrowser.primary.ext;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -44,6 +45,8 @@ import javax.swing.KeyStroke;
 import javax.swing.event.MenuEvent;
 
 import org.lobobrowser.gui.ConsoleModel;
+import org.lobobrowser.main.OS;
+import org.lobobrowser.main.PlatformInit;
 import org.lobobrowser.primary.settings.SearchEngine;
 import org.lobobrowser.primary.settings.ToolsSettings;
 import org.lobobrowser.request.ClientletRequestHandler;
@@ -73,7 +76,11 @@ public class ComponentSource implements NavigatorWindowListener {
   private final JButton searchButton;
   private final JButton reqManagerButton;
   private final ActionPool actionPool;
-  private final DirectorySource directorySource;
+  private final DirectorySource directorySource;  
+  
+  // Mask for Key Stroke 
+  public static final int CMD_CTRL_KEY_MASK = PlatformInit.OS_NAME == OS.MAC ? Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()
+      : InputEvent.CTRL_MASK;
 
   public ComponentSource(final NavigatorWindow window) {
     super();
@@ -165,17 +172,17 @@ public class ComponentSource implements NavigatorWindowListener {
   public JMenu getFileMenu() {
     final JMenu openMenu = new JMenu("Open");
     openMenu.setMnemonic('O');
-    openMenu.add(menuItem("New Window", 'N', KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_MASK),
+    openMenu.add(menuItem("New Window", 'N', KeyStroke.getKeyStroke(KeyEvent.VK_N, CMD_CTRL_KEY_MASK),
         this.actionPool.blankWindowAction));
     openMenu.add(menuItem("Cloned Window", 'C', this.actionPool.clonedWindowAction));
-    openMenu.add(menuItem("File...", 'F', "ctrl O", this.actionPool.openFileAction));
+    openMenu.add(menuItem("File...", 'F', KeyStroke.getKeyStroke(KeyEvent.VK_O, CMD_CTRL_KEY_MASK), this.actionPool.openFileAction));
 
     final JMenu menu = new JMenu("File");
     menu.setMnemonic('F');
 
     menu.add(openMenu);
     menu.addSeparator();
-    menu.add(menuItem("Close", 'C', KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_MASK), this.actionPool.exitAction));
+    menu.add(menuItem("Close", 'C', KeyStroke.getKeyStroke(KeyEvent.VK_W, CMD_CTRL_KEY_MASK), this.actionPool.exitAction));
 
     return menu;
   }
@@ -184,7 +191,7 @@ public class ComponentSource implements NavigatorWindowListener {
     final JMenu menu = new JMenu("Edit");
     menu.setMnemonic('E');
 
-    menu.add(menuItem("Copy", 'C', "ctrl C", this.actionPool.copyAction));
+    menu.add(menuItem("Copy", 'C', KeyStroke.getKeyStroke(KeyEvent.VK_C, CMD_CTRL_KEY_MASK), this.actionPool.copyAction));
 
     return menu;
   }
@@ -193,7 +200,7 @@ public class ComponentSource implements NavigatorWindowListener {
     final JMenu menu = new JMenu("View");
     menu.setMnemonic('V');
 
-    menu.add(menuItem("Page Source", 'S', this.actionPool.sourceAction));
+    menu.add(menuItem("Page Source", 'S', KeyStroke.getKeyStroke(KeyEvent.VK_U, CMD_CTRL_KEY_MASK), this.actionPool.sourceAction));
     menu.add(menuItem("Console", 'C', this.actionPool.consoleAction));
 
     return menu;
@@ -214,9 +221,16 @@ public class ComponentSource implements NavigatorWindowListener {
     final JMenu menu = new JMenu("Navigation");
     menu.setMnemonic('N');
 
-    menu.add(menuItem("Back", 'B', "ctrl B", this.actionPool.backAction));
-    menu.add(menuItem("Forward", 'F', this.actionPool.forwardAction));
-    menu.add(menuItem("Stop", 'S', KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), this.actionPool.stopAction));
+    if (PlatformInit.OS_NAME == OS.MAC) {
+      menu.add(menuItem("Back", 'B', KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, CMD_CTRL_KEY_MASK), this.actionPool.backAction));
+      menu.add(
+          menuItem("Forward", 'F', KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, CMD_CTRL_KEY_MASK), this.actionPool.forwardAction));
+      menu.add(menuItem("Stop", 'S', KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), this.actionPool.stopAction));
+    } else {
+      menu.add(menuItem("Back", 'B', "ctrl B", this.actionPool.backAction));
+      menu.add(menuItem("Forward", 'F', this.actionPool.forwardAction));
+      menu.add(menuItem("Stop", 'S', KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), this.actionPool.stopAction));
+    }
 
     final JMenuItem reloadMenuItem = menuItem("Reload", 'R', KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0), this.actionPool.reloadAction);
     reloadMenuItem.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("ctrl R"), "reload action");
@@ -235,8 +249,14 @@ public class ComponentSource implements NavigatorWindowListener {
     final JMenu menu = new JMenu("Tools");
     menu.setMnemonic('T');
     menu.add(this.searchersMenu);
-    menu.add(menuItem("Preferences...", 'P', this.actionPool.preferencesAction));
+
+    menu.add((PlatformInit.OS_NAME == OS.MAC)
+        ? menuItem("Preferences...", 'P', KeyStroke.getKeyStroke(KeyEvent.VK_COMMA, CMD_CTRL_KEY_MASK),
+            this.actionPool.preferencesAction)
+        : menu.add(menuItem("Preferences...", 'P', this.actionPool.preferencesAction)));
+
     return menu;
+
   }
 
   public JMenu getDirectoryMenu() {
