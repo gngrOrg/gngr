@@ -86,6 +86,17 @@ public class AddressField extends JComboBox<String> {
       }
     });
 
+    getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+        .put(KeyStroke.getKeyStroke(KeyEvent.VK_K, ComponentSource.CMD_CTRL_KEY_MASK), "search Keyword");
+
+    getActionMap().put("search Keyword", new AbstractAction() {
+
+      public void actionPerformed(final ActionEvent e) {
+        requestFocus();
+        setText("?");
+      }
+    });
+
     // This needed the first time to set a reasonable popup size.
     this.onBeforePopupVisible();
   }
