@@ -127,8 +127,8 @@ public class TextViewerWindow extends JFrame {
   private JMenu createEditMenu() {
     final JMenu fileMenu = new JMenu("Edit");
     fileMenu.setMnemonic('E');
-    fileMenu.add(ComponentSource.menuItem("Copy", 'C', KeyStroke.getKeyStroke(KeyEvent.VK_C, PlatformInit.CMD_CTRL_KS), new CopyAction()));
-    fileMenu.add(ComponentSource.menuItem("Select All", 'A', KeyStroke.getKeyStroke(KeyEvent.VK_A, PlatformInit.CMD_CTRL_KS), new SelectAllAction()));
+    fileMenu.add(ComponentSource.menuItem("Copy", 'C', KeyStroke.getKeyStroke(KeyEvent.VK_C, ComponentSource.CMD_CTRL_KS), new CopyAction()));
+    fileMenu.add(ComponentSource.menuItem("Select All", 'A', KeyStroke.getKeyStroke(KeyEvent.VK_A, ComponentSource.CMD_CTRL_KS), new SelectAllAction()));
     return fileMenu;
   }
 

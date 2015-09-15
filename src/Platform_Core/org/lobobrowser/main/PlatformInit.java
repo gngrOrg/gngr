@@ -88,9 +88,7 @@ public class PlatformInit {
       : (osName.indexOf("mac") > -1 ? OS.MAC
           : (osName.indexOf("sunos") > -1 ? OS.SOLARIS
               : (osName.indexOf("nix") > -1 || osName.indexOf("aix") > -1 || osName.indexOf("nux") > -1) ? OS.UNIX : OS.UNKNOWN));
-  //Key Stroke for CMD in case of MAC and CTRL otherwise
-  public static final int CMD_CTRL_KS = PlatformInit.OS_NAME == OS.MAC ? Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()
-      : InputEvent.CTRL_MASK;
+
   private final SimpleThreadPool threadExecutor;
 
   // private final GeneralSettings generalSettings;

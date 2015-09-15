@@ -76,7 +76,11 @@ public class ComponentSource implements NavigatorWindowListener {
   private final JButton searchButton;
   private final JButton reqManagerButton;
   private final ActionPool actionPool;
-  private final DirectorySource directorySource;
+  private final DirectorySource directorySource;  
+  
+  //Key Stroke for CMD in case of MAC and CTRL otherwise
+  public static final int CMD_CTRL_KS = PlatformInit.OS_NAME == OS.MAC ? Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()
+      : InputEvent.CTRL_MASK;
 
   public ComponentSource(final NavigatorWindow window) {
     super();
@@ -168,17 +172,17 @@ public class ComponentSource implements NavigatorWindowListener {
   public JMenu getFileMenu() {
     final JMenu openMenu = new JMenu("Open");
     openMenu.setMnemonic('O');
-    openMenu.add(menuItem("New Window", 'N', KeyStroke.getKeyStroke(KeyEvent.VK_N, PlatformInit.CMD_CTRL_KS),
+    openMenu.add(menuItem("New Window", 'N', KeyStroke.getKeyStroke(KeyEvent.VK_N, CMD_CTRL_KS),
         this.actionPool.blankWindowAction));
     openMenu.add(menuItem("Cloned Window", 'C', this.actionPool.clonedWindowAction));
-    openMenu.add(menuItem("File...", 'F', KeyStroke.getKeyStroke(KeyEvent.VK_O, PlatformInit.CMD_CTRL_KS), this.actionPool.openFileAction));
+    openMenu.add(menuItem("File...", 'F', KeyStroke.getKeyStroke(KeyEvent.VK_O, CMD_CTRL_KS), this.actionPool.openFileAction));
 
     final JMenu menu = new JMenu("File");
     menu.setMnemonic('F');
 
     menu.add(openMenu);
     menu.addSeparator();
-    menu.add(menuItem("Close", 'C', KeyStroke.getKeyStroke(KeyEvent.VK_W, PlatformInit.CMD_CTRL_KS), this.actionPool.exitAction));
+    menu.add(menuItem("Close", 'C', KeyStroke.getKeyStroke(KeyEvent.VK_W, CMD_CTRL_KS), this.actionPool.exitAction));
 
     return menu;
   }
@@ -187,7 +191,7 @@ public class ComponentSource implements NavigatorWindowListener {
     final JMenu menu = new JMenu("Edit");
     menu.setMnemonic('E');
 
-    menu.add(menuItem("Copy", 'C', KeyStroke.getKeyStroke(KeyEvent.VK_C, PlatformInit.CMD_CTRL_KS), this.actionPool.copyAction));
+    menu.add(menuItem("Copy", 'C', KeyStroke.getKeyStroke(KeyEvent.VK_C, CMD_CTRL_KS), this.actionPool.copyAction));
 
     return menu;
   }
@@ -196,7 +200,7 @@ public class ComponentSource implements NavigatorWindowListener {
     final JMenu menu = new JMenu("View");
     menu.setMnemonic('V');
 
-    menu.add(menuItem("Page Source", 'S', KeyStroke.getKeyStroke(KeyEvent.VK_U, PlatformInit.CMD_CTRL_KS), this.actionPool.sourceAction));
+    menu.add(menuItem("Page Source", 'S', KeyStroke.getKeyStroke(KeyEvent.VK_U, CMD_CTRL_KS), this.actionPool.sourceAction));
     menu.add(menuItem("Console", 'C', this.actionPool.consoleAction));
 
     return menu;
@@ -218,9 +222,9 @@ public class ComponentSource implements NavigatorWindowListener {
     menu.setMnemonic('N');
 
     if (PlatformInit.OS_NAME == OS.MAC) {
-      menu.add(menuItem("Back", 'B', KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, PlatformInit.CMD_CTRL_KS), this.actionPool.backAction));
+      menu.add(menuItem("Back", 'B', KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, CMD_CTRL_KS), this.actionPool.backAction));
       menu.add(
-          menuItem("Forward", 'F', KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, PlatformInit.CMD_CTRL_KS), this.actionPool.forwardAction));
+          menuItem("Forward", 'F', KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, CMD_CTRL_KS), this.actionPool.forwardAction));
       menu.add(menuItem("Stop", 'S', KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), this.actionPool.stopAction));
     } else {
       menu.add(menuItem("Back", 'B', "ctrl B", this.actionPool.backAction));
@@ -247,7 +251,7 @@ public class ComponentSource implements NavigatorWindowListener {
     menu.add(this.searchersMenu);
 
     menu.add((PlatformInit.OS_NAME == OS.MAC)
-        ? menuItem("Preferences...", 'P', KeyStroke.getKeyStroke(KeyEvent.VK_COMMA, PlatformInit.CMD_CTRL_KS),
+        ? menuItem("Preferences...", 'P', KeyStroke.getKeyStroke(KeyEvent.VK_COMMA, CMD_CTRL_KS),
             this.actionPool.preferencesAction)
         : menu.add(menuItem("Preferences...", 'P', this.actionPool.preferencesAction)));
 
