@@ -33,7 +33,8 @@ import java.util.jar.JarFile;
 
 import org.lobobrowser.security.LocalSecurityPolicy;
 
-public class TempFileManager {
+// TODO: This doesn't seem to be used anymore. Remove?
+class TempFileManager {
   private static TempFileManager instance;
   private static final String GENERAL_PREFIX = "gngr-";
   private static final long ONE_DAY = 24L * 60 * 60 * 1000;
