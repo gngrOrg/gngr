@@ -624,7 +624,13 @@ public class RBlockViewport extends BaseRCollection {
             layoutChildren(fragChild);
           }
         } else {
-          throw new IllegalStateException("Unknown node: " + child);
+
+          /* TODO: This case is encountered in some web-platform-tests,
+           * for example: /dom/ranges/Range-deleteContents.html
+           */
+          // throw new IllegalStateException("Unknown node: " + child);
+          System.err.println("Unknown node: " + child);
+
         }
       }
     }
