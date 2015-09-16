@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -143,7 +144,7 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
       if (document instanceof HTMLDocumentImpl) {
         ((HTMLDocumentImpl) document).stopEverything();
       }
-      jsScheduler.stopAndWindUp();
+      jsScheduler.stopAndWindUp(true);
       jsScheduler = new JSScheduler(this);
       eventTargetManager.reset();
       this.onWindowLoadHandler = null;
@@ -284,6 +285,9 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
     }
   }
 
+  private static final int JS_SCHED_POLL_INTERVAL_MILLIS = 100;
+  private static final int JS_SCHED_JOIN_INTERVAL_MILLIS = JS_SCHED_POLL_INTERVAL_MILLIS * 2;
+
   private static final class JSScheduler extends Thread {
     private static final class ScheduledTask implements Comparable<ScheduledTask> {
       final int id;
@@ -336,19 +340,20 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
           ScheduledTask scheduledTask;
           // TODO: uncomment if synchronization is necessary with the add methods
           // synchronized (this) {
-          scheduledTask = jsQueue.take();
-          // }
-          final PrivilegedAction<Object> action = new PrivilegedAction<Object>() {
-            public Object run() {
-              // System.out.println("In " + window.document.getBaseURI() + "\n  Running task: " + scheduledTask);
-              // System.out.println("In " + name + "\n  Running task: " + scheduledTask);
-              scheduledTask.task.run();
-              // System.out.println("Done task: " + scheduledTask);
-              // System.out.println("  Remaining tasks: " + jsQueue.size());
-              return null;
-            }
-          };
-          AccessController.doPrivileged(action, scheduledTask.task.context);
+          scheduledTask = jsQueue.poll(JS_SCHED_POLL_INTERVAL_MILLIS, TimeUnit.MILLISECONDS);
+          if (scheduledTask != null) {
+            final PrivilegedAction<Object> action = new PrivilegedAction<Object>() {
+              public Object run() {
+                // System.out.println("In " + window.document.getBaseURI() + "\n  Running task: " + scheduledTask);
+                // System.out.println("In " + name + "\n  Running task: " + scheduledTask);
+                scheduledTask.task.run();
+                // System.out.println("Done task: " + scheduledTask);
+                // System.out.println("  Remaining tasks: " + jsQueue.size());
+                return null;
+              }
+            };
+            AccessController.doPrivileged(action, scheduledTask.task.context);
+          }
         } catch (final InterruptedException e) {
           final int queueSize = jsQueue.size();
           if (queueSize > 0) {
@@ -356,25 +361,39 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
           }
         } catch (final Exception e) {
           e.printStackTrace();
+        } catch (final WindowClosingError wce) {
+          // Javascript context detected a request for closing and bailed out.
+          assert(windowClosing);
         }
       }
       // System.out.println("Exiting loop\n\n");
     }
 
-    public void stopAndWindUp() {
+    public void stopAndWindUp(final boolean blocking) {
       // System.out.println("Going to stop JS scheduler");
       windowClosing = true;
 
-      // TODO: Check if interrupt is needed if stop is anyway being called.
-      this.interrupt();
-      try {
-        this.join(10);
-      } catch (final InterruptedException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+      /* TODO: If the thread refuses to join(), perhaps the thread could be interrupted and stopped in
+       * the catch block of join() below. This could be done immediately, or scheduled for a stopping
+       * in a separate collector Thread
+       * */
+      // this.interrupt();
+
+      if (blocking) {
+        try {
+          this.join(JS_SCHED_JOIN_INTERVAL_MILLIS);
+        } catch (final InterruptedException e) {
+          e.printStackTrace();
+        }
       }
+
+      /*
       this.stop();
-      // System.out.println("Finished interrupting");
+      */
+    }
+
+    public boolean isWindowClosing() {
+      return windowClosing;
     }
 
     public void addJSTask(final JSTask task) {
@@ -713,8 +732,8 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
     }
   }
 
-  static private class MyContextFactory extends ContextFactory {
-    static final private ClassShutter myClassShutter = new ClassShutter() {
+  private class MyContextFactory extends ContextFactory {
+    final private ClassShutter myClassShutter = new ClassShutter() {
       public boolean visibleToScripts(final String fullClassName) {
         // System.out.println("class shutter Checking: " + fullClassName);
         if (fullClassName.startsWith("java")) {
@@ -742,9 +761,8 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
       cx.setOptimizationLevel(-1);
       cx.setLanguageVersion(Context.VERSION_1_8);
 
-      // Make Rhino runtime to call observeInstructionCount
-      // each 100000 bytecode instructions
-      // cx.setInstructionObserverThreshold(1000000);
+      // Make Rhino runtime to call observeInstructionCount each 100_000 bytecode instructions
+      cx.setInstructionObserverThreshold(100_000);
 
       // cx.setMaximumInterpreterStackDepth(100);
       // cx.seal(null);
@@ -754,7 +772,12 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
 
     @Override
     protected void observeInstructionCount(final Context cx, final int instructionCount) {
-      System.out.println("Context: " + cx + "  Instruction count: " + instructionCount);
+      final JSScheduler jsSchedulerLocal = jsScheduler;
+      if (jsSchedulerLocal != null) {
+        if (jsSchedulerLocal.isWindowClosing()) {
+          throw new WindowClosingError();
+        }
+      }
     }
 
     @Override
@@ -766,8 +789,11 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
     }
   }
 
+  static final class WindowClosingError extends Error {
+  }
+
   private final MyContextFactory windowContextFactory = new MyContextFactory();
-  
+
   @HideFromJS
   public ContextFactory getContextFactory() {
     return windowContextFactory;
@@ -1494,7 +1520,7 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
 
       if (jsScheduler != null) {
         AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
-          jsScheduler.stopAndWindUp();
+          jsScheduler.stopAndWindUp(false);
           jsScheduler = null;
           return null;
         });
