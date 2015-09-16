@@ -286,6 +286,7 @@ public final class CacheManager implements Runnable {
   private void populateCacheStoreInfo(final CacheStoreInfo csinfo, final File directory) {
     final File[] files = directory.listFiles();
     if (files == null) {
+      // TODO: For large directories, java.nio.file.Files.newDirectoryStream() is supposedly faster.
       logger.severe("populateCacheStoreInfo(): Unexpected: '" + directory + "' is not a directory.");
       return;
     }
