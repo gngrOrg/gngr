@@ -67,7 +67,7 @@ public class ConsoleModel extends PlainDocument {
         final Position startPosition = getStartPosition();
         remove(startPosition.getOffset(), overflow);
       }
-    } catch (final Throwable err) {
+    } catch (final Exception err) {
       // No standard I/O should be here!
       logger.log(Level.SEVERE, "append()", err);
     }
@@ -156,7 +156,7 @@ public class ConsoleModel extends PlainDocument {
           // Sleep a little so document model is not
           // constantly firing events.
           Thread.sleep(300);
-        } catch (final Throwable t) {
+        } catch (final Exception t) {
           t.printStackTrace(System.err);
         }
       }

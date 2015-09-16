@@ -223,7 +223,7 @@ public final class CacheManager implements Runnable {
       try {
         this.sweepCache();
         Thread.sleep(AFTER_SWEEP_SLEEP);
-      } catch (final Throwable err) {
+      } catch (final Exception err) {
         logger.log(Level.SEVERE, "run()", err);
         try {
           Thread.sleep(AFTER_SWEEP_SLEEP);
@@ -269,7 +269,7 @@ public final class CacheManager implements Runnable {
               }
             }
           }
-        } catch (final Throwable thrown) {
+        } catch (final Exception thrown) {
           logger.log(Level.WARNING, "sweepCache()", thrown);
         }
       }

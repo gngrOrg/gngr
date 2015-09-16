@@ -128,7 +128,7 @@ public class ReuseServer implements Runnable {
             }
           }
         }
-      } catch (final Throwable t) {
+      } catch (final Exception t) {
         t.printStackTrace(System.err);
       }
     }

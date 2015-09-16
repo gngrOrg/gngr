@@ -867,7 +867,7 @@ public final class RequestEngine {
       }
     } catch (final CancelClientletException cce) {
       logInfo("run(): Clientlet cancelled: " + baseURL, cce);
-    } catch (final Throwable exception) {
+    } catch (final Exception exception) {
       if ((rinfo != null) && rinfo.isAborted()) {
         logInfo("run(): Exception ignored because request aborted.", exception);
       } else {

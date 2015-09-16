@@ -206,7 +206,7 @@ public class HTMLScriptElementImpl extends HTMLElementImpl implements HTMLScript
                 // logger.log(Level.WARNING,
                 // "Javascript error at " + ecmaError.sourceName() + ":" + ecmaError.lineNumber() + ": " + ecmaError.getMessage(),
                 // ecmaError);
-              } catch (final Throwable err) {
+              } catch (final Exception err) {
                 Executor.logJSException(err);
               }
             } finally {

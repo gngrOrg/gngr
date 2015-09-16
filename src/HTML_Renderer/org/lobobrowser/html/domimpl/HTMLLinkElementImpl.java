@@ -329,7 +329,7 @@ public class HTMLLinkElementImpl extends HTMLAbstractUIElement implements HTMLLi
           this.detachStyleSheet();
           this.warn("Will not parse CSS. URI=[" + this.getHref() + "] with BaseURI=[" + doc.getBaseURI()
               + "] does not appear to be a valid URI.");
-        } catch (final Throwable err) {
+        } catch (final Exception err) {
           this.warn("Unable to parse CSS. URI=[" + this.getHref() + "].", err);
         }
       }

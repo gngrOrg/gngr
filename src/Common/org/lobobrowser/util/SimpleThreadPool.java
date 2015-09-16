@@ -122,18 +122,18 @@ public class SimpleThreadPool {
           try {
             try {
               currentThread.setName(baseName + ":" + task.toString());
-            } catch (final Throwable thrown) {
+            } catch (final Exception thrown) {
               logger.log(Level.WARNING, "run(): Unable to set task name.", thrown);
             }
             try {
               task.run();
-            } catch (final Throwable thrown) {
+            } catch (final Exception thrown) {
               logger.log(Level.SEVERE, "run(): Error in task: " + task + ".", thrown);
             }
           } finally {
             currentThread.setName(baseName);
           }
-        } catch (final Throwable thrown) {
+        } catch (final Exception thrown) {
           logger.log(Level.SEVERE, "run(): Error in thread pool: " + SimpleThreadPool.this.name + ".", thrown);
         }
       }

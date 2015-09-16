@@ -299,7 +299,7 @@ public class StorageManager implements Runnable {
           Thread.yield();
           store.updateSizeFile();
         }
-      } catch (final Throwable err) {
+      } catch (final Exception err) {
         logger.log(Level.SEVERE, "run()", err);
         try {
           Thread.sleep(MANAGED_STORE_UPDATE_DELAY);

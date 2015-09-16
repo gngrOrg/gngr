@@ -187,7 +187,7 @@ public class HTMLAbstractUIElement extends HTMLElementImpl {
               logger.log(Level.WARNING, "Javascript error at " + ecmaError.sourceName() + ":" + ecmaError.lineNumber() + ": "
                   + ecmaError.getMessage(), ecmaError);
               f = null;
-            } catch (final Throwable err) {
+            } catch (final Exception err) {
               logger.log(Level.WARNING, "Unable to evaluate Javascript code", err);
               f = null;
             }

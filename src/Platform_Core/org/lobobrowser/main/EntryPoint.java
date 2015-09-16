@@ -61,7 +61,7 @@ public final class EntryPoint {
     try {
       final SSLSocketFactory socketFactory = TrustManager.makeSSLSocketFactory(ReuseManager.class.getResourceAsStream("/trustStore.certs"));
       ReuseManager.getInstance().launch(args, socketFactory);
-    } catch (final Throwable err) {
+    } catch (final Exception err) {
       final StringWriter swriter = new StringWriter();
       final PrintWriter writer = new PrintWriter(swriter);
       err.printStackTrace(writer);

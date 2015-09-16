@@ -99,7 +99,7 @@ public class Executor {
             return true;
           }
           return ((Boolean) result).booleanValue();
-        } catch (final Throwable thrown) {
+        } catch (final Exception thrown) {
           logJSException(thrown);
           return true;
         }
@@ -132,7 +132,7 @@ public class Executor {
           return true;
         }
         return ((Boolean) result).booleanValue();
-      } catch (final Throwable err) {
+      } catch (final Exception err) {
         logJSException(err);
         return true;
       }

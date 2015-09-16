@@ -151,7 +151,7 @@ public class HTMLStyleElementImpl extends HTMLElementImpl implements HTMLStyleEl
       // TODO if the new StyleSheet contains any @import rules, then we should queue them for further processing. GH #137
       final StyleSheet jSheet = CSSUtilities.jParseStyleSheet(this, baseURI, processedText, doc.getUserAgentContext());
       return new JStyleSheetWrapper(jSheet, this.getMedia(), null, this.getType(), this.getTitle(), this, doc.styleSheetManager.bridge);
-    } catch (final Throwable err) {
+    } catch (final Exception err) {
       this.warn("Unable to parse style sheet", err);
     }
     return this.getEmptyStyleSheet();
