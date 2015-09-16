@@ -82,7 +82,7 @@ public class AddressField extends JComboBox<String> {
 
       public void actionPerformed(final ActionEvent e) {
         requestFocus();
-        getEditor().selectAll();        
+        getEditor().selectAll();
       }
     });
 
