@@ -57,7 +57,7 @@ public class HTMLIFrameElementImpl extends HTMLAbstractUIElement implements HTML
           // TODO: onload event object?
           final Window window = ((HTMLDocumentImpl) document).getWindow();
           window.addJSTask(new JSRunnableTask(0, "IFrame onload handler", () -> {
-            Executor.executeFunction(HTMLIFrameElementImpl.this, onload, null, window.getContextFactory());
+            Executor.executeFunction(HTMLIFrameElementImpl.this, onload, new Event("load", HTMLIFrameElementImpl.this), window.getContextFactory());
           }));
         }
 
