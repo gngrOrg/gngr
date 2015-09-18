@@ -640,7 +640,7 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
   }
 
   public Element createElementNS(final String namespaceURI, final String qualifiedName) throws DOMException {
-    if (namespaceURI == null || "http://www.w3.org/1999/xhtml".equalsIgnoreCase(namespaceURI)) {
+    if (namespaceURI == null || (namespaceURI.trim().length() == 0) || "http://www.w3.org/1999/xhtml".equalsIgnoreCase(namespaceURI)) {
       return createElement(qualifiedName);
     } else if ("http://www.w3.org/2000/svg".equalsIgnoreCase(namespaceURI)) {
       // TODO: This is a plug
