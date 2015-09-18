@@ -1621,7 +1621,10 @@ public abstract class NodeImpl extends AbstractScriptableDelegate implements Nod
   public NodeList getElementsByClassName(final String classNames) {
     final String[] classNamesArray = classNames.split("\\s");
     // TODO: escape commas in class-names
-    final String query = Arrays.stream(classNamesArray).map(cn -> "." + cn).collect(Collectors.joining(","));
+    final String query = Arrays.stream(classNamesArray)
+        .filter(cn -> cn.length() > 0)
+        .map(cn -> "." + cn)
+        .collect(Collectors.joining(","));
     return querySelectorAll(query);
   }
 
