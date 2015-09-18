@@ -30,7 +30,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.events.EventTarget;
 import org.w3c.dom.html.HTMLElement;
 
-// TODO: Implement org.w3c.events.Event ?
 public class Event extends AbstractScriptableDelegate implements org.w3c.dom.events.Event {
   private boolean cancelBubble;
   private HTMLElement fromElement, toElement;
