@@ -198,9 +198,7 @@ public class HTMLScriptElementImpl extends HTMLElementImpl implements HTMLScript
                 throw new IllegalStateException("Scriptable (scope) instance was null");
               }
               try {
-                if (text != null) {
-                  ctx.evaluateString(scope, text, scriptURI, baseLineNumber, null);
-                }
+                ctx.evaluateString(scope, text, scriptURI, baseLineNumber, null);
                 // Why catch this?
                 // } catch (final EcmaError ecmaError) {
                 // logger.log(Level.WARNING,

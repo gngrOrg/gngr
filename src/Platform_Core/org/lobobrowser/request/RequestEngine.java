@@ -610,13 +610,11 @@ public final class RequestEngine {
       } else if (!shouldRevalidateAlways(connectionUrl, requestType)) {
         Long expires = cacheInfo.getExpires();
         if (expires == null) {
-          final Integer defaultOffset = this.cacheSettings.getDefaultCacheExpirationOffset();
-          if (defaultOffset != null) {
-            expires = cacheInfo.getExpiresGivenOffset(defaultOffset.longValue());
-            if (loggerInfo) {
-              final java.util.Date expiresDate = expires == null ? null : new Date(expires);
-              logger.info("getURLConnection(): Used default offset for " + connectionUrl + ": expires=" + expiresDate);
-            }
+          final int defaultOffset = this.cacheSettings.getDefaultCacheExpirationOffset();
+          expires = cacheInfo.getExpiresGivenOffset(defaultOffset);
+          if (loggerInfo) {
+            final java.util.Date expiresDate = expires == null ? null : new Date(expires);
+            logger.info("getURLConnection(): Used default offset for " + connectionUrl + ": expires=" + expiresDate);
           }
         }
         if (expires != null) {
