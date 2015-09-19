@@ -292,7 +292,7 @@ public class LocalSecurityPolicy extends Policy {
       final Class<?> unoClass = ClassLoader.getSystemClassLoader().loadClass("uno.Uno");
       unoPathTemp = unoClass.getProtectionDomain().getCodeSource().getLocation();
     } catch (final ClassNotFoundException e) {
-      unoPathTemp = null;
+      // ignore
     } finally {
       unoPath = unoPathTemp;
     }

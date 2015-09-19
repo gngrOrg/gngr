@@ -162,9 +162,7 @@ public class HTMLAbstractUIElement extends HTMLElementImpl {
       }
       if (uac.isScriptingEnabled()) {
         final String attributeValue = this.getAttribute(attributeName);
-        if ((attributeValue == null) || (attributeValue.length() == 0)) {
-          f = null;
-        } else {
+        if ((attributeValue != null) && (attributeValue.length() != 0)) {
           final String functionCode = "function " + normalAttributeName + "_" + System.identityHashCode(this) + "() { " + attributeValue
               + " }";
           final Document doc = this.document;

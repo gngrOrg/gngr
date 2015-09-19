@@ -417,7 +417,6 @@ public class NetworkRequestImpl implements NetworkRequest {
           responseText = new String(bytes, "ISO-8859-1");
         } catch (final UnsupportedEncodingException uee2) {
           // ignore
-          responseText = null;
         }
       }
       this.textContent = responseText;
