@@ -1479,9 +1479,7 @@ public class HtmlParser {
           openQuote = '\'';
         } else {
           openQuote = -1;
-          if (attributeValue == null) {
-            attributeValue = new StringBuffer(6);
-          }
+          attributeValue = new StringBuffer(6);
           if (lastCharSlash) {
             attributeValue.append('/');
           }
