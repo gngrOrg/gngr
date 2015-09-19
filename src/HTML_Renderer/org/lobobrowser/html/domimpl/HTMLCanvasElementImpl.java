@@ -629,7 +629,7 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
       return linearGradient;
     }
 
-    private final Stack<CanvasState> drawingStateStack = new Stack<CanvasState>();
+    private final Stack<CanvasState> drawingStateStack = new Stack<>();
 
     private CanvasState currDrawingState = new CanvasState();
 
@@ -668,8 +668,8 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
 
   public abstract class CanvasGradient {
 
-    final protected ArrayList<Float> offsets = new ArrayList<Float>();
-    final protected ArrayList<Color> colors = new ArrayList<Color>();
+    final protected ArrayList<Float> offsets = new ArrayList<>();
+    final protected ArrayList<Color> colors = new ArrayList<>();
 
     public void addColorStop(final float offset, final String color) {
       this.offsets.add(offset);

@@ -189,7 +189,7 @@ public class StyleElements {
     //normalize tables
     final NodeList tables = doc.getElementsByTagName("table");
     for (int i = 0; i < tables.getLength(); i++) {
-      final Vector<Node> nodes = new Vector<Node>();
+      final Vector<Node> nodes = new Vector<>();
       recursiveFindBadNodesInTable(tables.item(i), null, nodes);
       for (final Node n : nodes) {
         moveSubtreeBefore(n, tables.item(i));

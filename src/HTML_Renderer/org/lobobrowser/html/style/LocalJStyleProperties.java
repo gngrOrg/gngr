@@ -636,7 +636,7 @@ public final class LocalJStyleProperties extends JStyleProperties {
     final HTMLElementImpl ele = this.element;
     final String inlineStyle = ele.getAttribute("style");
     if ((inlineStyle != null) && (inlineStyle.length() > 0)) {
-      final List<StyleSheet> jSheets = new ArrayList<StyleSheet>();
+      final List<StyleSheet> jSheets = new ArrayList<>();
       final StyleSheet jSheet = CSSUtilities.jParseInlineStyle(inlineStyle, null, ele, true);
       jSheets.add(jSheet);
       final DirectAnalyzer domAnalyser = new cz.vutbr.web.domassign.DirectAnalyzer(jSheets);
