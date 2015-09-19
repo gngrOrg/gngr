@@ -1038,25 +1038,6 @@ public abstract class NodeImpl extends AbstractScriptableDelegate implements Nod
   /*
    * (non-Javadoc)
    *
-   * @see org.xamjwg.html.renderer.RenderableContext#getAlignmentX()
-   */
-  public float getAlignmentX() {
-    // TODO: Removable method?
-    return 0.5f;
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.xamjwg.html.renderer.RenderableContext#getAlignmentY()
-   */
-  public float getAlignmentY() {
-    return 0.5f;
-  }
-
-  /*
-   * (non-Javadoc)
-   *
    * @see
    * org.xamjwg.html.renderer.RenderableContext#getFullURL(java.lang.String)
    */

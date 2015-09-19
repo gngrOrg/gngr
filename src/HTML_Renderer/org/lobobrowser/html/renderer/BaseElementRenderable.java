@@ -96,14 +96,6 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
     this.userAgentContext = ucontext;
   }
 
-  public float getAlignmentX() {
-    return 0.0f;
-  }
-
-  public float getAlignmentY() {
-    return 0.0f;
-  }
-
   protected boolean layoutDeepCanBeInvalidated = false;
 
   /**

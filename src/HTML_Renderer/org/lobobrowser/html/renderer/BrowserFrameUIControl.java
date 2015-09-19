@@ -29,10 +29,6 @@ class BrowserFrameUIControl implements UIControl {
     return RElement.VALIGN_BASELINE;
   }
 
-  public float getAlignmentY() {
-    return 0;
-  }
-
   public Color getBackgroundColor() {
     return this.component.getBackground();
   }
