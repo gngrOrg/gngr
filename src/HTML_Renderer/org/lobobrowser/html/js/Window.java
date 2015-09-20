@@ -894,7 +894,7 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
   }
 
   static public class Console {
-    public void log(final Object obj) {
+    public static void log(final Object obj) {
       System.out.println("> " + obj);
     }
 

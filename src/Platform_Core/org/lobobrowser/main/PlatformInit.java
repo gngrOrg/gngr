@@ -108,7 +108,7 @@ public class PlatformInit {
    *
    * @see #addPrivilegedPermission(Permission)
    */
-  public void initSecurity() {
+  public static void initSecurity() {
     // Set security policy and manager (essential)
     Policy.setPolicy(LocalSecurityPolicy.getInstance());
     System.setSecurityManager(new LocalSecurityManager());
@@ -119,7 +119,7 @@ public class PlatformInit {
    * <p>
    * This method is invoked by {@link #init(boolean, boolean)}.
    */
-  public void initProtocols(final SSLSocketFactory sslSocketFactory) {
+  public static void initProtocols(final SSLSocketFactory sslSocketFactory) {
     // Configure URL protocol handlers
     final PlatformStreamHandlerFactory factory = PlatformStreamHandlerFactory.getInstance();
     URL.setURLStreamHandlerFactory(factory);
@@ -146,7 +146,7 @@ public class PlatformInit {
    * <p>
    * This method is invoked by {@link #init(boolean, boolean)}.
    */
-  public void initHTTP() {
+  public static void initHTTP() {
     // Configure authenticator
     Authenticator.setDefault(new AuthenticatorImpl());
     // Configure cookie handler
@@ -157,7 +157,7 @@ public class PlatformInit {
   /**
    * Initializes the Swing look & feel.
    */
-  public void initLookAndFeel() throws Exception {
+  public static void initLookAndFeel() throws Exception {
     // Set appropriate Swing L&F
     boolean nimbusApplied = false;
     try {
@@ -472,7 +472,7 @@ public class PlatformInit {
    * @param permission
    *          A <code>Permission<code> instance.
    */
-  public void addPrivilegedPermission(final Permission permission) {
+  public static void addPrivilegedPermission(final Permission permission) {
     LocalSecurityPolicy.addPrivilegedPermission(permission);
   }
 

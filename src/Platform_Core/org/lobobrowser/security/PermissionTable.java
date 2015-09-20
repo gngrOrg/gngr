@@ -37,12 +37,12 @@ public class PermissionTable {
       @Override
       protected int calculateTabHeight(final int tabPlacement, final int tabIndex, final int fontHeight) {
         return super.calculateTabHeight(tabPlacement, tabIndex, fontHeight) + PADDING_Y;
-      };
+      }
 
       @Override
       protected int calculateTabWidth(final int tabPlacement, final int tabIndex, final java.awt.FontMetrics metrics) {
         return super.calculateTabWidth(tabPlacement, tabIndex, metrics) + PADDING_X;
-      };
+      }
     });
     tabPane.setFocusable(false);
     system.getBoards().stream().forEachOrdered(board -> {
