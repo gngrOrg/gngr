@@ -48,9 +48,6 @@ class BaseRListElement extends RBlock {
     }
     final HTMLElementImpl rootElement = (HTMLElementImpl) rootNode;
     final JStyleProperties props = rootElement.getCurrentStyle();
-    if (props == null) {
-      return;
-    }
     ListStyle listStyle = null;
     final String listStyleText = props.getListStyle();
     if (listStyleText != null) {

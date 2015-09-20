@@ -157,9 +157,6 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
     if (rootNode instanceof HTMLElementImpl) {
       final HTMLElementImpl element = (HTMLElementImpl) rootNode;
       final CSS2Properties props = element.getCurrentStyle();
-      if (props == null) {
-        return null;
-      }
       final String valueText = propertyGetter.apply(props);
       if ((valueText == null) || "".equals(valueText)) {
         return null;
@@ -193,9 +190,6 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
       if (rootNode instanceof HTMLElementImpl) {
         final HTMLElementImpl element = (HTMLElementImpl) rootNode;
         final CSS2Properties props = element.getCurrentStyle();
-        if (props == null) {
-          return false;
-        }
         return !Strings.isBlank(props.getWidth()) || !Strings.isBlank(props.getMaxWidth());
       }
       return false;
@@ -208,9 +202,6 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
     if (rootNode instanceof HTMLElementImpl) {
       final HTMLElementImpl element = (HTMLElementImpl) rootNode;
       final CSS2Properties props = element.getCurrentStyle();
-      if (props == null) {
-        return -1;
-      }
       final String widthText = props.getWidth();
       if ((widthText == null) || "".equals(widthText)) {
         return -1;
@@ -237,9 +228,6 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
     if (rootNode instanceof HTMLElementImpl) {
       final HTMLElementImpl element = (HTMLElementImpl) rootNode;
       final CSS2Properties props = element.getCurrentStyle();
-      if (props == null) {
-        return -1;
-      }
       final String heightText = props.getHeight();
       if ((heightText == null) || "".equals(heightText)) {
         return -1;
@@ -430,71 +418,67 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
     }
     if (!isRootBlock) {
       final JStyleProperties props = rootElement.getCurrentStyle();
-      if (props == null) {
-        this.clearStyle(isRootBlock);
+      final BorderInfo borderInfo = rs.getBorderInfo();
+      if (borderInfo != null) {
+        this.borderTopColor = borderInfo.topColor;
+        this.borderLeftColor = borderInfo.leftColor;
+        this.borderBottomColor = borderInfo.bottomColor;
+        this.borderRightColor = borderInfo.rightColor;
       } else {
-        final BorderInfo borderInfo = rs.getBorderInfo();
-        if (borderInfo != null) {
-          this.borderTopColor = borderInfo.topColor;
-          this.borderLeftColor = borderInfo.leftColor;
-          this.borderBottomColor = borderInfo.bottomColor;
-          this.borderRightColor = borderInfo.rightColor;
-        } else {
-          this.borderTopColor = null;
-          this.borderLeftColor = null;
-          this.borderBottomColor = null;
-          this.borderRightColor = null;
+        this.borderTopColor = null;
+        this.borderLeftColor = null;
+        this.borderBottomColor = null;
+        this.borderRightColor = null;
+      }
+      if (updateLayout) {
+        this.borderInfo = borderInfo;
+        final HtmlInsets binsets = borderInfo == null ? null : borderInfo.insets;
+        final HtmlInsets minsets = rs.getMarginInsets();
+        final HtmlInsets pinsets = rs.getPaddingInsets();
+        int dmleft = 0, dmright = 0, dmtop = 0, dmbottom = 0;
+        int dpleft = 0, dpright = 0, dptop = 0, dpbottom = 0;
+        Insets borderInsets = binsets == null ? null : binsets.getAWTInsets(0, 0, 0, 0, availWidth, availHeight, 0, 0);
+        if (borderInsets == null) {
+          borderInsets = RBlockViewport.ZERO_INSETS;
         }
-        if (updateLayout) {
-          this.borderInfo = borderInfo;
-          final HtmlInsets binsets = borderInfo == null ? null : borderInfo.insets;
-          final HtmlInsets minsets = rs.getMarginInsets();
-          final HtmlInsets pinsets = rs.getPaddingInsets();
-          int dmleft = 0, dmright = 0, dmtop = 0, dmbottom = 0;
-          int dpleft = 0, dpright = 0, dptop = 0, dpbottom = 0;
-          Insets borderInsets = binsets == null ? null : binsets.getAWTInsets(0, 0, 0, 0, availWidth, availHeight, 0, 0);
-          if (borderInsets == null) {
-            borderInsets = RBlockViewport.ZERO_INSETS;
+        Insets paddingInsets = pinsets == null ? null : pinsets.getAWTInsets(dptop, dpleft, dpbottom, dpright, availWidth,
+            availHeight, 0, 0);
+        if (paddingInsets == null) {
+          paddingInsets = RBlockViewport.ZERO_INSETS;
+        }
+        Insets tentativeMarginInsets = minsets == null ? null : minsets.getAWTInsets(dmtop, dmleft, dmbottom, dmright,
+            availWidth, availHeight, 0, 0);
+        if (tentativeMarginInsets == null) {
+          tentativeMarginInsets = RBlockViewport.ZERO_INSETS;
+        }
+        this.borderInsets = borderInsets;
+        if (isRootBlock) {
+          // In the root block, the margin behaves like an extra padding.
+          Insets regularMarginInsets = tentativeMarginInsets;
+          if (regularMarginInsets == null) {
+            regularMarginInsets = RBlockViewport.ZERO_INSETS;
           }
-          Insets paddingInsets = pinsets == null ? null : pinsets.getAWTInsets(dptop, dpleft, dpbottom, dpright, availWidth,
-              availHeight, 0, 0);
-          if (paddingInsets == null) {
-            paddingInsets = RBlockViewport.ZERO_INSETS;
-          }
-          Insets tentativeMarginInsets = minsets == null ? null : minsets.getAWTInsets(dmtop, dmleft, dmbottom, dmright,
-              availWidth, availHeight, 0, 0);
-          if (tentativeMarginInsets == null) {
-            tentativeMarginInsets = RBlockViewport.ZERO_INSETS;
-          }
-          this.borderInsets = borderInsets;
-          if (isRootBlock) {
-            // In the root block, the margin behaves like an extra padding.
-            Insets regularMarginInsets = tentativeMarginInsets;
-            if (regularMarginInsets == null) {
-              regularMarginInsets = RBlockViewport.ZERO_INSETS;
-            }
-            this.marginInsets = null;
-            this.paddingInsets = new Insets(paddingInsets.top + regularMarginInsets.top, paddingInsets.left + regularMarginInsets.left,
-                paddingInsets.bottom + regularMarginInsets.bottom, paddingInsets.right + regularMarginInsets.right);
-          } else {
-            this.paddingInsets = paddingInsets;
-            this.marginInsets = tentativeMarginInsets;
-          }
-          // TODO: Why is props from root element being used here and not the renderstate of the current element?
-          final String zIndex = props.getZIndex();
-          if (zIndex != null) {
-            try {
-              this.zIndex = Integer.parseInt(zIndex);
-            } catch (final NumberFormatException err) {
-              logger.log(Level.WARNING, "Unable to parse z-index [" + zIndex + "] in element " + this.modelNode + ".", err);
-              this.zIndex = 0;
-            }
-          } else {
+          this.marginInsets = null;
+          this.paddingInsets = new Insets(paddingInsets.top + regularMarginInsets.top, paddingInsets.left + regularMarginInsets.left,
+              paddingInsets.bottom + regularMarginInsets.bottom, paddingInsets.right + regularMarginInsets.right);
+        } else {
+          this.paddingInsets = paddingInsets;
+          this.marginInsets = tentativeMarginInsets;
+        }
+        // TODO: Why is props from root element being used here and not the renderstate of the current element?
+        final String zIndex = props.getZIndex();
+        if (zIndex != null) {
+          try {
+            this.zIndex = Integer.parseInt(zIndex);
+          } catch (final NumberFormatException err) {
+            logger.log(Level.WARNING, "Unable to parse z-index [" + zIndex + "] in element " + this.modelNode + ".", err);
             this.zIndex = 0;
           }
-          this.overflowX = rs.getOverflowX();
-          this.overflowY = rs.getOverflowY();
+        } else {
+          this.zIndex = 0;
         }
+        this.overflowX = rs.getOverflowX();
+        this.overflowY = rs.getOverflowY();
       }
     }
 

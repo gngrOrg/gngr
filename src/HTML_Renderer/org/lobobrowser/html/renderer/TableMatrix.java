@@ -206,7 +206,7 @@ class TableMatrix {
   private static HtmlLength getWidthLength(final HTMLElementImpl element, final int availWidth) {
     try {
       final JStyleProperties props = element.getCurrentStyle();
-      final String widthText = props == null ? null : props.getWidth();
+      final String widthText = props.getWidth();
       if (widthText == null) {
         final String widthAttr = element.getAttribute("width");
         if (widthAttr == null) {
@@ -224,7 +224,7 @@ class TableMatrix {
   private static HtmlLength getHeightLength(final HTMLElementImpl element, final int availHeight) {
     try {
       final JStyleProperties props = element.getCurrentStyle();
-      final String heightText = props == null ? null : props.getHeight();
+      final String heightText = props.getHeight();
       if (heightText == null) {
         final String ha = element.getAttribute("height");
         if (ha == null) {

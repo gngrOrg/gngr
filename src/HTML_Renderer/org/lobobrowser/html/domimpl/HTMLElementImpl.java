@@ -36,6 +36,7 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.html.FormInput;
 import org.lobobrowser.html.parser.HtmlParser;
 import org.lobobrowser.html.style.CSS2PropertiesContext;
@@ -136,7 +137,7 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
    * Hiding from JS because it is not a standard property. See GH #141
    */
   @HideFromJS
-  public JStyleProperties getCurrentStyle() {
+  public @NonNull JStyleProperties getCurrentStyle() {
     synchronized (this) {
       if (currentStyle != null) {
         return currentStyle;
