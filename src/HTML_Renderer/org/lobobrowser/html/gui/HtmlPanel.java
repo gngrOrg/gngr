@@ -368,10 +368,8 @@ public class HtmlPanel extends JComponent implements FrameContext {
     */
 
     if (this.rootNode instanceof HTMLDocumentImpl) {
-    final HTMLDocumentImpl prevDocument = (HTMLDocumentImpl) this.rootNode;
-    if (prevDocument != null) {
+      final HTMLDocumentImpl prevDocument = (HTMLDocumentImpl) this.rootNode;
       prevDocument.removeDocumentNotificationListener(this.notificationListener);
-    }
     }
     if (node instanceof HTMLDocumentImpl) {
     final HTMLDocumentImpl nodeImpl = (HTMLDocumentImpl) node;
