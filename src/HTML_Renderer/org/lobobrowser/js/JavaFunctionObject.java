@@ -75,9 +75,10 @@ public class JavaFunctionObject extends ScriptableObject implements Function {
     return "JavaFunctionObject";
   }
 
+  /*
   private static String getTypeName(final Object object) {
     return object == null ? "[null]" : object.getClass().getName();
-  }
+  }*/
 
   private final static class MethodAndArguments {
     private final Method method;
