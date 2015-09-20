@@ -7,5 +7,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/Platform_Core"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Platform_Public_API"/>
 	<classpathentry kind="lib" path="/XAMJ_Build/ext/js.jar"/>
+	<classpathentry kind="lib" path="/XAMJ_Build/org.eclipse.jdt.annotation_2.0.100.v20150311-1658.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

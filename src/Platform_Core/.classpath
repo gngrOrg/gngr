@@ -11,5 +11,6 @@
 	<classpathentry kind="lib" path="lib/okhttp-urlconnection-2.5.0.jar"/>
 	<classpathentry kind="lib" path="lib/okio-1.6.0.jar"/>
 	<classpathentry kind="lib" path="lib/h2-1.4.188.jar"/>
+	<classpathentry kind="lib" path="/XAMJ_Build/org.eclipse.jdt.annotation_2.0.100.v20150311-1658.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
