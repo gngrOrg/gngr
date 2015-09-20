@@ -178,9 +178,11 @@ public class JavaFunctionObject extends ScriptableObject implements Function {
   private static Object[] convertArgs(final Object[] args, final int numConvert, final Class<?>[] actualArgTypes) {
     final JavaScript manager = JavaScript.getInstance();
     final Object[] actualArgs = args == null ? new Object[0] : new Object[numConvert];
-    for (int i = 0; i < numConvert; i++) {
-      final Object arg = args[i];
-      actualArgs[i] = manager.getJavaObject(arg, actualArgTypes[i]);
+    if (args != null) {
+      for (int i = 0; i < numConvert; i++) {
+        final Object arg = args[i];
+        actualArgs[i] = manager.getJavaObject(arg, actualArgTypes[i]);
+      }
     }
     return actualArgs;
   }
