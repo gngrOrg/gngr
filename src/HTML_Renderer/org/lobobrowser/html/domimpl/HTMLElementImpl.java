@@ -46,6 +46,7 @@ import org.lobobrowser.html.style.LocalJStyleProperties;
 import org.lobobrowser.html.style.RenderState;
 import org.lobobrowser.html.style.StyleElements;
 import org.lobobrowser.html.style.StyleSheetRenderState;
+import org.lobobrowser.js.HideFromJS;
 import org.lobobrowser.util.Strings;
 import org.w3c.css.sac.InputSource;
 import org.w3c.dom.DOMException;
@@ -132,8 +133,9 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
   /**
    * Gets the style object associated with the element. It may return null only
    * if the type of element does not handle stylesheets.
+   * Hiding from JS because it is not a standard property. See GH #141
    */
-  // TODO hide from JS, because it is not a part of standard apparently. GH #141
+  @HideFromJS
   public JStyleProperties getCurrentStyle() {
     synchronized (this) {
       if (currentStyle != null) {
