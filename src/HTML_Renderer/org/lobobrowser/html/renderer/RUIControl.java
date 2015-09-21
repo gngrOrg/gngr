@@ -45,13 +45,11 @@ import org.lobobrowser.util.Objects;
 class RUIControl extends BaseElementRenderable {
   private static final int MAX_CACHE_SIZE = 10;
   public final UIControl widget;
-  protected final ModelNode modelNode;
   private final FrameContext frameContext;
 
   public RUIControl(final ModelNode me, final UIControl widget, final RenderableContainer container, final FrameContext frameContext,
       final UserAgentContext ucontext) {
     super(container, me, ucontext);
-    this.modelNode = me;
     this.widget = widget;
     this.frameContext = frameContext;
     widget.setRUIControl(this);
