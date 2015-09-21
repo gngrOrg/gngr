@@ -71,7 +71,7 @@ public class DescendentHTMLCollection extends AbstractScriptableDelegate impleme
       final Map<String, ElementImpl> itemsByName = new HashMap<>((size * 3) / 2);
       this.itemsByName = itemsByName;
       for (int i = 0; i < size; i++) {
-        final Object descNode = descendents.get(i);
+        final NodeImpl descNode = descendents.get(i);
         if (descNode instanceof ElementImpl) {
           final ElementImpl element = (ElementImpl) descNode;
           final String id = element.getId();
