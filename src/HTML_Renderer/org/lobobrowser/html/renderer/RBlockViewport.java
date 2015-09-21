@@ -40,7 +40,6 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.lobobrowser.html.BrowserFrame;
 import org.lobobrowser.html.HtmlObject;
@@ -98,7 +97,6 @@ public class RBlockViewport extends BaseRCollection {
   // their own bounds.
 
   public static final Insets ZERO_INSETS = new Insets(0, 0, 0, 0);
-  private static final Logger logger = Logger.getLogger(RBlockViewport.class.getName());
 
   // private final ArrayList awtComponents = new ArrayList();
   private final int listNesting;

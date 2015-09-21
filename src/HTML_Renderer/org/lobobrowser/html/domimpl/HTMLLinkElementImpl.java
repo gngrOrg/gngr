@@ -23,8 +23,6 @@ package org.lobobrowser.html.domimpl;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.html.HtmlRendererContext;
@@ -41,8 +39,6 @@ import co.uproot.css.domimpl.JStyleSheetWrapper;
 import cz.vutbr.web.css.StyleSheet;
 
 public class HTMLLinkElementImpl extends HTMLAbstractUIElement implements HTMLLinkElement, LinkStyle {
-  private static final Logger logger = Logger.getLogger(HTMLLinkElementImpl.class.getName());
-  private static final boolean loggableInfo = logger.isLoggable(Level.INFO);
   private JStyleSheetWrapper styleSheet;
 
   public HTMLLinkElementImpl(final String name) {

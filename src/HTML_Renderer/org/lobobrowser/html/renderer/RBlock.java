@@ -35,7 +35,6 @@ import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.event.MouseEvent;
 import java.util.Iterator;
-import java.util.logging.Logger;
 
 import javax.swing.JScrollBar;
 
@@ -62,7 +61,6 @@ import org.w3c.dom.html.HTMLHtmlElement;
  * {@link RBlockViewport}.
  */
 public class RBlock extends BaseElementRenderable {
-  protected static final Logger logger = Logger.getLogger(RBlock.class.getName());
   private static final int MAX_CACHE_SIZE = 10;
 
   protected final FrameContext frameContext;
