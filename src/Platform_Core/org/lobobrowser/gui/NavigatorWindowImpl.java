@@ -27,6 +27,7 @@ import java.awt.Frame;
 import java.awt.Window;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Collection;
 import java.util.EventListener;
 import java.util.EventObject;
@@ -43,6 +44,7 @@ import javax.swing.Box;
 import javax.swing.JMenu;
 import javax.swing.SwingUtilities;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.clientlet.ClientletResponse;
 import org.lobobrowser.clientlet.ComponentContent;
 import org.lobobrowser.main.ExtensionManager;
@@ -228,7 +230,7 @@ public class NavigatorWindowImpl implements NavigatorWindow, WindowCallback {
     this.framePanel.navigate(urlOrPath);
   }
 
-  public void navigate(final java.net.URL url, final String method, final ParameterInfo paramInfo) {
+  public void navigate(final @NonNull URL url, final String method, final ParameterInfo paramInfo) {
     this.framePanel.navigate(url, method, paramInfo, TargetType.SELF, RequestType.PROGRAMMATIC);
   }
 

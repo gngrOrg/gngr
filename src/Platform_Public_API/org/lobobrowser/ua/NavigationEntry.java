@@ -24,6 +24,7 @@ package org.lobobrowser.ua;
 
 import java.net.URL;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.clientlet.ClientletResponse;
 
 /**
@@ -32,13 +33,13 @@ import org.lobobrowser.clientlet.ClientletResponse;
 public class NavigationEntry {
   // Note: Do not retain request context here.
 
-  private final java.net.URL url;
+  private final @NonNull URL url;
   private final String method;
   private final String title;
   private final String description;
   private final NavigatorFrame frame;
 
-  public NavigationEntry(final NavigatorFrame frame, final URL url, final String method, final String title, final String description) {
+  public NavigationEntry(final NavigatorFrame frame, final @NonNull URL url, final String method, final String title, final String description) {
     super();
     this.frame = frame;
     this.url = url;
@@ -58,7 +59,7 @@ public class NavigationEntry {
     return title;
   }
 
-  public java.net.URL getUrl() {
+  public @NonNull URL getUrl() {
     return url;
   }
 

@@ -30,6 +30,7 @@ import javax.net.ssl.SSLSession;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.clientlet.ClientletException;
 import org.lobobrowser.clientlet.ClientletRequest;
 import org.lobobrowser.clientlet.ClientletResponse;
@@ -66,7 +67,7 @@ public abstract class AbstractRequestHandler implements RequestHandler {
     return this.request.getMethod();
   }
 
-  public URL getLatestRequestURL() {
+  public @NonNull URL getLatestRequestURL() {
     return this.request.getRequestURL();
   }
 
@@ -77,7 +78,7 @@ public abstract class AbstractRequestHandler implements RequestHandler {
   public abstract boolean handleException(ClientletResponse response, Throwable exception, RequestType requestType)
       throws ClientletException;
 
-  public abstract void handleProgress(ProgressType progressType, URL url, String method, int value, int max);
+  public abstract void handleProgress(ProgressType progressType, @NonNull URL url, String method, int value, int max);
 
   public boolean isCancelled() {
     return this.cancelled;

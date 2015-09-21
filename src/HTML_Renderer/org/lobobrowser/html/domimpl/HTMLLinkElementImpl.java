@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.html.HtmlRendererContext;
 import org.lobobrowser.html.js.Window;
 import org.lobobrowser.html.style.CSSUtilities;
@@ -144,7 +145,7 @@ public class HTMLLinkElementImpl extends HTMLAbstractUIElement implements HTMLLi
     }
   }
 
-  private Optional<URL> getAbsoluteURL() {
+  private Optional<@NonNull URL> getAbsoluteURL() {
     final String href = this.getHref();
     if (href.startsWith("javascript:")) {
       return Optional.empty();
@@ -185,7 +186,7 @@ public class HTMLLinkElementImpl extends HTMLAbstractUIElement implements HTMLLi
       // evalInScope adds the JS task
       ((Window) (((HTMLDocumentImpl) document).getDefaultView())).evalInScope(script);
     } else {
-      final Optional<URL> urlOpt = getAbsoluteURL();
+      final Optional<@NonNull URL> urlOpt = getAbsoluteURL();
       if (urlOpt.isPresent()) {
         final HtmlRendererContext rcontext = this.getHtmlRendererContext();
         final String target = this.getTarget();

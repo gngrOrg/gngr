@@ -43,6 +43,7 @@ import java.util.logging.Logger;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.html.BrowserFrame;
 import org.lobobrowser.html.FormInput;
 import org.lobobrowser.html.HtmlObject;
@@ -117,15 +118,15 @@ public class HtmlRendererContextImpl implements HtmlRendererContext {
     return this.htmlPanel;
   }
 
-  public void linkClicked(final HTMLElement linkNode, final URL url, final String target) {
+  public void linkClicked(final HTMLElement linkNode, final @NonNull URL url, final String target) {
     this.navigateImpl(url, target, RequestType.CLICK, linkNode);
   }
 
-  public void navigate(final URL href, final String target) {
+  public void navigate(final @NonNull URL href, final String target) {
     this.navigateImpl(href, target, RequestType.PROGRAMMATIC, null);
   }
 
-  private void navigateImpl(final URL href, final String target, final RequestType requestType, final Object linkObject) {
+  private void navigateImpl(final @NonNull URL href, final String target, final RequestType requestType, final Object linkObject) {
     if (logger.isLoggable(Level.INFO)) {
       logger.info("navigateImpl(): href=" + href + ",target=" + target);
     }
@@ -171,7 +172,7 @@ public class HtmlRendererContextImpl implements HtmlRendererContext {
     }
   }
 
-  public void submitForm(final String method, final URL url, final String target, final String enctype, final FormInput[] formInputs) {
+  public void submitForm(final String method, final @NonNull URL url, final String target, final String enctype, final FormInput[] formInputs) {
     final TargetType targetType = HtmlRendererContextImpl.getTargetType(target);
     final ParameterInfo pinfo = new LocalParameterInfo(enctype, formInputs);
     this.clientletFrame.navigate(url, method, pinfo, targetType, RequestType.FORM);
@@ -212,7 +213,7 @@ public class HtmlRendererContextImpl implements HtmlRendererContext {
     }
   }
 
-  public HtmlRendererContext open(final java.net.URL urlObj, final String windowName, final String windowFeatures, final boolean replace) {
+  public HtmlRendererContext open(final @NonNull URL urlObj, final String windowName, final String windowFeatures, final boolean replace) {
     final Properties windowProperties = windowFeatures == null ? null : org.lobobrowser.gui.NavigatorWindowImpl
         .getPropertiesFromWindowFeatures(windowFeatures);
     try {

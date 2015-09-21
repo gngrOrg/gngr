@@ -940,15 +940,15 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
     final HtmlRendererContext rc = this.rcontext;
     if (rc != null) {
       java.net.URL url;
-      final Object doc = this.document;
-      if (doc instanceof HTMLDocumentImpl) {
-        url = ((HTMLDocumentImpl) doc).getFullURL(relativeUrl);
-      } else {
-        try {
+      final Document doc = this.document;
+      try {
+        if (doc instanceof HTMLDocumentImpl) {
+          url = ((HTMLDocumentImpl) doc).getFullURL(relativeUrl);
+        } else {
           url = new java.net.URL(relativeUrl);
-        } catch (final java.net.MalformedURLException mfu) {
-          throw new IllegalArgumentException("Malformed URI: " + relativeUrl);
         }
+      } catch (final java.net.MalformedURLException mfu) {
+        throw new IllegalArgumentException("Malformed URI: " + relativeUrl);
       }
       if (replace) {
         this.document = null;

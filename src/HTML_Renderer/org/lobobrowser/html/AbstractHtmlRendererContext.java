@@ -24,6 +24,7 @@ import java.awt.event.MouseEvent;
 import java.net.URL;
 import java.util.Optional;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.ua.UserAgentContext;
 import org.w3c.dom.html.HTMLCollection;
 import org.w3c.dom.html.HTMLElement;
@@ -115,11 +116,12 @@ public abstract class AbstractHtmlRendererContext implements HtmlRendererContext
     return false;
   }
 
-  public void linkClicked(final HTMLElement linkNode, final URL url, final String target) {
+  /*
+  public void linkClicked(final HTMLElement linkNode, final @NonNull URL url, final String target) {
   }
 
   public void navigate(final URL url, final String target) {
-  }
+  }*/
 
   /**
    * Returns true unless overridden.
@@ -138,7 +140,7 @@ public abstract class AbstractHtmlRendererContext implements HtmlRendererContext
     return null;
   }
 
-  public HtmlRendererContext open(final URL url, final String windowName, final String windowFeatures, final boolean replace) {
+  public HtmlRendererContext open(final @NonNull URL url, final String windowName, final String windowFeatures, final boolean replace) {
     return null;
   }
 
@@ -161,8 +163,10 @@ public abstract class AbstractHtmlRendererContext implements HtmlRendererContext
   public void setStatus(final String message) {
   }
 
-  public void submitForm(final String method, final URL action, final String target, final String enctype, final FormInput[] formInputs) {
+  /*
+  public void submitForm(final String method, final @NonNull URL action, final String target, final String enctype, final FormInput[] formInputs) {
   }
+  */
 
   /**
    * Returns true unless overridden.

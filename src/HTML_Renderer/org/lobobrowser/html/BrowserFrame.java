@@ -26,6 +26,7 @@ package org.lobobrowser.html;
 import java.awt.Component;
 import java.net.URL;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.w3c.dom.Document;
 
 /**
@@ -43,7 +44,7 @@ public interface BrowserFrame {
   /**
    * Loads a URL in the frame.
    */
-  public void loadURL(URL url);
+  public void loadURL(@NonNull URL url);
 
   /**
    * Gets the content document.

@@ -1,6 +1,7 @@
 package org.lobobrowser.html.js;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
@@ -11,6 +12,7 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.html.js.Window.JSRunnableTask;
 import org.lobobrowser.js.AbstractScriptableDelegate;
 import org.lobobrowser.js.JavaScript;
@@ -22,6 +24,7 @@ import org.lobobrowser.util.DOMExceptions;
 import org.lobobrowser.util.Urls;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
+import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -96,14 +99,18 @@ public class XMLHttpRequest extends AbstractScriptableDelegate {
     return request.getStatusText();
   }
 
-  private URL getFullURL(final String relativeUrl) throws java.net.MalformedURLException {
+  private @NonNull URL getFullURL(final String relativeUrl) throws java.net.MalformedURLException {
     return Urls.createURL(this.codeSource, relativeUrl);
   }
 
   public void open(final String method, final String url, final boolean asyncFlag, final String userName, final String password)
       throws java.io.IOException {
     final String adjustedMethod = checkAndAdjustMethod(method);
-    request.open(adjustedMethod, this.getFullURL(url), asyncFlag, userName, password);
+    try {
+      request.open(adjustedMethod, this.getFullURL(url), asyncFlag, userName, password);
+    } catch (final MalformedURLException mfe) {
+      throw ScriptRuntime.typeError("url malformed");
+    }
   }
 
   private static String[] prohibitedMethods = {

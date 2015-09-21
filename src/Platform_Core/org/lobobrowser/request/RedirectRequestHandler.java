@@ -30,6 +30,7 @@ import java.net.URL;
 
 import javax.net.ssl.HostnameVerifier;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.clientlet.ClientletException;
 import org.lobobrowser.clientlet.ClientletRequest;
 import org.lobobrowser.clientlet.ClientletResponse;
@@ -130,7 +131,7 @@ public class RedirectRequestHandler implements RequestHandler {
    * @see net.sourceforge.xamj.http.RequestHandler#handleProgress(java.net.URL,
    * int, int)
    */
-  public void handleProgress(final ProgressType progressType, final URL url, final String method, final int value, final int max) {
+  public void handleProgress(final ProgressType progressType, final @NonNull URL url, final String method, final int value, final int max) {
     this.origHandler.handleProgress(progressType, url, method, value, max);
   }
 

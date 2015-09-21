@@ -26,6 +26,7 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -44,6 +45,7 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.KeyStroke;
 import javax.swing.event.MenuEvent;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.gui.ConsoleModel;
 import org.lobobrowser.main.OS;
 import org.lobobrowser.main.PlatformInit;
@@ -481,7 +483,7 @@ public class ComponentSource implements NavigatorWindowListener {
     }
   }
 
-  public void navigate(final java.net.URL url) {
+  public void navigate(final @NonNull URL url) {
     this.window.stop();
     this.clearState();
     this.window.getTopFrame().navigate(url);

@@ -49,6 +49,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.clientlet.ClientletRequest;
 import org.lobobrowser.clientlet.ClientletResponse;
 import org.lobobrowser.clientlet.ComponentContent;
@@ -675,12 +676,12 @@ public class FramePanel extends JPanel implements NavigatorFrame {
     this.navigate(url, "GET", null, TargetType.SELF, requestType);
   }
 
-  public void navigate(final URL url, final String method, final ParameterInfo paramInfo, final TargetType type,
+  public void navigate(final @NonNull URL url, final String method, final ParameterInfo paramInfo, final TargetType type,
       final RequestType requestType) {
     this.navigate(url, method, paramInfo, type, requestType, this);
   }
 
-  public void navigate(final URL url, final String method, final ParameterInfo paramInfo, final TargetType type,
+  public void navigate(final @NonNull URL url, final String method, final ParameterInfo paramInfo, final TargetType type,
       final RequestType requestType, final NavigatorFrame originatingFrame) {
     final NavigationEvent event = new NavigationEvent(this, url, method, paramInfo, type, requestType, originatingFrame);
     this.navigate(event);
@@ -726,7 +727,7 @@ public class FramePanel extends JPanel implements NavigatorFrame {
     }
   }
 
-  private void navigateToHistoryEntry(final URL url) {
+  private void navigateToHistoryEntry(final @NonNull URL url) {
     this.navigateLocal(url, "GET", RequestType.HISTORY, this);
   }
 
@@ -736,7 +737,7 @@ public class FramePanel extends JPanel implements NavigatorFrame {
         || (requestType == RequestType.OPEN_WINDOW_FROM_CLICK) || (requestType == RequestType.FORM);
   }
 
-  private void navigateLocal(final URL url, final String method, final RequestType requestType, final FramePanel originatingFrame) {
+  private void navigateLocal(final @NonNull URL url, final String method, final RequestType requestType, final FramePanel originatingFrame) {
     final NavigationEvent event = new NavigationEvent(this, url, method, requestType, originatingFrame);
     this.navigateLocal(event);
   }
@@ -795,7 +796,7 @@ public class FramePanel extends JPanel implements NavigatorFrame {
    *          conventions.
    * @return The top frame of the new window.
    */
-  public final NavigatorFrame open(final URL url, final Properties windowProperties) {
+  public final NavigatorFrame open(final @NonNull URL url, final Properties windowProperties) {
     return this.open(url, null, windowProperties);
   }
 
@@ -811,7 +812,7 @@ public class FramePanel extends JPanel implements NavigatorFrame {
    *          conventions.
    * @return The top frame of the new window.
    */
-  public final NavigatorFrame open(final URL url, final String windowId, final Properties windowProperties) {
+  public final NavigatorFrame open(final @NonNull URL url, final String windowId, final Properties windowProperties) {
     return this.open(url, "GET", null, windowId, windowProperties);
   }
 
@@ -822,7 +823,7 @@ public class FramePanel extends JPanel implements NavigatorFrame {
    *          The URL of the document.
    * @return The top frame of the new window.
    */
-  public final NavigatorFrame open(final URL url) {
+  public final NavigatorFrame open(final @NonNull URL url) {
     return this.open(url, (Properties) null);
   }
 
@@ -835,7 +836,7 @@ public class FramePanel extends JPanel implements NavigatorFrame {
    * @return The top frame of the new window. The method may return
    *         <code>null</code> if navigation was vetoed by a listener.
    */
-  public NavigatorFrame open(final java.net.URL url, final String method, final ParameterInfo pinfo, final String windowId,
+  public NavigatorFrame open(final @NonNull URL url, final String method, final ParameterInfo pinfo, final String windowId,
       final Properties windowProperties) {
     final NavigationEvent event = new NavigationEvent(this, url, method, pinfo, TargetType.BLANK, RequestType.OPEN_WINDOW, this);
     try {
@@ -860,7 +861,7 @@ public class FramePanel extends JPanel implements NavigatorFrame {
    *          Any additional parameter data.
    * @return The top frame of the new window.
    */
-  public final NavigatorFrame open(final URL url, final String method, final ParameterInfo pinfo) {
+  public final NavigatorFrame open(final @NonNull URL url, final String method, final ParameterInfo pinfo) {
     return this.open(url, method, pinfo, null, null);
   }
 
@@ -869,7 +870,7 @@ public class FramePanel extends JPanel implements NavigatorFrame {
    *
    * @return The top frame in the window that was opened.
    */
-  public static NavigatorFrame openWindow(final FramePanel opener, final URL url, final String windowId, final Properties windowProperties,
+  public static NavigatorFrame openWindow(final FramePanel opener, final @NonNull URL url, final String windowId, final Properties windowProperties,
       final String method, final ParameterInfo pinfo) {
     final ClientletRequest request = new ClientletRequestImpl(true, url, method, pinfo, RequestType.OPEN_WINDOW);
     final NavigatorWindowImpl wcontext = AccessController.doPrivileged(new PrivilegedAction<NavigatorWindowImpl>() {
@@ -1165,11 +1166,11 @@ public class FramePanel extends JPanel implements NavigatorFrame {
     return content == null ? null : content.getSourceCode();
   }
 
-  public final void navigate(final URL url) {
+  public final void navigate(final @NonNull URL url) {
     this.navigate(url, RequestType.PROGRAMMATIC);
   }
 
-  public final void navigate(final URL url, final RequestType requestType) {
+  public final void navigate(final @NonNull URL url, final RequestType requestType) {
     this.navigate(url, "GET", null, TargetType.SELF, requestType);
   }
 
@@ -1257,7 +1258,7 @@ public class FramePanel extends JPanel implements NavigatorFrame {
     return content == null ? null : content.getMimeType();
   }
 
-  public void linkClicked(final URL url, final TargetType targetType, final Object linkObject) {
+  public void linkClicked(final @NonNull URL url, final TargetType targetType, final Object linkObject) {
     final NavigationEvent event = new NavigationEvent(this, url, targetType, RequestType.CLICK, linkObject, this);
     this.navigate(event);
   }

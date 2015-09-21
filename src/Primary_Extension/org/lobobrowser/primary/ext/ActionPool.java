@@ -22,6 +22,7 @@ package org.lobobrowser.primary.ext;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -33,6 +34,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JFileChooser;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.main.PlatformInit;
 import org.lobobrowser.primary.gui.SearchDialog;
 import org.lobobrowser.primary.gui.prefs.PreferencesDialog;
@@ -103,21 +105,19 @@ public class ActionPool {
   }
 
   public Action createNavigateAction(final String fullURL) {
-    java.net.URL url;
     try {
-      url = new java.net.URL(fullURL);
+      return new NavigateAction(new URL(fullURL));
     } catch (final java.net.MalformedURLException mfu) {
       logger.log(Level.WARNING, "createNavigateAction()", mfu);
-      url = null;
+      throw new IllegalStateException(mfu);
     }
+  }
+
+  public Action createNavigateAction(final @NonNull URL url) {
     return new NavigateAction(url);
   }
 
-  public Action createNavigateAction(final java.net.URL url) {
-    return new NavigateAction(url);
-  }
-
-  public Action createBookmarkNavigateAction(final java.net.URL url) {
+  public Action createBookmarkNavigateAction(final @NonNull URL url) {
     return new BookmarkNavigateAction(url);
   }
 
@@ -442,9 +442,9 @@ public class ActionPool {
   // }
 
   class NavigateAction extends AbstractAction {
-    private final java.net.URL url;
+    private final @NonNull URL url;
 
-    public NavigateAction(final java.net.URL url) {
+    public NavigateAction(final @NonNull URL url) {
       this.url = url;
     }
 
@@ -454,9 +454,9 @@ public class ActionPool {
   }
 
   class BookmarkNavigateAction extends AbstractAction {
-    private final java.net.URL url;
+    private final @NonNull URL url;
 
-    public BookmarkNavigateAction(final java.net.URL url) {
+    public BookmarkNavigateAction(final @NonNull URL url) {
       this.url = url;
     }
 

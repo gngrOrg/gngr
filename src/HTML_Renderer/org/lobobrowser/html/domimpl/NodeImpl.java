@@ -39,6 +39,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.html.HtmlRendererContext;
 import org.lobobrowser.html.js.Event;
 import org.lobobrowser.html.style.RenderState;
@@ -1041,7 +1042,7 @@ public abstract class NodeImpl extends AbstractScriptableDelegate implements Nod
    * @see
    * org.xamjwg.html.renderer.RenderableContext#getFullURL(java.lang.String)
    */
-  public URL getFullURL(final String spec) throws MalformedURLException {
+  public @NonNull URL getFullURL(final String spec) throws MalformedURLException {
     final Object doc = this.document;
     final String cleanSpec = Urls.encodeIllegalCharacters(spec);
     if (doc instanceof HTMLDocumentImpl) {

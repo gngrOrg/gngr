@@ -26,6 +26,7 @@ package org.lobobrowser.request;
 import java.io.IOException;
 import java.net.URL;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.clientlet.Clientlet;
 import org.lobobrowser.clientlet.ClientletAccess;
 import org.lobobrowser.clientlet.ClientletContext;
@@ -143,14 +144,14 @@ public class ClientletRequestHandler extends AbstractRequestHandler {
   }
 
   @Override
-  public void handleProgress(final ProgressType progressType, final URL url, final String method, final int value, final int max) {
+  public void handleProgress(final ProgressType progressType, final @NonNull URL url, final String method, final int value, final int max) {
     final NavigatorProgressEvent event = new NavigatorProgressEvent(this, this.frame, progressType, url, method, value, max);
     this.evtProgress.fireEvent(event);
     this.frame.setProgressEvent(event);
   }
 
-  public static String getProgressMessage(final ProgressType progressType, final URL url) {
-    final String urlText = url == null ? "[null]" : Urls.getNoRefForm(url);
+  public static String getProgressMessage(final ProgressType progressType, final @NonNull URL url) {
+    final String urlText = Urls.getNoRefForm(url);
     switch (progressType) {
     case CONNECTING:
       final String host = url.getHost();

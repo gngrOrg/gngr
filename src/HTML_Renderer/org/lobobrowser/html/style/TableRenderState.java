@@ -21,6 +21,7 @@
 package org.lobobrowser.html.style;
 
 import java.awt.Color;
+import java.net.MalformedURLException;
 
 import org.lobobrowser.html.domimpl.HTMLElementImpl;
 import org.lobobrowser.html.domimpl.HTMLTableElementImpl;
@@ -70,7 +71,11 @@ public class TableRenderState extends StyleSheetRenderState {
         if (binfo == null) {
           binfo = new BackgroundInfo();
         }
-        binfo.backgroundImage = this.document.getFullURL(background);
+        try {
+          binfo.backgroundImage = this.document.getFullURL(background);
+        } catch (final MalformedURLException mfe) {
+          throw new IllegalArgumentException(mfe);
+        }
       }
     }
     this.backgroundInfo = binfo;

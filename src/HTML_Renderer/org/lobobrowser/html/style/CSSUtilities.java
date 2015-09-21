@@ -35,6 +35,7 @@ import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.html.domimpl.HTMLDocumentImpl;
 import org.lobobrowser.html.domimpl.HTMLElementImpl;
 import org.lobobrowser.ua.NetworkRequest;
@@ -111,7 +112,7 @@ public class CSSUtilities {
     final NetworkRequest request = bcontext.createHttpRequest();
     final URL baseURL = new URL(baseUri);
     final URL cssURL = Urls.createURL(baseURL, href);
-    final String cssURI = cssURL == null ? href : cssURL.toExternalForm();
+    final String cssURI = cssURL.toExternalForm();
     // Perform a synchronous request
     SecurityUtil.doPrivileged(() -> {
       try {
@@ -164,7 +165,7 @@ public class CSSUtilities {
     }
 
     @Override
-    public InputStream fetch(final URL url) throws IOException {
+    public InputStream fetch(final @NonNull URL url) throws IOException {
       try {
         return AccessController.doPrivileged((PrivilegedExceptionAction<InputStream>) () -> {
           final NetworkRequest request = bcontext.createHttpRequest();

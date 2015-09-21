@@ -5,6 +5,7 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.LinkedList;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.util.Urls;
 
 import de.malkusch.whoisServerList.publicSuffixList.PublicSuffixList;
@@ -113,7 +114,7 @@ public final class DomainValidation {
     }
   }
 
-  public static URL guessURL(URL baseURL, String spec) throws MalformedURLException {
+  public static @NonNull URL guessURL(URL baseURL, String spec) throws MalformedURLException {
     URL finalURL;
     try {
       if (baseURL != null) {
@@ -167,7 +168,7 @@ public final class DomainValidation {
     }
   }
 
-  public static URL guessURL(final String spec) throws MalformedURLException {
+  public static @NonNull URL guessURL(final String spec) throws MalformedURLException {
     return guessURL(null, spec);
   }
 }

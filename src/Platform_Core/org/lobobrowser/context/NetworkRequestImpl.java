@@ -40,6 +40,7 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.clientlet.ClientletAccess;
 import org.lobobrowser.clientlet.ClientletContext;
 import org.lobobrowser.clientlet.ClientletException;
@@ -149,11 +150,11 @@ public class NetworkRequestImpl implements NetworkRequest {
     this.open(method, url, true);
   }
 
-  public void open(final String method, final URL url) {
+  public void open(final String method, final @NonNull URL url) {
     this.open(method, url, true, null, null);
   }
 
-  public void open(final String method, final URL url, final boolean asyncFlag) {
+  public void open(final String method, final @NonNull URL url, final boolean asyncFlag) {
     this.open(method, url, asyncFlag, null, null);
   }
 
@@ -162,18 +163,18 @@ public class NetworkRequestImpl implements NetworkRequest {
     this.open(method, urlObj, asyncFlag, null, null);
   }
 
-  public void open(final String method, final java.net.URL url, final boolean asyncFlag, final String userName) {
+  public void open(final String method, final @NonNull URL url, final boolean asyncFlag, final String userName) {
     this.open(method, url, asyncFlag, userName, null);
   }
 
   private boolean isAsynchronous = false;
   private String requestMethod;
-  private java.net.URL requestURL;
+  private URL requestURL;
 
   // private String requestUserName;
   // private String requestPassword;
 
-  public void open(final String method, final java.net.URL url, final boolean asyncFlag, final String userName, final String password) {
+  public void open(final String method, final @NonNull URL url, final boolean asyncFlag, final String userName, final String password) {
     this.isAsynchronous = asyncFlag;
     this.requestMethod = method;
     this.requestURL = url;
@@ -183,10 +184,11 @@ public class NetworkRequestImpl implements NetworkRequest {
   }
 
   public void send(final String content, final Request requestType) throws IOException {
-    if (uaContext.isRequestPermitted(requestType)) {
+    final URL requestURLLocal = this.requestURL;
+    if (requestURLLocal != null && uaContext.isRequestPermitted(requestType)) {
       try {
         final Map<String, String> requestedHeadersCopy = new HashMap<>(requestedHeaders);
-        final RequestHandler rhandler = new LocalRequestHandler(this.requestURL, this.requestMethod, content, uaContext,
+        final RequestHandler rhandler = new LocalRequestHandler(requestURLLocal, this.requestMethod, content, uaContext,
             requestedHeadersCopy);
         this.currentRequestHandler = rhandler;
         try {
@@ -309,7 +311,7 @@ public class NetworkRequestImpl implements NetworkRequest {
     private final String method;
     private final Map<String, String> requestedHeadersCopy;
 
-    public LocalRequestHandler(final URL url, final String method, final String altPostData, final UserAgentContext uaContext,
+    public LocalRequestHandler(final @NonNull URL url, final String method, final String altPostData, final UserAgentContext uaContext,
         final Map<String, String> requestedHeaders) {
       super(url, method, altPostData, RequestType.ELEMENT, uaContext);
       this.method = method;

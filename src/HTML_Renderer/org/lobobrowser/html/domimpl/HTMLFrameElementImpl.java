@@ -53,10 +53,8 @@ public class HTMLFrameElementImpl extends HTMLElementImpl implements HTMLFrameEl
     if (src != null) {
       try {
         final java.net.URL fullURL = getFullURL(src);
-        if (fullURL != null) {
-          if (getUserAgentContext().isRequestPermitted(new Request(fullURL, RequestKind.Frame))) {
-            browserFrame.loadURL(fullURL);
-          }
+        if (getUserAgentContext().isRequestPermitted(new Request(fullURL, RequestKind.Frame))) {
+          browserFrame.loadURL(fullURL);
         }
       } catch (final MalformedURLException mfu) {
         logger.warning("Frame URI=[" + src + "] is malformed.");

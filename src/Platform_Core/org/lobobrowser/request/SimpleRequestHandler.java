@@ -32,6 +32,7 @@ import java.util.logging.Logger;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSession;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.clientlet.ClientletException;
 import org.lobobrowser.clientlet.ClientletRequest;
 import org.lobobrowser.clientlet.ClientletResponse;
@@ -54,12 +55,12 @@ public abstract class SimpleRequestHandler implements RequestHandler {
     return uaContext;
   }
 
-  public SimpleRequestHandler(final URL url, final RequestType requestType, final UserAgentContext uaContext) {
+  public SimpleRequestHandler(final @NonNull URL url, final RequestType requestType, final UserAgentContext uaContext) {
     this.request = new ClientletRequestImpl(url, requestType);
     this.uaContext = uaContext;
   }
 
-  public SimpleRequestHandler(final URL url, final String method, final String altPostData, final RequestType requestType,
+  public SimpleRequestHandler(final @NonNull URL url, final String method, final String altPostData, final RequestType requestType,
       final UserAgentContext uaContext) {
     this.request = new ClientletRequestImpl(url, method, altPostData, requestType);
     this.uaContext = uaContext;
@@ -89,7 +90,7 @@ public abstract class SimpleRequestHandler implements RequestHandler {
     return this.request;
   }
 
-  public void handleProgress(final ProgressType progressType, final URL url, final String method, final int value, final int max) {
+  public void handleProgress(final ProgressType progressType, final @NonNull URL url, final String method, final int value, final int max) {
     // nop
   }
 

@@ -47,6 +47,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.border.EmptyBorder;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.clientlet.ClientletException;
 import org.lobobrowser.clientlet.ClientletRequest;
 import org.lobobrowser.clientlet.ClientletResponse;
@@ -83,10 +84,10 @@ public class DownloadDialog extends JFrame {
   private final JButton openFolderButton = new JButton();
   private final JButton openButton = new JButton();
 
-  private final java.net.URL url;
+  private final @NonNull URL url;
   private final int knownContentLength;
 
-  public DownloadDialog(final ClientletResponse response, final java.net.URL url, final int transferSpeed, final UserAgentContext uaContext) {
+  public DownloadDialog(final ClientletResponse response, final @NonNull URL url, final int transferSpeed, final UserAgentContext uaContext) {
     this.url = url;
     this.uaContext = uaContext;
     this.setIconImage(DefaultWindowFactory.getInstance().getDefaultImageIcon(uaContext).getImage());
@@ -459,7 +460,7 @@ public class DownloadDialog extends JFrame {
     }
 
     @Override
-    public void handleProgress(final ProgressType progressType, final URL url, final String method, final int value, final int max) {
+    public void handleProgress(final ProgressType progressType, final @NonNull URL url, final String method, final int value, final int max) {
       if (!this.downloadDone) {
         final long timestamp = System.currentTimeMillis();
         if ((timestamp - this.lastProgressUpdate) > 1000) {

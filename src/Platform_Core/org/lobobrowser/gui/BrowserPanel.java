@@ -24,6 +24,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.EventListener;
@@ -40,6 +41,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.clientlet.ClientletResponse;
 import org.lobobrowser.clientlet.ComponentContent;
 import org.lobobrowser.main.ExtensionManager;
@@ -173,7 +175,7 @@ public class BrowserPanel extends JPanel implements NavigatorWindow, BrowserWind
    * @param url
    *          A URL.
    */
-  public void navigate(final java.net.URL url) throws java.net.MalformedURLException {
+  public void navigate(final @NonNull URL url) throws java.net.MalformedURLException {
     this.framePanel.navigate(url);
   }
 

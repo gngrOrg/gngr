@@ -27,6 +27,7 @@ import java.awt.Cursor;
 import java.net.URL;
 import java.util.Optional;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.ua.UserAgentContext;
 import org.w3c.dom.html.HTMLCollection;
 import org.w3c.dom.html.HTMLElement;
@@ -59,7 +60,7 @@ public interface HtmlRendererContext {
    *          Same as the target attribute in the HTML anchor tag, i.e. _top,
    *          _blank, etc.
    */
-  public void navigate(URL url, String target);
+  public void navigate(@NonNull URL url, String target);
 
   /**
    * Performs a link click. Implementations should invoke
@@ -73,7 +74,7 @@ public interface HtmlRendererContext {
    *          Same as the target attribute in the HTML anchor tag, i.e. _top,
    *          _blank, etc.
    */
-  public void linkClicked(HTMLElement linkNode, URL url, String target);
+  public void linkClicked(HTMLElement linkNode, @NonNull URL url, String target);
 
   /**
    * Gets a collection of frames from the document currently in the context.
@@ -96,7 +97,7 @@ public interface HtmlRendererContext {
    * @param formInputs
    *          An array of {@link org.lobobrowser.html.FormInput} instances.
    */
-  public void submitForm(String method, URL action, String target, String enctype, FormInput[] formInputs);
+  public void submitForm(String method, @NonNull URL action, String target, String enctype, FormInput[] formInputs);
 
   /**
    * Creates a {@link org.lobobrowser.html.BrowserFrame} instance.
@@ -267,7 +268,7 @@ public interface HtmlRendererContext {
    * @param replace
    * @return A new {@link org.lobobrowser.html.HtmlRendererContext} instance.
    */
-  public HtmlRendererContext open(java.net.URL url, String windowName, String windowFeatures, boolean replace);
+  public HtmlRendererContext open(@NonNull URL url, String windowName, String windowFeatures, boolean replace);
 
   /**
    * Shows a prompt dialog.

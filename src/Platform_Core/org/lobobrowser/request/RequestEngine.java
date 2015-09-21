@@ -57,6 +57,7 @@ import java.util.stream.Collectors;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.clientlet.CancelClientletException;
 import org.lobobrowser.clientlet.ClientletException;
 import org.lobobrowser.clientlet.ClientletRequest;
@@ -525,7 +526,7 @@ public final class RequestEngine {
     return this.loadBytes(DomainValidation.guessURL(urlOrPath), uaContext);
   }
 
-  private byte[] loadBytes(final URL url, final UserAgentContext uaContext) throws Exception {
+  private byte[] loadBytes(final @NonNull URL url, final UserAgentContext uaContext) throws Exception {
     final BoxedObject boxed = new BoxedObject();
     this.inlineRequest(new SimpleRequestHandler(url, RequestType.ELEMENT, uaContext) {
       @Override

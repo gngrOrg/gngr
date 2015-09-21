@@ -35,6 +35,8 @@ import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 public class Urls {
   private static final Logger logger = Logger.getLogger(Urls.class.getName());
   public static final DateFormat PATTERN_RFC1123 = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
@@ -83,7 +85,7 @@ public class Urls {
   /**
    * Creates an absolute URL in a manner equivalent to major browsers.
    */
-  public static URL createURL(final URL baseUrl, final String relativeUrl) throws java.net.MalformedURLException {
+  public static @NonNull URL createURL(final URL baseUrl, final String relativeUrl) throws java.net.MalformedURLException {
     return new URL(baseUrl, relativeUrl);
   }
 

@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.clientlet.ClientletResponse;
 import org.lobobrowser.ua.ProgressType;
 import org.lobobrowser.ua.RequestType;
@@ -63,11 +64,11 @@ public class ClientletResponseImpl implements ClientletResponse {
   private final boolean fromCache;
   private final RequestType requestType;
   // Security note: This URL must be final.
-  private final URL responseURL;
+  private final @NonNull URL responseURL;
 
   private InputStream inputStream;
 
-  public ClientletResponseImpl(final RequestHandler rhandler, final URLConnection connection, final URL responseURL,
+  public ClientletResponseImpl(final RequestHandler rhandler, final URLConnection connection, final @NonNull URL responseURL,
       final boolean fromCache, final CacheInfo cacheInfo,
       final boolean isCacheable, final RequestType requestType) {
     this.connection = connection;
@@ -124,7 +125,7 @@ public class ClientletResponseImpl implements ClientletResponse {
     return this.requestHandler.getLatestRequestMethod();
   }
 
-  public void handleProgress(final ProgressType progressType, final java.net.URL url, final String method, final int value, final int max) {
+  public void handleProgress(final ProgressType progressType, final @NonNull URL url, final String method, final int value, final int max) {
     this.requestHandler.handleProgress(progressType, url, method, value, max);
   }
 
@@ -146,7 +147,7 @@ public class ClientletResponseImpl implements ClientletResponse {
    *
    * @see org.xamjwg.dom.ClientletResponse#getResponseURL()
    */
-  public URL getResponseURL() {
+  public @NonNull URL getResponseURL() {
     // Assumes connection doesn't use internal redirection.
     return this.responseURL;
   }

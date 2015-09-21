@@ -25,10 +25,12 @@ package org.lobobrowser.clientlet;
 import java.awt.Component;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
+
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.io.ManagedStore;
 import org.lobobrowser.ua.NavigatorFrame;
 import org.lobobrowser.ua.NavigatorProgressEvent;
-import org.lobobrowser.ua.NetworkRequest;
 import org.lobobrowser.ua.ProgressType;
 import org.lobobrowser.ua.UserAgent;
 
@@ -193,7 +195,7 @@ public interface ClientletContext {
    *          The URL to be shown in progress messages.
    * @see NavigatorFrame#setProgressEvent(NavigatorProgressEvent)
    */
-  public void setProgressEvent(org.lobobrowser.ua.ProgressType progressType, int value, int max, java.net.URL url);
+  public void setProgressEvent(org.lobobrowser.ua.ProgressType progressType, int value, int max, @NonNull URL url);
 
   /**
    * Sets the current progress state.
@@ -212,12 +214,6 @@ public interface ClientletContext {
    * @see NavigatorFrame#setProgressEvent(NavigatorProgressEvent)
    */
   public NavigatorProgressEvent getProgressEvent();
-
-  /**
-   * Creates a {@link NetworkRequest} object that can be used to load data over
-   * HTTP and other network protocols.
-   */
-  public NetworkRequest createNetworkRequest();
 
   /**
    * Opens an alert message dialog.

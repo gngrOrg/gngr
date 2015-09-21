@@ -42,6 +42,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.html.HtmlRendererContext;
 import org.lobobrowser.html.domimpl.NodeFilter.AnchorFilter;
 import org.lobobrowser.html.domimpl.NodeFilter.AppletFilter;
@@ -248,7 +249,23 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
   }
 
   public void setBaseURI(final String value) {
-    this.baseURI = value;
+    if (value != null) {
+      try {
+        @SuppressWarnings("unused")
+        final URL ignore = new URL(value);
+
+        // this is a full url if it parses
+        this.baseURI = value;
+      } catch (final MalformedURLException mfe) {
+        try {
+          Urls.createURL(documentURL, value);
+        } catch (final MalformedURLException mfe2) {
+          throw new IllegalArgumentException(mfe2);
+        }
+      }
+    } else {
+      this.baseURI = null;
+    }
   }
 
   private String defaultTarget;
@@ -858,19 +875,13 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
   }
 
   @Override
-  public final URL getFullURL(final String uri) {
+  public final @NonNull URL getFullURL(final String uri) throws MalformedURLException {
     try {
       final String baseURI = this.getBaseURI();
       final URL documentURL = baseURI == null ? null : new URL(baseURI);
       return Urls.createURL(documentURL, uri);
     } catch (final MalformedURLException mfu) {
-      // Try again, without the baseURI.
-      try {
-        return new URL(uri);
-      } catch (final MalformedURLException mfu2) {
-        logger.log(Level.WARNING, "Unable to create URL for URI=[" + uri + "], with base=[" + this.getBaseURI() + "].", mfu);
-        return null;
-      }
+      return new URL(uri);
     }
   }
 
@@ -1154,85 +1165,86 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
       imageListener.imageLoaded(BLANK_IMAGE_EVENT);
       return;
     }
-    final URL url = this.getFullURL(relativeUri);
-    if (url == null) {
+    try {
+      final URL url = this.getFullURL(relativeUri);
+      final String urlText = url.toExternalForm();
+      final Map<String, ImageInfo> map = this.imageInfos;
+      ImageEvent event = null;
+      synchronized (map) {
+        final ImageInfo info = map.get(urlText);
+        if (info != null) {
+          if (info.loaded) {
+            // TODO: This can't really happen because ImageInfo
+            // is removed right after image is loaded.
+            event = info.imageEvent;
+          } else {
+            info.addListener(imageListener);
+          }
+        } else {
+          final UserAgentContext uac = rcontext.getUserAgentContext();
+          final NetworkRequest httpRequest = uac.createHttpRequest();
+          final ImageInfo newInfo = new ImageInfo();
+          map.put(urlText, newInfo);
+          newInfo.addListener(imageListener);
+          httpRequest.addNetworkRequestListener(netEvent -> {
+            if (httpRequest.getReadyState() == NetworkRequest.STATE_COMPLETE) {
+              final java.awt.Image newImage = httpRequest.getResponseImage();
+              final ImageEvent newEvent = newImage == null ? null : new ImageEvent(HTMLDocumentImpl.this, newImage);
+              ImageListener[] listeners;
+              synchronized (map) {
+                newInfo.imageEvent = newEvent;
+                newInfo.loaded = true;
+                listeners = newEvent == null ? null : newInfo.getListeners();
+                // Must remove from map in the locked block
+                // that got the listeners. Otherwise a new
+                // listener might miss the event??
+                map.remove(urlText);
+              }
+              if (listeners != null) {
+                final int llength = listeners.length;
+                for (int i = 0; i < llength; i++) {
+                  // Call holding no locks
+                  listeners[i].imageLoaded(newEvent);
+                }
+              }
+            } else if (httpRequest.getReadyState() == NetworkRequest.STATE_ABORTED) {
+              ImageListener[] listeners;
+              synchronized (map) {
+                newInfo.loaded = true;
+                listeners = newInfo.getListeners();
+                // Must remove from map in the locked block
+                // that got the listeners. Otherwise a new
+                // listener might miss the event??
+                map.remove(urlText);
+              }
+              if (listeners != null) {
+                final int llength = listeners.length;
+                for (int i = 0; i < llength; i++) {
+                  // Call holding no locks
+                  listeners[i].imageAborted();
+                }
+              }
+            }
+          });
+
+          SecurityUtil.doPrivileged(() -> {
+            try {
+              httpRequest.open("GET", url, true);
+              httpRequest.send(null, new Request(url, RequestKind.Image));
+            } catch (final java.io.IOException thrown) {
+              logger.log(Level.WARNING, "loadImage()", thrown);
+            }
+            return null;
+          });
+        }
+      }
+      if (event != null) {
+        // Call holding no locks.
+        imageListener.imageLoaded(event);
+      }
+    } catch (final MalformedURLException mfe) {
       imageListener.imageLoaded(BLANK_IMAGE_EVENT);
       return;
-    }
-    final String urlText = url.toExternalForm();
-    final Map<String, ImageInfo> map = this.imageInfos;
-    ImageEvent event = null;
-    synchronized (map) {
-      final ImageInfo info = map.get(urlText);
-      if (info != null) {
-        if (info.loaded) {
-          // TODO: This can't really happen because ImageInfo
-          // is removed right after image is loaded.
-          event = info.imageEvent;
-        } else {
-          info.addListener(imageListener);
-        }
-      } else {
-        final UserAgentContext uac = rcontext.getUserAgentContext();
-        final NetworkRequest httpRequest = uac.createHttpRequest();
-        final ImageInfo newInfo = new ImageInfo();
-        map.put(urlText, newInfo);
-        newInfo.addListener(imageListener);
-        httpRequest.addNetworkRequestListener(netEvent -> {
-          if (httpRequest.getReadyState() == NetworkRequest.STATE_COMPLETE) {
-            final java.awt.Image newImage = httpRequest.getResponseImage();
-            final ImageEvent newEvent = newImage == null ? null : new ImageEvent(HTMLDocumentImpl.this, newImage);
-            ImageListener[] listeners;
-            synchronized (map) {
-              newInfo.imageEvent = newEvent;
-              newInfo.loaded = true;
-              listeners = newEvent == null ? null : newInfo.getListeners();
-              // Must remove from map in the locked block
-              // that got the listeners. Otherwise a new
-              // listener might miss the event??
-            map.remove(urlText);
-          }
-          if (listeners != null) {
-            final int llength = listeners.length;
-            for (int i = 0; i < llength; i++) {
-              // Call holding no locks
-              listeners[i].imageLoaded(newEvent);
-            }
-          }
-        } else if (httpRequest.getReadyState() == NetworkRequest.STATE_ABORTED) {
-          ImageListener[] listeners;
-          synchronized (map) {
-            newInfo.loaded = true;
-            listeners = newInfo.getListeners();
-            // Must remove from map in the locked block
-            // that got the listeners. Otherwise a new
-            // listener might miss the event??
-            map.remove(urlText);
-          }
-          if (listeners != null) {
-            final int llength = listeners.length;
-            for (int i = 0; i < llength; i++) {
-              // Call holding no locks
-              listeners[i].imageAborted();
-            }
-          }
-        }
-      });
-
-        SecurityUtil.doPrivileged(() -> {
-          try {
-            httpRequest.open("GET", url, true);
-            httpRequest.send(null, new Request(url, RequestKind.Image));
-          } catch (final java.io.IOException thrown) {
-            logger.log(Level.WARNING, "loadImage()", thrown);
-          }
-          return null;
-        });
-      }
-    }
-    if (event != null) {
-      // Call holding no locks.
-      imageListener.imageLoaded(event);
     }
   }
 

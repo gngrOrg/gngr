@@ -22,10 +22,12 @@ package org.lobobrowser.context;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.clientlet.ClientletContext;
 import org.lobobrowser.clientlet.ClientletRequest;
 import org.lobobrowser.clientlet.ClientletResponse;
@@ -33,15 +35,12 @@ import org.lobobrowser.clientlet.ComponentContent;
 import org.lobobrowser.clientlet.ContentBuffer;
 import org.lobobrowser.io.ManagedStore;
 import org.lobobrowser.request.DomainValidation;
-import org.lobobrowser.request.SilentUserAgentContextImpl;
 import org.lobobrowser.request.UserAgentImpl;
 import org.lobobrowser.store.StorageManager;
 import org.lobobrowser.ua.NavigatorFrame;
 import org.lobobrowser.ua.NavigatorProgressEvent;
-import org.lobobrowser.ua.NetworkRequest;
 import org.lobobrowser.ua.ProgressType;
 import org.lobobrowser.ua.UserAgent;
-import org.lobobrowser.ua.UserAgentContext;
 
 public class ClientletContextImpl implements ClientletContext {
   private final NavigatorFrame frame;
@@ -162,7 +161,7 @@ public class ClientletContextImpl implements ClientletContext {
     return this.frame.getProgressEvent();
   }
 
-  public void setProgressEvent(final ProgressType progressType, final int value, final int max, final java.net.URL url) {
+  public void setProgressEvent(final ProgressType progressType, final int value, final int max, final @NonNull URL url) {
     final ClientletResponse response = this.getResponse();
     final NavigatorFrame frame = this.getNavigatorFrame();
     final String method = response.getLastRequestMethod();
@@ -171,11 +170,6 @@ public class ClientletContextImpl implements ClientletContext {
 
   public void setProgressEvent(final NavigatorProgressEvent event) {
     this.getNavigatorFrame().setProgressEvent(event);
-  }
-
-  public NetworkRequest createNetworkRequest() {
-    final UserAgentContext uaContext = new SilentUserAgentContextImpl(frame);
-    return new NetworkRequestImpl(uaContext);
   }
 
   public void alert(final String message) {

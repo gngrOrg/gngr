@@ -22,6 +22,7 @@ package org.lobobrowser.request;
 
 import java.net.URL;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.clientlet.ClientletRequest;
 import org.lobobrowser.clientlet.Header;
 import org.lobobrowser.ua.ParameterInfo;
@@ -30,7 +31,7 @@ import org.lobobrowser.ua.UserAgent;
 
 public class ClientletRequestImpl implements ClientletRequest {
   private final String method;
-  private final URL url;
+  private final @NonNull URL url;
   private final ParameterInfo paramInfo;
   private final Header[] extraHeaders;
   private final boolean forNewWindow;
@@ -38,7 +39,7 @@ public class ClientletRequestImpl implements ClientletRequest {
   private final String altPostData;
   private final RequestType requestType;
 
-  public ClientletRequestImpl(final boolean forNewWindow, final URL url, final String method, final ParameterInfo paramInfo,
+  public ClientletRequestImpl(final boolean forNewWindow, final @NonNull URL url, final String method, final ParameterInfo paramInfo,
       final Header[] extraHeaders,
       final String referrer, final String altPostData, final RequestType requestType) {
     this.method = method;
@@ -51,20 +52,16 @@ public class ClientletRequestImpl implements ClientletRequest {
     this.requestType = requestType;
   }
 
-  public ClientletRequestImpl(final boolean forNewWindow, final URL url, final String method, final ParameterInfo paramInfo,
+  public ClientletRequestImpl(final boolean forNewWindow, final @NonNull URL url, final String method, final ParameterInfo paramInfo,
       final RequestType requestType) {
     this(forNewWindow, url, method, paramInfo, null, null, null, requestType);
   }
 
-  public ClientletRequestImpl(final URL url, final RequestType requestType) {
+  public ClientletRequestImpl(final @NonNull URL url, final RequestType requestType) {
     this(false, url, "GET", null, null, null, null, requestType);
   }
 
-  public ClientletRequestImpl(final boolean forNewWindow, final URL url, final RequestType requestType) {
-    this(forNewWindow, url, "GET", null, null, null, null, requestType);
-  }
-
-  public ClientletRequestImpl(final URL url, final String method, final String altPostData, final RequestType requestType) {
+  public ClientletRequestImpl(final @NonNull URL url, final String method, final String altPostData, final RequestType requestType) {
     this(false, url, method, null, null, null, altPostData, requestType);
   }
 
@@ -80,7 +77,7 @@ public class ClientletRequestImpl implements ClientletRequest {
     return this.paramInfo;
   }
 
-  public URL getRequestURL() {
+  public @NonNull URL getRequestURL() {
     return this.url;
   }
 

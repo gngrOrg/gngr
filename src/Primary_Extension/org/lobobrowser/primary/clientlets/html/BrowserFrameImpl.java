@@ -29,6 +29,7 @@ import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.html.BrowserFrame;
 import org.lobobrowser.html.HtmlRendererContext;
 import org.lobobrowser.ua.NavigatorFrame;
@@ -64,7 +65,7 @@ public class BrowserFrameImpl implements BrowserFrame {
     this.rcontext.setContentDocument(d);
   }
 
-  public void loadURL(final URL url) {
+  public void loadURL(final @NonNull URL url) {
     if (logger.isLoggable(Level.INFO)) {
       logger.info("loadURL(): frame=" + frame + ",url=" + url);
     }

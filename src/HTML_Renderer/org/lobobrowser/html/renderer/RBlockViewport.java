@@ -2288,7 +2288,7 @@ public class RBlockViewport extends BaseRCollection {
     public void layoutMarkup(final RBlockViewport bodyLayout, final HTMLElementImpl markupElement) {
       final JStyleProperties style = markupElement.getCurrentStyle();
       int currMethod = this.method;
-      if (style != null) {
+      {
         final String display = style.getDisplay();
         if (display != null) {
           if ("none".equalsIgnoreCase(display)) {

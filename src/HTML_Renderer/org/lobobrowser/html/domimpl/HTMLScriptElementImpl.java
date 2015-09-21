@@ -23,6 +23,8 @@
  */
 package org.lobobrowser.html.domimpl;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -139,17 +141,18 @@ public class HTMLScriptElementImpl extends HTMLElementImpl implements HTMLScript
     if (bcontext == null) {
       throw new IllegalStateException("No user agent context.");
     }
+    final Document docObj = this.document;
+    if (!(docObj instanceof HTMLDocumentImpl)) {
+      throw new IllegalStateException("no valid document");
+    }
+    final HTMLDocumentImpl doc = (HTMLDocumentImpl) docObj;
     if (bcontext.isScriptingEnabled()) {
       String text;
       final String scriptURI;
       int baseLineNumber;
       final String src = this.getSrc();
-      final Document doc = this.document;
-      if (!(doc instanceof HTMLDocumentImpl)) {
-        throw new IllegalStateException("no valid document");
-      }
       if (src == null) {
-        final Request request = new Request(((HTMLDocumentImpl) doc).getDocumentURL(), RequestKind.JavaScript);
+        final Request request = new Request(doc.getDocumentURL(), RequestKind.JavaScript);
         if (bcontext.isRequestPermitted(request)) {
           text = this.getText();
           scriptURI = doc.getBaseURI();
@@ -161,31 +164,35 @@ public class HTMLScriptElementImpl extends HTMLElementImpl implements HTMLScript
         }
       } else {
         this.informExternalScriptLoading();
-        final java.net.URL scriptURL = ((HTMLDocumentImpl) doc).getFullURL(src);
-        scriptURI = scriptURL == null ? src : scriptURL.toExternalForm();
-        // Perform a synchronous request
-        final NetworkRequest request = bcontext.createHttpRequest();
-        SecurityUtil.doPrivileged(() -> {
-          // Code might have restrictions on accessing
-          // items from elsewhere.
-          try {
-             request.open("GET", scriptURI, false);
-             request.send(null, new Request(scriptURL, RequestKind.JavaScript));
-          } catch (final java.io.IOException thrown) {
-            logger.log(Level.WARNING, "processScript()", thrown);
+        try {
+          final URL scriptURL = doc.getFullURL(src);
+          scriptURI = scriptURL.toExternalForm();
+          // Perform a synchronous request
+          final NetworkRequest request = bcontext.createHttpRequest();
+          SecurityUtil.doPrivileged(() -> {
+            // Code might have restrictions on accessing
+            // items from elsewhere.
+            try {
+              request.open("GET", scriptURI, false);
+              request.send(null, new Request(scriptURL, RequestKind.JavaScript));
+            } catch (final java.io.IOException thrown) {
+              logger.log(Level.WARNING, "processScript()", thrown);
+            }
+            return null;
+          });
+          final int status = request.getStatus();
+          if ((status != 200) && (status != 0)) {
+            this.warn("Script at [" + scriptURI + "] failed to load; HTTP status: " + status + ".");
+            return;
           }
-          return null;
-        });
-        final int status = request.getStatus();
-        if ((status != 200) && (status != 0)) {
-          this.warn("Script at [" + scriptURI + "] failed to load; HTTP status: " + status + ".");
-          return;
+          text = request.getResponseText();
+          baseLineNumber = 1;
+        } catch (final MalformedURLException mfe) {
+          throw new IllegalArgumentException(mfe);
         }
-        text = request.getResponseText();
-        baseLineNumber = 1;
       }
 
-      final Window window = ((HTMLDocumentImpl) doc).getWindow();
+      final Window window = doc.getWindow();
       if (text != null) {
         final String textSub = text.substring(0, Math.min(50, text.length())).replaceAll("\n", "");
         window.addJSTaskUnchecked(new JSRunnableTask(0, "script: " + textSub, new Runnable() {
@@ -209,15 +216,15 @@ public class HTMLScriptElementImpl extends HTMLElementImpl implements HTMLScript
               }
             } finally {
               Context.exit();
-              ((HTMLDocumentImpl) HTMLScriptElementImpl.this.document).markJobsFinished(1, false);
+              doc.markJobsFinished(1, false);
             }
           }
         }));
       } else {
-        ((HTMLDocumentImpl) HTMLScriptElementImpl.this.document).markJobsFinished(1, false);
+        doc.markJobsFinished(1, false);
       }
     } else {
-      ((HTMLDocumentImpl) HTMLScriptElementImpl.this.document).markJobsFinished(1, false);
+      doc.markJobsFinished(1, false);
     }
   }
 

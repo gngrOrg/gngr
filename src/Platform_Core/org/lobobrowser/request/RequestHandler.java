@@ -27,6 +27,7 @@ import java.util.Optional;
 
 import javax.net.ssl.HostnameVerifier;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.clientlet.ClientletException;
 import org.lobobrowser.clientlet.ClientletRequest;
 import org.lobobrowser.clientlet.ClientletResponse;
@@ -41,7 +42,7 @@ public interface RequestHandler {
    * Gets the actual request URL, which may be different from the URL of the
    * original request.
    */
-  public URL getLatestRequestURL();
+  public @NonNull URL getLatestRequestURL();
 
   /**
    * Gets the actual request method, which may be different from the method of
@@ -61,7 +62,7 @@ public interface RequestHandler {
 
   public boolean handleException(ClientletResponse response, Throwable exception, RequestType requestType) throws ClientletException;
 
-  public void handleProgress(ProgressType progressType, java.net.URL url, String method, int value, int max);
+  public void handleProgress(ProgressType progressType, @NonNull URL url, String method, int value, int max);
 
   public void cancel();
 

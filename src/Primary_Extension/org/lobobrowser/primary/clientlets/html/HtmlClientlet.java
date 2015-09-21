@@ -38,6 +38,7 @@ import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.clientlet.Clientlet;
 import org.lobobrowser.clientlet.ClientletContext;
 import org.lobobrowser.clientlet.ClientletException;
@@ -184,13 +185,12 @@ public final class HtmlClientlet implements Clientlet {
       if (refresh != null) {
         final String destUri = refresh.destinationUrl;
         final java.net.URL currentURL = response.getResponseURL();
-        java.net.URL destURL;
+        @NonNull URL destURL;
         if (destUri == null) {
           destURL = currentURL;
         } else {
           destURL = Urls.createURL(currentURL, destUri);
         }
-        final java.net.URL finalURL = destURL;
         final java.awt.event.ActionListener action = new java.awt.event.ActionListener() {
           public void actionPerformed(final ActionEvent e) {
             final NavigatorFrame frame = cc.getNavigatorFrame();
@@ -198,7 +198,7 @@ public final class HtmlClientlet implements Clientlet {
               // Navigate only if the original document is there.
               // TODO: Address bar shouldn't change if it's being edited.
               // TODO: A nagivation action should cancel this altogether.
-              frame.navigate(finalURL, RequestType.PROGRAMMATIC);
+              frame.navigate(destURL, RequestType.PROGRAMMATIC);
             }
           }
         };

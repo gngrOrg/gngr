@@ -31,12 +31,14 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.ImageObserver;
+import java.net.URL;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.function.Function;
 import java.util.logging.Level;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.html.domimpl.HTMLDocumentImpl;
 import org.lobobrowser.html.domimpl.HTMLElementImpl;
 import org.lobobrowser.html.domimpl.ModelNode;
@@ -540,7 +542,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
     return changes;
   }
 
-  protected void loadBackgroundImage(final java.net.URL imageURL) {
+  protected void loadBackgroundImage(final @NonNull URL imageURL) {
     final UserAgentContext ctx = this.userAgentContext;
     if (ctx != null) {
       final NetworkRequest request = ctx.createHttpRequest();
