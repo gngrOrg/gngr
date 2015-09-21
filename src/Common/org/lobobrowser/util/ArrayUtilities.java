@@ -130,7 +130,7 @@ public class ArrayUtilities {
 
   public static <T> boolean contains(final T[] ts, final T t) {
     for (final T e: ts) {
-      if (Objects.equals(e, t)) {
+      if (java.util.Objects.equals(e, t)) {
         return true;
       }
     }

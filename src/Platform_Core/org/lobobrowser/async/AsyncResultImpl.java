@@ -156,7 +156,7 @@ public class AsyncResultImpl<TResult> implements AsyncResult<TResult> {
         return false;
       }
       final EventListenerWrapper<?> elw = (EventListenerWrapper<?>) other;
-      return Objects.equals(elw.listener, this.listener);
+      return java.util.Objects.equals(elw.listener, this.listener);
     }
 
     @Override

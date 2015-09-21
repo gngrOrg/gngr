@@ -53,7 +53,7 @@ public class ParentFloatingBoundsSource implements FloatingBoundsSource {
     final ParentFloatingBoundsSource other = (ParentFloatingBoundsSource) obj;
     return (this.blockShiftRight == other.blockShiftRight) && (this.expectedBlockWidth == other.expectedBlockWidth)
         && (this.newX == other.newX)
-        && (this.newY == other.newY) && Objects.equals(this.floatBounds, other.floatBounds);
+        && (this.newY == other.newY) && java.util.Objects.equals(this.floatBounds, other.floatBounds);
 
   }
 

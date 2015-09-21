@@ -278,7 +278,7 @@ public class FontFactory {
       // so we can do instance comparisons.
       return (this.fontSize == ors.fontSize) && (this.fontFamily == ors.fontFamily) && (this.fontStyle == ors.fontStyle)
           && (this.fontWeight == ors.fontWeight) && (this.fontVariant == ors.fontVariant) && (this.superscript == ors.superscript)
-          && Objects.equals(this.locales, ors.locales);
+          && java.util.Objects.equals(this.locales, ors.locales);
     }
 
     private int cachedHash = -1;

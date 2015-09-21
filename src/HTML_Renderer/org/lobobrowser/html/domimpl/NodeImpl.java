@@ -965,9 +965,9 @@ public abstract class NodeImpl extends AbstractScriptableDelegate implements Nod
   }
 
   public boolean isEqualNode(final Node arg) {
-    return (arg instanceof NodeImpl) && (this.getNodeType() == arg.getNodeType()) && Objects.equals(this.getNodeName(), arg.getNodeName())
-        && Objects.equals(this.getNodeValue(), arg.getNodeValue()) && Objects.equals(this.getLocalName(), arg.getLocalName())
-        && Objects.equals(this.nodeList, ((NodeImpl) arg).nodeList) && this.equalAttributes(arg);
+    return (arg instanceof NodeImpl) && (this.getNodeType() == arg.getNodeType()) && java.util.Objects.equals(this.getNodeName(), arg.getNodeName())
+        && java.util.Objects.equals(this.getNodeValue(), arg.getNodeValue()) && java.util.Objects.equals(this.getLocalName(), arg.getLocalName())
+        && java.util.Objects.equals(this.nodeList, ((NodeImpl) arg).nodeList) && this.equalAttributes(arg);
   }
 
   public boolean isDefaultNamespace(final String namespaceURI) {

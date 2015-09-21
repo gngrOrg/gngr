@@ -50,7 +50,7 @@ class LineMargin {
       return false;
     }
     final LineMargin olm = (LineMargin) other;
-    return (olm.clearX == this.clearX) && (olm.clearY == this.clearY) && org.lobobrowser.util.Objects.equals(olm.next, this.next);
+    return (olm.clearX == this.clearX) && (olm.clearY == this.clearY) && java.util.Objects.equals(olm.next, this.next);
   }
 
   public LineMargin translated(final int yoffset, final int xoffset) {

@@ -241,7 +241,7 @@ class RUIControl extends BaseElementRenderable {
     if (sizeOnly) {
       layoutValue = cachedLayout.get(layoutKey);
     } else {
-      if (Objects.equals(this.lastLayoutKey, layoutKey)) {
+      if (java.util.Objects.equals(this.lastLayoutKey, layoutKey)) {
         layoutValue = this.lastLayoutValue;
       } else {
         layoutValue = null;
@@ -403,7 +403,7 @@ class RUIControl extends BaseElementRenderable {
       }
       final LayoutKey other = (LayoutKey) obj;
       return (other.availWidth == this.availWidth) && (other.availHeight == this.availHeight) && (other.whitespace == this.whitespace)
-          && Objects.equals(other.font, this.font);
+          && java.util.Objects.equals(other.font, this.font);
     }
 
     @Override

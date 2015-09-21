@@ -502,7 +502,7 @@ public class BrowserPanel extends JPanel implements NavigatorWindow, BrowserWind
   public void setStatus(final NavigatorFrame frame, final String value) {
     String actualStatus;
     synchronized (this) {
-      if (!Objects.equals(this.status, value)) {
+      if (!java.util.Objects.equals(this.status, value)) {
         this.status = value;
         actualStatus = value == null ? this.defaultStatus : value;
         final NavigatorWindowEvent event = new NavigatorWindowEvent(this, NavigatorEventType.STATUS_UPDATED, frame, actualStatus,

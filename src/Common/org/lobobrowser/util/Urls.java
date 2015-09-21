@@ -212,9 +212,9 @@ public class Urls {
    * @param url2
    */
   public static boolean sameNoRefURL(final URL url1, final URL url2) {
-    return Objects.equals(url1.getHost(), url2.getHost()) && Objects.equals(url1.getProtocol(), url2.getProtocol())
-        && (url1.getPort() == url2.getPort()) && Objects.equals(url1.getFile(), url2.getFile())
-        && Objects.equals(url1.getUserInfo(), url2.getUserInfo());
+    return java.util.Objects.equals(url1.getHost(), url2.getHost()) && java.util.Objects.equals(url1.getProtocol(), url2.getProtocol())
+        && (url1.getPort() == url2.getPort()) && java.util.Objects.equals(url1.getFile(), url2.getFile())
+        && java.util.Objects.equals(url1.getUserInfo(), url2.getUserInfo());
   }
 
   /**

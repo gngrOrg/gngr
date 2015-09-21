@@ -109,7 +109,7 @@ class RTable extends BaseElementRenderable {
     if (sizeOnly) {
       layoutValue = cachedLayout.get(layoutKey);
     } else {
-      if (Objects.equals(layoutKey, this.lastLayoutKey)) {
+      if (java.util.Objects.equals(layoutKey, this.lastLayoutKey)) {
         layoutValue = this.lastLayoutValue;
       } else {
         layoutValue = null;
@@ -405,7 +405,7 @@ class RTable extends BaseElementRenderable {
       }
       final LayoutKey other = (LayoutKey) obj;
       return (other.availWidth == this.availWidth) && (other.availHeight == this.availHeight) && (other.whitespace == this.whitespace)
-          && (other.overrideNoWrap == this.overrideNoWrap) && Objects.equals(other.font, this.font);
+          && (other.overrideNoWrap == this.overrideNoWrap) && java.util.Objects.equals(other.font, this.font);
     }
 
     @Override

@@ -1734,7 +1734,7 @@ public class RBlock extends BaseElementRenderable {
           && (other.defaultOverflowX == this.defaultOverflowX) && (other.defaultOverflowY == this.defaultOverflowY)
           && (other.whitespace == this.whitespace) && (other.expandWidth == this.expandWidth) && (other.expandHeight == this.expandHeight)
           && (other.useDeclaredSize == this.useDeclaredSize) && (other.overrideNoWrap == this.overrideNoWrap)
-          && Objects.equals(other.font, this.font) && Objects.equals(other.floatBoundsSource, this.floatBoundsSource);
+          && java.util.Objects.equals(other.font, this.font) && java.util.Objects.equals(other.floatBoundsSource, this.floatBoundsSource);
     }
 
     @Override

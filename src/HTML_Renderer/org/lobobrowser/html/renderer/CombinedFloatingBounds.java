@@ -67,7 +67,7 @@ class CombinedFloatingBounds implements FloatingBounds {
       return false;
     }
     final CombinedFloatingBounds other = (CombinedFloatingBounds) obj;
-    return Objects.equals(other.floatBounds1, this.floatBounds1) && Objects.equals(other.floatBounds2, this.floatBounds2);
+    return java.util.Objects.equals(other.floatBounds1, this.floatBounds1) && java.util.Objects.equals(other.floatBounds2, this.floatBounds2);
   }
 
   @Override

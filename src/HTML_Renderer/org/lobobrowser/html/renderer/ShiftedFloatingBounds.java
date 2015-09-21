@@ -83,7 +83,7 @@ class ShiftedFloatingBounds implements FloatingBounds {
     }
     final ShiftedFloatingBounds other = (ShiftedFloatingBounds) obj;
     return (this.shiftY == other.shiftY) && (this.shiftLeft == other.shiftLeft) && (this.shiftRight == other.shiftRight)
-        && Objects.equals(this.prevBounds, other.prevBounds);
+        && java.util.Objects.equals(this.prevBounds, other.prevBounds);
   }
 
   @Override

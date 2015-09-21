@@ -26,15 +26,11 @@ package org.lobobrowser.util;
 /**
  * @author J. H. S.
  */
-public class Objects {
+public final class Objects {
   /**
    *
    */
   private Objects() {
-  }
-
-  public static boolean equals(final Object obj1, final Object obj2) {
-    return obj1 == null ? (obj2 == null) : (obj1.equals(obj2));
   }
 
   public static boolean isBoxClass(final Class<?> clazz) {

@@ -98,7 +98,7 @@ public class ElementImpl extends NodeImpl implements Element, EventTarget {
         if (attrs2 == null) {
           attrs2 = Collections.emptyMap();
         }
-        return Objects.equals(attrs1, attrs2);
+        return java.util.Objects.equals(attrs1, attrs2);
       }
     } else {
       return false;
@@ -534,7 +534,7 @@ public class ElementImpl extends NodeImpl implements Element, EventTarget {
   }
 
   private void updateIdMap(final String oldIdValue, final String newIdValue) {
-    if (isAttachedToDocument() && !Objects.equals(oldIdValue, newIdValue)) {
+    if (isAttachedToDocument() && !java.util.Objects.equals(oldIdValue, newIdValue)) {
       if (oldIdValue != null) {
         ((HTMLDocumentImpl) document).removeElementById(oldIdValue);
       }

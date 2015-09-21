@@ -163,7 +163,7 @@ class FloatingViewportBounds implements FloatingBounds {
     final FloatingViewportBounds olm = (FloatingViewportBounds) other;
     return (olm.leftFloat == this.leftFloat) && (olm.y == this.y) && (olm.height == this.height)
         && (olm.offsetFromBorder == this.offsetFromBorder)
-        && org.lobobrowser.util.Objects.equals(olm.prevBounds, this.prevBounds);
+        && java.util.Objects.equals(olm.prevBounds, this.prevBounds);
   }
 
   @Override
