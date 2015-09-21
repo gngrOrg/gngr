@@ -180,8 +180,6 @@ public class TableCellRenderState extends DisplayRenderState {
     return (HTMLTableElement) ancestor;
   }
 
-  private HtmlInsets paddingInsets = INVALID_INSETS;
-
   @Override
   public HtmlInsets getPaddingInsets() {
     HtmlInsets insets = this.paddingInsets;
