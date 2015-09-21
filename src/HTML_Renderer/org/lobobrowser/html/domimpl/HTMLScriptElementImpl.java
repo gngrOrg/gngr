@@ -27,7 +27,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.lobobrowser.html.js.Executor;
 import org.lobobrowser.html.js.Window;
@@ -43,8 +42,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.html.HTMLScriptElement;
 
 public class HTMLScriptElementImpl extends HTMLElementImpl implements HTMLScriptElement {
-  private static final Logger logger = Logger.getLogger(HTMLScriptElementImpl.class.getName());
-
   public HTMLScriptElementImpl() {
     super("SCRIPT", true);
   }
