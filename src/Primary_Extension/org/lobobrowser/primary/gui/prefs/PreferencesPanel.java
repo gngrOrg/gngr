@@ -29,7 +29,7 @@ import org.lobobrowser.primary.gui.ValidationException;
 import org.lobobrowser.util.gui.WrapperLayout;
 
 public class PreferencesPanel extends JPanel {
-  private AbstractSettingsUI ui;
+  private AbstractSettingsUI settingsUI;
 
   public PreferencesPanel() {
     this.setLayout(WrapperLayout.getInstance());
@@ -37,7 +37,7 @@ public class PreferencesPanel extends JPanel {
   }
 
   public boolean save() {
-    final AbstractSettingsUI ui = this.ui;
+    final AbstractSettingsUI ui = this.settingsUI;
     if (ui != null) {
       try {
         ui.save();
@@ -50,14 +50,14 @@ public class PreferencesPanel extends JPanel {
   }
 
   public void restoreDefaults() {
-    final AbstractSettingsUI ui = this.ui;
+    final AbstractSettingsUI ui = this.settingsUI;
     if (ui != null) {
       ui.restoreDefaults();
     }
   }
 
   public void setSettingsUI(final AbstractSettingsUI ui) {
-    this.ui = ui;
+    this.settingsUI = ui;
     this.removeAll();
     if (ui != null) {
       this.add(ui);

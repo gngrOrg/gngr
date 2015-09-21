@@ -27,7 +27,7 @@ public class PermissionCellButton extends JButton implements MouseMotionListener
 
   private final PermissionCell cell;
   private PermissionResult permissionResult;
-  private final ChangeListener changeListener;
+  private final ChangeListener cellChangeListener;
   private final boolean canBeUndecidable;
 
   private static final int BORDER_PADDING = 2;
@@ -55,7 +55,7 @@ public class PermissionCellButton extends JButton implements MouseMotionListener
     super(text);
     this.cell = cell;
     this.canBeUndecidable = cell.canBeUndecidable;
-    this.changeListener = changeListener;
+    this.cellChangeListener = changeListener;
 
     // final Border defaultBorder = getBorder();
     final Insets marginInsets = getMargin();
@@ -161,7 +161,7 @@ public class PermissionCellButton extends JButton implements MouseMotionListener
           cell.setPermission(Permission.Allow);
         }
       }
-      changeListener.onChange();
+      cellChangeListener.onChange();
     } else {
       // System.out.println("Mouse event:" + e);
     }
