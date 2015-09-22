@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.eclipse.jdt.annotation.Nullable;
 import org.lobobrowser.util.ArrayUtilities;
 
 public abstract class BaseHistory<T> implements java.io.Serializable {
@@ -183,7 +184,7 @@ public abstract class BaseHistory<T> implements java.io.Serializable {
     }
   }
 
-  public T getExistingInfo(final String item) {
+  public @Nullable T getExistingInfo(final String item) {
     final TimedEntry entry = this.historyMap.get(item);
     return entry == null ? null : entry.itemInfo;
   }

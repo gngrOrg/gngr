@@ -37,6 +37,8 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.border.EmptyBorder;
 
+import org.eclipse.jdt.annotation.Nullable;
+
 public class ItemEditorDialog<T> extends JDialog {
   private final JLabel captionLabel = new JLabel();
   private final JButton okButton = new JButton();
@@ -97,9 +99,9 @@ public class ItemEditorDialog<T> extends JDialog {
     return panel;
   }
 
-  private T resultingItem;
+  private @Nullable T resultingItem;
 
-  public T getResultingItem() {
+  public @Nullable T getResultingItem() {
     return this.resultingItem;
   }
 

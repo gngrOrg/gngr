@@ -34,6 +34,8 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 
+import org.eclipse.jdt.annotation.Nullable;
+
 public class ItemListControl<T> extends JComponent {
   private final JComboBox<T> comboBox;
   private final ItemEditorFactory<T> itemEditorFactory;
@@ -145,7 +147,7 @@ public class ItemListControl<T> extends JComponent {
         dialog.setItem(getSelectedItem());
       }
       dialog.setVisible(true);
-      final T item = dialog.getResultingItem();
+      final @Nullable T item = dialog.getResultingItem();
       if (item != null) {
         if (this.add) {
           addItem(item);
