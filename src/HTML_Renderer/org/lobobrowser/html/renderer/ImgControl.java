@@ -26,8 +26,11 @@ package org.lobobrowser.html.renderer;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Insets;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 
 import org.lobobrowser.html.domimpl.HTMLElementImpl;
@@ -50,16 +53,26 @@ class ImgControl extends BaseControl implements ImageListener {
   @Override
   public void paintComponent(final Graphics g) {
     super.paintComponent(g);
-    final Dimension size = this.getSize();
-    final Insets insets = this.getInsets();
-    synchronized (this) {
-      // TODO: Why is this empty
-    }
     final Image image = this.image;
     if (image != null) {
-      g.drawImage(image, insets.left, insets.top, size.width - insets.left - insets.right, size.height - insets.top - insets.bottom, this);
+      final Dimension size = this.getSize();
+      final Insets insets = this.getInsets();
+      final Graphics2D g2 = (Graphics2D) g;
+      final int width = size.width - insets.left - insets.right;
+      final int height = size.height - insets.top - insets.bottom;
+
+      final int imgWidth = image.getWidth(this);
+      final int imgHeight = image.getHeight(this);
+      if (width < imgWidth || height < imgHeight) {
+        // down-sampling needs better handling
+        final Image scaledImg = getScaledInstance(image, width, height, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+        g.drawImage(scaledImg, insets.left, insets.top, width, height, this);
+      } else {
+        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+        g.drawImage(image, insets.left, insets.top, width, height, this);
+      }
     } else {
-      // TODO: alt
+      // TODO: show alt text
     }
   }
 
@@ -228,5 +241,50 @@ class ImgControl extends BaseControl implements ImageListener {
   @Override
   public String toString() {
     return "ImgControl[src=" + this.lastSrc + "]";
+  }
+
+  // https://today.java.net/pub/a/today/2007/04/03/perils-of-image-getscaledinstance.html
+
+  // Adapted from: https://today.java.net/pub/a/today/2007/04/03/perils-of-image-getscaledinstance.html
+  /**
+   * Convenience method that returns a scaled instance of the provided {@code BufferedImage}.
+   *
+   * @param img the original image to be scaled
+   * @param targetWidth the desired width of the scaled instance, in pixels
+   * @param targetHeight the desired height of the scaled instance, in pixels
+   * @param hint one of the rendering hints that corresponds to {@code RenderingHints.KEY_INTERPOLATION}
+   * @return a scaled version of the original {@code BufferedImage}
+   */
+  private Image getScaledInstance(final Image img, final int targetWidth, final int targetHeight, final Object hint) {
+    final int type = BufferedImage.TYPE_INT_ARGB;
+    Image ret = img;
+    int w = img.getWidth(this);
+    int h = img.getHeight(this);
+
+    while (w != targetWidth || h != targetHeight) {
+      if (w > targetWidth) {
+        w /= 2;
+      }
+      if (w < targetWidth) {
+        w = targetWidth;
+      }
+
+      if (h > targetHeight) {
+        h /= 2;
+      }
+      if (h < targetHeight) {
+        h = targetHeight;
+      }
+
+      BufferedImage tmp = new BufferedImage(w, h, type);
+      Graphics2D g2 = tmp.createGraphics();
+      g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, hint);
+      g2.drawImage(ret, 0, 0, w, h, null);
+      g2.dispose();
+
+      ret = tmp;
+    }
+
+    return ret;
   }
 }
