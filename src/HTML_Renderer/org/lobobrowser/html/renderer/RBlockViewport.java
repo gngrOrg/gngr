@@ -41,6 +41,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.logging.Level;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.html.BrowserFrame;
 import org.lobobrowser.html.HtmlObject;
 import org.lobobrowser.html.HtmlRendererContext;
@@ -1700,11 +1701,11 @@ public class RBlockViewport extends BaseRCollection {
     // }
   }
 
-  private final void addPositionedRenderable(final BoundableRenderable renderable, final boolean verticalAlignable, final boolean isFloat, final boolean isFixed) {
+  private final void addPositionedRenderable(final @NonNull BoundableRenderable renderable, final boolean verticalAlignable, final boolean isFloat, final boolean isFixed) {
     addPositionedRenderable(renderable, verticalAlignable, isFloat, isFixed, false);
   }
 
-  private final void addPositionedRenderable(final BoundableRenderable renderable, final boolean verticalAlignable, final boolean isFloat, final boolean isFixed, final boolean isDelegated) {
+  private final void addPositionedRenderable(final @NonNull BoundableRenderable renderable, final boolean verticalAlignable, final boolean isFloat, final boolean isFixed, final boolean isDelegated) {
     // Expected to be called only in GUI thread.
     final PositionedRenderable pr = new PositionedRenderable(renderable, verticalAlignable, this.positionedOrdinal++, isFloat, isFixed, isDelegated);
     addPosRenderable(pr);

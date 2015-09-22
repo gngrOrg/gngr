@@ -22,6 +22,7 @@ package org.lobobrowser.html.renderer;
 
 import java.awt.Insets;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.html.style.HtmlValues;
 import org.lobobrowser.html.style.RenderState;
 
@@ -96,7 +97,7 @@ public class DelayedPair {
     return helperGetPixelSize(bottom, rs, 0, containingBlock.getInnerHeight());
   }
 
-  public BoundableRenderable positionPairChild() {
+  public @NonNull BoundableRenderable positionPairChild() {
     final RenderableContainer parent = this.containingBlock;
     if (isRelative) {
       ((RElement) child).setupRelativePosition(this.immediateContainingBlock);

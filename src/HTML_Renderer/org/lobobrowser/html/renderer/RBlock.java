@@ -38,6 +38,7 @@ import java.util.Iterator;
 
 import javax.swing.JScrollBar;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.html.HtmlRendererContext;
 import org.lobobrowser.html.domimpl.ModelNode;
 import org.lobobrowser.html.domimpl.NodeFilter;
@@ -1408,7 +1409,7 @@ public class RBlock extends BaseElementRenderable {
    *
    * @see org.xamjwg.html.renderer.RCollection#getRenderables()
    */
-  public Iterator<Renderable> getRenderables(final boolean topFirst) {
+  public Iterator<@NonNull Renderable> getRenderables(final boolean topFirst) {
     final RBlockViewport bodyLayout = this.bodyLayout;
     if (bodyLayout == null) {
       return CollectionUtilities.emptyIterator();
@@ -1809,7 +1810,7 @@ public class RBlock extends BaseElementRenderable {
         if (r instanceof RCollection) {
           final RCollection rCollection = (RCollection) r;
           if ((!condense) || !rCollection.isDelegated()) {
-            final Iterator<? extends Renderable> rnds = rCollection.getRenderables();
+            final Iterator<@NonNull ? extends Renderable> rnds = rCollection.getRenderables();
             if (rnds == null) {
               System.out.println(indentStr + selfIndentStr + " [empty]");
             } else {

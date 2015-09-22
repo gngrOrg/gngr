@@ -31,6 +31,9 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+
 /**
  * @author J. H. S.
  */
@@ -191,7 +194,7 @@ public class CollectionUtilities {
   }
 
   // Filter iterator adapted from an implementation found in http://erikras.com/2008/01/18/the-filter-pattern-java-conditional-abstraction-with-iterables/
-  public static <T> Iterator<T> filter(final Iterator<T> iterator, final FilterFunction<T> filterFunction) {
+  public static <@NonNull T> Iterator<T> filter(final Iterator<T> iterator, final FilterFunction<T> filterFunction) {
     return new FilterIterator<>(iterator, filterFunction);
   }
 
@@ -199,9 +202,9 @@ public class CollectionUtilities {
     public boolean passes(T object);
   }
 
-  public static class FilterIterator<T> implements Iterator<T> {
+  public static class FilterIterator<@NonNull T> implements Iterator<@NonNull T> {
     private final Iterator<T> iterator;
-    private T next;
+    private @Nullable T next;
     private final FilterFunction<T> filterFunction;
 
     private FilterIterator(final Iterator<T> iterator, final FilterFunction<T> filterFunction) {
@@ -215,11 +218,13 @@ public class CollectionUtilities {
     }
 
     public T next() {
-      if (next == null)
+      if (next != null) {
+        final T returnValue = next;
+        toNext();
+        return returnValue;
+      } else {
         throw new NoSuchElementException();
-      final T returnValue = next;
-      toNext();
-      return returnValue;
+      }
     }
 
     public void remove() {
@@ -230,7 +235,7 @@ public class CollectionUtilities {
       next = null;
       while (iterator.hasNext()) {
         final T item = iterator.next();
-        if (item != null && filterFunction.passes(item)) {
+        if (filterFunction.passes(item)) {
           next = item;
           break;
         }

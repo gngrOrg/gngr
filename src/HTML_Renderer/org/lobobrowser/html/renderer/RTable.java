@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.html.HtmlRendererContext;
 import org.lobobrowser.html.domimpl.HTMLElementImpl;
 import org.lobobrowser.html.domimpl.ModelNode;
@@ -50,7 +51,7 @@ class RTable extends BaseElementRenderable {
   private static final int MAX_CACHE_SIZE = 10;
   private final Map<LayoutKey, LayoutValue> cachedLayout = new HashMap<>(5);
   private final TableMatrix tableMatrix;
-  private SortedSet<PositionedRenderable> positionedRenderables;
+  private SortedSet<@NonNull PositionedRenderable> positionedRenderables;
   private int otherOrdinal;
   private LayoutKey lastLayoutKey = null;
   private LayoutValue lastLayoutValue = null;
@@ -315,17 +316,17 @@ class RTable extends BaseElementRenderable {
    *
    * @see org.xamjwg.html.renderer.RCollection#getRenderables()
    */
-  public Iterator<Renderable> getRenderables(final boolean topFirst) {
-    final Collection<PositionedRenderable> prs = this.positionedRenderables;
+  public Iterator<@NonNull Renderable> getRenderables(final boolean topFirst) {
+    final Collection<@NonNull PositionedRenderable> prs = this.positionedRenderables;
     if (prs != null) {
-      final List<Renderable> c = new java.util.LinkedList<>();
-      final Iterator<PositionedRenderable> i = prs.iterator();
+      final List<@NonNull Renderable> c = new java.util.LinkedList<>();
+      final Iterator<@NonNull PositionedRenderable> i = prs.iterator();
       while (i.hasNext()) {
         final PositionedRenderable pr = i.next();
         final BoundableRenderable r = pr.renderable;
         c.add(r);
       }
-      final Iterator<Renderable> i2 = this.tableMatrix.getRenderables();
+      final Iterator<@NonNull Renderable> i2 = this.tableMatrix.getRenderables();
       while (i2.hasNext()) {
         c.add(i2.next());
       }
@@ -353,9 +354,9 @@ class RTable extends BaseElementRenderable {
     return this.container.getPaintedBackgroundColor();
   }
 
-  private final void addPositionedRenderable(final BoundableRenderable renderable, final boolean verticalAlignable, final boolean isFloat, final boolean isFixed) {
+  private final void addPositionedRenderable(final @NonNull BoundableRenderable renderable, final boolean verticalAlignable, final boolean isFloat, final boolean isFixed) {
     // Expected to be called only in GUI thread.
-    SortedSet<PositionedRenderable> others = this.positionedRenderables;
+    SortedSet<@NonNull PositionedRenderable> others = this.positionedRenderables;
     if (others == null) {
       others = new TreeSet<>(new ZIndexComparator());
       this.positionedRenderables = others;

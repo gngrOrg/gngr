@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.html.HtmlRendererContext;
 import org.lobobrowser.html.domimpl.HTMLElementImpl;
 import org.lobobrowser.html.domimpl.HTMLTableCellElementImpl;
@@ -52,7 +53,7 @@ class TableMatrix {
   // private static final NodeFilter ROWS_FILTER = new RowsFilter();
   private static final NodeFilter COLUMNS_FILTER = new ColumnsFilter();
   private final ArrayList<ArrayList<VirtualCell>> ROWS = new ArrayList<>();
-  private final ArrayList<Renderable> ALL_CELLS = new ArrayList<>();
+  private final ArrayList<@NonNull Renderable> ALL_CELLS = new ArrayList<>();
   private final ArrayList<HTMLTableRowElementImpl> ROW_ELEMENTS = new ArrayList<>();
   private final HTMLElementImpl tableElement;
   private final UserAgentContext parserContext;
@@ -1582,7 +1583,7 @@ class TableMatrix {
     return true;
   }
 
-  public Iterator<Renderable> getRenderables() {
+  public Iterator<@NonNull Renderable> getRenderables() {
     return this.ALL_CELLS.iterator();
   }
 

@@ -25,6 +25,7 @@ import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.util.Iterator;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.html.HtmlRendererContext;
 import org.lobobrowser.html.domimpl.HTMLElementImpl;
 import org.lobobrowser.html.domimpl.ModelNode;
@@ -32,7 +33,7 @@ import org.lobobrowser.ua.UserAgentContext;
 import org.lobobrowser.util.CollectionUtilities;
 
 public class RInlineBlock extends BaseElementRenderable {
-  private final RBlock child;
+  private final @NonNull RBlock child;
 
   public RInlineBlock(final RenderableContainer container, final HTMLElementImpl modelNode, final UserAgentContext uacontext,
       final HtmlRendererContext rendererContext, final FrameContext frameContext) {
@@ -48,8 +49,8 @@ public class RInlineBlock extends BaseElementRenderable {
     this.height = child.getHeight();
   }
 
-  public Iterator<? extends Renderable> getRenderables(final boolean topFirst) {
-    return CollectionUtilities.singletonIterator((Renderable) this.child);
+  public Iterator<@NonNull ? extends Renderable> getRenderables(final boolean topFirst) {
+    return CollectionUtilities.singletonIterator((@NonNull Renderable) this.child);
   }
 
   public RenderableSpot getLowestRenderableSpot(final int x, final int y) {
