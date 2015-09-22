@@ -20,8 +20,6 @@
  */
 package org.lobobrowser.html.renderer;
 
-import org.lobobrowser.util.Objects;
-
 public class ParentFloatingBoundsSource implements FloatingBoundsSource {
   private final int blockShiftRight;
   private final int expectedBlockWidth;

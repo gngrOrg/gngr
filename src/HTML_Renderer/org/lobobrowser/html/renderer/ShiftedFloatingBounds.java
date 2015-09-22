@@ -20,8 +20,6 @@
  */
 package org.lobobrowser.html.renderer;
 
-import org.lobobrowser.util.Objects;
-
 class ShiftedFloatingBounds implements FloatingBounds {
   private final FloatingBounds prevBounds;
   private final int shiftLeft;

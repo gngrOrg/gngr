@@ -28,7 +28,6 @@ import java.util.EventObject;
 
 import org.lobobrowser.util.EventDispatch;
 import org.lobobrowser.util.GenericEventListener;
-import org.lobobrowser.util.Objects;
 
 /**
  * @author J. H. S.

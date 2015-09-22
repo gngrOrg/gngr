@@ -61,7 +61,6 @@ import org.lobobrowser.ua.RequestType;
 import org.lobobrowser.ua.TargetType;
 import org.lobobrowser.ua.UserAgent;
 import org.lobobrowser.util.EventDispatch2;
-import org.lobobrowser.util.Objects;
 import org.lobobrowser.util.Urls;
 
 /**

@@ -31,7 +31,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.lobobrowser.util.Objects;
 import org.lobobrowser.util.Strings;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Comment;

@@ -20,8 +20,6 @@
  */
 package org.lobobrowser.html.renderer;
 
-import org.lobobrowser.util.Objects;
-
 class CombinedFloatingBounds implements FloatingBounds {
   private final FloatingBounds floatBounds1;
   private final FloatingBounds floatBounds2;

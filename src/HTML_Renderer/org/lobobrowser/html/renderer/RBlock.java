@@ -47,7 +47,6 @@ import org.lobobrowser.html.style.RenderState;
 import org.lobobrowser.html.style.RenderThreadState;
 import org.lobobrowser.ua.UserAgentContext;
 import org.lobobrowser.util.CollectionUtilities;
-import org.lobobrowser.util.Objects;
 import org.lobobrowser.util.Threads;
 import org.w3c.dom.Node;
 import org.w3c.dom.html.HTMLBodyElement;

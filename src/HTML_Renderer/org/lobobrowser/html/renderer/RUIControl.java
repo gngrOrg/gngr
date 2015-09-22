@@ -37,7 +37,6 @@ import org.lobobrowser.html.domimpl.NodeImpl;
 import org.lobobrowser.html.domimpl.UINode;
 import org.lobobrowser.html.style.RenderState;
 import org.lobobrowser.ua.UserAgentContext;
-import org.lobobrowser.util.Objects;
 
 /**
  * @author J. H. S.

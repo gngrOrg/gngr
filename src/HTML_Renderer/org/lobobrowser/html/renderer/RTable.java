@@ -45,7 +45,6 @@ import org.lobobrowser.html.domimpl.ModelNode;
 import org.lobobrowser.html.style.RenderState;
 import org.lobobrowser.html.style.RenderThreadState;
 import org.lobobrowser.ua.UserAgentContext;
-import org.lobobrowser.util.Objects;
 
 class RTable extends BaseElementRenderable {
   private static final int MAX_CACHE_SIZE = 10;

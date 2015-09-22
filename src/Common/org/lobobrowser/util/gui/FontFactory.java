@@ -38,7 +38,6 @@ import java.util.logging.Logger;
 
 import javax.swing.text.StyleContext;
 
-import org.lobobrowser.util.Objects;
 import org.lobobrowser.util.Strings;
 
 /** Note: Undocumented class? */

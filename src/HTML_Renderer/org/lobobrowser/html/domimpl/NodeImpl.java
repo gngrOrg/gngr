@@ -47,7 +47,6 @@ import org.lobobrowser.html.style.StyleSheetRenderState;
 import org.lobobrowser.js.AbstractScriptableDelegate;
 import org.lobobrowser.js.HideFromJS;
 import org.lobobrowser.ua.UserAgentContext;
-import org.lobobrowser.util.Objects;
 import org.lobobrowser.util.Strings;
 import org.lobobrowser.util.Urls;
 import org.mozilla.javascript.Function;
