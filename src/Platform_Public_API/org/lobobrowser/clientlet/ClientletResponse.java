@@ -202,7 +202,9 @@ public interface ClientletResponse {
    * <b>Note</b>: Most callers should only use the transient cached object if
    * {@link #isFromCache()} returns true.
    */
+  /* Commented because nothing is using it.
   public int getTransientCachedObjectSize();
+  */
 
   /**
    * Gets the value of the "Date" header. This method returns <code>null</code>

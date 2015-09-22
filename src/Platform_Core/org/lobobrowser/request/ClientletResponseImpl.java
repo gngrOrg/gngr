@@ -386,10 +386,11 @@ public class ClientletResponseImpl implements ClientletResponse {
     return cacheInfo == null ? null : cacheInfo.getTransientObject();
   }
 
+  /* Commented because nothing is using it. And it returns null for a primitive return type!
   public int getTransientCachedObjectSize() {
     final CacheInfo cacheInfo = this.cacheInfo;
     return cacheInfo == null ? null : cacheInfo.getTransientObjectSize();
-  }
+  }*/
 
   private Serializable newPeristentCachedObject;
   private Object newTransientCachedObject;
