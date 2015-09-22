@@ -261,18 +261,18 @@ class HtmlController {
   }
 
   private static void setMouseOnMouseOver(final BaseBoundableRenderable renderable, final ModelNode nodeStart, final ModelNode limit) {
-    {
-      ModelNode node = nodeStart;
-      while (node != null) {
-        if (node == limit) {
-          break;
-        }
-        if (node instanceof NodeImpl) {
-          final NodeImpl uiElement = (NodeImpl) node;
-          final HtmlRendererContext rcontext = uiElement.getHtmlRendererContext();
-          final RenderState rs = uiElement.getRenderState();
-          final Optional<Cursor> cursorOpt = rs.getCursor();
-          if (cursorOpt.isPresent() && (rcontext != null)) {
+    ModelNode node = nodeStart;
+    while (node != null) {
+      if (node == limit) {
+        break;
+      }
+      if (node instanceof NodeImpl) {
+        final NodeImpl uiElement = (NodeImpl) node;
+        final HtmlRendererContext rcontext = uiElement.getHtmlRendererContext();
+        final RenderState rs = uiElement.getRenderState();
+        final Optional<Cursor> cursorOpt = rs.getCursor();
+        if (rcontext != null) {
+          if (cursorOpt.isPresent()) {
             rcontext.setCursor(cursorOpt);
             break;
           } else {
@@ -283,9 +283,8 @@ class HtmlController {
             }
           }
         }
-        node = node.getParentModelNode();
       }
-
+      node = node.getParentModelNode();
     }
   }
 
