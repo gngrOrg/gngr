@@ -477,7 +477,7 @@ public abstract class NodeImpl extends AbstractScriptableDelegate implements Nod
   }
 
   // TODO: Use this wherever nodeList needs to be non empty
-  private ArrayList<Node> getNonEmptyNodeList() {
+  private @NonNull ArrayList<Node> getNonEmptyNodeList() {
     ArrayList<Node> nl = this.nodeList;
     if (nl == null) {
       nl = new ArrayList<>();
