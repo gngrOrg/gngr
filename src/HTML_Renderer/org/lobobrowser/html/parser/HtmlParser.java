@@ -847,7 +847,7 @@ public class HtmlParser {
           try {
             if (!this.justReadTagEnd) {
               while (this.readAttribute(reader, element)) {
-                ;
+                // EMPTY LOOP
               }
             }
             if ((stopTags != null) && stopTags.contains(normalTag)) {

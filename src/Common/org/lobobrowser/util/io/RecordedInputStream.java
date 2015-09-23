@@ -164,7 +164,7 @@ public class RecordedInputStream extends InputStream {
   public void consumeToEOF() throws IOException {
     final byte[] buffer = new byte[8192];
     while (this.read(buffer) != -1) {
-      ;
+      // EMPTY LOOP
     }
   }
 
