@@ -82,7 +82,7 @@ public abstract class SimpleRequestHandler implements RequestHandler {
     return this.request.getMethod();
   }
 
-  public URL getLatestRequestURL() {
+  public @NonNull URL getLatestRequestURL() {
     return this.request.getRequestURL();
   }
 

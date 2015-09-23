@@ -43,7 +43,7 @@ import org.lobobrowser.ua.UserAgentContext;
  */
 public class RedirectRequestHandler implements RequestHandler {
   private final RequestHandler origHandler;
-  private final URL latestRequestURL;
+  private final @NonNull URL latestRequestURL;
 
   @Override
   public UserAgentContext getContext() {
@@ -100,7 +100,7 @@ public class RedirectRequestHandler implements RequestHandler {
    *
    * @see net.sourceforge.xamj.http.RequestHandler#getLatestRequestURL()
    */
-  public URL getLatestRequestURL() {
+  public @NonNull URL getLatestRequestURL() {
     return this.latestRequestURL;
   }
 
