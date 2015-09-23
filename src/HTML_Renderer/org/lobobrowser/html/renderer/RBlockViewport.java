@@ -676,7 +676,7 @@ public class RBlockViewport extends BaseRCollection {
   }
 
   /* This is used to bubble up relative elements (on the z-axis) */
-  private boolean bubbleUpIfRelative(final HTMLElementImpl markupElement, final RElement renderable) {
+  private boolean bubbleUpIfRelative(final HTMLElementImpl markupElement, final @NonNull RElement renderable) {
     final int position = getPosition(markupElement);
     final boolean isRelative = position == RenderState.POSITION_RELATIVE;
     if (isRelative) {
@@ -692,7 +692,7 @@ public class RBlockViewport extends BaseRCollection {
     return false;
   }
 
-  private final void positionRElement(final HTMLElementImpl markupElement, final RElement renderable, final boolean usesAlignAttribute,
+  private final void positionRElement(final HTMLElementImpl markupElement, final @NonNull RElement renderable, final boolean usesAlignAttribute,
       final boolean obeysFloats,
       final boolean alignCenterAttribute) {
     if (!this.addElsewhereIfPositioned(renderable, markupElement, usesAlignAttribute, true, true)) {
@@ -892,7 +892,7 @@ public class RBlockViewport extends BaseRCollection {
    * @param usesAlignAttribute
    * @return True if it was added elsewhere.
    */
-  private boolean addElsewhereIfPositioned(final RElement renderable, final HTMLElementImpl element, final boolean usesAlignAttribute,
+  private boolean addElsewhereIfPositioned(final @NonNull RElement renderable, final HTMLElementImpl element, final boolean usesAlignAttribute,
       final boolean layoutIfPositioned, final boolean obeysFloats) {
     // At this point block already has bounds.
     final JStyleProperties style = element.getCurrentStyle();
@@ -933,7 +933,7 @@ public class RBlockViewport extends BaseRCollection {
   /**
    * Checks property 'float' and in some cases attribute 'align'.
    */
-  private void addRenderableToLineCheckStyle(final RElement renderable, final HTMLElementImpl element, final boolean usesAlignAttribute) {
+  private void addRenderableToLineCheckStyle(final @NonNull RElement renderable, final HTMLElementImpl element, final boolean usesAlignAttribute) {
     if (this.addElsewhereIfPositioned(renderable, element, usesAlignAttribute, true, true)) {
       return;
     }
@@ -1014,7 +1014,7 @@ public class RBlockViewport extends BaseRCollection {
     }
   }
 
-  private void addAsSeqBlockCheckStyle(final RElement block, final HTMLElementImpl element, final boolean usesAlignAttribute) {
+  private void addAsSeqBlockCheckStyle(final @NonNull RElement block, final HTMLElementImpl element, final boolean usesAlignAttribute) {
     if (this.addElsewhereIfPositioned(block, element, usesAlignAttribute, false, true)) {
       return;
     }
@@ -1621,7 +1621,7 @@ public class RBlockViewport extends BaseRCollection {
   /**
    * @param absolute    if true, then position is absolute, else fixed
    */
-  private void scheduleAbsDelayedPair(final BoundableRenderable renderable,
+  private void scheduleAbsDelayedPair(final @NonNull BoundableRenderable renderable,
       final String leftText, final String rightText, final String topText, final String bottomText,
       final String widthText, final String heightText,
       final RenderState rs, final int currX, final int currY, final boolean absolute) {

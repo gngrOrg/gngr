@@ -29,7 +29,7 @@ import org.lobobrowser.html.style.RenderState;
 public class DelayedPair {
   public final RenderableContainer containingBlock;
   private final RenderableContainer immediateContainingBlock;
-  public final BoundableRenderable child;
+  public final @NonNull BoundableRenderable child;
   private final String left;
   private final String top;
   private final String bottom;
@@ -45,7 +45,7 @@ public class DelayedPair {
   private boolean isAdded = false;
 
   public DelayedPair(final RenderableContainer immediateContainingBlock, final RenderableContainer containingBlock,
-      final BoundableRenderable child, final String left, final String right, final String top, final String bottom,
+      final @NonNull BoundableRenderable child, final String left, final String right, final String top, final String bottom,
       final String width, final String height,
       final RenderState rs,
       final int initX, final int initY, final int position) {
