@@ -25,6 +25,7 @@ package org.lobobrowser.html.domimpl;
 
 import java.util.ArrayList;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.html.FormInput;
 import org.lobobrowser.html.js.Event;
 import org.lobobrowser.html.js.NotGetterSetter;
@@ -43,19 +44,17 @@ public abstract class HTMLBaseInputElement extends HTMLAbstractUIElement {
   protected Boolean deferredReadonly;
   protected Boolean deferredDisabled;
 
-  public void setInputContext(final InputContext ic) {
+  public void setInputContext(final @NonNull InputContext ic) {
     String dv = null;
     Boolean defDisabled = null;
     Boolean defReadonly = null;
     Boolean defChecked = null;
     synchronized (this) {
       this.inputContext = ic;
-      if (ic != null) {
-        dv = this.deferredValue;
-        defDisabled = this.deferredDisabled;
-        defReadonly = this.deferredReadonly;
-        defChecked = this.deferredChecked;
-      }
+      dv = this.deferredValue;
+      defDisabled = this.deferredDisabled;
+      defReadonly = this.deferredReadonly;
+      defChecked = this.deferredChecked;
     }
     if (dv != null) {
       ic.setValue(dv);

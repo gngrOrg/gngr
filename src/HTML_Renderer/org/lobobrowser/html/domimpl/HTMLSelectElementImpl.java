@@ -2,6 +2,7 @@ package org.lobobrowser.html.domimpl;
 
 import java.util.ArrayList;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.html.FormInput;
 import org.mozilla.javascript.Function;
 import org.w3c.dom.DOMException;
@@ -155,11 +156,9 @@ public class HTMLSelectElementImpl extends HTMLBaseInputElement implements HTMLS
   }
 
   @Override
-  public void setInputContext(final InputContext ic) {
+  public void setInputContext(final @NonNull InputContext ic) {
     super.setInputContext(ic);
-    if (ic != null) {
-      ic.setSelectedIndex(this.deferredSelectedIndex);
-    }
+    ic.setSelectedIndex(this.deferredSelectedIndex);
   }
 
   private Function onchange;
