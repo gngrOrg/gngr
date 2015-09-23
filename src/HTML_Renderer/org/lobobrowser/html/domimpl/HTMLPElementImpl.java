@@ -1,5 +1,6 @@
 package org.lobobrowser.html.domimpl;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.html.style.ParagraphRenderState;
 import org.lobobrowser.html.style.RenderState;
 import org.w3c.dom.html.HTMLParagraphElement;
@@ -44,7 +45,7 @@ public class HTMLPElementImpl extends HTMLAbstractUIElement implements HTMLParag
   }
 
   @Override
-  protected RenderState createRenderState(final RenderState prevRenderState) {
+  protected @NonNull RenderState createRenderState(final RenderState prevRenderState) {
     return new ParagraphRenderState(prevRenderState, this);
   }
 }

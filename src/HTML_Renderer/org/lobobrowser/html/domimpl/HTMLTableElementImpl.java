@@ -25,6 +25,7 @@ package org.lobobrowser.html.domimpl;
 
 import java.util.ArrayList;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.html.js.PropertyName;
 import org.lobobrowser.html.style.HtmlLength;
 import org.lobobrowser.html.style.HtmlValues;
@@ -284,7 +285,7 @@ public class HTMLTableElementImpl extends HTMLAbstractUIElement implements HTMLT
   }
 
   @Override
-  protected RenderState createRenderState(final RenderState prevRenderState) {
+  protected @NonNull RenderState createRenderState(final RenderState prevRenderState) {
     return new TableRenderState(prevRenderState, this);
   }
 }

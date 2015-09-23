@@ -23,6 +23,7 @@
  */
 package org.lobobrowser.html.domimpl;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.html.style.BodyRenderState;
 import org.lobobrowser.html.style.RenderState;
 import org.mozilla.javascript.Function;
@@ -100,7 +101,7 @@ public class HTMLBodyElementImpl extends HTMLAbstractUIElement implements HTMLBo
   }
 
   @Override
-  protected RenderState createRenderState(final RenderState prevRenderState) {
+  protected @NonNull RenderState createRenderState(final RenderState prevRenderState) {
     return new BodyRenderState(prevRenderState, this);
   }
 

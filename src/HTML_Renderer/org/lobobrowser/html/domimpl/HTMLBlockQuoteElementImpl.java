@@ -20,6 +20,7 @@
  */
 package org.lobobrowser.html.domimpl;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.html.style.BlockQuoteRenderState;
 import org.lobobrowser.html.style.RenderState;
 
@@ -29,7 +30,7 @@ public class HTMLBlockQuoteElementImpl extends HTMLAbstractUIElement {
   }
 
   @Override
-  protected RenderState createRenderState(final RenderState prevRenderState) {
+  protected @NonNull RenderState createRenderState(final RenderState prevRenderState) {
     return new BlockQuoteRenderState(prevRenderState, this);
   }
 }

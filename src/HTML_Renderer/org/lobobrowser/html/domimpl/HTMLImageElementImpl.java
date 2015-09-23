@@ -25,6 +25,7 @@ package org.lobobrowser.html.domimpl;
 
 import java.util.ArrayList;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.html.js.Executor;
 import org.lobobrowser.html.js.Window;
 import org.lobobrowser.html.style.ImageRenderState;
@@ -289,7 +290,7 @@ public class HTMLImageElementImpl extends HTMLAbstractUIElement implements HTMLI
   }
 
   @Override
-  protected RenderState createRenderState(final RenderState prevRenderState) {
+  protected @NonNull RenderState createRenderState(final RenderState prevRenderState) {
     return new ImageRenderState(prevRenderState, this);
   }
 

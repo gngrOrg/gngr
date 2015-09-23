@@ -20,6 +20,7 @@
  */
 package org.lobobrowser.html.domimpl;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.html.style.BaseFontRenderState;
 import org.lobobrowser.html.style.HtmlValues;
 import org.lobobrowser.html.style.RenderState;
@@ -55,7 +56,7 @@ public class HTMLBaseFontElementImpl extends HTMLAbstractUIElement implements HT
   }
 
   @Override
-  protected RenderState createRenderState(RenderState prevRenderState) {
+  protected @NonNull RenderState createRenderState(RenderState prevRenderState) {
     final String size = this.getAttribute("size");
     if (size != null) {
       final int fontNumber = HtmlValues.getFontNumberOldStyle(size, prevRenderState);

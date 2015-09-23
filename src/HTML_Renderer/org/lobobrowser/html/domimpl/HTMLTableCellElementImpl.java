@@ -23,6 +23,7 @@
  */
 package org.lobobrowser.html.domimpl;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.html.style.RenderState;
 import org.lobobrowser.html.style.TableCellRenderState;
 import org.w3c.dom.html.HTMLTableCellElement;
@@ -168,7 +169,7 @@ public class HTMLTableCellElementImpl extends HTMLAbstractUIElement implements H
   }
 
   @Override
-  protected RenderState createRenderState(final RenderState prevRenderState) {
+  protected @NonNull RenderState createRenderState(final RenderState prevRenderState) {
     return new TableCellRenderState(prevRenderState, this);
   }
 }

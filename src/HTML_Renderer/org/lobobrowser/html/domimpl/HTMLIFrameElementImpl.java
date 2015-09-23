@@ -2,6 +2,7 @@ package org.lobobrowser.html.domimpl;
 
 import java.net.URL;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.html.BrowserFrame;
 import org.lobobrowser.html.js.Event;
 import org.lobobrowser.html.js.Executor;
@@ -266,7 +267,7 @@ public class HTMLIFrameElementImpl extends HTMLAbstractUIElement implements HTML
   }
 
   @Override
-  protected RenderState createRenderState(final RenderState prevRenderState) {
+  protected @NonNull RenderState createRenderState(final RenderState prevRenderState) {
     return new IFrameRenderState(prevRenderState, this);
   }
 }
