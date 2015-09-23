@@ -703,6 +703,7 @@ public class HtmlValues {
     return result.toString();
   }
 
+  /*
   public static String getColorFromBackground(final String background) {
     final String[] backgroundParts = HtmlValues.splitCssValue(background);
     for (final String token : backgroundParts) {
@@ -712,6 +713,7 @@ public class HtmlValues {
     }
     return null;
   }
+  */
 
   public static boolean isLength(final String token) {
     if (token.endsWith("px") || token.endsWith("pt") || token.endsWith("pc") || token.endsWith("cm") || token.endsWith("mm")
