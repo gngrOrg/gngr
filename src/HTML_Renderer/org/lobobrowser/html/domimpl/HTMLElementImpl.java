@@ -68,17 +68,15 @@ import cz.vutbr.web.domassign.Analyzer.OrderedRule;
 import cz.vutbr.web.domassign.AnalyzerUtil;
 
 public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2PropertiesContext {
-  private final boolean noStyleSheet;
   private static final MatchConditionOnElements elementMatchCondition = new MatchConditionOnElements();
 
+  // TODO: noStyleSheet is not used. Consider removing.
   public HTMLElementImpl(final String name, final boolean noStyleSheet) {
     super(name);
-    this.noStyleSheet = noStyleSheet;
   }
 
   public HTMLElementImpl(final String name) {
     super(name);
-    this.noStyleSheet = false;
   }
 
   protected final void forgetLocalStyle() {
