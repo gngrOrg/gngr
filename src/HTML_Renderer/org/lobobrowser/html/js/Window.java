@@ -1001,8 +1001,8 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
 
   public void scrollBy(final int x, final int y) {
     final HtmlRendererContext rc = this.rcontext;
-    if (rcontext != null) {
-      rcontext.scrollBy(x, y);
+    if (rc != null) {
+      rc.scrollBy(x, y);
     }
   }
 
