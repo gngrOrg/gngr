@@ -1637,16 +1637,12 @@ public class RBlockViewport extends BaseRCollection {
     RenderableContainer c = container.getParentContainer();
     RenderableContainer prevC = container;
     for (;;) {
-      if (c instanceof RenderableContainer) {
-        final RenderableContainer newContainer = c.getParentContainer();
-        if (newContainer == null) {
-          break;
-        }
-        prevC = c;
-        c = newContainer;
-      } else {
+      final RenderableContainer newContainer = c.getParentContainer();
+      if (newContainer == null) {
         break;
       }
+      prevC = c;
+      c = newContainer;
     }
     return prevC;
   }
