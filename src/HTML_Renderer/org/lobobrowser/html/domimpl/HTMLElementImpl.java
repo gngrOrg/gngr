@@ -27,7 +27,6 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -57,7 +56,6 @@ import org.w3c.dom.html.HTMLElement;
 import org.w3c.dom.html.HTMLFormElement;
 import org.xml.sax.SAXException;
 
-import cz.vutbr.web.css.CSSProperty;
 import cz.vutbr.web.css.CombinedSelector;
 import cz.vutbr.web.css.MatchCondition;
 import cz.vutbr.web.css.NodeData;
@@ -65,7 +63,6 @@ import cz.vutbr.web.css.RuleSet;
 import cz.vutbr.web.css.Selector;
 import cz.vutbr.web.css.Selector.PseudoDeclaration;
 import cz.vutbr.web.css.StyleSheet;
-import cz.vutbr.web.css.Term;
 import cz.vutbr.web.csskit.MatchConditionOnElements;
 import cz.vutbr.web.domassign.Analyzer.OrderedRule;
 import cz.vutbr.web.domassign.AnalyzerUtil;
@@ -386,7 +383,7 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
     }
   }
 
-  // TODO: request this feature from upstream
+  /* Not required anymore
   private static boolean isSameNodeData(final NodeData a, final NodeData b) {
     final Collection<String> aProps = a.getPropertyNames();
     final Collection<String> bProps = b.getPropertyNames();
@@ -409,6 +406,7 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
     }
     return false;
   }
+  */
 
   // TODO: Cache the result of this
   private boolean hasHoverStyle() {
