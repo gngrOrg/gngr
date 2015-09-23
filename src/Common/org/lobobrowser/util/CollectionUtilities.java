@@ -159,6 +159,7 @@ public class CollectionUtilities {
     }
   };
 
+  @SuppressWarnings("unchecked")
   public static <T> Iterator<T> emptyIterator() {
     return (Iterator<T>) emptyIterator;
   }
