@@ -122,10 +122,6 @@ public class PositionedRenderable implements Renderable {
     }
   }
 
-  private Rectangle getRelativeBoundsx() {
-    return new Rectangle(0, 0, 200, 200);
-  }
-
   private Rectangle getRelativeBounds() {
     final RCollection origParent = this.renderable.getOriginalParent();
     RCollection current = origParent;
