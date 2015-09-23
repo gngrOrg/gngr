@@ -85,7 +85,7 @@ public class NavigatorWindowImpl implements NavigatorWindow, WindowCallback {
   private final Collection<Component> toolBars = new LinkedList<>();
 
   private volatile boolean launched = false;
-  private volatile boolean disposingProgressWindow = false;
+  // private volatile boolean disposingProgressWindow = false;
 
   private static volatile WindowFactory windowFactory = DefaultWindowFactory.getInstance();
 
