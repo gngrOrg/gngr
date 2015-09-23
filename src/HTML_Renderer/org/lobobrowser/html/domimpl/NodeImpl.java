@@ -74,7 +74,7 @@ import cz.vutbr.web.css.StyleSheet;
 // TODO: Implement org.w3c.dom.events.EventTarget ?
 public abstract class NodeImpl extends AbstractScriptableDelegate implements Node, ModelNode {
   private static final NodeImpl[] EMPTY_ARRAY = new NodeImpl[0];
-  private static final RenderState INVALID_RENDER_STATE = new StyleSheetRenderState(null);
+  private static final @NonNull RenderState BLANK_RENDER_STATE = new StyleSheetRenderState(null);
   protected static final Logger logger = Logger.getLogger(NodeImpl.class.getName());
   protected UINode uiNode;
   protected ArrayList<Node> nodeList;
@@ -1193,17 +1193,15 @@ public abstract class NodeImpl extends AbstractScriptableDelegate implements Nod
     }
   }
 
-  private RenderState renderState = INVALID_RENDER_STATE;
+  private RenderState renderState = null;
 
-  public RenderState getRenderState() {
+  public @NonNull RenderState getRenderState() {
     // Generally called from the GUI thread, except for
     // offset properties.
     synchronized (this.treeLock) {
       RenderState rs = this.renderState;
       rs = this.renderState;
-      // This is a workaround to null pointer exception
-      if (rs != INVALID_RENDER_STATE) {
-        // if (rs != INVALID_RENDER_STATE && rs != null) {
+      if (rs != null) {
         return rs;
       }
       final Object parent = this.parentNode;
@@ -1213,29 +1211,33 @@ public abstract class NodeImpl extends AbstractScriptableDelegate implements Nod
         this.renderState = rs;
         return rs;
       } else {
-        // Return null without caching.
         // Scenario is possible due to Javascript.
-        return INVALID_RENDER_STATE;
+        return BLANK_RENDER_STATE;
       }
     }
   }
 
-  protected final static RenderState getParentRenderState(final Object parent) {
+  private final static RenderState getParentRenderState(final Object parent) {
     if (parent instanceof NodeImpl) {
       return ((NodeImpl) parent).getRenderState();
     } else {
-      return INVALID_RENDER_STATE;
+      return null;
     }
   }
 
-  protected RenderState createRenderState(final RenderState prevRenderState) {
-    return prevRenderState;
+  // abstract protected RenderState createRenderState(final RenderState prevRenderState);
+  protected @NonNull RenderState createRenderState(final RenderState prevRenderState) {
+    if (prevRenderState == null) {
+      return BLANK_RENDER_STATE;
+    } else {
+      return prevRenderState;
+    }
   }
 
   protected void forgetRenderState() {
     synchronized (this.treeLock) {
-      if (this.renderState != INVALID_RENDER_STATE) {
-        this.renderState = INVALID_RENDER_STATE;
+      if (this.renderState != null) {
+        this.renderState = null;
         // Note that getRenderState() "validates"
         // ancestor states as well.
         final java.util.ArrayList<Node> nl = this.nodeList;

@@ -566,14 +566,11 @@ public class RBlockViewport extends BaseRCollection {
     // The difference with layoutChildren is that this
     // method checks for padding and margin insets.
     final RenderState rs = node.getRenderState();
-    Insets marginInsets = null;
-    Insets paddingInsets = null;
-    if (rs != null) {
-      final HtmlInsets mi = rs.getMarginInsets();
-      marginInsets = mi == null ? null : mi.getSimpleAWTInsets(this.availContentWidth, this.availContentHeight);
-      final HtmlInsets pi = rs.getPaddingInsets();
-      paddingInsets = pi == null ? null : pi.getSimpleAWTInsets(this.availContentWidth, this.availContentHeight);
-    }
+    final HtmlInsets mi = rs.getMarginInsets();
+    final Insets marginInsets = mi == null ? null : mi.getSimpleAWTInsets(this.availContentWidth, this.availContentHeight);
+    final HtmlInsets pi = rs.getPaddingInsets();
+    final Insets paddingInsets = pi == null ? null : pi.getSimpleAWTInsets(this.availContentWidth, this.availContentHeight);
+
     int leftSpacing = 0;
     int rightSpacing = 0;
     if (marginInsets != null) {
@@ -881,7 +878,7 @@ public class RBlockViewport extends BaseRCollection {
   //
   private static int getPosition(final HTMLElementImpl element) {
     final RenderState rs = element.getRenderState();
-    return rs == null ? RenderState.POSITION_STATIC : rs.getPosition();
+    return rs.getPosition();
   }
 
   /**
@@ -1170,9 +1167,6 @@ public class RBlockViewport extends BaseRCollection {
 
   private void layoutText(final NodeImpl textNode) {
     final RenderState renderState = textNode.getRenderState();
-    if (renderState == null) {
-      throw new IllegalStateException("RenderState is null for node " + textNode + " with parent " + textNode.getParentNode());
-    }
     final FontMetrics fm = renderState.getFontMetrics();
     final int descent = fm.getDescent();
     final int ascentPlusLeading = fm.getAscent() + fm.getLeading();
@@ -2349,15 +2343,15 @@ public class RBlockViewport extends BaseRCollection {
 
     public void layoutMarkup(final RBlockViewport bodyLayout, final HTMLElementImpl markupElement) {
       final RenderState rs = markupElement.getRenderState();
-      int display = rs == null ? this.display : rs.getDisplay();
+      int display = rs.getDisplay();
       if (display == RenderState.DISPLAY_INLINE || display == RenderState.DISPLAY_INLINE_BLOCK) {
         // Inline elements with absolute or fixed positions need to be treated as blocks.
         // TODO: ^^Verify; is that an internal hack or a spec requirement?
-        final int position = rs == null ? RenderState.POSITION_STATIC : rs.getPosition();
+        final int position = rs.getPosition();
         if ((position == RenderState.POSITION_ABSOLUTE) || (position == RenderState.POSITION_FIXED)) {
           display = RenderState.DISPLAY_BLOCK;
         } else {
-          final int boxFloat = rs == null ? RenderState.FLOAT_NONE : rs.getFloat();
+          final int boxFloat = rs.getFloat();
           if (boxFloat != RenderState.FLOAT_NONE) {
             display = RenderState.DISPLAY_BLOCK;
           }
@@ -2876,12 +2870,12 @@ public class RBlockViewport extends BaseRCollection {
       return Boolean.TRUE;
     }
     final RenderState rs = element.getRenderState();
-    final int floatValue = rs == null ? RenderState.FLOAT_NONE : rs.getFloat();
+    final int floatValue = rs.getFloat();
     if (floatValue != RenderState.FLOAT_NONE) {
       return Boolean.TRUE;
     }
-    final int overflowX = rs == null ? RenderState.OVERFLOW_NONE : rs.getOverflowX();
-    final int overflowY = rs == null ? RenderState.OVERFLOW_NONE : rs.getOverflowY();
+    final int overflowX = rs.getOverflowX();
+    final int overflowY = rs.getOverflowY();
     if (
       (overflowX == RenderState.OVERFLOW_AUTO) || (overflowX == RenderState.OVERFLOW_SCROLL)
       || (overflowY == RenderState.OVERFLOW_AUTO) || (overflowY == RenderState.OVERFLOW_SCROLL)) {

@@ -1142,7 +1142,7 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
   }
 
   @Override
-  protected RenderState createRenderState(final RenderState prevRenderState) {
+  protected @NonNull RenderState createRenderState(final RenderState prevRenderState) {
     return new StyleSheetRenderState(this);
   }
 

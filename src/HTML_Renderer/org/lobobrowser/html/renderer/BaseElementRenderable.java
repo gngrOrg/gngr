@@ -405,9 +405,6 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
       return;
     }
     final RenderState rs = rootElement.getRenderState();
-    if (rs == null) {
-      throw new IllegalStateException("Element without render state: " + rootElement + "; parent=" + rootElement.getParentNode());
-    }
     final BackgroundInfo binfo = rs.getBackgroundInfo();
     this.backgroundColor = binfo == null ? null : binfo.backgroundColor;
     final java.net.URL backgroundImageUri = binfo == null ? null : binfo.backgroundImage;
@@ -506,9 +503,6 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
       return null;
     }
     final RenderState rs = rootElement.getRenderState();
-    if (rs == null) {
-      throw new IllegalStateException("Element without render state: " + rootElement + "; parent=" + rootElement.getParentNode());
-    }
     final Dimension changes = new Dimension();
     final HtmlInsets minsets = rs.getMarginInsets();
     if (minsets != null) {

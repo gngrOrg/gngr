@@ -778,7 +778,7 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
   }
 
   @Override
-  protected RenderState createRenderState(final RenderState prevRenderState) {
+  protected @NonNull RenderState createRenderState(final RenderState prevRenderState) {
     // Overrides NodeImpl method
     // Called in synchronized block already
     return new StyleSheetRenderState(prevRenderState, this);
