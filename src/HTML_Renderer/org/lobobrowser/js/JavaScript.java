@@ -27,7 +27,6 @@ import org.lobobrowser.util.Objects;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Scriptable;
-import org.mozilla.javascript.Undefined;
 
 public class JavaScript {
   // TODO: Should the instance be specific to thread? GH #122
@@ -108,6 +107,7 @@ public class JavaScript {
     }
   }
 
+  /*
   private static String getStringValue(final Object object) {
     if (object instanceof Undefined) {
       return "undefined";
@@ -117,6 +117,7 @@ public class JavaScript {
       return String.valueOf(object);
     }
   }
+  */
 
   public Object getJavaObject(final Object javascriptObject, final Class<?> type) {
     if (javascriptObject instanceof JavaObjectWrapper) {
