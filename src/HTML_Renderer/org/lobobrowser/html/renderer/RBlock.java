@@ -26,7 +26,6 @@ package org.lobobrowser.html.renderer;
 import java.awt.Adjustable;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.Point;
@@ -41,7 +40,6 @@ import javax.swing.JScrollBar;
 import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.html.HtmlRendererContext;
 import org.lobobrowser.html.domimpl.ModelNode;
-import org.lobobrowser.html.domimpl.NodeFilter;
 import org.lobobrowser.html.domimpl.NodeImpl;
 import org.lobobrowser.html.style.BlockRenderState;
 import org.lobobrowser.html.style.RenderState;
@@ -49,8 +47,6 @@ import org.lobobrowser.html.style.RenderThreadState;
 import org.lobobrowser.ua.UserAgentContext;
 import org.lobobrowser.util.CollectionUtilities;
 import org.lobobrowser.util.Threads;
-import org.w3c.dom.Node;
-import org.w3c.dom.html.HTMLBodyElement;
 import org.w3c.dom.html.HTMLHtmlElement;
 
 /**
@@ -61,7 +57,7 @@ import org.w3c.dom.html.HTMLHtmlElement;
  * {@link RBlockViewport}.
  */
 public class RBlock extends BaseElementRenderable {
-  private static final int MAX_CACHE_SIZE = 10;
+  // private static final int MAX_CACHE_SIZE = 10;
 
   protected final FrameContext frameContext;
   protected final int listNesting;
@@ -87,8 +83,8 @@ public class RBlock extends BaseElementRenderable {
   protected int defaultOverflowX = RenderState.OVERFLOW_NONE;
   protected int defaultOverflowY = RenderState.OVERFLOW_NONE;
 
-  private LayoutValue lastLayoutValue = null;
-  private LayoutKey lastLayoutKey = null;
+  // private LayoutValue lastLayoutValue = null;
+  // private LayoutKey lastLayoutKey = null;
 
   public RBlock(final NodeImpl modelNode, final int listNesting, final UserAgentContext pcontext, final HtmlRendererContext rcontext,
       final FrameContext frameContext,
@@ -379,6 +375,7 @@ public class RBlock extends BaseElementRenderable {
       final int defaultOverflowX, final int defaultOverflowY, final boolean sizeOnly, final boolean useCache) {
     // Expected to be invoked in the GUI thread.
     final RenderState renderState = this.modelNode.getRenderState();
+    /*
     final Font font = renderState == null ? null : renderState.getFont();
     final int whiteSpace = renderState == null ? RenderState.WS_NORMAL : renderState.getWhiteSpace();
     // Having whiteSpace == NOWRAP and having a NOWRAP override
@@ -386,7 +383,8 @@ public class RBlock extends BaseElementRenderable {
     final boolean overrideNoWrap = RenderThreadState.getState().overrideNoWrap;
     final LayoutKey key = new LayoutKey(availWidth, availHeight, expandWidth, expandHeight, floatBoundsSource, defaultOverflowX,
         defaultOverflowY, whiteSpace, font, overrideNoWrap);
-    // final Map<LayoutKey, LayoutValue> cachedLayout = this.cachedLayout;
+    final Map<LayoutKey, LayoutValue> cachedLayout = this.cachedLayout;
+    */
     LayoutValue value;
     /*
     if (sizeOnly) {
@@ -403,8 +401,8 @@ public class RBlock extends BaseElementRenderable {
       value = this.forceLayout(renderState, availWidth, availHeight, expandWidth, expandHeight, floatBoundsSource, defaultOverflowX,
           defaultOverflowY, sizeOnly);
       if (sizeOnly) {
-        this.lastLayoutKey = null;
-        this.lastLayoutValue = null;
+        // this.lastLayoutKey = null;
+        // this.lastLayoutValue = null;
 
         /*
         if (cachedLayout.size() > MAX_CACHE_SIZE) {
@@ -414,8 +412,8 @@ public class RBlock extends BaseElementRenderable {
         cachedLayout.put(key, value);
         */
       } else {
-        this.lastLayoutKey = key;
-        this.lastLayoutValue = value;
+        // this.lastLayoutKey = key;
+        // this.lastLayoutValue = value;
       }
     } else {
       /*
@@ -1246,8 +1244,8 @@ public class RBlock extends BaseElementRenderable {
     this.delayedPairs = null;
     super.invalidateLayoutLocal();
     // this.cachedLayout.clear();
-    this.lastLayoutKey = null;
-    this.lastLayoutValue = null;
+    // this.lastLayoutKey = null;
+    // this.lastLayoutValue = null;
     final JScrollBar hScrollBar = this.hScrollBar;
     if (hScrollBar != null) {
       // Necessary
@@ -1669,11 +1667,12 @@ public class RBlock extends BaseElementRenderable {
     }
   }
 
+  /*
   private static class BodyFilter implements NodeFilter {
     public boolean accept(final Node node) {
       return node instanceof HTMLBodyElement;
     }
-  }
+  }*/
 
   public int getDefaultOverflowX() {
     return defaultOverflowX;
@@ -1691,6 +1690,7 @@ public class RBlock extends BaseElementRenderable {
     this.defaultOverflowY = defaultOverflowY;
   }
 
+  /*
   private static class LayoutKey {
     public final int availWidth;
     public final int availHeight;
@@ -1743,7 +1743,7 @@ public class RBlock extends BaseElementRenderable {
       return ((this.availWidth * 1000) + this.availHeight) ^ (font == null ? 0 : font.hashCode()) ^ (this.expandWidth ? 2 : 0)
           ^ (this.expandHeight ? 1 : 0) ^ (this.whitespace << 2);
     }
-  }
+  } */
 
   private static class LayoutValue {
     public final int width;

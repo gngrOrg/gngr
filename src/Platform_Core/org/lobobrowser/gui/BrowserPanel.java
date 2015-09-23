@@ -71,9 +71,9 @@ import org.lobobrowser.util.Urls;
  */
 public class BrowserPanel extends JPanel implements NavigatorWindow, BrowserWindow, WindowCallback {
   private static final Logger logger = Logger.getLogger(BrowserPanel.class.getName());
-  private final boolean hasAddressBar;
+  // private final boolean hasAddressBar;
   private final boolean hasToolBar;
-  private final boolean hasStatusBar;
+  // private final boolean hasStatusBar;
   private final JMenuBar menuBar;
   private final FramePanel framePanel;
   private final AddressBarPanel addressBarPanel;
@@ -114,8 +114,8 @@ public class BrowserPanel extends JPanel implements NavigatorWindow, BrowserWind
    */
   public BrowserPanel(final JMenuBar menuBar, final boolean hasAddressBar, final boolean hasToolBar, final boolean hasStatusBar) {
     this.hasToolBar = hasToolBar;
-    this.hasAddressBar = hasAddressBar;
-    this.hasStatusBar = hasStatusBar;
+    // this.hasAddressBar = hasAddressBar;
+    // this.hasStatusBar = hasStatusBar;
     this.menuBar = menuBar;
 
     final String windowId = "BrowserPanel." + System.identityHashCode(this);

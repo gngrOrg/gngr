@@ -647,6 +647,7 @@ public class HtmlParser {
    * Only set when readAttribute returns false.
    */
   private boolean justReadEmptyElement = false;
+  /*
   private final static String[] elementsThatNeedBodyElement = {
     // TODO: More tags
     "P",
@@ -657,6 +658,7 @@ public class HtmlParser {
     "TABLE",
     "MATHML"
   };
+  */
   private final static String[] elementsThatDontNeedBodyElement = {
     // TODO: More tags
     "HTML",

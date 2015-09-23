@@ -60,7 +60,8 @@ public class HTMLBaseFontElementImpl extends HTMLAbstractUIElement implements HT
     final String size = this.getAttribute("size");
     if (size != null) {
       final int fontNumber = HtmlValues.getFontNumberOldStyle(size, prevRenderState);
-      final float fontSize = HtmlValues.getFontSize(fontNumber);
+      // TODO: Check why the following call is not used.
+      // final float fontSize = HtmlValues.getFontSize(fontNumber);
       prevRenderState = new BaseFontRenderState(prevRenderState, fontNumber);
     }
     return super.createRenderState(prevRenderState);

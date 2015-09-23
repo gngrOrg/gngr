@@ -264,7 +264,7 @@ public class RBlockViewport extends BaseRCollection {
     if (!EventQueue.isDispatchThread() && logger.isLoggable(Level.INFO)) {
       logger.warning("layout(): Invoked outside GUI dispatch thread.");
     }
-    final RenderableContainer container = this.container;
+    // final RenderableContainer container = this.container;
     this.paddingInsets = paddingInsets;
     this.yLimit = yLimit;
     this.desiredHeight = desiredHeight;
@@ -1014,12 +1014,13 @@ public class RBlockViewport extends BaseRCollection {
     }
   }
 
+  /*
   private void addAsSeqBlockCheckStyle(final @NonNull RElement block, final HTMLElementImpl element, final boolean usesAlignAttribute) {
     if (this.addElsewhereIfPositioned(block, element, usesAlignAttribute, false, true)) {
       return;
     }
     this.addAsSeqBlock(block);
-  }
+  }*/
 
   private void addAsSeqBlock(final RElement block) {
     this.addAsSeqBlock(block, true, true, true, false, false);
@@ -2326,10 +2327,10 @@ public class RBlockViewport extends BaseRCollection {
     protected static final int DISPLAY_TABLE = 6;
     protected static final int DISPLAY_INLINE_BLOCK = 7;
 
-    private final int display;
+    // private final int display;
 
     public CommonLayout(final int defaultDisplay) {
-      this.display = defaultDisplay;
+      // this.display = defaultDisplay;
     }
 
     public void layoutMarkup(final RBlockViewport bodyLayout, final HTMLElementImpl markupElement) {

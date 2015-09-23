@@ -62,7 +62,7 @@ public class UserAgentImpl implements UserAgent {
     return this.getMajorVersion() + "." + this.getMinorVersion();
   }
 
-  private volatile String textValue = null;
+  // private volatile String textValue = null;
 
   public String getUserAgentString() {
     return UAString;
@@ -77,7 +77,7 @@ public class UserAgentImpl implements UserAgent {
    * Removes cached user agent string.
    */
   public void invalidateUserAgent() {
-    this.textValue = null;
+    // this.textValue = null;
   }
 
   /*
@@ -93,9 +93,10 @@ public class UserAgentImpl implements UserAgent {
     return "";
   }
 
+  /*
   private static String getOs() {
     return "";
-  }
+  } */
 
   // //Note: This is not being used, but generally use of Strings a WeakHashMap
   // //keys should be revised.

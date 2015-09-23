@@ -101,9 +101,10 @@ public class OrigUserAgentImpl implements UserAgent {
     return "http://lobobrowser.org";
   }
 
+  /*
   private static String getOs() {
     return System.getProperty("os.name") + " " + System.getProperty("os.version");
-  }
+  }*/
 
   // //Note: This is not being used, but generally use of Strings a WeakHashMap
   // //keys should be revised.

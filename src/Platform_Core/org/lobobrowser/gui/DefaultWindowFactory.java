@@ -258,8 +258,8 @@ public class DefaultWindowFactory implements WindowFactory {
     final String heightText = properties.getProperty("height");
     final boolean defaultValue = (widthText == null) && (heightText == null);
     final boolean isResizable = isPropertyTrue(properties, "resizable", defaultValue);
-    final String iconText = properties.getProperty("icon");
-    final String title = properties.getProperty("title");
+    // final String iconText = properties.getProperty("icon");
+    // final String title = properties.getProperty("title");
     int width = -1;
     int height = -1;
     if (widthText != null) {

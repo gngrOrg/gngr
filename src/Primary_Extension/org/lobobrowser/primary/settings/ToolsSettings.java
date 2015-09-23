@@ -1,6 +1,5 @@
 package org.lobobrowser.primary.settings;
 
-import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -42,9 +41,9 @@ public class ToolsSettings implements Serializable {
     final List<SearchEngine> searchEngines = getDefaultSearchEngines();
     this.searchEngines = searchEngines;
     this.selectedSearchEngine = searchEngines.get(0);
+    /*
     final String userHome = System.getProperty("user.home");
     final File userHomeDirectory = new File(userHome);
-    /*
     this.downloadDirectory = new File(userHomeDirectory, "download");
     if (!this.downloadDirectory.exists()) {
       this.downloadDirectory.mkdirs();

@@ -25,10 +25,10 @@ import java.util.EventObject;
 import org.lobobrowser.clientlet.ClientletResponse;
 
 public class ResponseEvent extends EventObject {
-  private final ClientletResponse response;
+  // private final ClientletResponse response;
 
   public ResponseEvent(final Object source, final ClientletResponse response) {
     super(source);
-    this.response = response;
+    // this.response = response;
   }
 }
