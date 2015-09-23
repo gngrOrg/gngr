@@ -70,7 +70,7 @@ public class PositionedRenderable implements Renderable {
     System.out.println("  orig parent: " + originalParent);
     */
 
-      final Point or = originalParent.getOriginRelativeTo(rparent);
+    final Point or = originalParent.getOriginRelativeTo(rparent);
     final int pos = this.renderable.getModelNode().getRenderState().getPosition();
 
     if (isFloat || pos == RenderState.POSITION_ABSOLUTE || pos == RenderState.POSITION_FIXED) {
