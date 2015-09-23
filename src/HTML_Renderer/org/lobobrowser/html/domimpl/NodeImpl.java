@@ -455,11 +455,20 @@ public abstract class NodeImpl extends AbstractScriptableDelegate implements Nod
   // This is a changed and better version of the above. It gives the same number of pass / failures on http://web-platform.test:8000/dom/nodes/Node-insertBefore.html
   // Pass 2: FAIL: 24
   public Node insertBefore(final Node newChild, final Node refChild) throws DOMException {
+    if (newChild == null) {
+      throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "child is null");
+    }
     synchronized (this.treeLock) {
+      if (newChild instanceof NodeImpl) {
+        final NodeImpl newChildImpl = (NodeImpl) newChild;
+        if (newChildImpl.isInclusiveAncestorOf(this)) {
+          throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, "new child is an ancestor");
+        }
+      }
+
       // From what I understand from https://developer.mozilla.org/en-US/docs/Web/API/Node.insertBefore
       // a null or undefined refChild will cause the new child to be appended at the end of the list
       // otherwise, this function will throw an exception if refChild is not found in the child list
-
       final ArrayList<Node> nl = refChild == null ? getNonEmptyNodeList() : this.nodeList;
       final int idx = refChild == null ? nl.size() : (nl == null ? -1 : nl.indexOf(refChild));
       if (idx == -1) {
