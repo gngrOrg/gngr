@@ -541,7 +541,7 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
     public double[] getLineDash() {
       final double[] lineDash1 = new double[currDrawingState.lineDash.length];
       for (int i = 0; i < currDrawingState.lineDash.length; i++) {
-        lineDash1[i] = (float) currDrawingState.lineDash[i];
+        lineDash1[i] = currDrawingState.lineDash[i];
       }
       return lineDash1;
     }
