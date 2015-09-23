@@ -7,6 +7,7 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.util.Iterator;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.html.domimpl.ModelNode;
 import org.lobobrowser.util.CollectionUtilities;
 import org.lobobrowser.util.Threads;
@@ -215,9 +216,9 @@ public class TranslatedRenderable extends BaseBoundableRenderable implements RCo
     return translatedChild.getZIndex();
   }
 
-  private final BoundableRenderable translatedChild;
+  private final @NonNull BoundableRenderable translatedChild;
 
-  public TranslatedRenderable(final BoundableRenderable translatedChild) {
+  public TranslatedRenderable(final @NonNull BoundableRenderable translatedChild) {
     // TODO
     super(null, null);
     this.translatedChild = translatedChild;
@@ -238,7 +239,7 @@ public class TranslatedRenderable extends BaseBoundableRenderable implements RCo
   }
 
   @Override
-  public Iterator<? extends Renderable> getRenderables(boolean topFirst) {
+  public Iterator<@NonNull ? extends Renderable> getRenderables(boolean topFirst) {
     return CollectionUtilities.singletonIterator(translatedChild);
   }
 

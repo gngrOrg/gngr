@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.html.domimpl.ModelNode;
 import org.lobobrowser.html.style.RenderState;
 
@@ -39,7 +40,7 @@ import org.lobobrowser.html.style.RenderState;
  * @author J. H. S.
  */
 class RLine extends BaseRCollection {
-  private final ArrayList<Renderable> renderables = new ArrayList<>(8);
+  private final ArrayList<@NonNull Renderable> renderables = new ArrayList<>(8);
   // private final RenderState startRenderState;
   private int baseLineOffset;
   private int desiredMaxWidth;
@@ -174,11 +175,11 @@ class RLine extends BaseRCollection {
     return result;
   }
 
-  public final void addStyleChanger(final RStyleChanger sc) {
+  public final void addStyleChanger(final @NonNull RStyleChanger sc) {
     this.renderables.add(sc);
   }
 
-  public final void simplyAdd(final Renderable r) {
+  public final void simplyAdd(final @NonNull Renderable r) {
     this.renderables.add(r);
   }
 
@@ -668,7 +669,7 @@ class RLine extends BaseRCollection {
    *
    * @see org.xamjwg.html.renderer.RCollection#getRenderables()
    */
-  public Iterator<Renderable> getRenderables(final boolean topFirst) {
+  public Iterator<@NonNull Renderable> getRenderables(final boolean topFirst) {
     // TODO: Returning Renderables in order always, assuming that they don't overlap.
     //       Need to check the assumption
     return this.renderables.iterator();

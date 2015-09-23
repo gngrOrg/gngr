@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.html.domimpl.ModelNode;
 import org.lobobrowser.html.domimpl.NodeImpl;
 import org.lobobrowser.html.domimpl.UINode;
@@ -365,7 +366,7 @@ class RUIControl extends BaseElementRenderable {
     }
   }
 
-  public Iterator<Renderable> getRenderables(final boolean topFirst) {
+  public Iterator<@NonNull Renderable> getRenderables(final boolean topFirst) {
     // No children for GUI controls
     return null;
   }
