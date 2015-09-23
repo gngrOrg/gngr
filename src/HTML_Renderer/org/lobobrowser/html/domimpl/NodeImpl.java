@@ -161,7 +161,6 @@ public abstract class NodeImpl extends AbstractScriptableDelegate implements Nod
         for (final Node node : nl) {
           if (node instanceof NodeImpl) {
             ((NodeImpl) node).handleDeletedFromParent();
-            ;
           }
         }
         this.nodeList = null;
@@ -523,7 +522,6 @@ public abstract class NodeImpl extends AbstractScriptableDelegate implements Nod
 
       if (oldChild instanceof NodeImpl) {
         ((NodeImpl) oldChild).handleDeletedFromParent();
-        ;
       }
     }
 
@@ -540,7 +538,6 @@ public abstract class NodeImpl extends AbstractScriptableDelegate implements Nod
       }
       if (oldChild instanceof NodeImpl) {
         ((NodeImpl) oldChild).handleDeletedFromParent();
-        ;
       }
     }
 

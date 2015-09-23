@@ -713,6 +713,7 @@ public final class RequestEngine {
     }
   }
 
+  @SuppressWarnings("unused")
   private static void dumpRequestInfo(final URLConnection connection) {
     if (PlatformInit.getInstance().debugOn) {
       System.out.println("URL: " + connection.getURL());

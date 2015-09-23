@@ -664,7 +664,7 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
       g2.setPaint(currDrawingState.paintFill);
       g2.drawChars(chars, 0, chars.length, (int) x, (int) y);
     }
-  };
+  }
 
   public abstract class CanvasGradient {
 

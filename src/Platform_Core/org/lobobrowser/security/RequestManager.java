@@ -127,6 +127,7 @@ public final class RequestManager {
     permissionSystemOpt = Optional.of(system);
   }
 
+  @SuppressWarnings("unused")
   private synchronized void dumpCounters() {
     // Headers
     System.out.print(String.format("%30s  ", ""));

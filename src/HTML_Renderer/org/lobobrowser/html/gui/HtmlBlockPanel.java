@@ -1049,6 +1049,7 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
     return null;
   }
 
+  @SuppressWarnings("unused")
   private static void dumpRndTree(final Renderable root) {
     System.out.println("------------------------------");
     RBlock.dumpRndTree("", true, root, true);
