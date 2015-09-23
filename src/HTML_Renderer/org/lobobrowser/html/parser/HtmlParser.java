@@ -612,7 +612,11 @@ public class HtmlParser {
       parent.setUserData(MODIFYING_KEY, Boolean.FALSE, null);
     }
 
-    /*
+    // dumpTree(parent);
+  }
+
+  @SuppressWarnings("unused")
+  private static void dumpTree(final Node parent) {
     org.lobobrowser.util.Nodes.forEachNode(parent, (node) -> {
       int depth = 0;
       Node p = node.getParentNode();
@@ -625,7 +629,6 @@ public class HtmlParser {
       }
       System.out.println(node.getNodeName() + ":    " + node.getClass().getSimpleName());
     });
-    */
   }
 
   private static final int TOKEN_EOD = 0;
