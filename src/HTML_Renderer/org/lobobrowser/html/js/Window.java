@@ -1400,6 +1400,9 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
 
   private static class TaskWrapper {
     public final Timer timer;
+    // TODO: The retained object seems to be required to keep timer callback functions from being garbage collected.
+    //       The FunctionTimerTask only keeps a weak reference. Need to review this design.
+    @SuppressWarnings("unused")
     private final Object retained;
 
     public TaskWrapper(final Timer timer, final Object retained) {
