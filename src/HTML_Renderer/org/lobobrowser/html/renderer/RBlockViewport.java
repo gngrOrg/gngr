@@ -1606,13 +1606,8 @@ public class RBlockViewport extends BaseRCollection {
         final RBlock block = (RBlock) renderable;
         // Float boxes don't inherit float bounds?
         block.layout(availWidth, availHeight, false, false, null, this.sizeOnly);
-      } else if (renderable instanceof RElement) {
-        final RElement e = (RElement) renderable;
-        e.layout(availWidth, availHeight, this.sizeOnly);
-        renderable.layout(availWidth, availHeight, this.sizeOnly);
       } else {
-        // TODO Check other types of renderabls
-        System.err.println("TODO: Unhandled renderable type");
+        renderable.layout(availWidth, availHeight, this.sizeOnly);
       }
     }
     final RFloatInfo floatInfo = new RFloatInfo(renderable.getModelNode(), renderable, leftFloat);
