@@ -403,11 +403,6 @@ abstract class BaseBoundableRenderable extends BaseRenderable implements Boundab
       }
       x += parent.getVisualX();
       y += parent.getVisualY();
-      if (parent instanceof RBlockViewport) {
-        final RBlockViewport rBV = (RBlockViewport) parent;
-        // x -= rBV.scrollX;
-        // y -= rBV.scrollY;
-      }
       parent = parent.getParent();
     }
   }
