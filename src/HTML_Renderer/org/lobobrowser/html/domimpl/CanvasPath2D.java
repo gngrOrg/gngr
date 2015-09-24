@@ -109,7 +109,7 @@ public class CanvasPath2D {
     needNewSubpath = false;
   }
 
-  private double tweakStart(final double start, double value, final double end) {
+  private static double tweakStart(final double start, double value, final double end) {
     while (value < start) {
       value += (TWO_PI);
     }
@@ -119,7 +119,7 @@ public class CanvasPath2D {
     return value;
   }
 
-  private double tweakEnd(final double start, double value, final double end) {
+  private static double tweakEnd(final double start, double value, final double end) {
     while (value <= start) {
       value += (TWO_PI);
     }
