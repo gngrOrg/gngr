@@ -70,7 +70,9 @@ public class ItemListControl<T> extends JComponent {
   }
 
   private T getSelectedItem() {
-    return (T) this.comboBox.getSelectedItem();
+    @SuppressWarnings("unchecked")
+    final T selectedItem = (T) this.comboBox.getSelectedItem();
+    return selectedItem;
   }
 
   private void addItem(final T item) {
