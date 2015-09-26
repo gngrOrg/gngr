@@ -5,7 +5,7 @@ This is the source code of [gngr](https://gngr.info), a new cross-platform brows
 is an independent implementation of web standards in pure Java. It is *not* a wrapper around other browser engines.
 
 `gngr` plans to protect privacy by
-* disabling the following by default: Cookies, Javascript, XHR requests and providing fine granuality of control over them.
+* disabling the following by default: Cookies, Javascript, XHR requests and providing [fine granuality of control](https://github.com/UprootLabs/gngr/wiki/RequestManager) over them.
 * by implementing in a high-level language that is easier to audit
 * by using run-time sandboxing
 
@@ -22,6 +22,15 @@ Security-wise, the code isn't hardened *at all!* Use the current version:
  * periodically [clear the browser cache and data](https://github.com/UprootLabs/gngr/wiki/Clearing-cache-and-data).
 
 **Do Not use the current version with critical websites such as banking websites or web-mail.**
+
+### Development Status
+As of September 2015, development focus is to improve layout and rendering. We are developing
+[grinder](https://github.com/UprootLabs/grinder) to automate layout and rendering tests.
+
+We also use [web-platform-tests](https://github.com/w3c/web-platform-tests/) for developing and
+stabilising the DOM support. These are already semi-automated, and we will eventually automate it
+completely in `grinder`.
+
 
 ### Contributing
 
