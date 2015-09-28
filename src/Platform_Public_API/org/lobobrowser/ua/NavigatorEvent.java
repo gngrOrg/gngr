@@ -45,6 +45,6 @@ public class NavigatorEvent extends java.util.EventObject {
 
   @Override
   public String toString() {
-    return "NavigatorWindowEvent[type=" + this.getEventType() + "]";
+    return "NavigatorEvent[type=" + this.getEventType() + "]";
   }
 }

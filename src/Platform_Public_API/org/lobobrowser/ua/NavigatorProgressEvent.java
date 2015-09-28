@@ -68,4 +68,8 @@ public class NavigatorProgressEvent extends NavigatorEvent {
   public int getMaxValue() {
     return maxValue;
   }
+  @Override
+  public String toString() {
+    return "NavigatorProgressEvent[type=" + this.getEventType() + ", " + this.progressType + "]";
+  }
 }
