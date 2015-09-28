@@ -55,6 +55,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -438,6 +440,7 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
    */
   public void setRootNode(final NodeImpl node) {
     scrollCompleted = false;
+    layoutCompleted = new CompletableFuture<>();
     if (node != null) {
       final RBlock block = new RBlock(node, 0, this.ucontext, this.rcontext, this.frameContext, this);
       block.setDefaultOverflowX(this.defaultOverflowX);
@@ -726,6 +729,7 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
             }
           }
         }
+        layoutCompleted.complete(true);
       } else {
         if (this.getComponentCount() > 0) {
           this.removeAll();
@@ -1057,4 +1061,9 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
     System.out.println("------------------------------");
   }
 
+  private CompletableFuture<Boolean> layoutCompleted = new CompletableFuture<>();
+
+  public Future<Boolean> layoutCompletion() {
+    return layoutCompleted;
+  }
 }

@@ -32,6 +32,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.EventListener;
 import java.util.EventObject;
+import java.util.concurrent.Future;
 
 import javax.swing.JComponent;
 
@@ -47,6 +48,7 @@ import org.lobobrowser.html.renderer.FrameContext;
 import org.lobobrowser.html.renderer.NodeRenderer;
 import org.lobobrowser.html.renderer.RenderableSpot;
 import org.lobobrowser.html.style.RenderState;
+import org.lobobrowser.main.DefferedLayoutSupport;
 import org.lobobrowser.ua.UserAgentContext;
 import org.lobobrowser.util.EventDispatch2;
 import org.lobobrowser.util.gui.WrapperLayout;
@@ -63,7 +65,7 @@ import org.w3c.dom.html.HTMLFrameSetElement;
  * Invoke method {@link #setDocument(Document, HtmlRendererContext)} in order to
  * schedule a document for rendering.
  */
-public class HtmlPanel extends JComponent implements FrameContext {
+public class HtmlPanel extends JComponent implements FrameContext, DefferedLayoutSupport {
   private final EventDispatch2 selectionDispatch = new SelectionDispatch();
   private final javax.swing.Timer notificationTimer;
   private final DocumentNotificationListener notificationListener;
@@ -785,5 +787,10 @@ public class HtmlPanel extends JComponent implements FrameContext {
     public void actionPerformed(final ActionEvent e) {
       HtmlPanel.this.processNotifications();
     }
+  }
+
+  @Override
+  public Future<Boolean> layoutCompletion() {
+    return htmlBlockPanel.layoutCompletion();
   }
 }

@@ -52,6 +52,8 @@ import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.lobobrowser.gui.ConsoleModel;
 import org.lobobrowser.gui.DefaultWindowFactory;
 import org.lobobrowser.gui.FramePanel;
@@ -61,6 +63,7 @@ import org.lobobrowser.request.NOPCookieHandlerImpl;
 import org.lobobrowser.security.LocalSecurityManager;
 import org.lobobrowser.security.LocalSecurityPolicy;
 import org.lobobrowser.store.StorageManager;
+import org.lobobrowser.ua.NavigatorFrame;
 import org.lobobrowser.util.GenericEventListener;
 import org.lobobrowser.util.SimpleThreadPool;
 import org.lobobrowser.util.SimpleThreadPoolTask;
@@ -357,21 +360,23 @@ public class PlatformInit {
    *
    * @param urlOrPath
    *          A URL or file path.
+   * @return
    * @throws MalformedURLException
    */
-  public void launch(final String urlOrPath) throws MalformedURLException {
+  public NavigatorFrame launch(final String urlOrPath) throws MalformedURLException {
     final URL url = DomainValidation.guessURL(urlOrPath);
-    FramePanel.openWindow(null, url, null, new Properties(), "GET", null);
+    return FramePanel.openWindow(null, url, null, new Properties(), "GET", null);
   }
 
   /**
    * Opens as many browser windows as there are startup URLs in general
    * settings.
+   * @return
    *
    * @see org.lobobrowser.settings.GeneralSettings#getStartupURLs()
    * @throws MalformedURLException
    */
-  public void launch() throws MalformedURLException {
+  public NavigatorFrame launch() throws MalformedURLException {
     final SecurityManager sm = System.getSecurityManager();
     if (sm == null) {
       final Logger logger = Logger.getLogger(PlatformInit.class.getName());
@@ -381,13 +386,14 @@ public class PlatformInit {
      * String[] startupURLs = this.generalSettings.getStartupURLs(); for(String
      * url : startupURLs) { this.launch(url); }
      */
-    this.launch("about:welcome");
+    return this.launch("about:welcome");
     // this.launch("http://localhost:8000/");
     // this.launch("http://localhost:8000/test_link.html");
     // this.launch("http://localhost:8000/request_permissions.html");
   }
 
   private boolean windowHasBeenShown = false;
+  private @Nullable String grinderKey = null;
 
   /**
    * Starts the browser by opening the URLs specified in the command-line
@@ -409,8 +415,13 @@ public class PlatformInit {
     });
     boolean launched = false;
     for (final String arg : args) {
-      final String url = arg;
-      if (!url.startsWith("-")) {
+      if (arg.startsWith("-")) {
+        final String grinderKeyPrefix = "-grinder-key=";
+        if (arg.startsWith(grinderKeyPrefix)) {
+          grinderKey = arg.substring(grinderKeyPrefix.length());
+        }
+      } else {
+        final String url = arg;
         try {
           launched = true;
           this.launch(url);
@@ -533,4 +544,11 @@ public class PlatformInit {
     }
   }
 
+  final boolean verifyAuth(final @NonNull String passkey) {
+    if (grinderKey != null) {
+      return grinderKey.equals(passkey);
+    } else {
+      return false;
+    }
+  }
 }

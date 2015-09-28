@@ -24,6 +24,7 @@
 package org.lobobrowser.main;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -32,6 +33,9 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Random;
+
+import org.eclipse.jdt.annotation.NonNull;
+import org.lobobrowser.ua.NavigatorFrame;
 
 /**
  * The local-bound server that allows the browser JVM to be reused.
@@ -125,8 +129,31 @@ public class ReuseServer implements Runnable {
               }
             } else if ("LAUNCH_BLANK".equals(command)) {
               PlatformInit.getInstance().launch();
+            } else if ("GRINDER".equals(command)) {
+              final DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+              if (blankIdx != -1) {
+                @SuppressWarnings("null")
+                final @NonNull String key = line.substring(blankIdx + 1).trim();
+                if (PlatformInit.getInstance().verifyAuth(key)) {
+                  final NavigatorFrame frame = PlatformInit.getInstance().launch("about:blank");
+                  final GrinderServer gs = new GrinderServer(frame);
+                  final int gsPort = gs.getPort();
+                  dos.writeInt(gsPort);
+                  dos.flush();
+                } else {
+                  dos.writeInt(-1);
+                  dos.flush();
+                }
+              } else {
+                dos.writeInt(-1);
+                dos.flush();
+              }
+              // Wait for ACK
+              br.readLine();
             }
           }
+        } finally {
+          s.close();
         }
       } catch (final Exception t) {
         t.printStackTrace(System.err);
