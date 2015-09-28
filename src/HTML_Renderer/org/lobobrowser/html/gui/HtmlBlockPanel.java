@@ -699,10 +699,11 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
       if (layoutBlocked) {
         return;
       }
-    }
 
-    // TODO: This causes an exception when running web-platform-tests. GH #147
-    // doc.primeNodeData();
+      // Note: There were issues with this previously. See GH #147
+      doc.primeNodeData();
+
+    }
 
     try {
       final Dimension size = this.getSize();
