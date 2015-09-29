@@ -26,18 +26,22 @@ package org.lobobrowser.main;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.Authenticator;
 import java.net.CookieHandler;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLStreamHandler;
 import java.security.AccessController;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.Permission;
 import java.security.Policy;
 import java.security.PrivilegedAction;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Date;
 import java.util.EventObject;
 import java.util.Locale;
@@ -546,7 +550,14 @@ public class PlatformInit {
 
   final boolean verifyAuth(final @NonNull String passkey) {
     if (grinderKey != null) {
-      return grinderKey.equals(passkey);
+      try {
+        final MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        final byte[] hash = digest.digest(grinderKey.getBytes("UTF-8"));
+        final String hashB64 = Base64.getEncoder().encodeToString(hash);
+        return hashB64.equals(passkey);
+      } catch (final NoSuchAlgorithmException | UnsupportedEncodingException nsa) {
+        return false;
+      }
     } else {
       return false;
     }
