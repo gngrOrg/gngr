@@ -99,6 +99,7 @@ class GrinderServer implements Runnable {
     final Component component = frame.getComponentContent().getComponent();
     final BufferedImage img = new BufferedImage(component.getWidth(), component.getHeight(), BufferedImage.TYPE_INT_ARGB);
     Graphics g = img.getGraphics();
+    // TODO: paint in AWT event queue
     component.paint(g);
     final ByteArrayOutputStream bos = new ByteArrayOutputStream();
     ImageIO.write(img, "PNG", bos);
