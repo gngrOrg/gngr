@@ -43,8 +43,8 @@ public class PermissionSystem {
     }
   }
 
-  private static Permission DefaultFallbackPermisson = Permission.Undecided;
-  private static PermissionResult DefaultFallbackPermissonResult = new PermissionResult(DefaultFallbackPermisson, true);
+  // private static Permission DefaultFallbackPermisson = Permission.Undecided;
+  // private static PermissionResult DefaultFallbackPermissonResult = new PermissionResult(DefaultFallbackPermisson, true);
 
   private final List<PermissionBoard> boards = new LinkedList<>();
   private final RequestRuleStore store;
