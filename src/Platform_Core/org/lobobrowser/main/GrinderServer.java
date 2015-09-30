@@ -61,32 +61,32 @@ class GrinderServer implements Runnable {
     while (!done) {
       try {
         final ServerSocket ss = socket;
-        final Socket s = ss.accept();
-        s.setSoTimeout(5000);
-        s.setTcpNoDelay(true);
         try (
-          final InputStream in = s.getInputStream()) {
-          final Reader reader = new InputStreamReader(in);
-          final BufferedReader br = new BufferedReader(reader);
-          String commandLine = br.readLine();
-          if (commandLine != null) {
-            final int blankIdx = commandLine.indexOf(' ');
-            final String command = blankIdx == -1 ? commandLine : commandLine.substring(0, blankIdx).trim();
-            System.out.println("Command: " + command);
-            if ("TO".equals(command)) {
-              if (blankIdx != -1) {
-                final String path = commandLine.substring(blankIdx + 1).trim();
-                handleTo(s, br, path);
+          final Socket s = ss.accept()) {
+          s.setSoTimeout(5000);
+          s.setTcpNoDelay(true);
+          try (
+            final InputStream in = s.getInputStream()) {
+            final Reader reader = new InputStreamReader(in);
+            final BufferedReader br = new BufferedReader(reader);
+            String commandLine = br.readLine();
+            if (commandLine != null) {
+              final int blankIdx = commandLine.indexOf(' ');
+              final String command = blankIdx == -1 ? commandLine : commandLine.substring(0, blankIdx).trim();
+              System.out.println("Command: " + command);
+              if ("TO".equals(command)) {
+                if (blankIdx != -1) {
+                  final String path = commandLine.substring(blankIdx + 1).trim();
+                  handleTo(s, br, path);
+                }
+              } else if ("SCREENSHOT".equals(command)) {
+                handleScreenShot(s, br);
+              } else if ("CLOSE".equals(command)) {
+                frame.closeWindow();
+                done = true;
               }
-            } else if ("SCREENSHOT".equals(command)) {
-              handleScreenShot(s, br);
-            } else if ("CLOSE".equals(command)) {
-              frame.closeWindow();
-              done = true;
             }
           }
-        } finally {
-          s.close();
         }
       } catch (final Exception t) {
         t.printStackTrace(System.err);

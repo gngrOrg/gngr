@@ -109,51 +109,51 @@ public class ReuseServer implements Runnable {
           }
           ss = this.serverSocket;
         }
-        final Socket s = ss.accept();
-        s.setSoTimeout(10000);
-        s.setTcpNoDelay(true);
         try (
-          final InputStream in = s.getInputStream() ) {
-          final Reader reader = new InputStreamReader(in);
-          final BufferedReader br = new BufferedReader(reader);
-          String line;
-          while ((line = br.readLine()) != null) {
-            final int blankIdx = line.indexOf(' ');
-            final String command = blankIdx == -1 ? line : line.substring(0, blankIdx).trim();
-            if ("LAUNCH".equals(command)) {
-              if (blankIdx == -1) {
+          final Socket s = ss.accept()) {
+          s.setSoTimeout(10000);
+          s.setTcpNoDelay(true);
+          try (
+            final InputStream in = s.getInputStream()) {
+            final Reader reader = new InputStreamReader(in);
+            final BufferedReader br = new BufferedReader(reader);
+            String line;
+            while ((line = br.readLine()) != null) {
+              final int blankIdx = line.indexOf(' ');
+              final String command = blankIdx == -1 ? line : line.substring(0, blankIdx).trim();
+              if ("LAUNCH".equals(command)) {
+                if (blankIdx == -1) {
+                  PlatformInit.getInstance().launch();
+                } else {
+                  final String path = line.substring(blankIdx + 1).trim();
+                  PlatformInit.getInstance().launch(path);
+                }
+              } else if ("LAUNCH_BLANK".equals(command)) {
                 PlatformInit.getInstance().launch();
-              } else {
-                final String path = line.substring(blankIdx + 1).trim();
-                PlatformInit.getInstance().launch(path);
-              }
-            } else if ("LAUNCH_BLANK".equals(command)) {
-              PlatformInit.getInstance().launch();
-            } else if ("GRINDER".equals(command)) {
-              final DataOutputStream dos = new DataOutputStream(s.getOutputStream());
-              if (blankIdx != -1) {
-                @SuppressWarnings("null")
-                final @NonNull String key = line.substring(blankIdx + 1).trim();
-                if (PlatformInit.getInstance().verifyAuth(key)) {
-                  final NavigatorFrame frame = PlatformInit.getInstance().launch("about:blank");
-                  final GrinderServer gs = new GrinderServer(frame);
-                  final int gsPort = gs.getPort();
-                  dos.writeInt(gsPort);
-                  dos.flush();
+              } else if ("GRINDER".equals(command)) {
+                final DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+                if (blankIdx != -1) {
+                  @SuppressWarnings("null")
+                  final @NonNull String key = line.substring(blankIdx + 1).trim();
+                  if (PlatformInit.getInstance().verifyAuth(key)) {
+                    final NavigatorFrame frame = PlatformInit.getInstance().launch("about:blank");
+                    final GrinderServer gs = new GrinderServer(frame);
+                    final int gsPort = gs.getPort();
+                    dos.writeInt(gsPort);
+                    dos.flush();
+                  } else {
+                    dos.writeInt(-1);
+                    dos.flush();
+                  }
                 } else {
                   dos.writeInt(-1);
                   dos.flush();
                 }
-              } else {
-                dos.writeInt(-1);
-                dos.flush();
+                // Wait for ACK
+                br.readLine();
               }
-              // Wait for ACK
-              br.readLine();
             }
           }
-        } finally {
-          s.close();
         }
       } catch (final Exception t) {
         t.printStackTrace(System.err);
