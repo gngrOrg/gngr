@@ -31,12 +31,14 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutionException;
 
 import javax.imageio.ImageIO;
+import javax.swing.SwingUtilities;
 
 import org.lobobrowser.ua.NavigatorFrame;
 import org.lobobrowser.ua.NavigatorProgressEvent;
@@ -79,6 +81,11 @@ class GrinderServer implements Runnable {
                   final String path = commandLine.substring(blankIdx + 1).trim();
                   handleTo(s, br, path);
                 }
+              } else if ("SET_SIZE".equals(command)) {
+                if (blankIdx != -1) {
+                  final String params = commandLine.substring(blankIdx + 1).trim();
+                  handleResize(s, br, params);
+                }
               } else if ("SCREENSHOT".equals(command)) {
                 handleScreenShot(s, br);
               } else if ("CLOSE".equals(command)) {
@@ -95,12 +102,42 @@ class GrinderServer implements Runnable {
 
   }
 
+  private void handleResize(final Socket s, final BufferedReader br, final String params) throws IOException {
+    final String[] parts = params.split("[,\\s]+");
+    final int w = Integer.parseInt(parts[0]);
+    final int h = Integer.parseInt(parts[1]);
+    try {
+      SwingUtilities.invokeAndWait(() -> {
+        frame.resizeWindowTo(w, h);
+      });
+    } catch (InvocationTargetException | InterruptedException e) {
+      e.printStackTrace();
+    }
+
+    markDoneAndWaitForAck(s, br);
+  }
+
+  // TODO: Add way to mark error
+  private static void markDoneAndWaitForAck(final Socket s, final BufferedReader br) throws IOException {
+    final DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+    dos.writeInt(0);
+    dos.flush();
+
+    // Wait for ACK
+    br.readLine();
+  }
+
   private void handleScreenShot(final Socket s, final BufferedReader br) throws IOException {
     final Component component = frame.getComponentContent().getComponent();
     final BufferedImage img = new BufferedImage(component.getWidth(), component.getHeight(), BufferedImage.TYPE_INT_ARGB);
     Graphics g = img.getGraphics();
-    // TODO: paint in AWT event queue
-    component.paint(g);
+    try {
+      SwingUtilities.invokeAndWait(() -> {
+        component.paint(g);
+      });
+    } catch (InvocationTargetException | InterruptedException e) {
+      e.printStackTrace();
+    }
     final ByteArrayOutputStream bos = new ByteArrayOutputStream();
     ImageIO.write(img, "PNG", bos);
     final OutputStream os = s.getOutputStream();
@@ -134,12 +171,8 @@ class GrinderServer implements Runnable {
         defSupport.layoutCompletion().get();
       }
     }
-    final DataOutputStream dos = new DataOutputStream(s.getOutputStream());
-    dos.writeInt(0);
-    dos.flush();
 
-    // Wait for ACK
-    br.readLine();
+    markDoneAndWaitForAck(s, br);
   }
 
   public int getPort() {
