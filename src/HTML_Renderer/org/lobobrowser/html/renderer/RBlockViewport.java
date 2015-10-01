@@ -1921,8 +1921,13 @@ public class RBlockViewport extends BaseRCollection {
             final Graphics selectedG = robj.isFixed() ? gIn : g;
 
             if (getModelNode() instanceof HTMLDocument) {
-              final Renderable htmlRenderable = RenderUtils.findHtmlRenderable(this);
-              if (htmlRenderable != null) {
+              Renderable htmlRenderable = RenderUtils.findHtmlRenderable(this);
+              if (htmlRenderable instanceof PositionedRenderable) {
+                final PositionedRenderable htmlPR = (PositionedRenderable) htmlRenderable;
+                htmlRenderable = htmlPR.renderable;
+              }
+              // TODO: Handle other renderable types such as RTable
+              if (htmlRenderable instanceof RBlock) {
                 final Rectangle htmlBounds = ((RBlock) htmlRenderable).getClipBoundsWithoutInsets();
                 if (htmlBounds != null) {
                   final Graphics clippedG = selectedG.create(0, 0, htmlBounds.width, htmlBounds.height);
