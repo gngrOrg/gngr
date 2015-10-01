@@ -22,6 +22,7 @@ package org.lobobrowser.gui;
 
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -153,5 +154,21 @@ public class DefaultBrowserWindow extends AbstractBrowserWindow {
     // this.paint(dbi.getGraphics());
     // g.drawImage(dbi, 0, 0, size.width, size.height, clipBounds.x,
     // clipBounds.y, clipBounds.width, clipBounds.height, this);
+  }
+
+  @Override
+  public void setSize(final Dimension d) {
+    unmaximise();
+    super.setSize(d);
+  }
+
+  @Override
+  public void setSize(final int width, final int height) {
+    unmaximise();
+    super.setSize(width, height);
+  }
+
+  private void unmaximise() {
+    setExtendedState(getExtendedState() & (~Frame.MAXIMIZED_BOTH));
   }
 }
