@@ -311,7 +311,7 @@ public final class RequestEngine {
       final URL lastRequestURL, final RequestHandler rhandler) throws ProtocolException {
     final UserAgent userAgent = request.getUserAgent();
     connection.addRequestProperty("User-Agent", userAgent.toString());
-    connection.addRequestProperty("Accept-Encoding", "gzip");
+    connection.addRequestProperty("Accept-Encoding", "gzip, deflate");
 
     // TODO: Harshad: Commenting out X-Java-Version. Check if required.
     // connection.addRequestProperty("X-Java-Version", userAgent.getJavaVersion());

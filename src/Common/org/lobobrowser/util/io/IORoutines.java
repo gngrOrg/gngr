@@ -37,6 +37,7 @@ import java.net.URLConnection;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
+import java.util.zip.InflaterInputStream;
 
 /**
  * @author J. H. S.
@@ -197,18 +198,32 @@ public class IORoutines {
 
   public static InputStream getDecodedStream(final URLConnection connection) throws IOException {
     final InputStream cis = connection.getInputStream();
-    final InputStream is = "gzip".equals(connection.getContentEncoding()) ? new GZIPInputStream(cis) : cis;
+    final InputStream is;
+    if ("gzip".equals(connection.getContentEncoding())) {
+      is = new GZIPInputStream(cis);
+    } else if ("deflate".equals(connection.getContentEncoding())) {
+      is = new InflaterInputStream(cis);
+    } else {
+      is = cis;
+    }
     return is;
   }
 
   public static InputStream getDecodedErrorStream(final HttpURLConnection connection) throws IOException {
     final InputStream cis = connection.getErrorStream();
+    final InputStream is;
     if (cis != null) {
-      final InputStream is = "gzip".equals(connection.getContentEncoding()) ? new GZIPInputStream(cis) : cis;
-      return is;
+      if ("gzip".equals(connection.getContentEncoding())) {
+        is = new GZIPInputStream(cis);
+      } else if ("deflate".equals(connection.getContentEncoding())) {
+        is = new InflaterInputStream(cis);
+      } else {
+        is = cis;
+      }
     } else {
-      return null;
+      is = null;
     }
+    return is;
   }
 
 }
