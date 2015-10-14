@@ -3,13 +3,13 @@
               Any modifications will be overwritten.
               To include a user specific buildfile here, simply create one in the same
               directory with the processing instruction <?eclipse.ant.import?>
-              as the first entry and export the buildfile again. --><project basedir="." default="build" name="HTML_Renderer">
+              as the first entry and export the buildfile again. --><project basedir="." default="build" name="Primary_Extension">
     <property environment="env"/>
     <property name="XAMJ_Build.location" value="../XAMJ_Build"/>
-    <property name="Primary_Extension.location" value="../Primary_Extension"/>
     <property name="Common.location" value="../Common"/>
     <property name="Platform_Public_API.location" value="../Platform_Public_API"/>
     <property name="Platform_Core.location" value="../Platform_Core"/>
+    <property name="HTML_Renderer.location" value="../HTML_Renderer"/>
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.8"/>
     <property name="source" value="1.8"/>
@@ -35,7 +35,7 @@
         <pathelement location="${XAMJ_Build.location}/org.eclipse.jdt.annotation_2.0.100.v20150311-1658.jar"/>
     </path>
     <path id="HTML_Renderer.classpath">
-        <pathelement location="bin"/>
+        <pathelement location="${HTML_Renderer.location}/bin"/>
         <path refid="Common.classpath"/>
         <pathelement location="${XAMJ_Build.location}/ext/js.jar"/>
         <pathelement location="${XAMJ_Build.location}/ext/sac.jar"/>
@@ -44,6 +44,15 @@
         <pathelement location="${XAMJ_Build.location}/ext/jstyleDomBridge.jar"/>
         <pathelement location="${XAMJ_Build.location}/ext/jstyleparser-1.21-SNAPSHOT.jar"/>
         <pathelement location="${XAMJ_Build.location}/ext/unbescape-1.1.0.RELEASE.jar"/>
+        <pathelement location="${XAMJ_Build.location}/org.eclipse.jdt.annotation_2.0.100.v20150311-1658.jar"/>
+    </path>
+    <path id="Primary_Extension.classpath">
+        <pathelement location="bin"/>
+        <path refid="Common.classpath"/>
+        <path refid="HTML_Renderer.classpath"/>
+        <path refid="Platform_Core.classpath"/>
+        <path refid="Platform_Public_API.classpath"/>
+        <pathelement location="${XAMJ_Build.location}/ext/js.jar"/>
         <pathelement location="${XAMJ_Build.location}/org.eclipse.jdt.annotation_2.0.100.v20150311-1658.jar"/>
     </path>
     <target name="init">
@@ -61,22 +70,21 @@
         <ant antfile="build.xml" dir="${Common.location}" inheritAll="false" target="clean"/>
         <ant antfile="build.xml" dir="${Platform_Public_API.location}" inheritAll="false" target="clean"/>
         <ant antfile="build.xml" dir="${Platform_Core.location}" inheritAll="false" target="clean"/>
+        <ant antfile="build.xml" dir="${HTML_Renderer.location}" inheritAll="false" target="clean"/>
     </target>
     <target depends="build-subprojects,build-project" name="build"/>
     <target name="build-subprojects">
         <ant antfile="build.xml" dir="${Common.location}" inheritAll="false" target="build-project"/>
         <ant antfile="build.xml" dir="${Platform_Public_API.location}" inheritAll="false" target="build-project"/>
         <ant antfile="build.xml" dir="${Platform_Core.location}" inheritAll="false" target="build-project"/>
+        <ant antfile="build.xml" dir="${HTML_Renderer.location}" inheritAll="false" target="build-project"/>
     </target>
     <target depends="init" name="build-project">
         <echo message="${ant.project.name}: ${ant.file}"/>
         <javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" source="${source}" target="${target}">
             <src path="."/>
-            <classpath refid="HTML_Renderer.classpath"/>
+            <classpath refid="Primary_Extension.classpath"/>
         </javac>
     </target>
-    <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects">
-        <ant antfile="build.xml" dir="${Primary_Extension.location}" inheritAll="false" target="clean"/>
-        <ant antfile="build.xml" dir="${Primary_Extension.location}" inheritAll="false" target="build"/>
-    </target>
+    <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
 </project>

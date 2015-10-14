@@ -3,47 +3,35 @@
               Any modifications will be overwritten.
               To include a user specific buildfile here, simply create one in the same
               directory with the processing instruction <?eclipse.ant.import?>
-              as the first entry and export the buildfile again. --><project basedir="." default="build" name="HTML_Renderer">
+              as the first entry and export the buildfile again. --><project basedir="." default="build" name="Platform_Core">
     <property environment="env"/>
     <property name="XAMJ_Build.location" value="../XAMJ_Build"/>
+    <property name="HTML_Renderer.location" value="../HTML_Renderer"/>
     <property name="Primary_Extension.location" value="../Primary_Extension"/>
     <property name="Common.location" value="../Common"/>
     <property name="Platform_Public_API.location" value="../Platform_Public_API"/>
-    <property name="Platform_Core.location" value="../Platform_Core"/>
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.8"/>
     <property name="source" value="1.8"/>
-    <path id="Common.classpath">
-        <pathelement location="${Common.location}/bin"/>
-        <pathelement location="${XAMJ_Build.location}/org.eclipse.jdt.annotation_2.0.100.v20150311-1658.jar"/>
-    </path>
     <path id="Platform_Public_API.classpath">
         <pathelement location="${Platform_Public_API.location}/bin"/>
         <pathelement location="${XAMJ_Build.location}/org.eclipse.jdt.annotation_2.0.100.v20150311-1658.jar"/>
     </path>
-    <path id="Platform_Core.classpath">
-        <pathelement location="${Platform_Core.location}/bin"/>
-        <pathelement location="${Platform_Core.location}/lib/javatuples-1.2.jar"/>
-        <path refid="Platform_Public_API.classpath"/>
-        <path refid="Common.classpath"/>
-        <pathelement location="${Platform_Core.location}/lib/jooq-3.4.2.jar"/>
-        <pathelement location="${Platform_Core.location}/lib/public-suffix-list_0.1_28Jun.jar"/>
-        <pathelement location="${Platform_Core.location}/lib/okhttp-2.5.0.jar"/>
-        <pathelement location="${Platform_Core.location}/lib/okhttp-urlconnection-2.5.0.jar"/>
-        <pathelement location="${Platform_Core.location}/lib/okio-1.6.0.jar"/>
-        <pathelement location="${Platform_Core.location}/lib/h2-1.4.188.jar"/>
+    <path id="Common.classpath">
+        <pathelement location="${Common.location}/bin"/>
         <pathelement location="${XAMJ_Build.location}/org.eclipse.jdt.annotation_2.0.100.v20150311-1658.jar"/>
     </path>
-    <path id="HTML_Renderer.classpath">
+    <path id="Platform_Core.classpath">
         <pathelement location="bin"/>
-        <path refid="Common.classpath"/>
-        <pathelement location="${XAMJ_Build.location}/ext/js.jar"/>
-        <pathelement location="${XAMJ_Build.location}/ext/sac.jar"/>
+        <pathelement location="lib/javatuples-1.2.jar"/>
         <path refid="Platform_Public_API.classpath"/>
-        <path refid="Platform_Core.classpath"/>
-        <pathelement location="${XAMJ_Build.location}/ext/jstyleDomBridge.jar"/>
-        <pathelement location="${XAMJ_Build.location}/ext/jstyleparser-1.21-SNAPSHOT.jar"/>
-        <pathelement location="${XAMJ_Build.location}/ext/unbescape-1.1.0.RELEASE.jar"/>
+        <path refid="Common.classpath"/>
+        <pathelement location="lib/jooq-3.4.2.jar"/>
+        <pathelement location="lib/public-suffix-list_0.1_28Jun.jar"/>
+        <pathelement location="lib/okhttp-2.5.0.jar"/>
+        <pathelement location="lib/okhttp-urlconnection-2.5.0.jar"/>
+        <pathelement location="lib/okio-1.6.0.jar"/>
+        <pathelement location="lib/h2-1.4.188.jar"/>
         <pathelement location="${XAMJ_Build.location}/org.eclipse.jdt.annotation_2.0.100.v20150311-1658.jar"/>
     </path>
     <target name="init">
@@ -51,6 +39,7 @@
         <copy includeemptydirs="false" todir="bin">
             <fileset dir=".">
                 <exclude name="**/*.java"/>
+                <exclude name="lib/*"/>
             </fileset>
         </copy>
     </target>
@@ -60,23 +49,31 @@
     <target depends="clean" name="cleanall">
         <ant antfile="build.xml" dir="${Common.location}" inheritAll="false" target="clean"/>
         <ant antfile="build.xml" dir="${Platform_Public_API.location}" inheritAll="false" target="clean"/>
-        <ant antfile="build.xml" dir="${Platform_Core.location}" inheritAll="false" target="clean"/>
     </target>
     <target depends="build-subprojects,build-project" name="build"/>
     <target name="build-subprojects">
         <ant antfile="build.xml" dir="${Common.location}" inheritAll="false" target="build-project"/>
         <ant antfile="build.xml" dir="${Platform_Public_API.location}" inheritAll="false" target="build-project"/>
-        <ant antfile="build.xml" dir="${Platform_Core.location}" inheritAll="false" target="build-project"/>
     </target>
     <target depends="init" name="build-project">
         <echo message="${ant.project.name}: ${ant.file}"/>
         <javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" source="${source}" target="${target}">
             <src path="."/>
-            <classpath refid="HTML_Renderer.classpath"/>
+            <exclude name="lib/*"/>
+            <classpath refid="Platform_Core.classpath"/>
         </javac>
     </target>
     <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects">
+        <ant antfile="build.xml" dir="${HTML_Renderer.location}" inheritAll="false" target="clean"/>
+        <ant antfile="build.xml" dir="${HTML_Renderer.location}" inheritAll="false" target="build"/>
         <ant antfile="build.xml" dir="${Primary_Extension.location}" inheritAll="false" target="clean"/>
         <ant antfile="build.xml" dir="${Primary_Extension.location}" inheritAll="false" target="build"/>
+    </target>
+    <target name="EntryPoint">
+        <java classname="org.lobobrowser.main.EntryPoint" failonerror="true" fork="yes">
+            <jvmarg line="-Dext.dirs=../XAMJ_Build/ext  -Dext.files=../HTML_Renderer/bin,../Primary_Extension/bin  -Djava.security.debugxx=accesss,failure -Djava.security.debugxx=access,domain,stack"/>
+            <arg line="-debug"/>
+            <classpath refid="Platform_Core.classpath"/>
+        </java>
     </target>
 </project>

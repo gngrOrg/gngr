@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Optional top level build file. You can also use the Platform_Core/build.xml directly -->
+<project basedir="." default="build" name="gngr">
+<target name="build">
+   <subant target="">
+     <fileset dir="." includes="*/build.xml"/>
+   </subant>
+</target>
+</project>
