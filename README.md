@@ -31,6 +31,15 @@ We also use [web-platform-tests](https://github.com/w3c/web-platform-tests/) for
 stabilising the DOM support. These are already semi-automated, and we will eventually automate it
 completely in `grinder`.
 
+### Building
+
+For building and running from the command line:
+
+  1. `git clone` this repo
+  2. `ant -f Platform_Core/build.xml EntryPoint`
+
+For developing, we recommend setting up Eclipse, as documented in [the wiki](https://github.com/UprootLabs/gngr/wiki/Developer:Setup).
+
 
 ### Contributing
 
