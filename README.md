@@ -31,6 +31,8 @@ We also use [web-platform-tests](https://github.com/w3c/web-platform-tests/) for
 stabilising the DOM support. These are already semi-automated, and we will eventually automate it
 completely in `grinder`.
 
+[![Build Status](https://travis-ci.org/uprootlabs/gngr.svg?branch=master)](https://travis-ci.org/uprootlabs/gngr)
+
 ### Building
 
 For building and running from the command line:
