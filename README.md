@@ -38,7 +38,8 @@ completely in `grinder`.
 For building and running from the command line:
 
   1. `git clone` this repo
-  2. `ant -f src/Platform_Core/build.xml EntryPoint`
+  2. `ant -f src/build.xml` will build all modules
+  2. `ant -f src/Platform_Core/build.xml EntryPoint` will run `gngr`
 
 For developing, we recommend setting up Eclipse, as documented in [the wiki](https://github.com/UprootLabs/gngr/wiki/Developer:Setup).
 
