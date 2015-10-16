@@ -60,6 +60,8 @@
         <copy includeemptydirs="false" todir="bin">
             <fileset dir=".">
                 <exclude name="**/*.java"/>
+                <exclude name="bin/"/>
+                <exclude name="build.xml"/>
             </fileset>
         </copy>
     </target>

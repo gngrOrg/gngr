@@ -40,6 +40,8 @@
             <fileset dir=".">
                 <exclude name="**/*.java"/>
                 <exclude name="lib/*"/>
+                <exclude name="bin/"/>
+                <exclude name="build.xml"/>
             </fileset>
         </copy>
     </target>
