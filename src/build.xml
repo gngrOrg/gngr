@@ -7,6 +7,12 @@
     </subant>
   </target>
 
+  <target name="clean">
+    <subant target="clean">
+      <fileset dir="." includes="*/build.xml"/>
+    </subant>
+  </target>
+
   <target name="run" depends="build">
     <subant target="EntryPoint">
       <fileset dir="." includes="Platform_Core/build.xml"/>
