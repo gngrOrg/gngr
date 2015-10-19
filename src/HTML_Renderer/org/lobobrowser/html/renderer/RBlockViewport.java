@@ -2160,7 +2160,7 @@ public class RBlockViewport extends BaseRCollection {
 
     @Override
     protected RElement createRenderable(final RBlockViewport bodyLayout, final HTMLElementImpl markupElement) {
-      final UIControl control = new ImgControl((HTMLImageElementImpl) markupElement);
+      final ImgControl control = new ImgControl((HTMLImageElementImpl) markupElement);
       return new RImgControl(markupElement, control, bodyLayout.container, bodyLayout.frameContext, bodyLayout.userAgentContext);
     }
   }
