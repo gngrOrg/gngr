@@ -219,12 +219,6 @@ public class HTMLImageElementImpl extends HTMLAbstractUIElement implements HTMLI
     }
   }
 
-  public final java.awt.Image getImage() {
-    synchronized (this.listeners) {
-      return this.image;
-    }
-  }
-
   @Override
   public Object setUserData(final String key, final Object data, final UserDataHandler handler) {
     if (org.lobobrowser.html.parser.HtmlParser.MODIFYING_KEY.equals(key) && (data != Boolean.TRUE)) {

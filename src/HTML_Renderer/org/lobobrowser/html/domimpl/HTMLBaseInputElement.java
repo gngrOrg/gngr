@@ -340,12 +340,6 @@ public abstract class HTMLBaseInputElement extends HTMLAbstractUIElement {
     }
   }
 
-  public final java.awt.Image getImage() {
-    synchronized (this.imageListeners) {
-      return this.image;
-    }
-  }
-
   private final ArrayList<ImageListener> imageListeners = new ArrayList<>(1);
 
   /**
