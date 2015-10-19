@@ -342,6 +342,7 @@ public class NetworkRequestImpl implements NetworkRequest {
     public boolean handleException(final ClientletResponse response, final Throwable exception, final RequestType requestType)
         throws ClientletException {
       logger.log(Level.WARNING, "handleException(): url=" + this.getLatestRequestURL() + ",response=[" + response + "]", exception);
+      NetworkRequestImpl.this.abort();
       return true;
     }
 
