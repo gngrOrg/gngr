@@ -48,6 +48,8 @@ import org.lobobrowser.html.style.HtmlInsets;
 import org.lobobrowser.html.style.HtmlValues;
 import org.lobobrowser.html.style.JStyleProperties;
 import org.lobobrowser.html.style.RenderState;
+import org.lobobrowser.ua.ImageResponse;
+import org.lobobrowser.ua.ImageResponse.State;
 import org.lobobrowser.ua.NetworkRequest;
 import org.lobobrowser.ua.UserAgentContext;
 import org.lobobrowser.ua.UserAgentContext.Request;
@@ -78,6 +80,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
    */
   protected Color backgroundColor;
   protected volatile Image backgroundImage;
+  protected volatile boolean backgroundImageError = false;
   protected int zIndex;
   protected Color borderTopColor;
   protected Color borderLeftColor;
@@ -358,6 +361,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
     this.zIndex = 0;
     this.backgroundColor = null;
     this.backgroundImage = null;
+    this.backgroundImageError = false;
     this.lastBackgroundImageUri = null;
     this.overflowX = RenderState.OVERFLOW_VISIBLE;
     this.overflowY = RenderState.OVERFLOW_VISIBLE;
@@ -410,6 +414,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
     final java.net.URL backgroundImageUri = binfo == null ? null : binfo.backgroundImage;
     if (backgroundImageUri == null) {
       this.backgroundImage = null;
+      this.backgroundImageError = false;
       this.lastBackgroundImageUri = null;
     } else if (!backgroundImageUri.equals(this.lastBackgroundImageUri)) {
       this.lastBackgroundImageUri = backgroundImageUri;
@@ -545,9 +550,12 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
         if (readyState == NetworkRequest.STATE_COMPLETE) {
           final int status = request.getStatus();
           if ((status == 200) || (status == 0)) {
-            final Image img = request.getResponseImage();
-            if (img != null) {
+            final ImageResponse imgResp = request.getResponseImage();
+            if (imgResp.state == State.loaded) {
+              assert(imgResp.img != null);
+              final @NonNull Image img = imgResp.img;
               BaseElementRenderable.this.backgroundImage = img;
+              backgroundImageError = false;
               // Cause observer to be called
               final int w = img.getWidth(BaseElementRenderable.this);
               final int h = img.getHeight(BaseElementRenderable.this);
@@ -557,8 +565,14 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
                   BaseElementRenderable.this.repaint();
                 });
               }
+            } else {
+              backgroundImageError = true;
             }
+          } else {
+            backgroundImageError = true;
           }
+        } else if (readyState == NetworkRequest.STATE_ABORTED) {
+          backgroundImageError = true;
         }
       })  ;
 
@@ -568,7 +582,9 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
           request.open("GET", imageURL);
           request.send(null, new Request(imageURL, RequestKind.Image));
         } catch (final java.io.IOException thrown) {
-          logger.log(Level.WARNING, "loadBackgroundImage()", thrown);
+          System.out.println("Caught exception");
+          // logger.log(Level.WARNING, "loadBackgroundImage()", thrown);
+          backgroundImageError = true;
         }
         return null;
       });
@@ -1210,4 +1226,20 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
   }
 
 
+  @Override
+  public boolean isReadyToPaint() {
+    final boolean superReady = super.isReadyToPaint();
+    if (!superReady) {
+      return false;
+    }
+
+    final ModelNode node = this.modelNode;
+    final RenderState rs = node.getRenderState();
+    final BackgroundInfo binfo = rs == null ? null : rs.getBackgroundInfo();
+    if (binfo != null && binfo.backgroundImage != null) {
+      return this.backgroundImage != null || backgroundImageError;
+    } else {
+      return true;
+    }
+  }
 }

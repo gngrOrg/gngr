@@ -30,6 +30,8 @@ import org.lobobrowser.html.js.Executor;
 import org.lobobrowser.html.js.Window;
 import org.lobobrowser.html.style.ImageRenderState;
 import org.lobobrowser.html.style.RenderState;
+import org.lobobrowser.ua.ImageResponse;
+import org.lobobrowser.ua.ImageResponse.State;
 import org.mozilla.javascript.Function;
 import org.w3c.dom.UserDataHandler;
 import org.w3c.dom.html.HTMLImageElement;
@@ -201,7 +203,7 @@ public class HTMLImageElementImpl extends HTMLAbstractUIElement implements HTMLI
     this.onload = onload;
   }
 
-  private java.awt.Image image = null;
+  private @NonNull ImageResponse imageResponse = new ImageResponse();
   private String imageSrc;
 
   private void loadImage(final String src) {
@@ -209,7 +211,7 @@ public class HTMLImageElementImpl extends HTMLAbstractUIElement implements HTMLI
     if (document != null) {
       synchronized (this.listeners) {
         this.imageSrc = src;
-        this.image = null;
+        this.imageResponse = new ImageResponse();
       }
       if (src != null) {
         document.loadImage(src, new LocalImageListener(src));
@@ -238,15 +240,15 @@ public class HTMLImageElementImpl extends HTMLAbstractUIElement implements HTMLI
    */
   public void addImageListener(final ImageListener listener) {
     final ArrayList<ImageListener> l = this.listeners;
-    java.awt.Image currentImage;
+    ImageResponse currentImageResponse;
     synchronized (l) {
-      currentImage = this.image;
+      currentImageResponse = this.imageResponse;
       l.add(listener);
     }
-    if (currentImage != null) {
+    if (currentImageResponse.state != State.loading) {
       // Call listener right away if there's already an
       // image; holding no locks.
-      listener.imageLoaded(new ImageEvent(this, currentImage));
+      listener.imageLoaded(new ImageEvent(this, currentImageResponse));
       // Should not call onload handler here. That's taken
       // care of otherwise.
     }
@@ -266,7 +268,7 @@ public class HTMLImageElementImpl extends HTMLAbstractUIElement implements HTMLI
       if (!expectedImgSrc.equals(this.imageSrc)) {
         return;
       }
-      this.image = event.image;
+      this.imageResponse = event.imageResponse;
       // Get array of listeners while holding lock.
       listenerArray = l.toArray(ImageListener.EMPTY_ARRAY);
     }

@@ -89,4 +89,8 @@ public interface ComponentContent {
    * @param value
    */
   public void setProperty(String name, Object value);
+
+  default public boolean isReadyToPaint() {
+    return true;
+  }
 }

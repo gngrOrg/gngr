@@ -22,11 +22,19 @@ package org.lobobrowser.html.domimpl;
 
 import java.util.EventObject;
 
-public class ImageEvent extends EventObject {
-  public final java.awt.Image image;
+import org.eclipse.jdt.annotation.NonNull;
+import org.lobobrowser.ua.ImageResponse;
 
-  public ImageEvent(final Object source, final java.awt.Image image) {
+public class ImageEvent extends EventObject {
+  public @NonNull final ImageResponse imageResponse;
+
+  public ImageEvent(final Object source, final @NonNull ImageResponse imageResponse) {
     super(source);
-    this.image = image;
+    this.imageResponse = imageResponse;
+  }
+
+  @Override
+  public String toString() {
+    return "Image Event: " + source + ", response: " + imageResponse;
   }
 }

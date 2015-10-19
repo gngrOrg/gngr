@@ -35,4 +35,13 @@ public final class Threads {
     }
     System.out.println("--- 8< ------------[ END ]------------ >8 ---");
   }
+
+  /** Sleep until interrupted */
+  public static void sleep(int ms) {
+    try {
+      Thread.sleep(ms);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+  }
 }

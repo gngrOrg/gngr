@@ -211,4 +211,9 @@ public class PositionedRenderable implements Renderable {
   public boolean contains(int x, int y) {
     return getVisualBounds().contains(x, y);
   }
+
+  @Override
+  public boolean isReadyToPaint() {
+    return renderable.isReadyToPaint();
+  }
 }

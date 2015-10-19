@@ -127,7 +127,35 @@ class GrinderServer implements Runnable {
     br.readLine();
   }
 
+  private class ReadyChecker implements Runnable {
+    boolean isReady = false;
+    @Override
+    public void run() {
+      isReady = frame.getComponentContent().isReadyToPaint();
+    }
+  }
+
+  private boolean isReadyToPaint() {
+    try {
+      ReadyChecker checker = new ReadyChecker();
+      SwingUtilities.invokeAndWait(checker);
+      return checker.isReady;
+    } catch (InvocationTargetException | InterruptedException e) {
+      e.printStackTrace();
+    }
+    return true;
+  }
+
   private void handleScreenShot(final Socket s, final BufferedReader br) throws IOException {
+    try {
+      while (!isReadyToPaint()) {
+        Thread.sleep(50);
+      }
+      Thread.sleep(150);  // Equal to HtmlPanel.NOTIF_TIMER_DELAY. TODO: Define in a common place
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
     final Component component = frame.getComponentContent().getComponent();
     final BufferedImage img = new BufferedImage(component.getWidth(), component.getHeight(), BufferedImage.TYPE_INT_ARGB);
     Graphics g = img.getGraphics();

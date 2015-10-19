@@ -1066,4 +1066,12 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
   public Future<Boolean> layoutCompletion() {
     return layoutCompleted;
   }
+
+  public boolean isReadyToPaint() {
+    final RBlock block = this.rblock;
+    if (block != null) {
+      return block.isReadyToPaint();
+    }
+    return false;
+  }
 }

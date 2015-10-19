@@ -70,7 +70,7 @@ public class HtmlPanel extends JComponent implements FrameContext, DefferedLayou
   private final javax.swing.Timer notificationTimer;
   private final DocumentNotificationListener notificationListener;
   private final Runnable notificationImmediateAction;
-  private static final int NOTIF_TIMER_DELAY = 300;
+  private static final int NOTIF_TIMER_DELAY = 150;
 
   private volatile boolean isFrameSet = false;
   private volatile NodeRenderer nodeRenderer = null;
@@ -792,5 +792,13 @@ public class HtmlPanel extends JComponent implements FrameContext, DefferedLayou
   @Override
   public Future<Boolean> layoutCompletion() {
     return htmlBlockPanel.layoutCompletion();
+  }
+
+  public boolean isReadyToPaint() {
+    final HtmlBlockPanel htmlBlock = this.htmlBlockPanel;
+    if (htmlBlock != null) {
+      return  (notifications.size() == 0) && htmlBlock.isReadyToPaint();
+    }
+    return false;
   }
 }

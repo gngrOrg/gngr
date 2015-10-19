@@ -40,4 +40,8 @@ public interface Renderable {
   default public boolean isFixed() {
     return false;
   }
+
+  default public boolean isReadyToPaint() {
+    return true;
+  }
 }

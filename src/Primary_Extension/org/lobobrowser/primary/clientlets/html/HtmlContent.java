@@ -142,4 +142,9 @@ public class HtmlContent implements ComponentContent {
       }
     }
   }
+
+  @Override
+  public boolean isReadyToPaint() {
+    return this.panel.isReadyToPaint();
+  }
 }

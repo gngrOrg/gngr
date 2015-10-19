@@ -52,4 +52,8 @@ abstract interface UIControl {
   public void paint(Graphics g);
 
   public java.awt.Component getComponent();
+
+  default public boolean isReadyToPaint() {
+    return true;
+  }
 }

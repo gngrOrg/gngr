@@ -300,4 +300,9 @@ public class TranslatedRenderable extends BaseBoundableRenderable implements RCo
     // TODO: Stub
     return getClipBounds();
   }
+
+  @Override
+  public boolean isReadyToPaint() {
+    return translatedChild.isReadyToPaint();
+  }
 }

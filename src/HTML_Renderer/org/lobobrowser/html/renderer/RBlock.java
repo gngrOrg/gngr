@@ -1841,4 +1841,8 @@ public class RBlock extends BaseElementRenderable {
       return delgStr + r.toString();
     }
   }
+
+  public boolean isReadyToPaint() {
+    return super.isReadyToPaint() && bodyLayout.isReadyToPaint();
+  }
 }

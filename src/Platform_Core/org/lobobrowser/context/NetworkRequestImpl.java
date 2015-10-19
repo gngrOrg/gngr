@@ -25,6 +25,7 @@ package org.lobobrowser.context;
 
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.awt.image.ImageObserver;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,6 +49,8 @@ import org.lobobrowser.clientlet.ClientletResponse;
 import org.lobobrowser.request.RequestEngine;
 import org.lobobrowser.request.RequestHandler;
 import org.lobobrowser.request.SimpleRequestHandler;
+import org.lobobrowser.ua.ImageResponse;
+import org.lobobrowser.ua.ImageResponse.State;
 import org.lobobrowser.ua.NavigatorProgressEvent;
 import org.lobobrowser.ua.NetworkRequest;
 import org.lobobrowser.ua.NetworkRequestEvent;
@@ -58,6 +61,7 @@ import org.lobobrowser.ua.UserAgentContext;
 import org.lobobrowser.ua.UserAgentContext.Request;
 import org.lobobrowser.util.EventDispatch;
 import org.lobobrowser.util.GenericEventListener;
+import org.lobobrowser.util.Threads;
 import org.lobobrowser.util.Urls;
 import org.w3c.dom.Document;
 
@@ -91,9 +95,13 @@ public class NetworkRequestImpl implements NetworkRequest {
     return lr == null ? null : lr.getResponseXML();
   }
 
-  public Image getResponseImage() {
+  public @NonNull ImageResponse getResponseImage() {
     final LocalResponse lr = this.localResponse;
-    return lr == null ? null : lr.getResponseImage();
+    if (lr == null) {
+      return new ImageResponse();
+    } else {
+      return lr.getResponseImage();
+    }
   }
 
   // public java.util.jar.JarFile getResponseJarFile() throws java.io.IOException {
@@ -371,9 +379,6 @@ public class NetworkRequestImpl implements NetworkRequest {
     private String textContent;
     private boolean complete;
 
-    public CacheableResponse() {
-    }
-
     public int getEstimatedSize() {
       final ByteArrayOutputStream out = this.buffer;
       final int factor = 3;
@@ -386,20 +391,38 @@ public class NetworkRequestImpl implements NetworkRequest {
       return new LocalResponse(response, this);
     }
 
-    public Image getResponseImage() {
+    public @NonNull ImageResponse getResponseImage() {
       // A hard reference to the image is not a good idea here.
       // Images will retain their observers, and it's also
       // hard to estimate their actual size.
       final WeakReference<Image> imageRef = this.imageRef;
       Image img = imageRef == null ? null : imageRef.get();
-      if ((img == null) && this.complete) {
-        final byte[] bytes = this.getResponseBytes();
-        if (bytes != null) {
-          img = Toolkit.getDefaultToolkit().createImage(bytes);
-          this.imageRef = new WeakReference<>(img);
+      if (this.complete) {
+        if (img == null) {
+          final byte[] bytes = this.getResponseBytes();
+            img = Toolkit.getDefaultToolkit().createImage(bytes);
+            Toolkit.getDefaultToolkit().prepareImage(img, -1, -1, null);
+            int checkedFlags = Toolkit.getDefaultToolkit().checkImage(img, -1, -1, null);
+            while (!isImgDone(checkedFlags)) {
+              checkedFlags = Toolkit.getDefaultToolkit().checkImage(img, -1, -1, null);
+              Threads.sleep(33);
+            }
+            if ((checkedFlags & ImageObserver.ERROR) != 0) {
+              return new ImageResponse(State.error, null);
+            } else {
+              this.imageRef = new WeakReference<>(img);
+              return new ImageResponse(State.loaded, img);
+            }
+        } else {
+          return new ImageResponse(State.loaded, img);
         }
+      } else {
+        return new ImageResponse();
       }
-      return img;
+    }
+
+    private static boolean isImgDone(final int checkedFlags) {
+      return ((checkedFlags & ImageObserver.ERROR) != 0) || ((checkedFlags & (ImageObserver.WIDTH | ImageObserver.HEIGHT)) != 0);
     }
 
     public String getResponseText(final String charset) {
@@ -577,7 +600,7 @@ public class NetworkRequestImpl implements NetworkRequest {
       return this.cacheable.getResponseXML();
     }
 
-    public Image getResponseImage() {
+    public @NonNull ImageResponse getResponseImage() {
       return this.cacheable.getResponseImage();
     }
 

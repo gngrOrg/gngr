@@ -33,14 +33,16 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.html.domimpl.HTMLElementImpl;
 import org.lobobrowser.html.domimpl.HTMLImageElementImpl;
 import org.lobobrowser.html.domimpl.ImageEvent;
 import org.lobobrowser.html.domimpl.ImageListener;
 import org.lobobrowser.html.style.HtmlValues;
+import org.lobobrowser.ua.ImageResponse;
 
 class ImgControl extends BaseControl implements ImageListener {
-  private volatile Image image;
+  private volatile ImageResponse imageResponse = new ImageResponse();
   // private final UserAgentContext browserContext;
   private String lastSrc;
 
@@ -53,8 +55,10 @@ class ImgControl extends BaseControl implements ImageListener {
   @Override
   public void paintComponent(final Graphics g) {
     super.paintComponent(g);
-    final Image image = this.image;
-    if (image != null) {
+    final ImageResponse imageResponse = this.imageResponse;
+    if (imageResponse.isDecoded()) {
+      assert(imageResponse.img != null);
+      final Image image = imageResponse.img;
       final Dimension size = this.getSize();
       final Insets insets = this.getInsets();
       final Graphics2D g2 = (Graphics2D) g;
@@ -127,41 +131,38 @@ class ImgControl extends BaseControl implements ImageListener {
   }
 
   public Dimension createPreferredSize(int dw, int dh) {
-    final Image img = this.image;
+    final ImageResponse imageResponseLocal = this.imageResponse;
+    if (!imageResponseLocal.isDecoded()) {
+      return new Dimension(dw == -1 ? 0 : dw, dh == -1 ? 0 : dh);
+    }
+
+    assert(imageResponseLocal.img != null);
+    final @NonNull Image img = imageResponseLocal.img;
+
     if (dw == -1) {
       if (dh != -1) {
-        final int iw = img == null ? -1 : img.getWidth(this);
-        final int ih = img == null ? -1 : img.getHeight(this);
+        final int iw = img.getWidth(this);
+        final int ih = img.getHeight(this);
         if (ih == 0) {
-          dw = iw == -1 ? 0 : iw;
-        } else if ((iw == -1) || (ih == -1)) {
-          dw = 0;
+          dw = iw;
         } else {
           dw = (dh * iw) / ih;
         }
       } else {
-        dw = img == null ? -1 : img.getWidth(this);
-        if (dw == -1) {
-          dw = 0;
-        }
+        dw = img.getWidth(this);
       }
     }
     if (dh == -1) {
       if (dw != -1) {
-        final int iw = img == null ? -1 : img.getWidth(this);
-        final int ih = img == null ? -1 : img.getHeight(this);
+        final int iw = img.getWidth(this);
+        final int ih = img.getHeight(this);
         if (iw == 0) {
           dh = ih == -1 ? 0 : ih;
-        } else if ((iw == -1) || (ih == -1)) {
-          dh = 0;
         } else {
           dh = (dw * ih) / iw;
         }
       } else {
-        dh = img == null ? -1 : img.getHeight(this);
-        if (dh == -1) {
-          dh = 0;
-        }
+        dh = img.getHeight(this);
       }
     }
     return new Dimension(dw, dh);
@@ -223,14 +224,14 @@ class ImgControl extends BaseControl implements ImageListener {
 
   public void imageLoaded(final ImageEvent event) {
     // Implementation of ImageListener. Invoked in a request thread most likely.
-    final Image image = event.image;
-    this.image = image;
-    if (image != null) {
+    final ImageResponse imageResponseLocal = event.imageResponse;
+    this.imageResponse = imageResponseLocal;
+    if (imageResponseLocal.isDecoded()) {
+      assert(imageResponseLocal.img != null);
+      final Image image = imageResponseLocal.img;
       final int width = image.getWidth(this);
       final int height = image.getHeight(this);
-      if ((width != -1) && (height != -1)) {
-        this.imageUpdate(image, width, height);
-      }
+      this.imageUpdate(image, width, height);
     }
   }
 
@@ -286,5 +287,10 @@ class ImgControl extends BaseControl implements ImageListener {
     }
 
     return ret;
+  }
+
+  @Override
+  public boolean isReadyToPaint() {
+    return imageResponse.isReadyToPaint();
   }
 }

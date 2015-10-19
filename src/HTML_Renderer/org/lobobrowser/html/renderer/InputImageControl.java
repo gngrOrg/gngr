@@ -30,11 +30,15 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.ImageObserver;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.lobobrowser.html.domimpl.HTMLBaseInputElement;
 import org.lobobrowser.html.domimpl.HTMLElementImpl;
 import org.lobobrowser.html.domimpl.ImageEvent;
 import org.lobobrowser.html.domimpl.ImageListener;
 import org.lobobrowser.html.style.HtmlValues;
+import org.lobobrowser.ua.ImageResponse;
+import org.lobobrowser.ua.ImageResponse.State;
 import org.lobobrowser.util.gui.WrapperLayout;
 
 class InputImageControl extends BaseInputControl implements ImageListener {
@@ -75,7 +79,7 @@ class InputImageControl extends BaseInputControl implements ImageListener {
   private Dimension preferredSize;
   private int declaredWidth;
   private int declaredHeight;
-  private Image image;
+  private ImageResponse imageResponse;
 
   @Override
   public void reset(final int availWidth, final int availHeight) {
@@ -123,9 +127,9 @@ class InputImageControl extends BaseInputControl implements ImageListener {
     final Insets insets = this.getInsets();
     synchronized (this) {
     }
-    final Image image = this.image;
-    if (image != null) {
-      g.drawImage(image, insets.left, insets.top, size.width - insets.left - insets.right, size.height - insets.top - insets.bottom, this);
+    final ImageResponse imageResponse = this.imageResponse;
+    if (imageResponse.state == State.loaded) {
+      g.drawImage(imageResponse.img, insets.left, insets.top, size.width - insets.left - insets.right, size.height - insets.top - insets.bottom, this);
     } else {
       // TODO: alt
     }
@@ -148,18 +152,19 @@ class InputImageControl extends BaseInputControl implements ImageListener {
   }
 
   public Dimension createPreferredSize(int dw, int dh) {
-    final Image img = this.image;
+    final ImageResponse imgResponse = this.imageResponse;
+    if (!imgResponse.isDecoded()) {
+      return new Dimension(dw == -1 ? 0 : dw, dh == -1 ? 0 : dh);
+    }
+
+    assert (imgResponse.img != null);
+    final @NonNull Image img = imgResponse.img;
+
     if (dw == -1) {
-      dw = img == null ? -1 : img.getWidth(this);
-      if (dw == -1) {
-        dw = 0;
-      }
+      dw = img.getWidth(this);
     }
     if (dh == -1) {
-      dh = img == null ? -1 : img.getHeight(this);
-      if (dh == -1) {
-        dh = 0;
-      }
+      dh = img.getHeight(this);
     }
     return new Dimension(dw, dh);
   }
@@ -221,13 +226,15 @@ class InputImageControl extends BaseInputControl implements ImageListener {
 
   public void imageLoaded(final ImageEvent event) {
     // Implementation of ImageListener. Invoked in a request thread most likely.
-    final Image image = event.image;
+    final ImageResponse imageResponseLocal = event.imageResponse;
     // ImageIcon imageIcon = new ImageIcon(image);
     // this.button.setIcon(imageIcon);
-    this.image = image;
-    final int width = image.getWidth(this);
-    final int height = image.getHeight(this);
-    if ((width != -1) && (height != -1)) {
+    this.imageResponse = imageResponseLocal;
+    if (imageResponseLocal.isDecoded()) {
+      assert (imageResponseLocal.img != null);
+      @Nullable Image image = imageResponseLocal.img;
+      final int width = image.getWidth(this);
+      final int height = image.getHeight(this);
       this.imageUpdate(image, width, height);
     }
   }
@@ -238,6 +245,11 @@ class InputImageControl extends BaseInputControl implements ImageListener {
 
   public void resetInput() {
     // NOP
+  }
+
+  @Override
+  public boolean isReadyToPaint() {
+    return imageResponse.isReadyToPaint();
   }
 
   // private static class LocalButton extends JButton {

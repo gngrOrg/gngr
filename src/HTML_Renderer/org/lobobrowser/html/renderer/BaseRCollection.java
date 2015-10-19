@@ -6,6 +6,7 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.util.Iterator;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.html.domimpl.ModelNode;
 
 abstract class BaseRCollection extends BaseBoundableRenderable implements RCollection {
@@ -370,5 +371,20 @@ abstract class BaseRCollection extends BaseBoundableRenderable implements RColle
   public Rectangle getClipBoundsWithoutInsets() {
     // TODO
     return getClipBounds();
+  }
+
+  @Override
+  public boolean isReadyToPaint() {
+    final Iterator<@NonNull ? extends Renderable> renderables = getRenderables();
+    if (renderables == null) {
+      return true;
+    }
+    while (renderables.hasNext()) {
+      final Renderable next = renderables.next();
+      if (!next.isReadyToPaint()) {
+        return false;
+      }
+    }
+    return true;
   }
 }

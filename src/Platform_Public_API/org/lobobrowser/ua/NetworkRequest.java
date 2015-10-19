@@ -23,7 +23,6 @@
  */
 package org.lobobrowser.ua;
 
-import java.awt.Image;
 import java.net.URL;
 import java.util.List;
 import java.util.Optional;
@@ -95,7 +94,7 @@ public interface NetworkRequest {
   /**
    * Gets the request response as an AWT image, if that's possible.
    */
-  public Image getResponseImage();
+  public @NonNull ImageResponse getResponseImage();
 
   /**
    * Gets the request response bytes.

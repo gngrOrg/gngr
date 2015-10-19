@@ -66,6 +66,7 @@ import org.lobobrowser.html.style.StyleElements;
 import org.lobobrowser.html.style.StyleSheetRenderState;
 import org.lobobrowser.js.HideFromJS;
 import org.lobobrowser.request.DomainValidation;
+import org.lobobrowser.ua.ImageResponse;
 import org.lobobrowser.ua.NetworkRequest;
 import org.lobobrowser.ua.UserAgentContext;
 import org.lobobrowser.ua.UserAgentContext.Request;
@@ -1147,7 +1148,7 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
   }
 
   private final Map<String, ImageInfo> imageInfos = new HashMap<>(4);
-  private final ImageEvent BLANK_IMAGE_EVENT = new ImageEvent(this, null);
+  private final ImageEvent BLANK_IMAGE_EVENT = new ImageEvent(this, new ImageResponse());
 
   /**
    * Loads images asynchronously such that they are shared if loaded
@@ -1188,13 +1189,13 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
           newInfo.addListener(imageListener);
           httpRequest.addNetworkRequestListener(netEvent -> {
             if (httpRequest.getReadyState() == NetworkRequest.STATE_COMPLETE) {
-              final java.awt.Image newImage = httpRequest.getResponseImage();
-              final ImageEvent newEvent = newImage == null ? null : new ImageEvent(HTMLDocumentImpl.this, newImage);
+              final ImageResponse imageResponse = httpRequest.getResponseImage();
+              final ImageEvent newEvent = new ImageEvent(HTMLDocumentImpl.this, imageResponse);
               ImageListener[] listeners;
               synchronized (map) {
                 newInfo.imageEvent = newEvent;
                 newInfo.loaded = true;
-                listeners = newEvent == null ? null : newInfo.getListeners();
+                listeners = newInfo.getListeners();
                 // Must remove from map in the locked block
                 // that got the listeners. Otherwise a new
                 // listener might miss the event??
@@ -1229,7 +1230,7 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
 
           SecurityUtil.doPrivileged(() -> {
             try {
-              httpRequest.open("GET", url, true);
+              httpRequest.open("GET", url);
               httpRequest.send(null, new Request(url, RequestKind.Image));
             } catch (final java.io.IOException thrown) {
               logger.log(Level.WARNING, "loadImage()", thrown);

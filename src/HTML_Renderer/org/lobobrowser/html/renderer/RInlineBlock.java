@@ -147,4 +147,9 @@ public class RInlineBlock extends BaseElementRenderable {
   public int getZIndex() {
     return this.child.getZIndex();
   }
+
+  @Override
+  public boolean isReadyToPaint() {
+    return child.isReadyToPaint();
+  }
 }

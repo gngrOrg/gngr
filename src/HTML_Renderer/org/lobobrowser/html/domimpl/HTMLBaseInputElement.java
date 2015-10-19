@@ -29,6 +29,8 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.html.FormInput;
 import org.lobobrowser.html.js.Event;
 import org.lobobrowser.html.js.NotGetterSetter;
+import org.lobobrowser.ua.ImageResponse;
+import org.lobobrowser.ua.ImageResponse.State;
 import org.mozilla.javascript.Function;
 import org.w3c.dom.Node;
 import org.w3c.dom.html.HTMLFormElement;
@@ -324,7 +326,7 @@ public abstract class HTMLBaseInputElement extends HTMLAbstractUIElement {
     this.onload = onload;
   }
 
-  private java.awt.Image image = null;
+  private ImageResponse imageResponse = null;
   private String imageSrc;
 
   private void loadImage(final String src) {
@@ -332,7 +334,7 @@ public abstract class HTMLBaseInputElement extends HTMLAbstractUIElement {
     if (document != null) {
       synchronized (this.imageListeners) {
         this.imageSrc = src;
-        this.image = null;
+        this.imageResponse = null;
       }
       if (src != null) {
         document.loadImage(src, new LocalImageListener(src));
@@ -350,15 +352,15 @@ public abstract class HTMLBaseInputElement extends HTMLAbstractUIElement {
    */
   public void addImageListener(final ImageListener listener) {
     final ArrayList<ImageListener> l = this.imageListeners;
-    java.awt.Image currentImage;
+    ImageResponse currentImageResponse;
     synchronized (l) {
-      currentImage = this.image;
+      currentImageResponse = this.imageResponse;
       l.add(listener);
     }
-    if (currentImage != null) {
+    if (currentImageResponse.state != State.loading) {
       // Call listener right away if there's already an
       // image; holding no locks.
-      listener.imageLoaded(new ImageEvent(this, currentImage));
+      listener.imageLoaded(new ImageEvent(this, currentImageResponse));
       // Should not call onload handler here. That's taken
       // care of otherwise.
     }
@@ -385,7 +387,7 @@ public abstract class HTMLBaseInputElement extends HTMLAbstractUIElement {
       if (!expectedImgSrc.equals(this.imageSrc)) {
         return;
       }
-      this.image = event.image;
+      this.imageResponse = event.imageResponse;
       // Get array of listeners while holding lock.
       listenerArray = l.toArray(ImageListener.EMPTY_ARRAY);
     }

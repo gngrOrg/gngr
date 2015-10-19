@@ -58,4 +58,14 @@ public class RImgControl extends RUIControl {
       }
     }
   }
+
+  @Override
+  public boolean isReadyToPaint() {
+    return super.isReadyToPaint() && widget.isReadyToPaint();
+  }
+
+  @Override
+  public String toString() {
+    return "RImgControl : " + modelNode;
+  }
 }
