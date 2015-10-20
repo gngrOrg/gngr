@@ -195,6 +195,7 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
         // this.forgetAllTasks();
         this.initWindowScope(document);
 
+        jobsOver.set(false);
         jsScheduler.start();
 
         this.document = document;
@@ -1471,7 +1472,7 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
   // private Function windowLoadListeners;
 
   // TODO: Move job scheduling logic into Window class
-  // private AtomicBoolean jobsOver = new AtomicBoolean(false);
+  private AtomicBoolean jobsOver = new AtomicBoolean(false);
   @HideFromJS
   public void jobsFinished() {
     final Event windowLoadEvent = new Event("load", document);
@@ -1487,7 +1488,7 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
       // Executor.executeFunction(document, handler, windowLoadEvent);
     }
 
-    // jobsOver.set(true);
+    jobsOver.set(true);
   }
 
   @PropertyName("Element")
@@ -1549,6 +1550,6 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
 
   @HideFromJS
   public boolean hasPendingTasks() {
-    return jsScheduler.hasPendingTasks();
+    return (!jobsOver.get()) && jsScheduler.hasPendingTasks();
   }
 }
