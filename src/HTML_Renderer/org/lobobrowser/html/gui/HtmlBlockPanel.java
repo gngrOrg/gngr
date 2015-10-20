@@ -1070,7 +1070,8 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
   public boolean isReadyToPaint() {
     final RBlock block = this.rblock;
     if (block != null) {
-      return block.isReadyToPaint();
+      final HTMLDocumentImpl doc = (HTMLDocumentImpl) block.getModelNode();
+      return (!doc.getWindow().hasPendingTasks()) && block.isReadyToPaint();
     }
     return false;
   }

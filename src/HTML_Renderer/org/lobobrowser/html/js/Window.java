@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -318,6 +319,7 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
     }
 
     private final PriorityBlockingQueue<ScheduledTask> jsQueue = new PriorityBlockingQueue<>();
+    private final AtomicBoolean running = new AtomicBoolean(false);
 
     private volatile boolean windowClosing = false;
 
@@ -346,6 +348,7 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
               public Object run() {
                 // System.out.println("In " + window.document.getBaseURI() + "\n  Running task: " + scheduledTask);
                 // System.out.println("In " + name + "\n  Running task: " + scheduledTask);
+                running.set(true);
                 scheduledTask.task.run();
                 // System.out.println("Done task: " + scheduledTask);
                 // System.out.println("  Remaining tasks: " + jsQueue.size());
@@ -364,6 +367,8 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
         } catch (final WindowClosingError wce) {
           // Javascript context detected a request for closing and bailed out.
           assert(windowClosing);
+        } finally {
+          running.set(false);
         }
       }
       // System.out.println("Exiting loop\n\n");
@@ -420,6 +425,10 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
       jsQueue.add(new ScheduledTask(newId, task));
       return newId;
       // }
+    }
+
+    public boolean hasPendingTasks() {
+      return (!jsQueue.isEmpty()) || running.get();
     }
   }
 
@@ -1536,5 +1545,10 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
   protected void finalize() throws Throwable {
     shutdown();
     super.finalize();
+  }
+
+  @HideFromJS
+  public boolean hasPendingTasks() {
+    return jsScheduler.hasPendingTasks();
   }
 }
