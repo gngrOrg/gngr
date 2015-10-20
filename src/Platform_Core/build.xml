@@ -3,7 +3,7 @@
               Any modifications will be overwritten.
               To include a user specific buildfile here, simply create one in the same
               directory with the processing instruction <?eclipse.ant.import?>
-              as the first entry and export the buildfile again. --><project basedir="." default="build" name="Platform_Core">
+              as the first entry and export the buildfile again. --><project basedir="." default="build" name="Platform_Core" xmlns:if="ant:if" xmlns:unless="ant:unless">
     <property environment="env"/>
     <property name="XAMJ_Build.location" value="../XAMJ_Build"/>
     <property name="HTML_Renderer.location" value="../HTML_Renderer"/>
@@ -74,7 +74,8 @@
     <target name="EntryPoint">
         <java classname="org.lobobrowser.main.EntryPoint" failonerror="true" fork="yes">
             <jvmarg line="-Dext.dirs=../XAMJ_Build/ext  -Dext.files=../HTML_Renderer/bin,../Primary_Extension/bin  -Djava.security.debugxx=accesss,failure -Djava.security.debugxx=access,domain,stack"/>
-            <arg line="-debug"/>
+            <arg value="-debug"/>
+            <arg value="-grinder-key=${gngr.grinder.key}" if:set="gngr.grinder.key"/>
             <classpath refid="Platform_Core.classpath"/>
         </java>
     </target>
