@@ -64,6 +64,7 @@ import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
+import org.eclipse.jdt.annotation.Nullable;
 import org.lobobrowser.html.HtmlRendererContext;
 import org.lobobrowser.html.domimpl.HTMLDocumentImpl;
 import org.lobobrowser.html.domimpl.HTMLElementImpl;
@@ -205,9 +206,8 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
    *          requested bounds are not currently visible vertically.
    */
   public void scrollTo(final Rectangle bounds, final boolean xIfNeeded, final boolean yIfNeeded) {
-    final RBlock block = this.rblock;
-    if (block != null) {
-      final HTMLDocumentImpl doc = (HTMLDocumentImpl) getRootNode();
+    final @Nullable HTMLDocumentImpl doc = (HTMLDocumentImpl) getRootNode();
+    if (doc != null) {
       RBlock bodyBlock = (RBlock)((HTMLElementImpl) doc.getBody()).getUINode();
       bodyBlock.scrollTo(bounds, xIfNeeded, yIfNeeded);
     }
@@ -475,7 +475,7 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
     this.repaint();
   }
 
-  public NodeImpl getRootNode() {
+  private @Nullable NodeImpl getRootNode() {
     final RBlock block = this.rblock;
     return block == null ? null : (NodeImpl) block.getModelNode();
   }
