@@ -1,9 +1,5 @@
 package org.lobobrowser.security;
 
-import info.gngr.db.tables.Globals;
-import info.gngr.db.tables.Permissions;
-import info.gngr.db.tables.records.PermissionsRecord;
-
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Optional;
@@ -15,6 +11,10 @@ import org.jooq.Result;
 import org.lobobrowser.security.PermissionSystem.Permission;
 import org.lobobrowser.store.StorageManager;
 import org.lobobrowser.ua.UserAgentContext.RequestKind;
+
+import info.gngr.db.tables.Globals;
+import info.gngr.db.tables.Permissions;
+import info.gngr.db.tables.records.PermissionsRecord;
 
 public class DBRequestRuleStore implements RequestRuleStore {
   private final DSLContext userDB;

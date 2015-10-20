@@ -29,11 +29,11 @@ import java.util.logging.Logger;
 
 import org.lobobrowser.html.js.Window;
 import org.mozilla.javascript.EvaluatorException;
+import org.mozilla.javascript.ExternalArrayData;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.WrappedException;
-import org.mozilla.javascript.ExternalArrayData;
 
 public class JavaObjectWrapper extends ScriptableObject {
   private static final Logger logger = Logger.getLogger(JavaObjectWrapper.class.getName());

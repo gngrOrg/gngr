@@ -23,9 +23,6 @@
  */
 package org.lobobrowser.request;
 
-import info.gngr.db.tables.Cookies;
-import info.gngr.db.tables.records.CookiesRecord;
-
 import java.io.IOException;
 import java.net.URI;
 import java.util.Collection;
@@ -46,6 +43,9 @@ import org.jooq.Result;
 import org.lobobrowser.main.PlatformInit;
 import org.lobobrowser.store.RestrictedStore;
 import org.lobobrowser.store.StorageManager;
+
+import info.gngr.db.tables.Cookies;
+import info.gngr.db.tables.records.CookiesRecord;
 
 /**
  * @author J. H. S.
