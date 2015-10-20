@@ -149,7 +149,8 @@ public class CSSNorm
   {
     return
         "html   { overflow: auto; }"+
-        "body   { color: black; background-color: #fafafa}"+
+
+        "body   { color: black }"+
 
         // makes sure that a links do not inherit cursor, they should have a default value
         "a[href]{ cursor: pointer; color: blue; text-decoration: underline; }" +
