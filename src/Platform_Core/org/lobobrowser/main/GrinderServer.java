@@ -91,6 +91,10 @@ class GrinderServer implements Runnable {
               } else if ("CLOSE".equals(command)) {
                 frame.closeWindow();
                 done = true;
+              } else if ("QUIT".equals(command)) {
+                frame.closeWindow();
+                PlatformInit.shutdown();
+                done = true;
               }
             }
           }
