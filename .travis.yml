@@ -1,4 +1,6 @@
 sudo: false
 language: java
 jdk: oraclejdk8
-script: "ant -f src/build.xml"
+before_script:
+  - curl --create-dirs -L -o $HOME/.sbt/launchers/0.13.9/sbt-launch.jar https://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/0.13.9/sbt-launch.jar
+script: "misc/runTest.sh"

@@ -776,7 +776,7 @@ public final class RequestEngine {
             hconnection.setInstanceFollowRedirects(false);
             final int responseCode = hconnection.getResponseCode();
             logInfo("run(): ResponseCode=" + responseCode + " for url=" + connectionUrl);
-            dumpResponseInfo(connection);
+            // dumpResponseInfo(connection);
             handleCookies(connectionUrl, hconnection, rhandler);
 
             if (responseCode == HttpURLConnection.HTTP_OK) {
