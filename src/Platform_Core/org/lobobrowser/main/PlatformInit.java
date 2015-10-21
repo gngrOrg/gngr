@@ -548,11 +548,11 @@ public class PlatformInit {
     }
   }
 
-  final boolean verifyAuth(final @NonNull String passkey) {
+  final boolean verifyAuth(final int port, final @NonNull String passkey) {
     if (grinderKey != null) {
       try {
         final MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        final byte[] hash = digest.digest(grinderKey.getBytes("UTF-8"));
+        final byte[] hash = digest.digest((grinderKey+port).getBytes("UTF-8"));
         final String hashB64 = Base64.getEncoder().encodeToString(hash);
         return hashB64.equals(passkey);
       } catch (final NoSuchAlgorithmException | UnsupportedEncodingException nsa) {

@@ -135,7 +135,7 @@ public class ReuseServer implements Runnable {
                 if (blankIdx != -1) {
                   @SuppressWarnings("null")
                   final @NonNull String key = line.substring(blankIdx + 1).trim();
-                  if (PlatformInit.getInstance().verifyAuth(key)) {
+                  if (PlatformInit.getInstance().verifyAuth(ss.getLocalPort(), key)) {
                     final NavigatorFrame frame = PlatformInit.getInstance().launch("about:blank");
                     final GrinderServer gs = new GrinderServer(frame);
                     final int gsPort = gs.getPort();
