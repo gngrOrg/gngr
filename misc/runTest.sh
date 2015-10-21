@@ -28,6 +28,7 @@ cd ~/grinder
 wget -O grinder.jar https://github.com/UprootLabs/grinder/releases/download/v1.0/grinder-assembly-1.0.jar
 
 
+
 git clone --depth=1 https://github.com/UprootStaging/grinderBaselines.git ~/grinderBaselines
 
 cp -r ~/grinderBaselines/nightly-unstable ~/grinder
