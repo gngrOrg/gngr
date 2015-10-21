@@ -548,9 +548,6 @@ public class FramePanel extends JPanel implements NavigatorFrame {
   }
 
   protected void replaceContentImpl(final ClientletResponse response, final ComponentContent content) {
-    if (logger.isLoggable(Level.INFO)) {
-      logger.info("replaceContentImpl(): this=" + this + ",response=" + response + ", content=" + content);
-    }
     // Security note: Currently expected to be private.
     // Always called in GUI thread.
     // removeAll and add will invalidate.
