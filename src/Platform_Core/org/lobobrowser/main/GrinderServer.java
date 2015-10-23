@@ -190,6 +190,12 @@ class GrinderServer implements Runnable {
     System.out.println("  path: " + path);
     frame.setProgressEvent(null);
     frame.navigate(path);
+    waitForNavigationCompletion();
+
+    markDoneAndWaitForAck(s, br);
+  }
+
+  private void waitForNavigationCompletion() throws InterruptedException, ExecutionException {
     {
       NavigatorProgressEvent progressEvent = frame.getProgressEvent();
       while (progressEvent == null || progressEvent.getProgressType() != ProgressType.DONE) {
@@ -203,8 +209,6 @@ class GrinderServer implements Runnable {
         defSupport.layoutCompletion().get();
       }
     }
-
-    markDoneAndWaitForAck(s, br);
   }
 
   public int getPort() {
