@@ -1550,6 +1550,6 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
 
   @HideFromJS
   public boolean hasPendingTasks() {
-    return (!jobsOver.get()) && jsScheduler.hasPendingTasks();
+    return (!jobsOver.get()) || jsScheduler.hasPendingTasks();
   }
 }
