@@ -269,7 +269,13 @@ public class ElementImpl extends NodeImpl implements Element, EventTarget {
   public void setAttribute(final String name, final String value) throws DOMException {
     // Convert null to "null" : String.
     // This is how Firefox behaves and is also consistent with DOM 3
-    final String valueNonNull = value == null ? "null" : value;
+	  String attributeValue = null;
+	  if(value.contains("px")){
+		  attributeValue = value.replace("px", "");
+	  }else{
+		  attributeValue=value; 
+	  }
+    final String valueNonNull = value == null ? "null" : attributeValue;
     changeAttribute(name, valueNonNull);
   }
 
