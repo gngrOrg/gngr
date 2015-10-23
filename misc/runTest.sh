@@ -22,7 +22,12 @@ mkdir ~/.gngr
 
 xvfb-run -s "-dpi 96 -screen 0 900x900x24+32" ant -f src/build.xml -Dgngr.grinder.key="$GRINDER_KEY" run &> /dev/null  &
 
-git clone --depth=1 https://github.com/UprootLabs/grinder.git ~/grinder
+# git clone --depth=1 https://github.com/UprootLabs/grinder.git ~/grinder
+mkdir ~/grinder
+cd ~/grinder
+wget -O grinder.jar https://github.com/UprootLabs/grinder/releases/download/v1.0/grinder-assembly-1.0.jar
+
+
 git clone --depth=1 https://github.com/UprootStaging/grinderBaselines.git ~/grinderBaselines
 
 cp -r ~/grinderBaselines/nightly-unstable ~/grinder
@@ -30,6 +35,10 @@ cp -r ~/grinderBaselines/nightly-unstable ~/grinder
 cd ~/grinder
 python -m SimpleHTTPServer 8000 &> /dev/null &
 
-sbt "run prepare"
-sbt "run compare gngr $GRINDER_KEY --baseLine=$HOME/grinderBaselines/gngr --uploadImg=y"
-sbt "run checkBase data ../grinderBaselines/gngr"
+# sbt "run prepare"
+# sbt "run compare gngr $GRINDER_KEY --baseLine=$HOME/grinderBaselines/gngr --uploadImg=y"
+# sbt "run checkBase data ../grinderBaselines/gngr"
+
+java -jar grinder.jar prepare
+java -jar grinder.jar compare gngr $GRINDER_KEY --baseLine=$HOME/grinderBaselines/gngr --uploadImg=y
+java -jar grinder.jar checkBase data ../grinderBaselines/gngr
