@@ -28,6 +28,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import org.lobobrowser.security.PermissionSystem.Permission;
+import org.lobobrowser.security.PermissionSystem.PermissionBoard.PermissionRow;
 import org.lobobrowser.ua.NavigationEntry;
 import org.lobobrowser.ua.NavigatorFrame;
 import org.lobobrowser.ua.UserAgentContext;
@@ -262,6 +264,13 @@ public final class RequestManager {
       }
     }
 
+  }
+
+  public void allowAllFirstPartyRequests() {
+    permissionSystemOpt.ifPresent(p -> {
+      final PermissionRow row = p.getLastBoard().getRow(getFrameHost().get());
+      row.getHostCell().setPermission(Permission.Allow);
+    });
   }
 
 }

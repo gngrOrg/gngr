@@ -192,6 +192,9 @@ class GrinderServer implements Runnable {
     frame.navigate(path);
     waitForNavigationCompletion();
 
+    // TODO: reload and wait for navigation after enabling all requests?
+    frame.allowAllFirstPartyRequests();
+
     markDoneAndWaitForAck(s, br);
   }
 

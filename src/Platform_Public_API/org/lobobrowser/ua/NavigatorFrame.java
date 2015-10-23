@@ -410,4 +410,6 @@ public interface NavigatorFrame {
   public boolean isRequestPermitted(Request request);
 
   public void manageRequests(Object initiator);
+
+  public void allowAllFirstPartyRequests();
 }
