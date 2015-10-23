@@ -28,7 +28,6 @@ cd ~/grinder
 wget -O grinder.jar https://github.com/UprootLabs/grinder/releases/download/v1.0/grinder-assembly-1.0.jar
 
 
-
 git clone --depth=1 https://github.com/UprootStaging/grinderBaselines.git ~/grinderBaselines
 
 cp -r ~/grinderBaselines/nightly-unstable ~/grinder
@@ -42,4 +41,8 @@ python -m SimpleHTTPServer 8000 &> /dev/null &
 
 java -jar grinder.jar prepare
 java -jar grinder.jar compare gngr $GRINDER_KEY --baseLine=$HOME/grinderBaselines/gngr --uploadImg=y
+<<<<<<< HEAD
 java -jar grinder.jar checkBase data ../grinderBaselines/gngr
+=======
+java -jar grinder.jar checkBase data ../grinderBaselines/gngr
+>>>>>>> use pre-compiled binary for grinder
