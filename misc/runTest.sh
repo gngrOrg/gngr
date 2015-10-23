@@ -31,5 +31,5 @@ cd ~/grinder
 python -m SimpleHTTPServer 8000 &> /dev/null &
 
 sbt "run prepare"
-sbt "run compare gngr $GRINDER_KEY"
+sbt "run compare gngr $GRINDER_KEY --baseLine=$HOME/grinderBaselines/gngr --uploadImg=y"
 sbt "run checkBase data ../grinderBaselines/gngr"
