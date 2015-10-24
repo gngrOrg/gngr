@@ -155,6 +155,7 @@ class GrinderServer implements Runnable {
       while (!isReadyToPaint()) {
         Thread.sleep(50);
       }
+
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
