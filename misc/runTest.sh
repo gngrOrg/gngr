@@ -9,7 +9,7 @@ INIT_DIR=`pwd`
 # Install fonts
 mkdir -p ~/.fonts
 cd ~/.fonts
-wget "http://www.w3.org/Style/CSS/Test/Fonts/css-testsuite-fonts-v2.zip"
+wget "https://github.com/UprootLabs/grinder/releases/download/v1.0/css-testsuite-fonts-v2.zip"
 unzip css-testsuite-fonts-v2.zip
 rm -rf AhemExtra/
 fc-cache -f
