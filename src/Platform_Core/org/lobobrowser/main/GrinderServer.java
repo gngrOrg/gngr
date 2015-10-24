@@ -155,7 +155,6 @@ class GrinderServer implements Runnable {
       while (!isReadyToPaint()) {
         Thread.sleep(50);
       }
-      // Thread.sleep(50);  // Equal to HtmlPanel.NOTIF_TIMER_DELAY. TODO: Define in a common place
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
