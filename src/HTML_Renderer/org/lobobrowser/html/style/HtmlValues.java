@@ -579,7 +579,11 @@ public class HtmlValues {
     try {
       if (spec.endsWith("%")) {
         return (availSize * Integer.parseInt(spec.substring(0, spec.length() - 1))) / 100;
-      } else {
+      }
+      if (spec.endsWith("px")){
+          return (int) Math.round(Double.parseDouble(spec.substring(0, spec.length() - 2)));
+      }
+      else {
         return Integer.parseInt(spec);
       }
     } catch (final NumberFormatException nfe) {
