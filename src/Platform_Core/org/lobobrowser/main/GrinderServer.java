@@ -65,7 +65,7 @@ class GrinderServer implements Runnable {
         final ServerSocket ss = socket;
         try (
           final Socket s = ss.accept()) {
-          s.setSoTimeout(5000);
+          s.setSoTimeout(10000);
           s.setTcpNoDelay(true);
           try (
             final InputStream in = s.getInputStream()) {
