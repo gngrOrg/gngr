@@ -138,19 +138,20 @@ public class HtmlValues {
    */
   public static void populateBorderInsets(final BorderInfo binfo, final CSS2Properties cssProperties, final RenderState renderState) {
     HtmlInsets insets = null;
-    if (binfo.topStyle != HtmlValues.BORDER_STYLE_NONE) {
+    if (binfo.topStyle != HtmlValues.BORDER_STYLE_NONE && binfo.topStyle != HtmlValues.BORDER_STYLE_HIDDEN) {
       final String topText = cssProperties.getBorderTopWidth();
       insets = updateTopInset(insets, topText, renderState);
     }
-    if (binfo.leftStyle != HtmlValues.BORDER_STYLE_NONE) {
+    if (binfo.leftStyle != HtmlValues.BORDER_STYLE_NONE && binfo.leftStyle != HtmlValues.BORDER_STYLE_HIDDEN) {
       final String leftText = cssProperties.getBorderLeftWidth();
       insets = updateLeftInset(insets, leftText, renderState);
     }
-    if (binfo.bottomStyle != HtmlValues.BORDER_STYLE_NONE) {
+    if (binfo.bottomStyle != HtmlValues.BORDER_STYLE_NONE && binfo.bottomStyle != HtmlValues.BORDER_STYLE_HIDDEN) {
       final String bottomText = cssProperties.getBorderBottomWidth();
       insets = updateBottomInset(insets, bottomText, renderState);
+      System.out.println("Updated border bottom: " + insets);
     }
-    if (binfo.rightStyle != HtmlValues.BORDER_STYLE_NONE) {
+    if (binfo.rightStyle != HtmlValues.BORDER_STYLE_NONE && binfo.rightStyle != HtmlValues.BORDER_STYLE_HIDDEN) {
       final String rightText = cssProperties.getBorderRightWidth();
       insets = updateRightInset(insets, rightText, renderState);
     }
