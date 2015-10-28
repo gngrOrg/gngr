@@ -581,9 +581,8 @@ public class HtmlValues {
         return (availSize * Integer.parseInt(spec.substring(0, spec.length() - 1))) / 100;
       }
       if (spec.endsWith("px")){
-          return (int) Math.round(Double.parseDouble(spec.substring(0, spec.length() - 2)));
-      }
-      else {
+        return (int) Math.round(Double.parseDouble(spec.substring(0, spec.length() - 2)));
+      } else {
         return Integer.parseInt(spec);
       }
     } catch (final NumberFormatException nfe) {
