@@ -429,7 +429,7 @@ public class HtmlValues {
     } else if (specTL.endsWith("px") || specTL.endsWith("pt") || specTL.endsWith("cm") || specTL.endsWith("pc") || specTL.endsWith("cm")
         || specTL.endsWith("mm") || specTL.endsWith("ex")) {
       final int pixelSize = getPixelSize(spec, parentRenderState, DEFAULT_FONT_SIZE_INT);
-      final int dpi = GraphicsEnvironment.isHeadless() ? 72 : Toolkit.getDefaultToolkit().getScreenResolution();
+      final int dpi = getDpi();
       // Normally the factor below should be 72, but
       // the font-size concept in HTML is handled differently.
       return (pixelSize * 96) / dpi;
@@ -501,7 +501,7 @@ public class HtmlValues {
       }
       // Get fontSize in 1/72 of an inch.
       final int fontSize = f.getSize();
-      final int dpi = GraphicsEnvironment.isHeadless() ? 72 : Toolkit.getDefaultToolkit().getScreenResolution();
+      final int dpi = getDpi();
       // The factor below should normally be 72, but font sizes
       // are calculated differently in HTML.
       final double pixelSize = (fontSize * dpi) / 96;
@@ -514,7 +514,7 @@ public class HtmlValues {
       } catch (final NumberFormatException nfe) {
         return errorValue;
       }
-      final int dpi = GraphicsEnvironment.isHeadless() ? 72 : Toolkit.getDefaultToolkit().getScreenResolution();
+      final int dpi = getDpi();
       final double inches = val / 72;
       return (int) Math.round(dpi * inches);
     } else if (lcSpec.endsWith("pc")) {
@@ -525,7 +525,7 @@ public class HtmlValues {
       } catch (final NumberFormatException nfe) {
         return errorValue;
       }
-      final int dpi = GraphicsEnvironment.isHeadless() ? 72 : Toolkit.getDefaultToolkit().getScreenResolution();
+      final int dpi = getDpi();
       final double inches = val / 6;
       return (int) Math.round(dpi * inches);
     } else if (lcSpec.endsWith("cm")) {
@@ -536,7 +536,7 @@ public class HtmlValues {
       } catch (final NumberFormatException nfe) {
         return errorValue;
       }
-      final int dpi = GraphicsEnvironment.isHeadless() ? 72 : Toolkit.getDefaultToolkit().getScreenResolution();
+      final int dpi = getDpi();
       final double inches = val / 2.54;
       return (int) Math.round(dpi * inches);
     } else if (lcSpec.endsWith("mm")) {
@@ -547,7 +547,7 @@ public class HtmlValues {
       } catch (final NumberFormatException nfe) {
         return errorValue;
       }
-      final int dpi = GraphicsEnvironment.isHeadless() ? 72 : Toolkit.getDefaultToolkit().getScreenResolution();
+      final int dpi = getDpi();
       final double inches = val / 25.4;
       return (int) Math.round(dpi * inches);
     } else if (lcSpec.endsWith("ex") && (renderState != null)) {
@@ -570,6 +570,10 @@ public class HtmlValues {
         return errorValue;
       }
     }
+  }
+
+  private static int getDpi() {
+    return GraphicsEnvironment.isHeadless() ? 72 : Toolkit.getDefaultToolkit().getScreenResolution();
   }
 
   public static int getOldSyntaxPixelSize(String spec, final int availSize, final int errorValue) {
