@@ -493,75 +493,69 @@ public class HtmlValues {
     } else if (lcSpec.endsWith("em") && (renderState != null)) {
       final Font f = renderState.getFont();
       final String valText = lcSpec.substring(0, lcSpec.length() - 2);
-      double val;
       try {
-        val = Double.parseDouble(valText);
+        final double val = Double.parseDouble(valText);
+        // Get fontSize in 1/72 of an inch.
+        final int fontSize = f.getSize();
+        final int dpi = getDpi();
+        // The factor below should normally be 72, but font sizes
+        // are calculated differently in HTML.
+        final double pixelSize = (fontSize * dpi) / 96;
+        return (int) Math.round(pixelSize * val);
       } catch (final NumberFormatException nfe) {
         return errorValue;
       }
-      // Get fontSize in 1/72 of an inch.
-      final int fontSize = f.getSize();
-      final int dpi = getDpi();
-      // The factor below should normally be 72, but font sizes
-      // are calculated differently in HTML.
-      final double pixelSize = (fontSize * dpi) / 96;
-      return (int) Math.round(pixelSize * val);
     } else if (lcSpec.endsWith("pt")) {
       final String valText = lcSpec.substring(0, lcSpec.length() - 2);
-      double val;
       try {
-        val = Double.parseDouble(valText);
+        final double val = Double.parseDouble(valText);
+        final int dpi = getDpi();
+        final double inches = val / 72;
+        return (int) Math.round(dpi * inches);
       } catch (final NumberFormatException nfe) {
         return errorValue;
       }
-      final int dpi = getDpi();
-      final double inches = val / 72;
-      return (int) Math.round(dpi * inches);
     } else if (lcSpec.endsWith("pc")) {
       final String valText = lcSpec.substring(0, lcSpec.length() - 2);
-      double val;
       try {
-        val = Double.parseDouble(valText);
+        final double val = Double.parseDouble(valText);
+        final int dpi = getDpi();
+        final double inches = val / 6;
+        return (int) Math.round(dpi * inches);
       } catch (final NumberFormatException nfe) {
         return errorValue;
       }
-      final int dpi = getDpi();
-      final double inches = val / 6;
-      return (int) Math.round(dpi * inches);
     } else if (lcSpec.endsWith("cm")) {
       final String valText = lcSpec.substring(0, lcSpec.length() - 2);
-      double val;
       try {
-        val = Double.parseDouble(valText);
+        final double val = Double.parseDouble(valText);
+        final int dpi = getDpi();
+        final double inches = val / 2.54;
+        return (int) Math.round(dpi * inches);
       } catch (final NumberFormatException nfe) {
         return errorValue;
       }
-      final int dpi = getDpi();
-      final double inches = val / 2.54;
-      return (int) Math.round(dpi * inches);
     } else if (lcSpec.endsWith("mm")) {
       final String valText = lcSpec.substring(0, lcSpec.length() - 2);
-      double val;
       try {
-        val = Double.parseDouble(valText);
+        final double val = Double.parseDouble(valText);
+        final int dpi = getDpi();
+        final double inches = val / 25.4;
+        return (int) Math.round(dpi * inches);
       } catch (final NumberFormatException nfe) {
         return errorValue;
       }
-      final int dpi = getDpi();
-      final double inches = val / 25.4;
-      return (int) Math.round(dpi * inches);
     } else if (lcSpec.endsWith("ex") && (renderState != null)) {
       // Factor below is to try to match size in other browsers.
       // Update: for #157, the factor of 0.47 was too low when testing with reddit homepage (the vote count).
       final double xHeight = renderState.getFontMetrics().getAscent() * 0.6;
       final String valText = lcSpec.substring(0, lcSpec.length() - 2);
-      double val;
       try {
-        val = Double.parseDouble(valText);
+        final double val = Double.parseDouble(valText);
+        return (int) Math.round(xHeight * val);
       } catch (final NumberFormatException nfe) {
         return errorValue;
       }
-      return (int) Math.round(xHeight * val);
     } else {
       final String pxText = lcSpec;
       try {
