@@ -579,6 +579,7 @@ public class HtmlValues {
     return GraphicsEnvironment.isHeadless() ? 72 : Toolkit.getDefaultToolkit().getScreenResolution();
   }
 
+  // TODO: move this functionality to the attribute -> CSS style functionality
   public static int getOldSyntaxPixelSize(String spec, final int availSize, final int errorValue) {
     if (spec == null) {
       return errorValue;
