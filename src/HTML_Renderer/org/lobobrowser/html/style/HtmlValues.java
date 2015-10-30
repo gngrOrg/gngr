@@ -465,7 +465,10 @@ public class HtmlValues {
     if (lcSpec.endsWith("px")) {
       final String pxText = lcSpec.substring(0, lcSpec.length() - 2);
       try {
-        return (int) Math.round(Double.parseDouble(pxText));
+        final double val = Double.parseDouble(pxText);
+        final int dpi = getDpi();
+        final double inches = val / 96;
+        return (int) Math.round(dpi * inches);
       } catch (final NumberFormatException nfe) {
         return errorValue;
       }
