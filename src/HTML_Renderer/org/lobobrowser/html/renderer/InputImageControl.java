@@ -161,10 +161,10 @@ class InputImageControl extends BaseInputControl implements ImageListener {
     final @NonNull Image img = imgResponse.img;
 
     if (dw == -1) {
-      dw = img.getWidth(this);
+      dw = HtmlValues.scaleToDevicePixels(img.getWidth(this));
     }
     if (dh == -1) {
-      dh = img.getHeight(this);
+      dh = HtmlValues.scaleToDevicePixels(img.getHeight(this));
     }
     return new Dimension(dw, dh);
   }

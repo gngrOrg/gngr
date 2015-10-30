@@ -147,28 +147,28 @@ class ImgControl extends BaseControl implements ImageListener {
 
     if (dw == -1) {
       if (dh != -1) {
-        final int iw = img.getWidth(this);
-        final int ih = img.getHeight(this);
+        final int iw = HtmlValues.scaleToDevicePixels(img.getWidth(this));
+        final int ih = HtmlValues.scaleToDevicePixels(img.getHeight(this));
         if (ih == 0) {
           dw = iw;
         } else {
           dw = (dh * iw) / ih;
         }
       } else {
-        dw = img.getWidth(this);
+        dw = HtmlValues.scaleToDevicePixels(img.getWidth(this));
       }
     }
     if (dh == -1) {
       if (dw != -1) {
-        final int iw = img.getWidth(this);
-        final int ih = img.getHeight(this);
+        final int iw = HtmlValues.scaleToDevicePixels(img.getWidth(this));
+        final int ih = HtmlValues.scaleToDevicePixels(img.getHeight(this));
         if (iw == 0) {
           dh = ih == -1 ? 0 : ih;
         } else {
           dh = (dw * ih) / iw;
         }
       } else {
-        dh = img.getHeight(this);
+        dh = HtmlValues.scaleToDevicePixels(img.getHeight(this));
       }
     }
     return new Dimension(dw, dh);
