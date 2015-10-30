@@ -128,7 +128,6 @@ public class HtmlValues {
     if (binfo.bottomStyle != HtmlValues.BORDER_STYLE_NONE && binfo.bottomStyle != HtmlValues.BORDER_STYLE_HIDDEN) {
       final String bottomText = cssProperties.getBorderBottomWidth();
       insets = updateBottomInset(insets, bottomText, renderState);
-      System.out.println("Updated border bottom: " + insets);
     }
     if (binfo.rightStyle != HtmlValues.BORDER_STYLE_NONE && binfo.rightStyle != HtmlValues.BORDER_STYLE_HIDDEN) {
       final String rightText = cssProperties.getBorderRightWidth();
