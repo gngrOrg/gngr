@@ -576,7 +576,14 @@ public class HtmlValues {
   }
 
   private static int getDpi() {
-    return GraphicsEnvironment.isHeadless() ? 72 : Toolkit.getDefaultToolkit().getScreenResolution();
+    if (GraphicsEnvironment.isHeadless()) {
+      // TODO: Why is this 72? The CSS native resolution seems to be 96, so we could use that instead.
+      return 72;
+    } else {
+      final int screenResolution = Toolkit.getDefaultToolkit().getScreenResolution();
+      // TODO: Hack: converting to a multiple of 16. See GH-185
+      return (screenResolution + 15) & 0xfffffff0;
+    }
   }
 
   // TODO: move this functionality to the attribute -> CSS style functionality
