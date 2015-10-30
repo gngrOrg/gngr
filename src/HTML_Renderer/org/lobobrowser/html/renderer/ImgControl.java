@@ -89,8 +89,14 @@ class ImgControl extends BaseControl implements ImageListener {
   public void reset(final int availWidth, final int availHeight) {
     // Expected in the GUI thread.
     final HTMLElementImpl element = this.controlElement;
-    final int dw = HtmlValues.getOldSyntaxPixelSize(element.getAttribute("width"), availWidth, -1);
-    final int dh = HtmlValues.getOldSyntaxPixelSize(element.getAttribute("height"), availHeight, -1);
+
+    // TODO: Remove the parameters dw, dh, and members declaredWith, declaredHeight completely.
+    //       They seem to be used only for old style syntax.
+
+    // final int dw = HtmlValues.getOldSyntaxPixelSize(element.getAttribute("width"), availWidth, -1);
+    // final int dh = HtmlValues.getOldSyntaxPixelSize(element.getAttribute("height"), availHeight, -1);
+    final int dw = -1;
+    final int dh = -1;
     this.declaredWidth = dw;
     this.declaredHeight = dh;
     this.preferredSize = this.createPreferredSize(dw, dh);

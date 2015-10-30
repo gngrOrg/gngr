@@ -31,6 +31,8 @@ public class StyleElements {
         attrs = getFontElementStyle(el, attrs);
       } else if ("CANVAS".equalsIgnoreCase(tagName)) {
         attrs = getCanvasElementStyle(el, attrs);
+      } else if ("IMG".equalsIgnoreCase(tagName)) {
+        attrs = getElementDimensionStyle(el, attrs);
       }
 
       if (attrs.length() > 0) {
@@ -53,6 +55,20 @@ public class StyleElements {
       attrs += "height: " + pixelise(heightNode.getNodeValue()) + ";";
     } else {
       attrs += "height: 150px;";
+    }
+
+    return attrs;
+  }
+
+  private static String getElementDimensionStyle(HTMLElementImpl el, String attrs) {
+    final Node widthNode = el.getAttributes().getNamedItem("width");
+    if (widthNode != null) {
+      attrs += "width: " + pixelise(widthNode.getNodeValue()) + ";";
+    }
+
+    final Node heightNode = el.getAttributes().getNamedItem("height");
+    if (heightNode != null) {
+      attrs += "height: " + pixelise(heightNode.getNodeValue()) + ";";
     }
 
     return attrs;
