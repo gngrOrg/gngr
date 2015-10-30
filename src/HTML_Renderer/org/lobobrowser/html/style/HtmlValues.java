@@ -515,6 +515,15 @@ public class HtmlValues {
       } catch (final NumberFormatException nfe) {
         return errorValue;
       }
+    } else if (lcSpec.endsWith("in")) {
+      final String valText = lcSpec.substring(0, lcSpec.length() - 2);
+      try {
+        final double inches = Double.parseDouble(valText);
+        final int dpi = getDpi();
+        return (int) Math.round(dpi * inches);
+      } catch (final NumberFormatException nfe) {
+        return errorValue;
+      }
     } else if (lcSpec.endsWith("pc")) {
       final String valText = lcSpec.substring(0, lcSpec.length() - 2);
       try {

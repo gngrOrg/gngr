@@ -22,7 +22,6 @@ package org.lobobrowser.html.style;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.regex.Pattern;
 
 import org.lobobrowser.js.AbstractScriptableDelegate;
 import org.lobobrowser.js.HideFromJS;
@@ -653,39 +652,15 @@ abstract public class JStyleProperties extends AbstractScriptableDelegate implem
 
   abstract protected NodeData getNodeData();
 
-  private static final Pattern inchPattern = Pattern.compile("[0-9]+(.[0-9]+)?in");
-
   private String helperGetValue(final String propertyName) {
     final NodeData nodeData = getNodeData();
     if (nodeData != null) {
       final Term<?> value = nodeData.getValue(propertyName, true);
       // The trim() is a temporary work around for #154
-      final String valueStr = value == null ? null : value.toString().trim();
-      // TODO
-      // hack for inch support. need to implement it where it is actually processed.
-      if ((valueStr != null) && (valueStr.endsWith("in") && inchPattern.matcher(valueStr).matches())) {
-        return inch2Pixel(value);
-      }
-      return valueStr;
+      return value == null ? null : value.toString().trim();
     } else {
       return nullIfAbsent ? null : "";
     }
-  }
-
-  // TODO
-  // temp hack to support inch
-  // remove this method once it's natively supported where the value is actually processed
-  private static String inch2Pixel(final Term<?> value) {
-    final String valueStr = value.toString();
-    try {
-      final String num = valueStr.substring(0, valueStr.length() - 2);
-      final Float inc = Float.parseFloat(num);
-      final String inc2px = (inc * 96) + "px";
-      return inc2px;
-    } catch (final NumberFormatException e) {
-      System.out.println("NumberFormatException " + valueStr);
-    }
-    return null;
   }
 
   private String helperGetProperty(final String propertyName) {
