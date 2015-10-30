@@ -105,27 +105,6 @@ public class HtmlValues {
     return insets;
   }
 
-  public static HtmlInsets getBorderInsets(final Insets borderStyles, final CSS2Properties cssProperties, final RenderState renderState) {
-    HtmlInsets insets = null;
-    if (borderStyles.top != HtmlValues.BORDER_STYLE_NONE) {
-      final String topText = cssProperties.getBorderTopWidth();
-      insets = updateTopInset(insets, topText, renderState);
-    }
-    if (borderStyles.left != HtmlValues.BORDER_STYLE_NONE) {
-      final String leftText = cssProperties.getBorderLeftWidth();
-      insets = updateLeftInset(insets, leftText, renderState);
-    }
-    if (borderStyles.bottom != HtmlValues.BORDER_STYLE_NONE) {
-      final String bottomText = cssProperties.getBorderBottomWidth();
-      insets = updateBottomInset(insets, bottomText, renderState);
-    }
-    if (borderStyles.right != HtmlValues.BORDER_STYLE_NONE) {
-      final String rightText = cssProperties.getBorderRightWidth();
-      insets = updateRightInset(insets, rightText, renderState);
-    }
-    return insets;
-  }
-
   /**
    * Populates {@link BorderInfo.insets}.
    *
