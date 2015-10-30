@@ -575,10 +575,12 @@ public class HtmlValues {
       if (spec.endsWith("%")) {
         return (availSize * Integer.parseInt(spec.substring(0, spec.length() - 1))) / 100;
       }
+      final int dpi = getDpi();
       if (spec.endsWith("px")){
-        return (int) Math.round(Double.parseDouble(spec.substring(0, spec.length() - 2)));
+        final double val = Double.parseDouble(spec.substring(0, spec.length() - 2));
+        return (int) Math.round(val * dpi / 96);
       } else {
-        return Integer.parseInt(spec);
+        return (int) Math.round(Integer.parseInt(spec) * dpi / 96.0);
       }
     } catch (final NumberFormatException nfe) {
       return errorValue;
