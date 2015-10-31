@@ -23,7 +23,6 @@
  */
 package org.lobobrowser.async;
 
-import java.awt.EventQueue;
 import java.util.EventObject;
 
 import javax.swing.SwingUtilities;

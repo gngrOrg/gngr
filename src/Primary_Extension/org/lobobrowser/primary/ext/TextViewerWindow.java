@@ -21,7 +21,6 @@
 package org.lobobrowser.primary.ext;
 
 import java.awt.Container;
-import java.awt.EventQueue;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;

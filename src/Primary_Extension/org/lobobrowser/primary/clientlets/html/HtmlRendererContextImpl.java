@@ -24,7 +24,6 @@ GNU GENERAL PUBLIC LICENSE
 package org.lobobrowser.primary.clientlets.html;
 
 import java.awt.Cursor;
-import java.awt.EventQueue;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;

@@ -20,7 +20,6 @@
  */
 package org.lobobrowser.main;
 
-import java.awt.EventQueue;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
