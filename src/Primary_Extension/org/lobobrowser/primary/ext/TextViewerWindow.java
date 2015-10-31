@@ -36,6 +36,7 @@ import javax.swing.KeyStroke;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
+import javax.swing.SwingUtilities;
 
 import org.lobobrowser.gui.DefaultWindowFactory;
 import org.lobobrowser.ua.UserAgentContext;
@@ -152,7 +153,7 @@ public class TextViewerWindow extends JFrame {
     }
 
     public void insertUpdate(final DocumentEvent e) {
-      EventQueue.invokeLater(() -> {
+      SwingUtilities.invokeLater(() -> {
         if (scrollsOnAppends) {
           textArea.scrollRectToVisible(new Rectangle(0, Short.MAX_VALUE, 1, Short.MAX_VALUE));
         }

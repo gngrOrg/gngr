@@ -38,6 +38,8 @@ import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.swing.SwingUtilities;
+
 import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.clientlet.Clientlet;
 import org.lobobrowser.clientlet.ClientletContext;
@@ -398,7 +400,7 @@ public final class HtmlClientlet implements Clientlet {
       }
       final HTMLDocumentImpl document = this.document;
       document.removeDocumentNotificationListener(this);
-      java.awt.EventQueue.invokeLater(() -> {
+      SwingUtilities.invokeLater(() -> {
         // Should have nicer effect (less flicker) in GUI thread.
         htmlPanel.setDocument(document, rcontext);
         ccontext.setResultingContent(content);

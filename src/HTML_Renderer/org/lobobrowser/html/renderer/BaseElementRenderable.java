@@ -38,6 +38,8 @@ import java.util.Iterator;
 import java.util.function.Function;
 import java.util.logging.Level;
 
+import javax.swing.SwingUtilities;
+
 import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.html.domimpl.HTMLDocumentImpl;
 import org.lobobrowser.html.domimpl.HTMLElementImpl;
@@ -561,7 +563,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
               final int h = img.getHeight(BaseElementRenderable.this);
               // Maybe image already done...
               if ((w != -1) && (h != -1)) {
-                EventQueue.invokeLater(() -> {
+                SwingUtilities.invokeLater(() -> {
                   BaseElementRenderable.this.repaint();
                 });
               }
@@ -910,7 +912,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
     // This is so that a loading image doesn't cause
     // too many repaint events.
     if (((infoflags & ImageObserver.ALLBITS) != 0) || ((infoflags & ImageObserver.FRAMEBITS) != 0)) {
-      EventQueue.invokeLater(() -> {
+      SwingUtilities.invokeLater(() -> {
         this.repaint();
       });
     }

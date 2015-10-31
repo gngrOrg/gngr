@@ -33,6 +33,8 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 
+import javax.swing.SwingUtilities;
+
 import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.html.domimpl.HTMLElementImpl;
 import org.lobobrowser.html.domimpl.HTMLImageElementImpl;
@@ -191,7 +193,7 @@ class ImgControl extends BaseControl implements ImageListener {
   @Override
   public boolean imageUpdate(final Image img, final int infoflags, final int x, final int y, final int w, final int h) {
     if (((infoflags & ImageObserver.ALLBITS) != 0) || ((infoflags & ImageObserver.FRAMEBITS) != 0)) {
-      EventQueue.invokeLater(() -> {
+      SwingUtilities.invokeLater(() -> {
         if (!checkPreferredSizeChange()) {
           repaint();
         } else {
@@ -209,7 +211,7 @@ class ImgControl extends BaseControl implements ImageListener {
    * int)
    */
   public void imageUpdate(final Image img, final int w, final int h) {
-    EventQueue.invokeLater(() -> {
+    SwingUtilities.invokeLater(() -> {
       if (!checkPreferredSizeChange()) {
         repaint();
       } else {

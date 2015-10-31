@@ -42,6 +42,7 @@ import java.util.logging.Logger;
 
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.html.BrowserFrame;
@@ -363,7 +364,7 @@ public class HtmlRendererContextImpl implements HtmlRendererContext {
   public boolean onMiddleClick(final HTMLElement element, final MouseEvent event) {
     final Runnable task = getMiddleClickTask(element);
     if (task != null) {
-      EventQueue.invokeLater(task);
+      SwingUtilities.invokeLater(task);
       return false;
     }
     return true;

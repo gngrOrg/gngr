@@ -46,6 +46,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.border.EmptyBorder;
+import javax.swing.SwingUtilities;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.clientlet.ClientletException;
@@ -250,7 +251,7 @@ public class DownloadDialog extends JFrame {
   }
 
   private void doneWithDownload_Safe(final long totalSize) {
-    EventQueue.invokeLater(() -> doneWithDownload(totalSize));
+    SwingUtilities.invokeLater(() -> doneWithDownload(totalSize));
   }
 
   private void doneWithDownload(final long totalSize) {
@@ -289,7 +290,7 @@ public class DownloadDialog extends JFrame {
   }
 
   private void errorInDownload_Safe() {
-    EventQueue.invokeLater(() -> errorInDownload());
+    SwingUtilities.invokeLater(() -> errorInDownload());
   }
 
   private void errorInDownload() {
@@ -325,7 +326,7 @@ public class DownloadDialog extends JFrame {
   }
 
   private void updateProgress_Safe(final ProgressType progressType, final int value, final int max) {
-    EventQueue.invokeLater(() -> updateProgress(progressType, value, max));
+    SwingUtilities.invokeLater(() -> updateProgress(progressType, value, max));
   }
 
   private void updateProgress(final ProgressType progressType, final int value, final int max) {
