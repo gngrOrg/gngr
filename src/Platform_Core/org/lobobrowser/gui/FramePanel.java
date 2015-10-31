@@ -493,7 +493,7 @@ public class FramePanel extends JPanel implements NavigatorFrame {
       // Security note: Need to pass security context of caller
       // into invokeLater task.
       final AccessControlContext context = AccessController.getContext();
-      EventQueue.invokeLater(() -> {
+      SwingUtilities.invokeLater(() -> {
         final PrivilegedAction<Object> action = () -> {
           FramePanel.this.replaceContentImpl(response, content);
           return null;
@@ -660,7 +660,7 @@ public class FramePanel extends JPanel implements NavigatorFrame {
    * Implements {@link NavigatorFrame#invokeLater(Runnable)}.
    */
   public void invokeLater(final Runnable runnable) {
-    EventQueue.invokeLater(runnable);
+    SwingUtilities.invokeLater(runnable);
   }
 
   public final void navigate(final String urlOrPath) throws java.net.MalformedURLException {

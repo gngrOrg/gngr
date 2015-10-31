@@ -49,6 +49,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipInputStream;
 
+import javax.swing.SwingUtilities;
+
 import org.lobobrowser.clientlet.Clientlet;
 import org.lobobrowser.clientlet.ClientletRequest;
 import org.lobobrowser.clientlet.ClientletResponse;
@@ -408,7 +410,7 @@ public class ExtensionManager {
       final RequestType requestType) {
     final NavigatorExceptionEvent event = new NavigatorExceptionEvent(this, NavigatorEventType.ERROR_OCCURRED, frame, response, exception,
         requestType);
-    EventQueue.invokeLater(() -> {
+    SwingUtilities.invokeLater(() -> {
       final Collection<Extension> ext = extensions;
       // Call all plugins once to see if they can select the response.
       boolean dispatched = false;

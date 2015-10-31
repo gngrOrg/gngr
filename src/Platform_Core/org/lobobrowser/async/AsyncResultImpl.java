@@ -26,6 +26,8 @@ package org.lobobrowser.async;
 import java.awt.EventQueue;
 import java.util.EventObject;
 
+import javax.swing.SwingUtilities;
+
 import org.lobobrowser.util.EventDispatch;
 import org.lobobrowser.util.GenericEventListener;
 
@@ -50,7 +52,7 @@ public class AsyncResultImpl<TResult> implements AsyncResult<TResult> {
       if (this.hasResult) {
         if (this.exception != null) {
           final Throwable exception = this.exception;
-          EventQueue.invokeLater(() -> {
+          SwingUtilities.invokeLater(() -> {
             // Invoke holding no locks
             final AsyncResultEvent<Throwable> are = new AsyncResultEvent<>(AsyncResultImpl.this, exception);
             listener.exceptionReceived(are);
@@ -58,7 +60,7 @@ public class AsyncResultImpl<TResult> implements AsyncResult<TResult> {
 
         } else {
           final TResult result = this.result;
-          EventQueue.invokeLater(() -> {
+          SwingUtilities.invokeLater(() -> {
             // Invoke holding no locks
             final AsyncResultEvent<TResult> are = new AsyncResultEvent<>(AsyncResultImpl.this, result);
             listener.resultReceived(are);
@@ -90,7 +92,7 @@ public class AsyncResultImpl<TResult> implements AsyncResult<TResult> {
       if (this.hasResult) {
         if (this.exception != null) {
           final Throwable exception = this.exception;
-          EventQueue.invokeLater(() -> {
+          SwingUtilities.invokeLater(() -> {
             // Invoke holding no locks
             final AsyncResultEvent<Throwable> are = new AsyncResultEvent<>(AsyncResultImpl.this, exception);
             evtResult.fireEvent(are);
@@ -98,7 +100,7 @@ public class AsyncResultImpl<TResult> implements AsyncResult<TResult> {
 
         } else {
           final TResult result = this.result;
-          EventQueue.invokeLater(() -> {
+          SwingUtilities.invokeLater(() -> {
             // Invoke holding no locks
             final AsyncResultEvent<TResult> are = new AsyncResultEvent<>(AsyncResultImpl.this, result);
             evtResult.fireEvent(are);
@@ -112,7 +114,7 @@ public class AsyncResultImpl<TResult> implements AsyncResult<TResult> {
     synchronized (this) {
       this.result = result;
       this.hasResult = true;
-      EventQueue.invokeLater(() -> evtResult.fireEvent(new AsyncResultEvent<>(AsyncResultImpl.this, result)));
+      SwingUtilities.invokeLater(() -> evtResult.fireEvent(new AsyncResultEvent<>(AsyncResultImpl.this, result)));
     }
   }
 
@@ -120,7 +122,7 @@ public class AsyncResultImpl<TResult> implements AsyncResult<TResult> {
     synchronized (this) {
       this.exception = exception;
       this.hasResult = true;
-      EventQueue.invokeLater(() -> evtResult.fireEvent(new AsyncResultEvent<>(AsyncResultImpl.this, exception)));
+      SwingUtilities.invokeLater(() -> evtResult.fireEvent(new AsyncResultEvent<>(AsyncResultImpl.this, exception)));
     }
   }
 

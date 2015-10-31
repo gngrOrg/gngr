@@ -33,6 +33,8 @@ import java.awt.event.MouseEvent;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.swing.SwingUtilities;
+
 import org.lobobrowser.html.domimpl.ModelNode;
 
 /**
@@ -241,7 +243,7 @@ abstract class BaseBoundableRenderable extends BaseRenderable implements Boundab
     if (EventQueue.isDispatchThread()) {
       this.relayoutImpl(true, false);
     } else {
-      EventQueue.invokeLater(() -> relayoutImpl(true, false));
+      SwingUtilities.invokeLater(() -> relayoutImpl(true, false));
     }
   }
 
@@ -249,7 +251,7 @@ abstract class BaseBoundableRenderable extends BaseRenderable implements Boundab
     if (EventQueue.isDispatchThread()) {
       this.relayoutImpl(true, true);
     } else {
-      EventQueue.invokeLater(() -> relayoutImpl(true, true));
+      SwingUtilities.invokeLater(() -> relayoutImpl(true, true));
     }
   }
 

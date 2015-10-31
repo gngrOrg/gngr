@@ -432,7 +432,7 @@ public class BrowserPanel extends JPanel implements NavigatorWindow, BrowserWind
     if (EventQueue.isDispatchThread()) {
       this.handleDocumentRenderingImpl(frame, response, content);
     } else {
-      EventQueue.invokeLater(() -> BrowserPanel.this.handleDocumentRenderingImpl(frame, response, content));
+      SwingUtilities.invokeLater(() -> BrowserPanel.this.handleDocumentRenderingImpl(frame, response, content));
     }
   }
 
@@ -493,7 +493,7 @@ public class BrowserPanel extends JPanel implements NavigatorWindow, BrowserWind
         final String actualStatus = this.defaultStatus;
         final NavigatorWindowEvent event = new NavigatorWindowEvent(this, NavigatorEventType.STATUS_UPDATED, frame, actualStatus,
             RequestType.NONE);
-        EventQueue.invokeLater(() -> EVENT.fireEvent(event));
+        SwingUtilities.invokeLater(() -> EVENT.fireEvent(event));
       }
     }
   }
@@ -506,13 +506,13 @@ public class BrowserPanel extends JPanel implements NavigatorWindow, BrowserWind
         actualStatus = value == null ? this.defaultStatus : value;
         final NavigatorWindowEvent event = new NavigatorWindowEvent(this, NavigatorEventType.STATUS_UPDATED, frame, actualStatus,
             RequestType.NONE);
-        EventQueue.invokeLater(() -> EVENT.fireEvent(event));
+        SwingUtilities.invokeLater(() -> EVENT.fireEvent(event));
       }
     }
   }
 
   public void updateProgress(final NavigatorProgressEvent event) {
-    EventQueue.invokeLater(() -> EVENT.fireEvent(event));
+    SwingUtilities.invokeLater(() -> EVENT.fireEvent(event));
   }
 
   /**

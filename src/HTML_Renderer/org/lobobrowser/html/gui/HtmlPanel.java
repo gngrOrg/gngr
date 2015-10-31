@@ -35,6 +35,7 @@ import java.util.EventObject;
 import java.util.concurrent.Future;
 
 import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
 
 import org.lobobrowser.html.HtmlRendererContext;
 import org.lobobrowser.html.domimpl.DocumentNotificationListener;
@@ -245,7 +246,7 @@ public class HtmlPanel extends JComponent implements FrameContext, DefferedLayou
     if (EventQueue.isDispatchThread()) {
       this.scrollImpl(x, y);
     } else {
-      EventQueue.invokeLater(() -> scrollImpl(x, y));
+      SwingUtilities.invokeLater(() -> scrollImpl(x, y));
     }
   }
 
@@ -253,7 +254,7 @@ public class HtmlPanel extends JComponent implements FrameContext, DefferedLayou
     if (EventQueue.isDispatchThread()) {
       this.scrollByImpl(x, y);
     } else {
-      EventQueue.invokeLater(() -> scrollByImpl(x, y));
+      SwingUtilities.invokeLater(() -> scrollByImpl(x, y));
     }
   }
 
@@ -276,7 +277,7 @@ public class HtmlPanel extends JComponent implements FrameContext, DefferedLayou
     if (java.awt.EventQueue.isDispatchThread()) {
       this.clearDocumentImpl();
     } else {
-      java.awt.EventQueue.invokeLater(() -> HtmlPanel.this.clearDocumentImpl());
+      SwingUtilities.invokeLater(() -> HtmlPanel.this.clearDocumentImpl());
     }
   }
 
@@ -322,7 +323,7 @@ public class HtmlPanel extends JComponent implements FrameContext, DefferedLayou
     if (java.awt.EventQueue.isDispatchThread()) {
       this.setDocumentImpl(node, rcontext);
     } else {
-      java.awt.EventQueue.invokeLater(() -> HtmlPanel.this.setDocumentImpl(node, rcontext));
+      SwingUtilities.invokeLater(() -> HtmlPanel.this.setDocumentImpl(node, rcontext));
     }
   }
 
@@ -346,7 +347,7 @@ public class HtmlPanel extends JComponent implements FrameContext, DefferedLayou
     if (EventQueue.isDispatchThread()) {
       this.scrollToElementImpl(nameOrId);
     } else {
-      EventQueue.invokeLater(() -> scrollToElementImpl(nameOrId));
+      SwingUtilities.invokeLater(() -> scrollToElementImpl(nameOrId));
     }
   }
 
@@ -684,7 +685,7 @@ public class HtmlPanel extends JComponent implements FrameContext, DefferedLayou
       // to occur when a Javascript property is set in the GUI thread.
       // Additionally, many property values may be set in one
       // event block.
-      EventQueue.invokeLater(this.notificationImmediateAction);
+      SwingUtilities.invokeLater(this.notificationImmediateAction);
     } else {
       this.notificationTimer.restart();
     }
