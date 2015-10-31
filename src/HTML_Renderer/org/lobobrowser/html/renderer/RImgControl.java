@@ -44,19 +44,35 @@ public class RImgControl extends RUIControl {
   @Override
   public void doLayout(int availWidth, int availHeight, boolean sizeOnly) {
     super.doLayout(availWidth, availHeight, sizeOnly);
+    updateWidthHeight();
+  }
+
+  private void updateWidthHeight() {
     final boolean widthConstrained = isWidthConstrained();
     final boolean heightConstrained = isHeightConstrained();
     if (!widthConstrained && heightConstrained) {
       final Dimension prefSize = widget.getPreferredSize();
       if (prefSize.height != 0) {
-        this.width = (prefSize.width * this.height) / prefSize.height;
+        this.width = (prefSize.width * getInnerMostHeight()) / prefSize.height;
       }
     } else if (!heightConstrained && widthConstrained) {
       final Dimension prefSize = widget.getPreferredSize();
       if (prefSize.width != 0) {
-        this.height = (prefSize.height * this.width) / prefSize.width;
+        this.height = (prefSize.height * getInnerMostWidth()) / prefSize.width;
       }
     }
+  }
+
+  @Override
+  public void setInnerWidth(final Integer newWidth) {
+    super.setInnerWidth(newWidth);
+    updateWidthHeight();
+  }
+
+  @Override
+  public void setInnerHeight(final Integer newHeight) {
+    super.setInnerHeight(newHeight);
+    updateWidthHeight();
   }
 
   @Override

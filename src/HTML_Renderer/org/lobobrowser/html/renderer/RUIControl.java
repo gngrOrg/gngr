@@ -439,4 +439,16 @@ class RUIControl extends BaseElementRenderable {
   protected boolean isHeightConstrained() {
     return heightConstrained;
   }
+
+  @Override
+  public void setInnerWidth(Integer newWidth) {
+    super.setInnerWidth(newWidth);
+    widthConstrained = true;
+  }
+
+  @Override
+  public void setInnerHeight(Integer newHeight) {
+    super.setInnerHeight(newHeight);
+    heightConstrained = true;
+  }
 }
