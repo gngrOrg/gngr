@@ -20,6 +20,8 @@ GRINDER_KEY="$$$(rnd)"
 
 mkdir ~/.gngr
 
+ant -f src/build.xml build
+
 xvfb-run -s "-dpi 96 -screen 0 900x900x24+32" ant -f src/build.xml -Dgngr.grinder.key="$GRINDER_KEY" run &> /dev/null  &
 
 # git clone --depth=1 https://github.com/UprootLabs/grinder.git ~/grinder
