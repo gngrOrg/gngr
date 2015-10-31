@@ -407,10 +407,14 @@ public class HtmlValues {
     } else if (specTL.endsWith("px") || specTL.endsWith("pt") || specTL.endsWith("cm") || specTL.endsWith("pc") || specTL.endsWith("cm")
         || specTL.endsWith("mm") || specTL.endsWith("ex")) {
       final int pixelSize = getPixelSize(spec, parentRenderState, DEFAULT_FONT_SIZE_INT);
+
+      /* Disabling for GH-185
       final int dpi = getDpi();
-      // Normally the factor below should be 72, but
-      // the font-size concept in HTML is handled differently.
-      return (pixelSize * 96) / dpi;
+      Normally the factor below should be 72, but the font-size concept in HTML is handled differently.
+      return (pixelSize * 96f) / dpi;
+      */
+
+      return pixelSize;
     } else if (specTL.endsWith("%")) {
       final String value = specTL.substring(0, specTL.length() - 1);
       try {
@@ -476,13 +480,21 @@ public class HtmlValues {
       final String valText = lcSpec.substring(0, lcSpec.length() - 2);
       try {
         final double val = Double.parseDouble(valText);
-        // Get fontSize in 1/72 of an inch.
-        final int fontSize = f.getSize();
+        // Get fontSize in points (1/72 of an inch).
+        final float fontSizePt = f.getSize2D();
+        /* Formula: fontSize in CSS pixels = (fontSizePt / 72.0) * 96.0;
+         *          fontSize in device pixels = (font size in css pixels * dpi) / 96.0
+         *                                    = (fontSizePt / 72.0) * dpi
+         *
+         * Although, we should be using the factor 72 as per above, the actual factor used below is 96.
+         * This is because the font-height is calculated differently in CSS. TODO: Add a reference for this.
+         */
+        /* Disabling for GH-185
         final int dpi = getDpi();
-        // The factor below should normally be 72, but font sizes
-        // are calculated differently in HTML.
-        final double pixelSize = (fontSize * dpi) / 96;
-        return (int) Math.round(pixelSize * val);
+        final double fontSizeDevicePixels = (fontSizePt * dpi) / 96;
+        return (int) Math.round(fontSizeDevicePixels * val);
+        */
+        return (int) Math.round(fontSizePt * val);
       } catch (final NumberFormatException nfe) {
         return errorValue;
       }
