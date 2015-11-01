@@ -480,6 +480,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
             this.zIndex = 0;
           }
         } else {
+          // TODO: when zIndex is not specified or auto, that information should be retained, for GH-193
           this.zIndex = 0;
         }
         this.overflowX = rs.getOverflowX();
