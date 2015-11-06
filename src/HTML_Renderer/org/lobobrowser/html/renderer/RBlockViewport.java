@@ -1107,8 +1107,8 @@ public class RBlockViewport extends BaseRCollection {
     }
     block.setOrigin(blockX, blockY);
     if (!isRelative) {
-    sr.add(block);
-    block.setParent(this);
+      sr.add(block);
+      block.setParent(this);
     }
     if ((blockX + blockWidth) > this.maxX) {
       this.maxX = blockX + blockWidth;
@@ -1128,9 +1128,9 @@ public class RBlockViewport extends BaseRCollection {
       this.currentLine = newLine;
     }
     if (!isRelative) {
-    if (block instanceof RUIControl) {
-      this.container.addComponent(((RUIControl) block).widget.getComponent());
-    }
+      if (block instanceof RUIControl) {
+        this.container.addComponent(((RUIControl) block).widget.getComponent());
+      }
     }
   }
 
