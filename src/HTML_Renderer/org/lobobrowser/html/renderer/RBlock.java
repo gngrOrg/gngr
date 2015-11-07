@@ -46,7 +46,6 @@ import org.lobobrowser.html.style.RenderState;
 import org.lobobrowser.html.style.RenderThreadState;
 import org.lobobrowser.ua.UserAgentContext;
 import org.lobobrowser.util.CollectionUtilities;
-import org.lobobrowser.util.Threads;
 import org.w3c.dom.html.HTMLHtmlElement;
 
 /**
@@ -62,7 +61,7 @@ public class RBlock extends BaseElementRenderable {
   protected final FrameContext frameContext;
   protected final int listNesting;
   protected final HtmlRendererContext rendererContext;
-  protected final RBlockViewport bodyLayout;
+  protected final @NonNull RBlockViewport bodyLayout;
 
   // Used for relative positioning
   // private int relativeOffsetX = 0;
@@ -124,35 +123,31 @@ public class RBlock extends BaseElementRenderable {
 
   public void ensureVisible(final Point point) {
     final RBlockViewport bodyLayout = this.bodyLayout;
-    if (bodyLayout != null) {
-      final boolean hscroll = this.hasHScrollBar;
-      final boolean vscroll = this.hasVScrollBar;
-      final int origX = bodyLayout.x;
-      final int origY = bodyLayout.y;
-      final Insets insets = this.getInsetsMarginBorder(hscroll, vscroll);
-      if (hscroll) {
-        if (point.x < insets.left) {
-          bodyLayout.x += (insets.left - point.x);
-        } else if (point.x > (this.width - insets.right)) {
-          bodyLayout.x -= ((point.x - this.width) + insets.right);
-        }
+    final boolean hscroll = this.hasHScrollBar;
+    final boolean vscroll = this.hasVScrollBar;
+    final int origX = bodyLayout.x;
+    final int origY = bodyLayout.y;
+    final Insets insets = this.getInsetsMarginBorder(hscroll, vscroll);
+    if (hscroll) {
+      if (point.x < insets.left) {
+        bodyLayout.x += (insets.left - point.x);
+      } else if (point.x > (this.width - insets.right)) {
+        bodyLayout.x -= ((point.x - this.width) + insets.right);
       }
-      if (vscroll) {
-        if (point.y < insets.top) {
-          bodyLayout.y += (insets.top - point.y);
-        } else if (point.y > (this.height - insets.bottom)) {
-          bodyLayout.y -= ((point.y - this.height) + insets.bottom);
-        }
+    }
+    if (vscroll) {
+      if (point.y < insets.top) {
+        bodyLayout.y += (insets.top - point.y);
+      } else if (point.y > (this.height - insets.bottom)) {
+        bodyLayout.y -= ((point.y - this.height) + insets.bottom);
       }
-      if (hscroll || vscroll) {
-        this.correctViewportOrigin(insets, this.width, this.height);
-        if ((origX != bodyLayout.x) || (origY != bodyLayout.y)) {
-          this.resetScrollBars(null);
-          // TODO: This could be paintImmediately.
-          this.repaint();
-
-          Threads.dumpStack(8);
-        }
+    }
+    if (hscroll || vscroll) {
+      this.correctViewportOrigin(insets, this.width, this.height);
+      if ((origX != bodyLayout.x) || (origY != bodyLayout.y)) {
+        this.resetScrollBars(null);
+        // TODO: This could be paintImmediately.
+        this.repaint();
       }
     }
   }
@@ -261,31 +256,26 @@ public class RBlock extends BaseElementRenderable {
 
     final Insets insets = this.getInsetsMarginBorder(this.hasHScrollBar, this.hasVScrollBar);
     final RBlockViewport bodyLayout = this.bodyLayout;
-    if (bodyLayout != null) {
-      final int overflowX = this.overflowX;
-      final int overflowY = this.overflowY;
-      final boolean isHtmlElem = (this.getModelNode() instanceof HTMLHtmlElement);
-      final boolean xVisible = (overflowX == RenderState.OVERFLOW_NONE) || (overflowX == RenderState.OVERFLOW_VISIBLE);
-      final boolean yVisible = (overflowY == RenderState.OVERFLOW_NONE) || (overflowY == RenderState.OVERFLOW_VISIBLE);
-      final boolean noScrolls = !(this.hasHScrollBar || this.hasVScrollBar);
-      if (isHtmlElem || (xVisible && yVisible && noScrolls)) {
-        bodyLayout.paint(g);
-      } else {
-        // Clip when there potential scrolling or hidden overflow  was requested.
-        final Graphics newG = g.create(insets.left, insets.top, this.width - insets.left - insets.right, this.height - insets.top
-            - insets.bottom);
-        try {
-          // Second, translate
-          newG.translate(-insets.left, -insets.top);
-          // Third, paint in clipped + translated region.
-          bodyLayout.paint(newG);
-        } finally {
-          newG.dispose();
-        }
-      }
-
+    final int overflowX = this.overflowX;
+    final int overflowY = this.overflowY;
+    final boolean isHtmlElem = (this.getModelNode() instanceof HTMLHtmlElement);
+    final boolean xVisible = (overflowX == RenderState.OVERFLOW_NONE) || (overflowX == RenderState.OVERFLOW_VISIBLE);
+    final boolean yVisible = (overflowY == RenderState.OVERFLOW_NONE) || (overflowY == RenderState.OVERFLOW_VISIBLE);
+    final boolean noScrolls = !(this.hasHScrollBar || this.hasVScrollBar);
+    if (isHtmlElem || (xVisible && yVisible && noScrolls)) {
+      bodyLayout.paint(g);
     } else {
-      // nop
+      // Clip when there potential scrolling or hidden overflow  was requested.
+      final Graphics newG = g.create(insets.left, insets.top, this.width - insets.left - insets.right, this.height - insets.top
+          - insets.bottom);
+      try {
+        // Second, translate
+        newG.translate(-insets.left, -insets.top);
+        // Third, paint in clipped + translated region.
+        bodyLayout.paint(newG);
+      } finally {
+        newG.dispose();
+      }
     }
 
     // Paint FrameContext selection.
@@ -496,7 +486,7 @@ public class RBlock extends BaseElementRenderable {
 
     final RBlockViewport bodyLayout = this.bodyLayout;
     final NodeImpl node = (NodeImpl) this.modelNode;
-    if ((node == null) || (bodyLayout == null)) {
+    if (node == null) {
       final Insets insets = this.getInsetsMarginBorder(false, false);
       return new LayoutValue(insets.left + insets.right, insets.bottom + insets.top, false, false);
     }
@@ -1127,26 +1117,24 @@ public class RBlock extends BaseElementRenderable {
     this.resettingScrollBars = true;
     try {
       final RBlockViewport bodyLayout = this.bodyLayout;
-      if (bodyLayout != null) {
-        final Insets insets = this.getInsetsMarginBorder(this.hasHScrollBar, this.hasVScrollBar);
-        final JScrollBar vsb = this.vScrollBar;
-        if (vsb != null) {
-          final int newValue = insets.top - bodyLayout.y;
-          final int newExtent = this.height - insets.top - insets.bottom;
-          final int newMin = 0;
-          final int newMax = bodyLayout.getVisualHeight();
-          vsb.setValues(newValue, newExtent, newMin, newMax);
-          vsb.setUnitIncrement(getVUnitIncrement(renderState));
-          vsb.setBlockIncrement(newExtent);
-        }
-        final JScrollBar hsb = this.hScrollBar;
-        if (hsb != null) {
-          final int newValue = insets.left - bodyLayout.x;
-          final int newExtent = this.width - insets.left - insets.right;
-          final int newMin = 0;
-          final int newMax = bodyLayout.getVisualWidth();
-          hsb.setValues(newValue, newExtent, newMin, newMax);
-        }
+      final Insets insets = this.getInsetsMarginBorder(this.hasHScrollBar, this.hasVScrollBar);
+      final JScrollBar vsb = this.vScrollBar;
+      if (vsb != null) {
+        final int newValue = insets.top - bodyLayout.y;
+        final int newExtent = this.height - insets.top - insets.bottom;
+        final int newMin = 0;
+        final int newMax = bodyLayout.getVisualHeight();
+        vsb.setValues(newValue, newExtent, newMin, newMax);
+        vsb.setUnitIncrement(getVUnitIncrement(renderState));
+        vsb.setBlockIncrement(newExtent);
+      }
+      final JScrollBar hsb = this.hScrollBar;
+      if (hsb != null) {
+        final int newValue = insets.left - bodyLayout.x;
+        final int newExtent = this.width - insets.left - insets.right;
+        final int newMin = 0;
+        final int newMax = bodyLayout.getVisualWidth();
+        hsb.setValues(newValue, newExtent, newMin, newMax);
       }
     } finally {
       this.resettingScrollBars = false;
@@ -1221,13 +1209,10 @@ public class RBlock extends BaseElementRenderable {
    */
   public RenderableSpot getLowestRenderableSpot(final int x, final int y) {
     final RBlockViewport bodyLayout = this.bodyLayout;
-    if (bodyLayout != null) {
-      final Insets insets = this.getInsetsMarginBorder(this.hasHScrollBar, this.hasVScrollBar);
-      if ((x - relativeOffsetX > insets.left) && (x - relativeOffsetX < (this.width - insets.right)) && (y - relativeOffsetY > insets.top) && (y - relativeOffsetY < (this.height - insets.bottom))) {
-        return bodyLayout.getLowestRenderableSpot(x - relativeOffsetX - bodyLayout.x, y - relativeOffsetY - bodyLayout.y);
-      } else {
-        return new RenderableSpot(this, x - relativeOffsetX, y - relativeOffsetY);
-      }
+    final Insets insets = this.getInsetsMarginBorder(this.hasHScrollBar, this.hasVScrollBar);
+    if ((x - relativeOffsetX > insets.left) && (x - relativeOffsetX < (this.width - insets.right)) && (y - relativeOffsetY > insets.top)
+        && (y - relativeOffsetY < (this.height - insets.bottom))) {
+      return bodyLayout.getLowestRenderableSpot(x - relativeOffsetX - bodyLayout.x, y - relativeOffsetY - bodyLayout.y);
     } else {
       return new RenderableSpot(this, x - relativeOffsetX, y - relativeOffsetY);
     }
@@ -1298,10 +1283,8 @@ public class RBlock extends BaseElementRenderable {
 
   public boolean onDoubleClick(final MouseEvent event, final int x, final int y) {
     final RBlockViewport bodyLayout = this.bodyLayout;
-    if (bodyLayout != null) {
-      if (!bodyLayout.onDoubleClick(event, x - bodyLayout.x, y - bodyLayout.y)) {
-        return false;
-      }
+    if (!bodyLayout.onDoubleClick(event, x - bodyLayout.x, y - bodyLayout.y)) {
+      return false;
     }
     if (this.backgroundColor != null) {
       return false;
@@ -1374,19 +1357,17 @@ public class RBlock extends BaseElementRenderable {
    */
   public boolean onMouseReleased(final MouseEvent event, final int x, final int y) {
     final RBlockViewport bodyLayout = this.bodyLayout;
-    if (bodyLayout != null) {
-      final int newX = x - bodyLayout.x;
-      final int newY = y - bodyLayout.y;
-      if (bodyLayout.contains(newX, newY)) {
-        this.armedRenderable = null;
-        if (!bodyLayout.onMouseReleased(event, newX, newY)) {
-          return false;
-        }
-      } else {
-        final BoundableRenderable br = this.armedRenderable;
-        if (br != null) {
-          br.onMouseDisarmed(event);
-        }
+    final int newX = x - bodyLayout.x;
+    final int newY = y - bodyLayout.y;
+    if (bodyLayout.contains(newX, newY)) {
+      this.armedRenderable = null;
+      if (!bodyLayout.onMouseReleased(event, newX, newY)) {
+        return false;
+      }
+    } else {
+      final BoundableRenderable br = this.armedRenderable;
+      if (br != null) {
+        br.onMouseDisarmed(event);
       }
     }
     if (!HtmlController.getInstance().onMouseUp(this.modelNode, event, x, y)) {
@@ -1408,12 +1389,7 @@ public class RBlock extends BaseElementRenderable {
    * @see org.xamjwg.html.renderer.RCollection#getRenderables()
    */
   public Iterator<@NonNull Renderable> getRenderables(final boolean topFirst) {
-    final RBlockViewport bodyLayout = this.bodyLayout;
-    if (bodyLayout == null) {
-      return CollectionUtilities.emptyIterator();
-    } else {
-      return CollectionUtilities.singletonIterator(bodyLayout);
-    }
+    return CollectionUtilities.singletonIterator(this.bodyLayout);
   }
 
   /*
@@ -1468,27 +1444,25 @@ public class RBlock extends BaseElementRenderable {
 
   public boolean scrollHorizontalTo(final int newX) {
     final RBlockViewport bodyLayout = this.bodyLayout;
-    if (bodyLayout != null) {
-      // if (this.overflowX == RenderState.OVERFLOW_SCROLL || this.overflowX == RenderState.OVERFLOW_AUTO) {
-      if (hasHScrollBar) {
-        final Insets insets = this.getInsetsMarginBorder(this.hasHScrollBar, this.hasVScrollBar);
-        final int viewPortX = newX;
-        final int prevX = bodyLayout.x;
-        if (viewPortX > insets.left) {
-          bodyLayout.x = insets.left;
-        } else if (viewPortX < (this.width - insets.right - bodyLayout.getVisualWidth())) {
-          bodyLayout.x = Math.min(insets.left, this.width - insets.right - bodyLayout.getVisualWidth());
-        } else {
-          bodyLayout.x = viewPortX;
-        }
-        final int diff = bodyLayout.x - prevX;
-        bodyLayout.scrollX += diff;
-        this.resetScrollBars(null);
-        this.updateWidgetBounds();
-        this.repaint();
-
-        return diff != 0;
+    // if (this.overflowX == RenderState.OVERFLOW_SCROLL || this.overflowX == RenderState.OVERFLOW_AUTO) {
+    if (hasHScrollBar) {
+      final Insets insets = this.getInsetsMarginBorder(this.hasHScrollBar, this.hasVScrollBar);
+      final int viewPortX = newX;
+      final int prevX = bodyLayout.x;
+      if (viewPortX > insets.left) {
+        bodyLayout.x = insets.left;
+      } else if (viewPortX < (this.width - insets.right - bodyLayout.getVisualWidth())) {
+        bodyLayout.x = Math.min(insets.left, this.width - insets.right - bodyLayout.getVisualWidth());
+      } else {
+        bodyLayout.x = viewPortX;
       }
+      final int diff = bodyLayout.x - prevX;
+      bodyLayout.scrollX += diff;
+      this.resetScrollBars(null);
+      this.updateWidgetBounds();
+      this.repaint();
+
+      return diff != 0;
     }
 
     return false;
@@ -1496,26 +1470,24 @@ public class RBlock extends BaseElementRenderable {
 
   public boolean scrollVerticalTo(final int newY) {
     final RBlockViewport bodyLayout = this.bodyLayout;
-    if (bodyLayout != null) {
-      // if (this.overflowY == RenderState.OVERFLOW_SCROLL || this.overflowY == RenderState.OVERFLOW_AUTO) {
-      if (hasVScrollBar) {
-        final Insets insets = this.getInsetsMarginBorder(this.hasHScrollBar, this.hasVScrollBar);
-        final int viewPortY = newY;
-        final int prevY = bodyLayout.y;
-        if (viewPortY > insets.top) {
-          bodyLayout.y = insets.top;
-        } else if (viewPortY < (this.height - insets.bottom - bodyLayout.getVisualHeight())) {
-          bodyLayout.y = Math.min(insets.top, this.height - insets.bottom - bodyLayout.getVisualHeight());
-        } else {
-          bodyLayout.y = viewPortY;
-        }
-        final int diff = bodyLayout.y - prevY;
-        bodyLayout.scrollY += diff;
-        this.resetScrollBars(null);
-        this.updateWidgetBounds();
-        this.repaint();
-        return diff != 0;
+    // if (this.overflowY == RenderState.OVERFLOW_SCROLL || this.overflowY == RenderState.OVERFLOW_AUTO) {
+    if (hasVScrollBar) {
+      final Insets insets = this.getInsetsMarginBorder(this.hasHScrollBar, this.hasVScrollBar);
+      final int viewPortY = newY;
+      final int prevY = bodyLayout.y;
+      if (viewPortY > insets.top) {
+        bodyLayout.y = insets.top;
+      } else if (viewPortY < (this.height - insets.bottom - bodyLayout.getVisualHeight())) {
+        bodyLayout.y = Math.min(insets.top, this.height - insets.bottom - bodyLayout.getVisualHeight());
+      } else {
+        bodyLayout.y = viewPortY;
       }
+      final int diff = bodyLayout.y - prevY;
+      bodyLayout.scrollY += diff;
+      this.resetScrollBars(null);
+      this.updateWidgetBounds();
+      this.repaint();
+      return diff != 0;
     }
 
     return false;
@@ -1528,13 +1500,11 @@ public class RBlock extends BaseElementRenderable {
 
   public boolean scrollBy(final int orientation, final int offset) {
     final RBlockViewport bodyLayout = this.bodyLayout;
-    if (bodyLayout != null) {
-      switch (orientation) {
-      case Adjustable.HORIZONTAL:
-        return this.scrollHorizontalTo(bodyLayout.x - offset);
-      case Adjustable.VERTICAL:
-        return this.scrollVerticalTo(bodyLayout.y - offset);
-      }
+    switch (orientation) {
+    case Adjustable.HORIZONTAL:
+      return this.scrollHorizontalTo(bodyLayout.x - offset);
+    case Adjustable.VERTICAL:
+      return this.scrollVerticalTo(bodyLayout.y - offset);
     }
 
     return false;

@@ -104,64 +104,62 @@ class RListItem extends BaseRListElement {
     final RenderState rs = this.modelNode.getRenderState();
     final Insets marginInsets = this.marginInsets;
     final RBlockViewport layout = this.bodyLayout;
-    if (layout != null) {
-      final ListStyle listStyle = this.listStyle;
-      int bulletType = listStyle == null ? ListStyle.TYPE_UNSET : listStyle.type;
-      if (bulletType != ListStyle.TYPE_NONE) {
-        if (bulletType == ListStyle.TYPE_UNSET) {
-          RCollection parent = this.getOriginalOrCurrentParent();
-          if (!(parent instanceof RList)) {
-            parent = parent.getOriginalOrCurrentParent();
-          }
-          if (parent instanceof RList) {
-            final ListStyle parentListStyle = ((RList) parent).listStyle;
-            bulletType = parentListStyle == null ? ListStyle.TYPE_DISC : parentListStyle.type;
-          } else {
-            bulletType = ListStyle.TYPE_DISC;
-          }
+    final ListStyle listStyle = this.listStyle;
+    int bulletType = listStyle == null ? ListStyle.TYPE_UNSET : listStyle.type;
+    if (bulletType != ListStyle.TYPE_NONE) {
+      if (bulletType == ListStyle.TYPE_UNSET) {
+        RCollection parent = this.getOriginalOrCurrentParent();
+        if (!(parent instanceof RList)) {
+          parent = parent.getOriginalOrCurrentParent();
         }
-        // Paint bullets
-        final Color prevColor = g.getColor();
-        g.setColor(rs.getColor());
-        try {
-          final Insets insets = this.getInsets(this.hasHScrollBar, this.hasVScrollBar);
-          final Insets paddingInsets = this.paddingInsets;
-          final int baselineOffset = layout.getFirstBaselineOffset();
-          final int bulletRight = (marginInsets == null ? 0 : marginInsets.left) - BULLET_RMARGIN;
-          final int bulletBottom = insets.top + baselineOffset + (paddingInsets == null ? 0 : paddingInsets.top);
-          final int bulletTop = bulletBottom - BULLET_HEIGHT;
-          final int bulletLeft = bulletRight - BULLET_WIDTH;
-          final int bulletNumber = this.count;
-          String numberText = null;
-          switch (bulletType) {
-          case ListStyle.TYPE_DECIMAL:
-            numberText = bulletNumber + ".";
-            break;
-          case ListStyle.TYPE_LOWER_ALPHA:
-            numberText = ((char) ('a' + bulletNumber)) + ".";
-            break;
-          case ListStyle.TYPE_UPPER_ALPHA:
-            numberText = ((char) ('A' + bulletNumber)) + ".";
-            break;
-          case ListStyle.TYPE_DISC:
-            g.fillOval(bulletLeft, bulletTop, BULLET_WIDTH, BULLET_HEIGHT);
-            break;
-          case ListStyle.TYPE_CIRCLE:
-            g.drawOval(bulletLeft, bulletTop, BULLET_WIDTH, BULLET_HEIGHT);
-            break;
-          case ListStyle.TYPE_SQUARE:
-            g.fillRect(bulletLeft, bulletTop, BULLET_WIDTH, BULLET_HEIGHT);
-            break;
-          }
-          if (numberText != null) {
-            final FontMetrics fm = g.getFontMetrics();
-            final int numberLeft = bulletRight - fm.stringWidth(numberText);
-            final int numberY = bulletBottom;
-            g.drawString(numberText, numberLeft, numberY);
-          }
-        } finally {
-          g.setColor(prevColor);
+        if (parent instanceof RList) {
+          final ListStyle parentListStyle = ((RList) parent).listStyle;
+          bulletType = parentListStyle == null ? ListStyle.TYPE_DISC : parentListStyle.type;
+        } else {
+          bulletType = ListStyle.TYPE_DISC;
         }
+      }
+      // Paint bullets
+      final Color prevColor = g.getColor();
+      g.setColor(rs.getColor());
+      try {
+        final Insets insets = this.getInsets(this.hasHScrollBar, this.hasVScrollBar);
+        final Insets paddingInsets = this.paddingInsets;
+        final int baselineOffset = layout.getFirstBaselineOffset();
+        final int bulletRight = (marginInsets == null ? 0 : marginInsets.left) - BULLET_RMARGIN;
+        final int bulletBottom = insets.top + baselineOffset + (paddingInsets == null ? 0 : paddingInsets.top);
+        final int bulletTop = bulletBottom - BULLET_HEIGHT;
+        final int bulletLeft = bulletRight - BULLET_WIDTH;
+        final int bulletNumber = this.count;
+        String numberText = null;
+        switch (bulletType) {
+        case ListStyle.TYPE_DECIMAL:
+          numberText = bulletNumber + ".";
+          break;
+        case ListStyle.TYPE_LOWER_ALPHA:
+          numberText = ((char) ('a' + bulletNumber)) + ".";
+          break;
+        case ListStyle.TYPE_UPPER_ALPHA:
+          numberText = ((char) ('A' + bulletNumber)) + ".";
+          break;
+        case ListStyle.TYPE_DISC:
+          g.fillOval(bulletLeft, bulletTop, BULLET_WIDTH, BULLET_HEIGHT);
+          break;
+        case ListStyle.TYPE_CIRCLE:
+          g.drawOval(bulletLeft, bulletTop, BULLET_WIDTH, BULLET_HEIGHT);
+          break;
+        case ListStyle.TYPE_SQUARE:
+          g.fillRect(bulletLeft, bulletTop, BULLET_WIDTH, BULLET_HEIGHT);
+          break;
+        }
+        if (numberText != null) {
+          final FontMetrics fm = g.getFontMetrics();
+          final int numberLeft = bulletRight - fm.stringWidth(numberText);
+          final int numberY = bulletBottom;
+          g.drawString(numberText, numberLeft, numberY);
+        }
+      } finally {
+        g.setColor(prevColor);
       }
     }
   }
