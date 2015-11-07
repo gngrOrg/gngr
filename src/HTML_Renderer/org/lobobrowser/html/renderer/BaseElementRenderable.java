@@ -440,8 +440,9 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
         final HtmlInsets binsets = borderInfo == null ? null : borderInfo.insets;
         final HtmlInsets minsets = rs.getMarginInsets();
         final HtmlInsets pinsets = rs.getPaddingInsets();
-        int dmleft = 0, dmright = 0, dmtop = 0, dmbottom = 0;
-        int dpleft = 0, dpright = 0, dptop = 0, dpbottom = 0;
+        // TODO: These zero values are not modified anywhere; can be inlined
+        final int dmleft = 0, dmright = 0, dmtop = 0, dmbottom = 0;
+        final int dpleft = 0, dpright = 0, dptop = 0, dpbottom = 0;
         Insets borderInsets = binsets == null ? null : binsets.getAWTInsets(0, 0, 0, 0, availWidth, availHeight, 0, 0);
         if (borderInsets == null) {
           borderInsets = RBlockViewport.ZERO_INSETS;
