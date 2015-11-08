@@ -22,7 +22,6 @@
  */
 package org.lobobrowser.html.renderer;
 
-import java.awt.EventQueue;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Insets;
@@ -259,11 +258,6 @@ public class RBlockViewport extends BaseRCollection {
     this.cachedVisualHeight = null;
     this.cachedVisualWidth = null;
 
-    // Expected in GUI thread. It's possible it may be invoked during pack()
-    // outside of the GUI thread.
-    if (!EventQueue.isDispatchThread() && logger.isLoggable(Level.INFO)) {
-      logger.warning("layout(): Invoked outside GUI dispatch thread.");
-    }
     // final RenderableContainer container = this.container;
     this.paddingInsets = paddingInsets;
     this.yLimit = yLimit;
@@ -1373,9 +1367,6 @@ public class RBlockViewport extends BaseRCollection {
   }
 
   private Iterator<Renderable> getRenderables(final Rectangle clipBounds) {
-    if (!EventQueue.isDispatchThread() && logger.isLoggable(Level.INFO)) {
-      logger.warning("getRenderables(): Invoked outside GUI dispatch thread.");
-    }
     final ArrayList<BoundableRenderable> sr = this.seqRenderables;
     Iterator<Renderable> baseIterator = null;
     if (sr != null) {
@@ -1427,9 +1418,6 @@ public class RBlockViewport extends BaseRCollection {
   }
 
   public Iterator<? extends Renderable> getRenderables(final int pointx, final int pointy) {
-    if (!EventQueue.isDispatchThread() && logger.isLoggable(Level.INFO)) {
-      logger.warning("getRenderable(): Invoked outside GUI dispatch thread.");
-    }
     Collection<BoundableRenderable> result = null;
     final SortedSet<PositionedRenderable> others = this.positionedRenderables;
     final int size = others == null ? 0 : others.size();
