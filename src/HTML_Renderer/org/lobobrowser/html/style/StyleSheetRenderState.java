@@ -100,7 +100,7 @@ public class StyleSheetRenderState implements RenderState {
   private Integer iDisplay;
 
   public int getDisplay() {
-    Integer d = this.iDisplay;
+    final Integer d = this.iDisplay;
     if (d != null) {
       return d.intValue();
     }
@@ -131,8 +131,7 @@ public class StyleSheetRenderState implements RenderState {
     } else {
       displayInt = this.getDefaultDisplay();
     }
-    d = new Integer(displayInt);
-    this.iDisplay = d;
+    this.iDisplay = new Integer(displayInt);
     return displayInt;
   }
 
