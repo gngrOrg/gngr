@@ -128,28 +128,11 @@ public class RBlockViewport extends BaseRCollection {
   int scrollX = 0, scrollY = 0;
 
   private static final Map<String, MarkupLayout> elementLayout = new HashMap<>(70);
-  private static final MarkupLayout miscLayout = new MiscLayout();
+  private static final MarkupLayout commonLayout = new CommonLayout();
 
   static {
     final Map<String, MarkupLayout> el = elementLayout;
-    final EmLayout em = new EmLayout();
-    el.put("I", em);
-    el.put("EM", em);
-    el.put("CITE", em);
-    el.put("H1", new HLayout(24));
-    el.put("H2", new HLayout(18));
-    el.put("H3", new HLayout(15));
-    el.put("H4", new HLayout(12));
-    el.put("H5", new HLayout(10));
-    el.put("H6", new HLayout(8));
-    final StrongLayout strong = new StrongLayout();
-    el.put("B", strong);
-    el.put("STRONG", strong);
-    el.put("TH", strong);
-    el.put("U", new ULayout());
-    el.put("STRIKE", new StrikeLayout());
     el.put("BR", new BrLayout());
-    el.put("P", new PLayout());
     el.put("NOSCRIPT", new NoScriptLayout());
     final NopLayout nop = new NopLayout();
     el.put("SCRIPT", nop);
@@ -159,33 +142,10 @@ public class RBlockViewport extends BaseRCollection {
     el.put("STYLE", nop);
     el.put("LINK", nop);
     el.put("IMG", new ImgLayout());
-    el.put("TABLE", new TableLayout());
-    final AnchorLayout anchor = new AnchorLayout();
-    el.put("A", anchor);
-    el.put("ANCHOR", anchor);
     el.put("INPUT", new InputLayout2());
     el.put("TEXTAREA", new TextAreaLayout2());
     el.put("SELECT", new SelectLayout());
-    final ListItemLayout list = new ListItemLayout();
-    el.put("UL", list);
-    el.put("OL", list);
-    el.put("LI", list);
-    final CommonBlockLayout cbl = new CommonBlockLayout();
-    el.put("PRE", cbl);
-    el.put("CENTER", cbl);
-    el.put("CAPTION", cbl);
-    final DivLayout div = new DivLayout();
-    el.put("DIV", div);
-    el.put("BODY", div);
-    el.put("DL", div);
-    el.put("DT", div);
-    el.put("CANVAS", div);
-    el.put("HTML", div);
-    final BlockQuoteLayout bq = new BlockQuoteLayout();
-    el.put("BLOCKQUOTE", bq);
-    el.put("DD", bq);
     el.put("HR", new HrLayout());
-    el.put("SPAN", new SpanLayout());
     final ObjectLayout ol = new ObjectLayout(false, true);
     el.put("OBJECT", new ObjectLayout(true, true));
     el.put("APPLET", ol);
@@ -602,7 +562,7 @@ public class RBlockViewport extends BaseRCollection {
           final String nodeName = child.getNodeName().toUpperCase();
           MarkupLayout ml = elementLayout.get(nodeName);
           if (ml == null) {
-            ml = miscLayout;
+            ml = commonLayout;
           }
           ml.layoutMarkup(this, (HTMLElementImpl) child);
           this.currentLine.addStyleChanger(new RStyleChanger(node));
@@ -1961,54 +1921,6 @@ public class RBlockViewport extends BaseRCollection {
     }
   }
 
-  private static class MiscLayout extends CommonLayout {
-    public MiscLayout() {
-      super(DISPLAY_INLINE);
-    }
-  }
-
-  private static class HLayout extends CommonLayout {
-    public HLayout(final int fontSize) {
-      super(DISPLAY_BLOCK);
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * org.xamjwg.html.renderer.MarkupLayout#layoutMarkup(java.awt.Container,
-     * java.awt.Insets, org.xamjwg.html.domimpl.HTMLElementImpl)
-     */
-    @Override
-    public void layoutMarkup(final RBlockViewport bodyLayout, final HTMLElementImpl markupElement) {
-      super.layoutMarkup(bodyLayout, markupElement);
-    }
-  }
-
-  private static class PLayout extends CommonLayout {
-    public PLayout() {
-      super(DISPLAY_BLOCK);
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * org.xamjwg.html.renderer.MarkupLayout#layoutMarkup(java.awt.Container,
-     * java.awt.Insets, org.xamjwg.html.domimpl.HTMLElementImpl)
-     */
-    @Override
-    public void layoutMarkup(final RBlockViewport bodyLayout, final HTMLElementImpl markupElement) {
-      super.layoutMarkup(bodyLayout, markupElement);
-    }
-  }
-
-  private static class ListItemLayout extends CommonLayout {
-    public ListItemLayout() {
-      super(DISPLAY_LIST_ITEM);
-    }
-  }
-
   private static class BrLayout implements MarkupLayout {
     /*
      * (non-Javadoc)
@@ -2033,70 +1945,6 @@ public class RBlockViewport extends BaseRCollection {
      */
     public void layoutMarkup(final RBlockViewport bodyLayout, final HTMLElementImpl markupElement) {
       bodyLayout.layoutHr(markupElement);
-    }
-  }
-
-  private static class TableLayout extends CommonLayout {
-    public TableLayout() {
-      super(DISPLAY_TABLE);
-    }
-  }
-
-  private static class CommonBlockLayout extends CommonLayout {
-    public CommonBlockLayout() {
-      super(DISPLAY_BLOCK);
-    }
-  }
-
-  // ---------------------------------------------------------------------------
-
-  private static class DivLayout extends CommonLayout {
-    public DivLayout() {
-      super(DISPLAY_BLOCK);
-    }
-  }
-
-  private static class BlockQuoteLayout extends CommonLayout {
-    public BlockQuoteLayout() {
-      super(DISPLAY_BLOCK);
-    }
-  }
-
-  private static class SpanLayout extends CommonLayout {
-    public SpanLayout() {
-      super(DISPLAY_INLINE);
-    }
-  }
-
-  private static class EmLayout extends CommonLayout {
-    public EmLayout() {
-      super(DISPLAY_INLINE);
-    }
-
-  }
-
-  private static class ULayout extends CommonLayout {
-    public ULayout() {
-      super(DISPLAY_INLINE);
-    }
-
-  }
-
-  private static class StrikeLayout extends CommonLayout {
-    public StrikeLayout() {
-      super(DISPLAY_INLINE);
-    }
-  }
-
-  private static class StrongLayout extends CommonLayout {
-    public StrongLayout() {
-      super(DISPLAY_INLINE);
-    }
-  }
-
-  private static class AnchorLayout extends CommonLayout {
-    public AnchorLayout() {
-      super(DISPLAY_INLINE);
     }
   }
 
@@ -2310,7 +2158,7 @@ public class RBlockViewport extends BaseRCollection {
     protected abstract RElement createRenderable(RBlockViewport bodyLayout, HTMLElementImpl markupElement);
   }
 
-  private static abstract class CommonLayout implements MarkupLayout {
+  private static final class CommonLayout implements MarkupLayout {
     protected static final int DISPLAY_NONE = 0;
     protected static final int DISPLAY_INLINE = 1;
     protected static final int DISPLAY_BLOCK = 2;
@@ -2320,10 +2168,7 @@ public class RBlockViewport extends BaseRCollection {
     protected static final int DISPLAY_TABLE = 6;
     protected static final int DISPLAY_INLINE_BLOCK = 7;
 
-    // private final int display;
-
-    public CommonLayout(final int defaultDisplay) {
-      // this.display = defaultDisplay;
+    public CommonLayout() {
     }
 
     public void layoutMarkup(final RBlockViewport bodyLayout, final HTMLElementImpl markupElement) {
