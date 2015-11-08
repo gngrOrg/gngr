@@ -25,7 +25,6 @@ package org.lobobrowser.html.renderer;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -240,7 +239,7 @@ abstract class BaseBoundableRenderable extends BaseRenderable implements Boundab
    * It's safe to call this method outside the GUI thread.
    */
   public void relayout() {
-    if (EventQueue.isDispatchThread()) {
+    if (SwingUtilities.isEventDispatchThread()) {
       this.relayoutImpl(true, false);
     } else {
       SwingUtilities.invokeLater(() -> relayoutImpl(true, false));
@@ -248,7 +247,7 @@ abstract class BaseBoundableRenderable extends BaseRenderable implements Boundab
   }
 
   public void relayoutIfValid() {
-    if (EventQueue.isDispatchThread()) {
+    if (SwingUtilities.isEventDispatchThread()) {
       this.relayoutImpl(true, true);
     } else {
       SwingUtilities.invokeLater(() -> relayoutImpl(true, true));

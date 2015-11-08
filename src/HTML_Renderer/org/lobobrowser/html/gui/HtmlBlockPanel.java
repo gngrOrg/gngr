@@ -28,7 +28,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsEnvironment;
@@ -368,11 +367,11 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
       final RBlock block = this.rblock;
       if (block != null) {
         // Layout should always be done in the GUI thread.
-        if (EventQueue.isDispatchThread()) {
+        if (SwingUtilities.isEventDispatchThread()) {
           block.layout(pw, 0, false, false, RenderState.OVERFLOW_VISIBLE, RenderState.OVERFLOW_VISIBLE, true);
         } else {
           try {
-            EventQueue.invokeAndWait(new Runnable() {
+            SwingUtilities.invokeAndWait(new Runnable() {
               public void run() {
                 block.layout(pw, 0, false, false, RenderState.OVERFLOW_VISIBLE, RenderState.OVERFLOW_VISIBLE, true);
               }

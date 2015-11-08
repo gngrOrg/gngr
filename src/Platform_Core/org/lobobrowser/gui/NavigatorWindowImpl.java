@@ -22,7 +22,6 @@ package org.lobobrowser.gui;
 
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.Frame;
 import java.awt.Window;
 import java.io.ByteArrayInputStream;
@@ -285,7 +284,7 @@ public class NavigatorWindowImpl implements NavigatorWindow, WindowCallback {
   }
 
   public void handleDocumentRendering(final NavigatorFrame frame, final ClientletResponse response, final ComponentContent content) {
-    if (EventQueue.isDispatchThread()) {
+    if (SwingUtilities.isEventDispatchThread()) {
       this.handleDocumentRenderingImpl(frame, response, content);
     } else {
       SwingUtilities.invokeLater(() -> NavigatorWindowImpl.this.handleDocumentRenderingImpl(frame, response, content));

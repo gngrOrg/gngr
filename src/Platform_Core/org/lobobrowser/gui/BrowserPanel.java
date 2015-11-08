@@ -23,7 +23,6 @@ package org.lobobrowser.gui;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -429,7 +428,7 @@ public class BrowserPanel extends JPanel implements NavigatorWindow, BrowserWind
   }
 
   public void handleDocumentRendering(final NavigatorFrame frame, final ClientletResponse response, final ComponentContent content) {
-    if (EventQueue.isDispatchThread()) {
+    if (SwingUtilities.isEventDispatchThread()) {
       this.handleDocumentRenderingImpl(frame, response, content);
     } else {
       SwingUtilities.invokeLater(() -> BrowserPanel.this.handleDocumentRenderingImpl(frame, response, content));

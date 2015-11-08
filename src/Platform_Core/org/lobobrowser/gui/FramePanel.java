@@ -24,7 +24,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.Window;
 import java.net.MalformedURLException;
@@ -487,7 +486,7 @@ public class FramePanel extends JPanel implements NavigatorFrame {
    */
   public void replaceContent(final ClientletResponse response, final ComponentContent content) {
     // Method probably invoked outside GUI thread.
-    if (EventQueue.isDispatchThread()) {
+    if (SwingUtilities.isEventDispatchThread()) {
       this.replaceContentImpl(response, content);
     } else {
       // Security note: Need to pass security context of caller

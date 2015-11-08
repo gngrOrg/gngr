@@ -24,7 +24,6 @@
 package org.lobobrowser.html.gui;
 
 import java.awt.Cursor;
-import java.awt.EventQueue;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.io.Reader;
@@ -243,7 +242,7 @@ public class HtmlPanel extends JComponent implements FrameContext, DefferedLayou
    *          The y coordinate.
    */
   public void scroll(final int x, final int y) {
-    if (EventQueue.isDispatchThread()) {
+    if (SwingUtilities.isEventDispatchThread()) {
       this.scrollImpl(x, y);
     } else {
       SwingUtilities.invokeLater(() -> scrollImpl(x, y));
@@ -251,7 +250,7 @@ public class HtmlPanel extends JComponent implements FrameContext, DefferedLayou
   }
 
   public void scrollBy(final int x, final int y) {
-    if (EventQueue.isDispatchThread()) {
+    if (SwingUtilities.isEventDispatchThread()) {
       this.scrollByImpl(x, y);
     } else {
       SwingUtilities.invokeLater(() -> scrollByImpl(x, y));
@@ -274,7 +273,7 @@ public class HtmlPanel extends JComponent implements FrameContext, DefferedLayou
    * operation will be scheduled to be performed in the GUI thread.
    */
   public void clearDocument() {
-    if (java.awt.EventQueue.isDispatchThread()) {
+    if (SwingUtilities.isEventDispatchThread()) {
       this.clearDocumentImpl();
     } else {
       SwingUtilities.invokeLater(() -> HtmlPanel.this.clearDocumentImpl());
@@ -320,7 +319,7 @@ public class HtmlPanel extends JComponent implements FrameContext, DefferedLayou
   public void setDocument(final Document node, final HtmlRendererContext rcontext) {
     setCursor(Cursor.getDefaultCursor());
 
-    if (java.awt.EventQueue.isDispatchThread()) {
+    if (SwingUtilities.isEventDispatchThread()) {
       this.setDocumentImpl(node, rcontext);
     } else {
       SwingUtilities.invokeLater(() -> HtmlPanel.this.setDocumentImpl(node, rcontext));
@@ -344,7 +343,7 @@ public class HtmlPanel extends JComponent implements FrameContext, DefferedLayou
    *          The name or ID of the element in the document.
    */
   public void scrollToElement(final String nameOrId) {
-    if (EventQueue.isDispatchThread()) {
+    if (SwingUtilities.isEventDispatchThread()) {
       this.scrollToElementImpl(nameOrId);
     } else {
       SwingUtilities.invokeLater(() -> scrollToElementImpl(nameOrId));
@@ -679,7 +678,7 @@ public class HtmlPanel extends JComponent implements FrameContext, DefferedLayou
     synchronized (notifs) {
       notifs.add(notification);
     }
-    if (EventQueue.isDispatchThread()) {
+    if (SwingUtilities.isEventDispatchThread()) {
       // In this case we want the notification to be processed
       // immediately. However, we don't want potential recursions
       // to occur when a Javascript property is set in the GUI thread.
