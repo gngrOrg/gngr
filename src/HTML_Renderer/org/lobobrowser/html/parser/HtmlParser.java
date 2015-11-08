@@ -1116,6 +1116,7 @@ public class HtmlParser {
           if ("]>".equals(next2)) {
             break;
           } else {
+            sb.append(nextCh);
             sb.append(next2);
             next = reader.read();
           }
