@@ -97,8 +97,7 @@ public class RBlock extends BaseElementRenderable {
         this);
     this.bodyLayout = bl;
     bl.setOriginalParent(this);
-    // Initialize origin of RBlockViewport to be as far top-left as
-    // possible.
+    // Initialize origin of RBlockViewport to be as far top-left as possible.
     // This will be corrected on first layout.
     bl.setX(Short.MAX_VALUE);
     bl.setY(Short.MAX_VALUE);
