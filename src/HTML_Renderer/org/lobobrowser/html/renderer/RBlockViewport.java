@@ -62,6 +62,7 @@ import org.lobobrowser.util.ArrayUtilities;
 import org.lobobrowser.util.CollectionUtilities;
 import org.w3c.dom.Node;
 import org.w3c.dom.html.HTMLDocument;
+import org.w3c.dom.html.HTMLHtmlElement;
 
 /**
  * A substantial portion of the HTML rendering logic of the package can be found
@@ -126,6 +127,8 @@ public class RBlockViewport extends BaseRCollection {
   private BoundableRenderable lastSeqBlock;
 
   int scrollX = 0, scrollY = 0;
+
+  private boolean firstElementProcessed = false;
 
   private static final Map<String, MarkupLayout> elementLayout = new HashMap<>(70);
   private static final MarkupLayout commonLayout = new CommonLayout();
@@ -228,7 +231,8 @@ public class RBlockViewport extends BaseRCollection {
     this.pendingFloats = null;
     this.sizeOnly = sizeOnly;
     this.lastSeqBlock = null;
-    this.currentCollapsibleMargin = this.initCollapsibleMargin();
+    // this.currentCollapsibleMargin = this.initCollapsibleMargin();
+    this.currentCollapsibleMargin = 0;
 
     // maxX and maxY should not be reset by layoutPass.
     this.maxX = paddingInsets.left;
@@ -547,6 +551,7 @@ public class RBlockViewport extends BaseRCollection {
   }
 
   private void layoutChildren(final NodeImpl node) {
+    firstElementProcessed = false;
     final NodeImpl[] childrenArray = node.getChildrenArray();
     if (childrenArray != null) {
       final int length = childrenArray.length;
@@ -566,6 +571,7 @@ public class RBlockViewport extends BaseRCollection {
           }
           ml.layoutMarkup(this, (HTMLElementImpl) child);
           this.currentLine.addStyleChanger(new RStyleChanger(node));
+          firstElementProcessed = true;
         } else if ((nodeType == Node.COMMENT_NODE) || (nodeType == Node.PROCESSING_INSTRUCTION_NODE)) {
           // ignore
         } else if (nodeType == Node.DOCUMENT_FRAGMENT_NODE) {
@@ -613,7 +619,20 @@ public class RBlockViewport extends BaseRCollection {
       final FloatingBoundsSource floatBoundsSource = floatBounds == null ? null : new ParentFloatingBoundsSource(blockShiftRight,
           expectedWidth,
           newX, newY, floatBounds);
+
+      if (isFirstBlock()) {
+        this.currentCollapsibleMargin = 0;
+      }
+      final boolean isFirstCollapsibleBlock = isFirstCollapsibleBlock(renderable);
+      if (isFirstCollapsibleBlock) {
+        System.out.println("First block: " + renderable);
+        collapseTopMarginWithParent(renderable);
+      }
       renderable.layout(availContentWidth, availContentHeight, true, false, floatBoundsSource, this.sizeOnly);
+      if (isFirstCollapsibleBlock) {
+        final RBlock pBlock = (RBlock) this.parent;
+        pBlock.absorbMarginTopChild(renderable.getMarginTopOriginal());
+      }
 
       // if pos:relative then send it to parent for drawing along with other positioned elements.
       this.addAsSeqBlock(renderable, false, false, false, false, false);
@@ -1086,6 +1105,32 @@ public class RBlockViewport extends BaseRCollection {
         this.container.addComponent(((RUIControl) block).widget.getComponent());
       }
     }
+  }
+
+  private static void collapseTopMarginWithParent(final RBlock child) {
+    child.setCollapseTop();
+  }
+
+  private static boolean isCollapsibleBlock(final RBlock child) {
+    final ModelNode mn = child.getModelNode();
+    final RenderState rs = mn.getRenderState();
+    final boolean isDisplayBlock = rs.getDisplay() == RenderState.DISPLAY_BLOCK;
+    final boolean isPosStaticOrRelative = rs.getPosition() == RenderState.POSITION_STATIC || rs.getPosition() == RenderState.POSITION_RELATIVE;
+    final HtmlInsets borderInsets = rs.getBorderInfo().insets;
+    final HtmlInsets paddingInsets = rs.getPaddingInsets();
+    final boolean isZeroBorderAndPadding =
+        (borderInsets == null || borderInsets.top == 0)
+        && (paddingInsets == null || paddingInsets.top == 0);
+    return (!(mn instanceof HTMLHtmlElement)) && isDisplayBlock && isPosStaticOrRelative && isZeroBorderAndPadding;
+  }
+
+  private boolean isFirstCollapsibleBlock(final RBlock child) {
+    return isFirstBlock() && isCollapsibleBlock(child) && isCollapsibleBlock((RBlock) this.parent);
+  }
+
+  private boolean isFirstBlock() {
+    final ArrayList<@NonNull BoundableRenderable> sr = this.seqRenderables;
+    return (!firstElementProcessed) && (sr == null || ((sr.size() == 1) && (sr.get(0) instanceof RLine) && ((RLine)sr.get(0)).isEmpty()));
   }
 
   private void addLineAfterBlock(final RBlock block, final boolean informLineDone) {

@@ -38,6 +38,7 @@ import java.util.Iterator;
 import javax.swing.JScrollBar;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.lobobrowser.html.HtmlRendererContext;
 import org.lobobrowser.html.domimpl.ModelNode;
 import org.lobobrowser.html.domimpl.NodeImpl;
@@ -607,6 +608,13 @@ public class RBlock extends BaseElementRenderable {
         viewportFloatBounds = new ShiftedFloatingBounds(blockFloatBounds, -insets.left, -insets.right, -insets.top);
       }
       bodyLayout.layout(desiredViewportWidth, desiredViewportHeight, paddingInsets, -1, viewportFloatBounds, sizeOnly);
+    }
+
+    if (marginInsets != this.marginInsets) {
+      // Can happen because of margin top being absorbed from child
+
+      insets = this.getInsetsMarginBorder(hscroll, vscroll);
+      insetsTotalHeight = insets.top + insets.bottom;
     }
 
     final int bodyWidth = bodyLayout.width;
@@ -1813,5 +1821,49 @@ public class RBlock extends BaseElementRenderable {
 
   public boolean isReadyToPaint() {
     return super.isReadyToPaint() && bodyLayout.isReadyToPaint();
+  }
+
+  private boolean collapseTopMargin = false;
+  private @Nullable Integer marginTopOriginal = null;
+
+  void setCollapseTop() {
+    collapseTopMargin = true;
+  }
+
+  @Nullable Integer getMarginTopOriginal() {
+    return marginTopOriginal;
+  }
+
+  @Override
+  protected void applyStyle(int availWidth, int availHeight, boolean updateLayout) {
+    super.applyStyle(availWidth, availHeight, updateLayout);
+
+    if (collapseTopMargin) {
+      final Insets mi = this.marginInsets;
+      this.marginTopOriginal = mi.top;
+      this.marginInsets = new Insets(0, mi.left, mi.bottom, mi.right);
+      // System.out.println("Collapsed top margin to zero in " + this);
+    }
+  }
+
+  void absorbMarginTopChild(@Nullable Integer marginTopChild) {
+    if (marginTopChild != null) {
+      // System.out.println("In: " + this);
+      // System.out.println("  Absorbing: " + marginTopChild);
+      final Insets mi = this.marginInsets;
+      if (mi != null) {
+        if (marginTopChild > mi.top) {
+          if (!collapseTopMargin) {
+            this.marginInsets = new Insets(marginTopChild, mi.left, mi.bottom, mi.right);
+          }
+          this.marginTopOriginal = marginTopChild;
+        }
+      } else {
+        if (!collapseTopMargin) {
+          this.marginInsets = new Insets(marginTopChild, 0, 0, 0);
+        }
+        this.marginTopOriginal = marginTopChild;
+      }
+    }
   }
 }
