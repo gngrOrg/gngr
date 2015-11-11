@@ -1111,8 +1111,8 @@ public class RBlockViewport extends BaseRCollection {
     child.setCollapseTop();
   }
 
-  private static boolean isCollapsibleBlock(final RBlock child) {
-    final ModelNode mn = child.getModelNode();
+  private static boolean isCollapsibleBlock(final RBlock block) {
+    final ModelNode mn = block.getModelNode();
     final RenderState rs = mn.getRenderState();
     final boolean isDisplayBlock = rs.getDisplay() == RenderState.DISPLAY_BLOCK;
     final boolean isPosStaticOrRelative = rs.getPosition() == RenderState.POSITION_STATIC || rs.getPosition() == RenderState.POSITION_RELATIVE;
@@ -1124,8 +1124,18 @@ public class RBlockViewport extends BaseRCollection {
     return (!(mn instanceof HTMLHtmlElement)) && isDisplayBlock && isPosStaticOrRelative && isZeroBorderAndPadding;
   }
 
+  private static boolean isCollapsibleParentBlock(final RBlock block) {
+    final ModelNode mn = block.getModelNode();
+    final RenderState rs = mn.getRenderState();
+    final int overflowX = rs.getOverflowX();
+    final int overflowY = rs.getOverflowY();
+    final boolean xOverflowFine = (overflowX == RenderState.OVERFLOW_VISIBLE) || (overflowX == RenderState.OVERFLOW_NONE);
+    final boolean yOverflowFine = (overflowY == RenderState.OVERFLOW_VISIBLE) || (overflowY == RenderState.OVERFLOW_NONE);
+    return isCollapsibleBlock(block) && xOverflowFine && yOverflowFine;
+  }
+
   private boolean isFirstCollapsibleBlock(final RBlock child) {
-    return isFirstBlock() && isCollapsibleBlock(child) && isCollapsibleBlock((RBlock) this.parent);
+    return isFirstBlock() && isCollapsibleBlock(child) && isCollapsibleParentBlock((RBlock) this.parent);
   }
 
   private boolean isFirstBlock() {
