@@ -626,7 +626,7 @@ public class RBlockViewport extends BaseRCollection {
       final boolean isFirstCollapsibleBlock = isFirstCollapsibleBlock(renderable);
       if (isFirstCollapsibleBlock) {
         System.out.println("First block: " + renderable);
-        collapseTopMarginWithParent(renderable);
+        renderable.setCollapseTop();
       }
       renderable.layout(availContentWidth, availContentHeight, true, false, floatBoundsSource, this.sizeOnly);
       if (isFirstCollapsibleBlock) {
@@ -1105,10 +1105,6 @@ public class RBlockViewport extends BaseRCollection {
         this.container.addComponent(((RUIControl) block).widget.getComponent());
       }
     }
-  }
-
-  private static void collapseTopMarginWithParent(final RBlock child) {
-    child.setCollapseTop();
   }
 
   private static boolean isCollapsibleBlock(final RBlock block) {
