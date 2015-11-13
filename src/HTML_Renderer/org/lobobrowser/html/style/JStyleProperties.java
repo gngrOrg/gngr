@@ -204,13 +204,13 @@ abstract public class JStyleProperties extends AbstractScriptableDelegate implem
   private static String border2Pixel(final String width) {
     if (width != null) {
       if ("thin".equalsIgnoreCase(width)) {
-        return "1px";
+        return HtmlValues.BORDER_THIN_SIZE;
       }
       if ("medium".equalsIgnoreCase(width)) {
-        return "3px";
+        return HtmlValues.BORDER_MEDIUM_SIZE;
       }
       if ("thick".equalsIgnoreCase(width)) {
-        return "5px";
+        return HtmlValues.BORDER_THICK_SIZE;
       }
     }
     return width;

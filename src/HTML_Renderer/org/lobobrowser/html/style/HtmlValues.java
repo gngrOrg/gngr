@@ -37,6 +37,10 @@ import org.lobobrowser.util.gui.ColorFactory;
 import org.w3c.dom.css.CSS2Properties;
 
 public class HtmlValues {
+  static final String BORDER_THIN_SIZE = "1px";
+  static final String BORDER_MEDIUM_SIZE = "3px";
+  static final String BORDER_THICK_SIZE = "5px";
+
   public static final Map<String, FontInfo> SYSTEM_FONTS = new HashMap<>();
   private static final Logger logger = Logger.getLogger(HtmlValues.class.getName());
   public static final float DEFAULT_FONT_SIZE = 16.0f;
