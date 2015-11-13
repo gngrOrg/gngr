@@ -874,26 +874,23 @@ public class HtmlValues {
     binfo.leftStyle = getBorderStyle(properties.getBorderLeftStyle());
 
     final ColorFactory cf = ColorFactory.getInstance();
-    final String topColorSpec = properties.getBorderTopColor();
-    if (topColorSpec != null) {
-      binfo.topColor = cf.getColor(topColorSpec);
-    }
-    final String rightColorSpec = properties.getBorderRightColor();
-    if (rightColorSpec != null) {
-      binfo.rightColor = cf.getColor(rightColorSpec);
-    }
-    final String bottomColorSpec = properties.getBorderBottomColor();
-    if (bottomColorSpec != null) {
-      binfo.bottomColor = cf.getColor(bottomColorSpec);
-    }
-    final String leftColorSpec = properties.getBorderLeftColor();
-    if (leftColorSpec != null) {
-      binfo.leftColor = cf.getColor(leftColorSpec);
-    }
+
+    binfo.topColor = getBorderColor(cf, properties.getBorderTopColor(), renderState);
+    binfo.rightColor = getBorderColor(cf, properties.getBorderRightColor(), renderState);
+    binfo.bottomColor = getBorderColor(cf, properties.getBorderBottomColor(), renderState);
+    binfo.leftColor = getBorderColor(cf, properties.getBorderLeftColor(), renderState);
 
     HtmlValues.populateBorderInsets(binfo, properties, renderState);
 
     return binfo;
+  }
+
+  private static java.awt.Color getBorderColor(final ColorFactory cf, final String colorSpec, final RenderState renderState) {
+    if (colorSpec != null) {
+      return cf.getColor(colorSpec);
+    } else {
+      return renderState.getColor();
+    }
   }
 
   public static Insets getBorderStyles(final CSS2Properties properties) {
