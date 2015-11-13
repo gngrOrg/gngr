@@ -619,6 +619,19 @@ public class RBlock extends BaseElementRenderable {
 
     final int bodyWidth = bodyLayout.width;
     final int bodyHeight = bodyLayout.height;
+
+    if ((declaredHeight == -1) && (bodyHeight == 0) && !(collapseTopMargin || collapseBottomMargin)) {
+      if ((paddingInsets.top == 0) && (paddingInsets.bottom == 0) && (borderInsets.top == 0) && (borderInsets.bottom == 0)) {
+        final Insets mi = this.marginInsets;
+        if (mi != null) {
+          mi.top = Math.max(mi.top, mi.bottom);
+          mi.bottom = 0;
+          insets = this.getInsetsMarginBorder(hscroll, vscroll);
+          insetsTotalHeight = insets.top + insets.bottom;
+        }
+      }
+    }
+
     int prelimBlockWidth = bodyWidth + insetsTotalWidth;
     int prelimBlockHeight = bodyHeight + insetsTotalHeight;
     final int adjDeclaredWidth = declaredWidth == -1 ? -1 : declaredWidth + insets.left + insets.right + paddingInsets.left
