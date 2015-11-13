@@ -1824,14 +1824,24 @@ public class RBlock extends BaseElementRenderable {
   }
 
   private boolean collapseTopMargin = false;
+  private boolean collapseBottomMargin = false;
   private @Nullable Integer marginTopOriginal = null;
+  private @Nullable Integer marginBottomOriginal = null;
 
-  void setCollapseTop() {
-    collapseTopMargin = true;
+  void setCollapseTop(final boolean set) {
+    collapseTopMargin = set;
+  }
+
+  void setCollapseBottom(final boolean set) {
+    collapseBottomMargin = set;
   }
 
   @Nullable Integer getMarginTopOriginal() {
     return marginTopOriginal;
+  }
+
+  @Nullable Integer getMarginBottomOriginal() {
+    return marginBottomOriginal;
   }
 
   @Override
@@ -1843,6 +1853,12 @@ public class RBlock extends BaseElementRenderable {
       this.marginTopOriginal = mi.top;
       this.marginInsets = new Insets(0, mi.left, mi.bottom, mi.right);
       // System.out.println("Collapsed top margin to zero in " + this);
+    }
+    if (collapseBottomMargin) {
+      final Insets mi = this.marginInsets;
+      this.marginBottomOriginal = mi.bottom;
+      this.marginInsets = new Insets(mi.top, mi.left, 0, mi.right);
+      // System.out.println("Collapsed bottom margin to zero in " + this);
     }
   }
 
@@ -1863,6 +1879,27 @@ public class RBlock extends BaseElementRenderable {
           this.marginInsets = new Insets(marginTopChild, 0, 0, 0);
         }
         this.marginTopOriginal = marginTopChild;
+      }
+    }
+  }
+
+  void absorbMarginBottomChild(@Nullable Integer marginBottomChild) {
+    if (marginBottomChild != null) {
+      // System.out.println("In: " + this);
+      // System.out.println("  Absorbing: " + marginTopChild);
+      final Insets mi = this.marginInsets;
+      if (mi != null) {
+        if (marginBottomChild > mi.bottom) {
+          if (!collapseBottomMargin) {
+            this.marginInsets = new Insets(mi.top, mi.left, marginBottomChild, mi.right);
+          }
+          this.marginBottomOriginal = marginBottomChild;
+        }
+      } else {
+        if (!collapseBottomMargin) {
+          this.marginInsets = new Insets(0, 0, marginBottomChild, 0);
+        }
+        this.marginBottomOriginal = marginBottomChild;
       }
     }
   }

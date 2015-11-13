@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.function.Function;
 import java.util.logging.Level;
 
 import org.eclipse.jdt.annotation.NonNull;
@@ -129,6 +130,7 @@ public class RBlockViewport extends BaseRCollection {
   int scrollX = 0, scrollY = 0;
 
   private boolean firstElementProcessed = false;
+  private boolean lastElementBeingProcessed = false;
 
   private static final Map<String, MarkupLayout> elementLayout = new HashMap<>(70);
   private static final MarkupLayout commonLayout = new CommonLayout();
@@ -550,8 +552,19 @@ public class RBlockViewport extends BaseRCollection {
     }
   }
 
+  private static boolean isLastElement(final int indx, final NodeImpl[] childrenArray) {
+    for (int i = indx + 1; i < childrenArray.length; i++) {
+      if (childrenArray[i].getNodeType() == Node.ELEMENT_NODE) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   private void layoutChildren(final NodeImpl node) {
     firstElementProcessed = false;
+    lastElementBeingProcessed = false;
+
     final NodeImpl[] childrenArray = node.getChildrenArray();
     if (childrenArray != null) {
       final int length = childrenArray.length;
@@ -568,6 +581,9 @@ public class RBlockViewport extends BaseRCollection {
           MarkupLayout ml = elementLayout.get(nodeName);
           if (ml == null) {
             ml = commonLayout;
+          }
+          if (isLastElement(i, childrenArray) ) {
+            lastElementBeingProcessed = true;
           }
           ml.layoutMarkup(this, (HTMLElementImpl) child);
           this.currentLine.addStyleChanger(new RStyleChanger(node));
@@ -623,16 +639,30 @@ public class RBlockViewport extends BaseRCollection {
       if (isFirstBlock()) {
         this.currentCollapsibleMargin = 0;
       }
+
       final boolean isFirstCollapsibleBlock = isFirstCollapsibleBlock(renderable);
+      final boolean isLastCollapsibleBlock = isLastCollapsibleBlock(renderable);
+      renderable.setCollapseTop(isFirstCollapsibleBlock);
+      renderable.setCollapseBottom(isLastCollapsibleBlock);
+
       if (isFirstCollapsibleBlock) {
         System.out.println("First block: " + renderable);
-        renderable.setCollapseTop();
       }
+      if (isLastCollapsibleBlock) {
+        System.out.println("Last block: " + renderable);
+      }
+
       renderable.layout(availContentWidth, availContentHeight, true, false, floatBoundsSource, this.sizeOnly);
+
       if (isFirstCollapsibleBlock) {
         final RBlock pBlock = (RBlock) this.parent;
         pBlock.absorbMarginTopChild(renderable.getMarginTopOriginal());
       }
+      if (isLastCollapsibleBlock) {
+        final RBlock pBlock = (RBlock) this.parent;
+        pBlock.absorbMarginBottomChild(renderable.getMarginBottomOriginal());
+      }
+
 
       // if pos:relative then send it to parent for drawing along with other positioned elements.
       this.addAsSeqBlock(renderable, false, false, false, false, false);
@@ -1107,31 +1137,43 @@ public class RBlockViewport extends BaseRCollection {
     }
   }
 
-  private static boolean isCollapsibleBlock(final RBlock block) {
+  private static boolean isCollapsibleBlock(final RBlock block, final Function<HtmlInsets, Boolean> insetChecker) {
     final ModelNode mn = block.getModelNode();
     final RenderState rs = mn.getRenderState();
     final boolean isDisplayBlock = rs.getDisplay() == RenderState.DISPLAY_BLOCK;
     final boolean isPosStaticOrRelative = rs.getPosition() == RenderState.POSITION_STATIC || rs.getPosition() == RenderState.POSITION_RELATIVE;
     final HtmlInsets borderInsets = rs.getBorderInfo().insets;
     final HtmlInsets paddingInsets = rs.getPaddingInsets();
-    final boolean isZeroBorderAndPadding =
-        (borderInsets == null || borderInsets.top == 0)
-        && (paddingInsets == null || paddingInsets.top == 0);
+    final boolean isZeroBorderAndPadding = insetChecker.apply(borderInsets) && insetChecker.apply(paddingInsets);
     return (!(mn instanceof HTMLHtmlElement)) && isDisplayBlock && isPosStaticOrRelative && isZeroBorderAndPadding;
   }
 
-  private static boolean isCollapsibleParentBlock(final RBlock block) {
+  private static boolean checkTopInset(final HtmlInsets insets) {
+    return insets == null || insets.top == 0;
+  }
+
+  private static boolean checkBottomInset(final HtmlInsets insets) {
+    return insets == null || insets.bottom == 0;
+  }
+
+  private static boolean isCollapsibleParentBlock(final RBlock block, final Function<HtmlInsets, Boolean> insetChecker) {
     final ModelNode mn = block.getModelNode();
     final RenderState rs = mn.getRenderState();
     final int overflowX = rs.getOverflowX();
     final int overflowY = rs.getOverflowY();
     final boolean xOverflowFine = (overflowX == RenderState.OVERFLOW_VISIBLE) || (overflowX == RenderState.OVERFLOW_NONE);
     final boolean yOverflowFine = (overflowY == RenderState.OVERFLOW_VISIBLE) || (overflowY == RenderState.OVERFLOW_NONE);
-    return isCollapsibleBlock(block) && xOverflowFine && yOverflowFine;
+    return isCollapsibleBlock(block, insetChecker) && xOverflowFine && yOverflowFine;
   }
 
   private boolean isFirstCollapsibleBlock(final RBlock child) {
-    return isFirstBlock() && isCollapsibleBlock(child) && isCollapsibleParentBlock((RBlock) this.parent);
+    return isFirstBlock() && isCollapsibleBlock(child, RBlockViewport::checkTopInset)
+        && isCollapsibleParentBlock((RBlock) this.parent, RBlockViewport::checkTopInset);
+  }
+
+  private boolean isLastCollapsibleBlock(final RBlock child) {
+    return lastElementBeingProcessed && isCollapsibleBlock(child, RBlockViewport::checkBottomInset)
+        && isCollapsibleParentBlock((RBlock) this.parent, RBlockViewport::checkBottomInset);
   }
 
   private boolean isFirstBlock() {
