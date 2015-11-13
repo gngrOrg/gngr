@@ -82,26 +82,26 @@ public class HtmlValues {
   public static HtmlInsets getMarginInsets(final CSS2Properties cssProperties, final RenderState renderState) {
     HtmlInsets insets = null;
     final String topText = cssProperties.getMarginTop();
-    insets = updateTopInset(insets, topText, renderState);
+    insets = updateInset(insets, topText, renderState, topUpdater);
     final String leftText = cssProperties.getMarginLeft();
-    insets = updateLeftInset(insets, leftText, renderState);
+    insets = updateInset(insets, leftText, renderState, leftUpdater);
     final String bottomText = cssProperties.getMarginBottom();
-    insets = updateBottomInset(insets, bottomText, renderState);
+    insets = updateInset(insets, bottomText, renderState, bottomUpdater);
     final String rightText = cssProperties.getMarginRight();
-    insets = updateRightInset(insets, rightText, renderState);
+    insets = updateInset(insets, rightText, renderState, rightUpdater);
     return insets;
   }
 
   public static HtmlInsets getPaddingInsets(final CSS2Properties cssProperties, final RenderState renderState) {
     HtmlInsets insets = null;
     final String topText = cssProperties.getPaddingTop();
-    insets = updateTopInset(insets, topText, renderState);
+    insets = updateInset(insets, topText, renderState, topUpdater);
     final String leftText = cssProperties.getPaddingLeft();
-    insets = updateLeftInset(insets, leftText, renderState);
+    insets = updateInset(insets, leftText, renderState, leftUpdater);
     final String bottomText = cssProperties.getPaddingBottom();
-    insets = updateBottomInset(insets, bottomText, renderState);
+    insets = updateInset(insets, bottomText, renderState, bottomUpdater);
     final String rightText = cssProperties.getPaddingRight();
-    insets = updateRightInset(insets, rightText, renderState);
+    insets = updateInset(insets, rightText, renderState, rightUpdater);
     return insets;
   }
 
@@ -119,19 +119,19 @@ public class HtmlValues {
     HtmlInsets insets = null;
     if (binfo.topStyle != HtmlValues.BORDER_STYLE_NONE && binfo.topStyle != HtmlValues.BORDER_STYLE_HIDDEN) {
       final String topText = cssProperties.getBorderTopWidth();
-      insets = updateTopInset(insets, topText, renderState);
+      insets = updateInset(insets, topText, renderState, topUpdater);
     }
     if (binfo.leftStyle != HtmlValues.BORDER_STYLE_NONE && binfo.leftStyle != HtmlValues.BORDER_STYLE_HIDDEN) {
       final String leftText = cssProperties.getBorderLeftWidth();
-      insets = updateLeftInset(insets, leftText, renderState);
+      insets = updateInset(insets, leftText, renderState, leftUpdater);
     }
     if (binfo.bottomStyle != HtmlValues.BORDER_STYLE_NONE && binfo.bottomStyle != HtmlValues.BORDER_STYLE_HIDDEN) {
       final String bottomText = cssProperties.getBorderBottomWidth();
-      insets = updateBottomInset(insets, bottomText, renderState);
+      insets = updateInset(insets, bottomText, renderState, bottomUpdater);
     }
     if (binfo.rightStyle != HtmlValues.BORDER_STYLE_NONE && binfo.rightStyle != HtmlValues.BORDER_STYLE_HIDDEN) {
       final String rightText = cssProperties.getBorderRightWidth();
-      insets = updateRightInset(insets, rightText, renderState);
+      insets = updateInset(insets, rightText, renderState, rightUpdater);
     }
     binfo.insets = insets;
   }
@@ -148,88 +148,52 @@ public class HtmlValues {
     }
   }*/
 
-  private static HtmlInsets updateTopInset(HtmlInsets insets, String sizeText, final RenderState renderState) {
-    if (sizeText == null) {
-      return insets;
-    }
-    sizeText = sizeText.trim();
-    if (sizeText.length() == 0) {
-      return insets;
-    }
-    if (insets == null) {
-      insets = new HtmlInsets();
-    }
-    if ("auto".equalsIgnoreCase(sizeText)) {
-      insets.topType = HtmlInsets.TYPE_AUTO;
-    } else if (sizeText.endsWith("%")) {
-      insets.topType = HtmlInsets.TYPE_PERCENT;
-      try {
-        insets.top = Integer.parseInt(sizeText.substring(0, sizeText.length() - 1));
-      } catch (final NumberFormatException nfe) {
-        insets.top = 0;
-      }
-    } else {
-      insets.topType = HtmlInsets.TYPE_PIXELS;
-      insets.top = HtmlValues.getPixelSize(sizeText, renderState, 0);
-    }
-    return insets;
+  private static interface InsetUpdater {
+    void updateValue(HtmlInsets insets, final int value);
+    void updateType(HtmlInsets insets, final int type);
   }
 
-  private static HtmlInsets updateLeftInset(HtmlInsets insets, String sizeText, final RenderState renderState) {
-    if (sizeText == null) {
-      return insets;
+  private static InsetUpdater topUpdater = new InsetUpdater() {
+    public void updateValue(final HtmlInsets insets, final int value) {
+      insets.top = value;
     }
-    sizeText = sizeText.trim();
-    if (sizeText.length() == 0) {
-      return insets;
-    }
-    if (insets == null) {
-      insets = new HtmlInsets();
-    }
-    if ("auto".equalsIgnoreCase(sizeText)) {
-      insets.leftType = HtmlInsets.TYPE_AUTO;
-    } else if (sizeText.endsWith("%")) {
-      insets.leftType = HtmlInsets.TYPE_PERCENT;
-      try {
-        insets.left = Integer.parseInt(sizeText.substring(0, sizeText.length() - 1));
-      } catch (final NumberFormatException nfe) {
-        insets.left = 0;
-      }
-    } else {
-      insets.leftType = HtmlInsets.TYPE_PIXELS;
-      insets.left = HtmlValues.getPixelSize(sizeText, renderState, 0);
-    }
-    return insets;
-  }
 
-  private static HtmlInsets updateBottomInset(HtmlInsets insets, String sizeText, final RenderState renderState) {
-    if (sizeText == null) {
-      return insets;
+    public void updateType(final HtmlInsets insets, final int type) {
+      insets.topType = type;
     }
-    sizeText = sizeText.trim();
-    if (sizeText.length() == 0) {
-      return insets;
-    }
-    if (insets == null) {
-      insets = new HtmlInsets();
-    }
-    if ("auto".equalsIgnoreCase(sizeText)) {
-      insets.bottomType = HtmlInsets.TYPE_AUTO;
-    } else if (sizeText.endsWith("%")) {
-      insets.bottomType = HtmlInsets.TYPE_PERCENT;
-      try {
-        insets.bottom = Integer.parseInt(sizeText.substring(0, sizeText.length() - 1));
-      } catch (final NumberFormatException nfe) {
-        insets.bottom = 0;
-      }
-    } else {
-      insets.bottomType = HtmlInsets.TYPE_PIXELS;
-      insets.bottom = HtmlValues.getPixelSize(sizeText, renderState, 0);
-    }
-    return insets;
-  }
+  };
 
-  private static HtmlInsets updateRightInset(HtmlInsets insets, String sizeText, final RenderState renderState) {
+  private static InsetUpdater leftUpdater = new InsetUpdater() {
+    public void updateValue(final HtmlInsets insets, final int value) {
+      insets.left = value;
+    }
+
+    public void updateType(final HtmlInsets insets, final int type) {
+      insets.leftType = type;
+    }
+  };
+
+  private static InsetUpdater bottomUpdater = new InsetUpdater() {
+    public void updateValue(final HtmlInsets insets, final int value) {
+      insets.bottom = value;
+    }
+
+    public void updateType(final HtmlInsets insets, final int type) {
+      insets.bottomType = type;
+    }
+  };
+
+  private static InsetUpdater rightUpdater = new InsetUpdater() {
+    public void updateValue(final HtmlInsets insets, final int value) {
+      insets.right = value;
+    }
+
+    public void updateType(final HtmlInsets insets, final int type) {
+      insets.rightType = type;
+    }
+  };
+
+  private static HtmlInsets updateInset(HtmlInsets insets, String sizeText, final RenderState renderState, final InsetUpdater updater) {
     if (sizeText == null) {
       return insets;
     }
@@ -241,17 +205,17 @@ public class HtmlValues {
       insets = new HtmlInsets();
     }
     if ("auto".equalsIgnoreCase(sizeText)) {
-      insets.rightType = HtmlInsets.TYPE_AUTO;
+      updater.updateType(insets, HtmlInsets.TYPE_AUTO);
     } else if (sizeText.endsWith("%")) {
-      insets.rightType = HtmlInsets.TYPE_PERCENT;
+      updater.updateType(insets, HtmlInsets.TYPE_PERCENT);
       try {
-        insets.right = Integer.parseInt(sizeText.substring(0, sizeText.length() - 1));
+        updater.updateValue(insets, Integer.parseInt(sizeText.substring(0, sizeText.length() - 1)));
       } catch (final NumberFormatException nfe) {
-        insets.right = 0;
+        updater.updateValue(insets, 0);
       }
     } else {
-      insets.rightType = HtmlInsets.TYPE_PIXELS;
-      insets.right = HtmlValues.getPixelSize(sizeText, renderState, 0);
+      updater.updateType(insets, HtmlInsets.TYPE_PIXELS);
+      updater.updateValue(insets, HtmlValues.getPixelSize(sizeText, renderState, 0));
     }
     return insets;
   }
