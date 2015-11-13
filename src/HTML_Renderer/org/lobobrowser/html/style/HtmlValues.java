@@ -123,19 +123,19 @@ public class HtmlValues {
     HtmlInsets insets = null;
     if (binfo.topStyle != HtmlValues.BORDER_STYLE_NONE && binfo.topStyle != HtmlValues.BORDER_STYLE_HIDDEN) {
       final String topText = cssProperties.getBorderTopWidth();
-      insets = updateInset(insets, topText, renderState, topUpdater);
+      insets = updateBorderInset(insets, topText, renderState, topUpdater, binfo.topStyle);
     }
     if (binfo.leftStyle != HtmlValues.BORDER_STYLE_NONE && binfo.leftStyle != HtmlValues.BORDER_STYLE_HIDDEN) {
       final String leftText = cssProperties.getBorderLeftWidth();
-      insets = updateInset(insets, leftText, renderState, leftUpdater);
+      insets = updateBorderInset(insets, leftText, renderState, leftUpdater, binfo.leftStyle);
     }
     if (binfo.bottomStyle != HtmlValues.BORDER_STYLE_NONE && binfo.bottomStyle != HtmlValues.BORDER_STYLE_HIDDEN) {
       final String bottomText = cssProperties.getBorderBottomWidth();
-      insets = updateInset(insets, bottomText, renderState, bottomUpdater);
+      insets = updateBorderInset(insets, bottomText, renderState, bottomUpdater, binfo.bottomStyle);
     }
     if (binfo.rightStyle != HtmlValues.BORDER_STYLE_NONE && binfo.rightStyle != HtmlValues.BORDER_STYLE_HIDDEN) {
       final String rightText = cssProperties.getBorderRightWidth();
-      insets = updateInset(insets, rightText, renderState, rightUpdater);
+      insets = updateBorderInset(insets, rightText, renderState, rightUpdater, binfo.rightStyle);
     }
     binfo.insets = insets;
   }
@@ -222,6 +222,15 @@ public class HtmlValues {
       updater.updateValue(insets, HtmlValues.getPixelSize(sizeText, renderState, 0));
     }
     return insets;
+  }
+
+  private static HtmlInsets updateBorderInset(HtmlInsets insets, String sizeText, final RenderState renderState, final InsetUpdater updater, final int borderStyle) {
+    if (sizeText == null) {
+      if (borderStyle != BORDER_STYLE_NONE) {
+        sizeText = BORDER_MEDIUM_SIZE;
+      }
+    }
+    return updateInset(insets, sizeText, renderState, updater);
   }
 
   public static Insets getInsets(final String insetsSpec, final RenderState renderState, final boolean negativeOK) {
