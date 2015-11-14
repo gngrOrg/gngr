@@ -62,7 +62,7 @@ abstract public class JStyleProperties extends AbstractScriptableDelegate implem
   }
 
   public String getBackgroundColor() {
-    return helperGetValue("background-color");
+    return helperTryBoth("background-color");
   }
 
   public String getBackgroundImage() {
@@ -135,19 +135,19 @@ abstract public class JStyleProperties extends AbstractScriptableDelegate implem
   }
 
   public String getBorderTopColor() {
-    return helperGetValue("border-top-color");
+    return helperTryBoth("border-top-color");
   }
 
   public String getBorderRightColor() {
-    return helperGetValue("border-right-color");
+    return helperTryBoth("border-right-color");
   }
 
   public String getBorderBottomColor() {
-    return helperGetValue("border-bottom-color");
+    return helperTryBoth("border-bottom-color");
   }
 
   public String getBorderLeftColor() {
-    return helperGetValue("border-left-color");
+    return helperTryBoth("border-left-color");
   }
 
   public String getBorderTopStyle() {
@@ -238,7 +238,7 @@ abstract public class JStyleProperties extends AbstractScriptableDelegate implem
   }
 
   public String getColor() {
-    return helperGetValue("color");
+    return helperTryBoth("color");
   }
 
   public String getContent() {
