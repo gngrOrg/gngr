@@ -184,6 +184,8 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
           nodeData.concretize();
         }
         cachedNodeData = nodeData;
+        // System.out.println("In " + this);
+        // System.out.println("  Node data: " + nodeData);
         return nodeData;
       }
     }
