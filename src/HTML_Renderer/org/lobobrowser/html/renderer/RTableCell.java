@@ -155,11 +155,13 @@ class RTableCell extends RBlock {
   }
 
   public String getHeightText() {
-    return this.cellElement.getHeight();
+    return this.cellElement.getCurrentStyle().getHeight();
+    // return this.cellElement.getHeight();
   }
 
   public String getWidthText() {
-    return this.cellElement.getWidth();
+    return this.cellElement.getCurrentStyle().getWidth();
+    // return this.cellElement.getWidth();
   }
 
   // public Dimension layoutMinWidth() {

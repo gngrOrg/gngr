@@ -87,7 +87,7 @@ class VirtualCell {
     HtmlLength length;
     try {
       length = heightText == null ? null : new HtmlLength(heightText);
-    } catch (final Exception err) {
+    } catch (final NumberFormatException err) {
       length = null;
     }
     if (length != null) {
@@ -102,7 +102,7 @@ class VirtualCell {
     HtmlLength length;
     try {
       length = widthText == null ? null : new HtmlLength(widthText);
-    } catch (final Exception err) {
+    } catch (final NumberFormatException err) {
       length = null;
     }
     if (length != null) {

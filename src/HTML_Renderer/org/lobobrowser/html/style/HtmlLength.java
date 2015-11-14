@@ -34,12 +34,15 @@ public final class HtmlLength {
   private final int lengthType;
   private volatile int value;
 
-  public HtmlLength(String spec) throws IndexOutOfBoundsException, NumberFormatException {
+  public HtmlLength(String spec) throws NumberFormatException {
     spec = spec.trim();
     final int length = spec.length();
     final char lastChar = spec.charAt(length - 1);
     String parseable;
-    if (lastChar == '%') {
+    if (spec.endsWith("px")) {
+      this.lengthType = PIXELS;
+      parseable = spec.substring(0, length - 2);
+    } else if (lastChar == '%') {
       this.lengthType = LENGTH;
       parseable = spec.substring(0, length - 1).trim();
     } else if (lastChar == '*') {
@@ -53,7 +56,11 @@ public final class HtmlLength {
       this.lengthType = PIXELS;
       parseable = spec;
     }
-    this.value = Integer.parseInt(parseable);
+    try {
+      this.value = Integer.parseInt(parseable);
+    } catch (final NumberFormatException nfe) {
+      this.value = (int) Double.parseDouble(parseable);
+    }
   }
 
   public HtmlLength(final int pixels) {
