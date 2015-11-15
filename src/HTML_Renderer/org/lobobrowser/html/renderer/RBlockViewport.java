@@ -645,12 +645,14 @@ public class RBlockViewport extends BaseRCollection {
       renderable.setCollapseTop(isFirstCollapsibleBlock);
       renderable.setCollapseBottom(isLastCollapsibleBlock);
 
+      /*
       if (isFirstCollapsibleBlock) {
         System.out.println("First block: " + renderable);
       }
       if (isLastCollapsibleBlock) {
         System.out.println("Last block: " + renderable);
       }
+      */
 
       renderable.layout(availContentWidth, availContentHeight, true, false, floatBoundsSource, this.sizeOnly);
 
