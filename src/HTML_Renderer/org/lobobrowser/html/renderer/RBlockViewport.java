@@ -944,6 +944,7 @@ public class RBlockViewport extends BaseRCollection {
     }
     renderable.layout(this.availContentWidth, this.availContentHeight, this.sizeOnly);
     this.addRenderableToLine(renderable);
+    bubbleUpIfRelative(element, renderable);
   }
 
   private void addRenderableToLine(final Renderable renderable) {
