@@ -454,11 +454,16 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
         }
       }*/
     final URL urlContext = getCurrURL();
-    if (uaContext.isRequestPermitted(new Request(urlContext, RequestKind.JavaScript))) {
-      // System.out.println("Adding task: " + task);
-      synchronized (this) {
-        jsScheduler.addJSTask(task);
+    if (urlContext != null) {
+      if (uaContext.isRequestPermitted(new Request(urlContext, RequestKind.JavaScript))) {
+        // System.out.println("Adding task: " + task);
+        synchronized (this) {
+          jsScheduler.addJSTask(task);
+        }
       }
+    } else {
+      // TODO: This happens when the URL is not accepted by okhttp
+      System.out.println("Not adding task because url context is null");
     }
   }
 
