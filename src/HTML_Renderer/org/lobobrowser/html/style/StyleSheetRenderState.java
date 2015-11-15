@@ -28,6 +28,7 @@ import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Toolkit;
+import java.awt.font.GlyphVector;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
@@ -1045,4 +1046,23 @@ public class StyleSheetRenderState implements RenderState {
     return props == null ? null : props.getBottom();
   }
 
+  public double getFontXHeight() {
+    // TODO: Cache this
+    final FontMetrics fm = getFontMetrics();
+    final Font font = fm.getFont();
+    if (font.getFamily().contains("Ahem")) {
+      // This kludge is for https://github.com/UprootLabs/gngr/issues/195
+      return 0.8 * font.getSize2D();
+    } else {
+      /*
+      if (font instanceof OpenType) {
+        final OpenType openType = (OpenType) font;
+        final ByteBuffer bbOs2 = ByteBuffer.wrap(openType.getFontTable(OpenType.TAG_OS2));
+        final short version = bbOs2.getShort();
+        System.out.println("Version:" + version);
+      }*/
+      final GlyphVector glyphVector = font.createGlyphVector(fm.getFontRenderContext(), "xuwz");
+      return glyphVector.getVisualBounds().getHeight();
+    }
+  }
 }

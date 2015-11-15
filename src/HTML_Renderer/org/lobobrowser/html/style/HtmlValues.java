@@ -525,9 +525,7 @@ public class HtmlValues {
         return errorValue;
       }
     } else if (lcSpec.endsWith("ex") && (renderState != null)) {
-      // Factor below is to try to match size in other browsers.
-      // Update: for #157, the factor of 0.47 was too low when testing with reddit homepage (the vote count).
-      final double xHeight = renderState.getFontMetrics().getAscent() * 0.6;
+      final double xHeight = renderState.getFontXHeight();
       final String valText = lcSpec.substring(0, lcSpec.length() - 2);
       try {
         final double val = Double.parseDouble(valText);

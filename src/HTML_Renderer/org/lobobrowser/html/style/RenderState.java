@@ -107,6 +107,8 @@ public interface RenderState {
 
   public FontMetrics getFontMetrics();
 
+  public double getFontXHeight();
+
   public int getBlankWidth();
 
   public boolean isHighlight();

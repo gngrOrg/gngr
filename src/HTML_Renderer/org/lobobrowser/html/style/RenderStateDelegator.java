@@ -185,4 +185,8 @@ public abstract class RenderStateDelegator implements RenderState {
   public String getRight() {
     return this.delegate.getRight();
   }
+
+  public double getFontXHeight() {
+    return this.delegate.getFontXHeight();
+  }
 }
