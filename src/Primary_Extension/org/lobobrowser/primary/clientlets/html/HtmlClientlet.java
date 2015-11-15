@@ -143,7 +143,8 @@ public final class HtmlClientlet implements Clientlet {
         charset = response.getCharset();
       }
       if (charset == null) {
-        charset = "ISO-8859-1";
+        // charset = "ISO-8859-1";
+        charset = "utf-8";
       }
       if (logger.isLoggable(Level.INFO)) {
         logger.info("process(): charset=" + charset + " for URI=[" + uri + "]");
