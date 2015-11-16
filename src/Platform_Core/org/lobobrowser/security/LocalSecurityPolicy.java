@@ -411,9 +411,6 @@ public class LocalSecurityPolicy extends Policy {
         permissions.add(new NetPermission("getProxySelector"));
         permissions.add(new NetPermission("getCookieHandler"));
 
-      } else if (path.endsWith("cssparser-0.9.14.jar")) {
-        permissions.add(new PropertyPermission("org.w3c.css.sac.parser", "read,write"));
-        permissions.add(new PropertyPermission("line.separator", "read"));
       } else if (path.endsWith("sac.jar")) {
         permissions.add(new PropertyPermission("org.w3c.css.sac.parser", "read"));
       } else if (path.endsWith("js.jar")) {
