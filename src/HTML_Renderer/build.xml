@@ -42,8 +42,8 @@
         <path refid="Platform_Public_API.classpath"/>
         <path refid="Platform_Core.classpath"/>
         <pathelement location="${XAMJ_Build.location}/ext/jstyleDomBridge.jar"/>
-        <pathelement location="${XAMJ_Build.location}/ext/jstyleparser-1.21-SNAPSHOT.jar"/>
-        <pathelement location="${XAMJ_Build.location}/ext/unbescape-1.1.0.RELEASE.jar"/>
+        <pathelement location="${XAMJ_Build.location}/ext/jstyleparser-1.22-SNAPSHOT.jar"/>
+        <pathelement location="${XAMJ_Build.location}/ext/unbescape-1.1.1.RELEASE.jar"/>
         <pathelement location="${XAMJ_Build.location}/org.eclipse.jdt.annotation_2.0.100.v20150311-1658.jar"/>
     </path>
     <target name="init">
