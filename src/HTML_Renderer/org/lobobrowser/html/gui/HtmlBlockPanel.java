@@ -643,6 +643,12 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
     }
   }
 
+  private boolean applyRenderHints = true;
+
+  void disableRenderHints() {
+    this.applyRenderHints = false;
+  }
+
   /*
    * (non-Javadoc)
    *
@@ -661,7 +667,7 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
       g.setColor(this.getBackground());
       g.fillRect(clipBounds.x, clipBounds.y, clipBounds.width, clipBounds.height);
     }
-    if (g instanceof Graphics2D) {
+    if (applyRenderHints && g instanceof Graphics2D) {
       final Graphics2D g2 = (Graphics2D) g;
       if (desktopHints == null) {
         desktopHints = (Map<?, ?>) (Toolkit.getDefaultToolkit().getDesktopProperty("awt.font.desktophints"));

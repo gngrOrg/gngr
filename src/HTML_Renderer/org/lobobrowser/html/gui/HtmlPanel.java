@@ -801,4 +801,8 @@ public class HtmlPanel extends JComponent implements FrameContext, DefferedLayou
     }
     return false;
   }
+
+  public void disableRenderHints() {
+    this.htmlBlockPanel.disableRenderHints();
+  }
 }

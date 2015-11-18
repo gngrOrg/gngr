@@ -40,6 +40,7 @@ import java.util.concurrent.ExecutionException;
 import javax.imageio.ImageIO;
 import javax.swing.SwingUtilities;
 
+import org.lobobrowser.clientlet.ComponentContent;
 import org.lobobrowser.ua.NavigatorFrame;
 import org.lobobrowser.ua.NavigatorProgressEvent;
 import org.lobobrowser.ua.ProgressType;
@@ -159,7 +160,10 @@ class GrinderServer implements Runnable {
       e.printStackTrace();
     }
 
-    final Component component = frame.getComponentContent().getComponent();
+    final ComponentContent componentContent = frame.getComponentContent();
+    componentContent.disableRenderHints();
+
+    final Component component = componentContent.getComponent();
     final BufferedImage img = new BufferedImage(component.getWidth(), component.getHeight(), BufferedImage.TYPE_INT_ARGB);
     Graphics g = img.getGraphics();
     try {

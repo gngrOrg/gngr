@@ -147,4 +147,9 @@ public class HtmlContent implements ComponentContent {
   public boolean isReadyToPaint() {
     return this.panel.isReadyToPaint();
   }
+
+  @Override
+  public void disableRenderHints() {
+    this.panel.disableRenderHints();
+  }
 }

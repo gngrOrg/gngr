@@ -30,6 +30,10 @@ package org.lobobrowser.clientlet;
  * @see ClientletContext#setResultingContent(ComponentContent)
  */
 public interface ComponentContent {
+  public default void disableRenderHints() {
+    // NOP
+  }
+
   public java.awt.Component getComponent();
 
   public String getTitle();
