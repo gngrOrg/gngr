@@ -24,12 +24,11 @@ Security-wise, the code isn't hardened *at all!* Use the current version:
 **Do Not use the current version with critical websites such as banking websites or web-mail.**
 
 ### Development Status
-As of September 2015, development focus is to improve layout and rendering. We are developing
+As of November 2015, our focus is to improve layout and rendering. We have developed
 [grinder](https://github.com/UprootLabs/grinder) to automate layout and rendering tests.
 
-We also use [web-platform-tests](https://github.com/w3c/web-platform-tests/) for developing and
-stabilising the DOM support. These are already semi-automated, and we will eventually automate it
-completely in `grinder`.
+We are also using [web-platform-tests](https://github.com/w3c/web-platform-tests/) for
+stabilising the DOM support.
 
 [![Build Status](https://travis-ci.org/UprootLabs/gngr.svg?branch=master)](https://travis-ci.org/UprootLabs/gngr)
 
@@ -40,7 +39,8 @@ For building and running from the command line:
   1. `git clone` this repo
   2. `ant -f src/build.xml run` to build and run `gngr`
 
-For developing, we recommend [setting up Eclipse](https://github.com/UprootLabs/gngr/wiki/Developer:Setup).
+For developing, we recommend [setting up Eclipse](https://github.com/UprootLabs/gngr/wiki/Developer:Setup), although it
+is possible to use other IDEs or command line tools as well, with the help of the `ant` build script.
 
 ### Contributing
 
@@ -50,7 +50,7 @@ following tags:
 * [need-advice](https://github.com/UprootLabs/gngr/labels/need-advice) : if you have expertise on the topic.
 * [need-triage](https://github.com/UprootLabs/gngr/labels/need-triage) : if you would like to help test or analyse a particular issue.
 
-Ofcourse, you are welcome to take up something that is not listed above, but please co-ordinate with us first
+You are welcome to take up something that is not listed above, but please co-ordinate with us first
 before you spend effort on it.
 
 See [the contributing guide](CONTRIBUTING.md) for more details.
@@ -58,7 +58,7 @@ See [the contributing guide](CONTRIBUTING.md) for more details.
 ### Ways to reach us
   * IRC: `#gngr` and `#gngr-dev` on freenode.
   * Reddit: [/r/gngr](https://reddit.com/r/gngr)
-  * [![Gitter](https://badges.gitter.im/UprootLabs/gngr.png)](https://gitter.im/UprootLabs/gngr?utm_source=badge)
+  * [Gitter room for gngr](https://gitter.im/UprootLabs/gngr)
   * [Our blog](https://blog.gngr.info) and its [feed](https://blog.gngr.info/feed.xml)
 
 ### License & Copyright
