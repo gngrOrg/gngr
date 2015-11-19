@@ -667,6 +667,7 @@ abstract public class JStyleProperties extends AbstractScriptableDelegate implem
     final NodeData nodeData = getNodeData();
     if (nodeData != null) {
       final CSSProperty property = nodeData.getProperty(propertyName, true);
+      // final CSSProperty property = nodeData.getProperty(propertyName);
       return property == null ? null : property.toString();
     } else {
       return nullIfAbsent ? null : "";
@@ -675,7 +676,18 @@ abstract public class JStyleProperties extends AbstractScriptableDelegate implem
 
   @HideFromJS
   public String helperTryBoth(final String propertyName) {
+    // These two implementations were deprecated after the changes in https://github.com/radkovo/jStyleParser/issues/50
+
+    /* Original
     final String value = helperGetValue(propertyName);
     return value == null ? helperGetProperty(propertyName) : value;
+    */
+
+    /* Corrected (equivalent to below implementation, but less optimal)
+    final String property = helperGetProperty(propertyName);
+    return property == null || property.isEmpty() ? helperGetValue(propertyName) : property;
+    */
+
+    return getNodeData().getAsString(propertyName, true);
   }
 }
