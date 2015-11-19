@@ -76,7 +76,7 @@ class GrinderServer implements Runnable {
             if (commandLine != null) {
               final int blankIdx = commandLine.indexOf(' ');
               final String command = blankIdx == -1 ? commandLine : commandLine.substring(0, blankIdx).trim();
-              System.out.println("Command: " + command);
+              // System.out.println("Command: " + command);
               if ("TO".equals(command)) {
                 if (blankIdx != -1) {
                   final String path = commandLine.substring(blankIdx + 1).trim();
@@ -190,7 +190,7 @@ class GrinderServer implements Runnable {
 
   private void handleTo(final Socket s, final BufferedReader br, final String path)
       throws MalformedURLException, InterruptedException, ExecutionException, IOException {
-    System.out.println("  path: " + path);
+    // System.out.println("  path: " + path);
     frame.setProgressEvent(null);
     frame.navigate(path);
     waitForNavigationCompletion();
