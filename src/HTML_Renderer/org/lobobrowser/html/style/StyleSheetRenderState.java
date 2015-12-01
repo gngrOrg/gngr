@@ -45,6 +45,8 @@ import org.lobobrowser.util.gui.FontFactory;
 import org.w3c.dom.css.CSS2Properties;
 import org.w3c.dom.html.HTMLElement;
 
+import cz.vutbr.web.css.CSSProperty;
+
 /**
  * @author J. H. S.
  */
@@ -1064,5 +1066,12 @@ public class StyleSheetRenderState implements RenderState {
       final GlyphVector glyphVector = font.createGlyphVector(fm.getFontRenderContext(), "xuwz");
       return glyphVector.getVisualBounds().getHeight();
     }
+  }
+
+  // TODO: This should return a more abstract type that can represent values like length and percentage
+  public CSSProperty.VerticalAlign getVerticalAlign() {
+    final JStyleProperties props = this.getCssProperties();
+    final CSSProperty.VerticalAlign valignProperty = props.getNodeData().getProperty("vertical-align");
+    return valignProperty;
   }
 }

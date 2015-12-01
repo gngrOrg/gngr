@@ -39,6 +39,8 @@ import org.lobobrowser.html.domimpl.UINode;
 import org.lobobrowser.html.style.RenderState;
 import org.lobobrowser.ua.UserAgentContext;
 
+import cz.vutbr.web.css.CSSProperty.VerticalAlign;
+
 /**
  * @author J. H. S.
  */
@@ -73,7 +75,7 @@ class RUIControl extends BaseElementRenderable {
     this.lastLayoutValue = null;
   }
 
-  public int getVAlign() {
+  public VerticalAlign getVAlign() {
     return this.widget.getVAlign();
   }
 

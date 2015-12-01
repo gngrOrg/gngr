@@ -33,8 +33,11 @@ import java.util.Collections;
 import java.util.Iterator;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.lobobrowser.html.domimpl.ModelNode;
 import org.lobobrowser.html.style.RenderState;
+
+import cz.vutbr.web.css.CSSProperty.VerticalAlign;
 
 /**
  * @author J. H. S.
@@ -289,7 +292,7 @@ class RLine extends BaseRCollection {
     }
     if (extraHeight > 0) {
       final int newHeight = this.height + extraHeight;
-      this.adjustHeight(newHeight, newHeight, RElement.VALIGN_ABSBOTTOM);
+      this.adjustHeight(newHeight, newHeight, VerticalAlign.BOTTOM);
     }
     this.renderables.add(rword);
     rword.setParent(this);
@@ -328,27 +331,27 @@ class RLine extends BaseRCollection {
    *          The required new line height.
    * @param valign
    */
-  private final void setElementY(final RElement relement, final int elementHeight, final int valign) {
+  private final void setElementY(final RElement relement, final int elementHeight, final @Nullable VerticalAlign valign) {
     // At this point height should be more than what's needed.
     int yoffset;
-    switch (valign) {
-    case RElement.VALIGN_ABSBOTTOM:
-      yoffset = this.height - elementHeight;
-      break;
-    case RElement.VALIGN_ABSMIDDLE:
-      yoffset = (this.height - elementHeight) / 2;
-      break;
-    case RElement.VALIGN_BASELINE:
-    case RElement.VALIGN_BOTTOM:
-      yoffset = this.baseLineOffset - elementHeight;
-      break;
-    case RElement.VALIGN_MIDDLE:
-      yoffset = this.baseLineOffset - (elementHeight / 2);
-      break;
-    case RElement.VALIGN_TOP:
-      yoffset = 0;
-      break;
-    default:
+    if (valign != null) {
+      switch (valign) {
+      case BOTTOM:
+        yoffset = this.height - elementHeight;
+        break;
+      case MIDDLE:
+        yoffset = (this.height - elementHeight) / 2;
+        break;
+      case BASELINE:
+        yoffset = this.baseLineOffset - elementHeight;
+        break;
+      case TOP:
+        yoffset = 0;
+        break;
+      default:
+        yoffset = this.baseLineOffset - elementHeight;
+      }
+    } else {
       yoffset = this.baseLineOffset - elementHeight;
     }
     // RLine only sets origins, not sizes.
@@ -374,19 +377,25 @@ class RLine extends BaseRCollection {
     final int boundsh = this.height;
     final int ph = relement.getHeight();
     int requiredHeight;
-    final int valign = relement.getVAlign();
-    switch (valign) {
-    case RElement.VALIGN_BASELINE:
-    case RElement.VALIGN_BOTTOM:
-      requiredHeight = ph + (boundsh - this.baseLineOffset);
-      break;
-    case RElement.VALIGN_MIDDLE:
-      requiredHeight = Math.max(ph, (ph / 2) + (boundsh - this.baseLineOffset));
-      break;
-    default:
+
+    final @Nullable VerticalAlign valign = relement.getVAlign();
+    if (valign != null) {
+      switch (valign) {
+      case BASELINE:
+        requiredHeight = ph + (boundsh - this.baseLineOffset);
+        break;
+      case MIDDLE:
+        // TODO: This code probably only works with the older ABS-MIDDLE type of alignment.
+        requiredHeight = Math.max(ph, (ph / 2) + (boundsh - this.baseLineOffset));
+        break;
+      default:
+        requiredHeight = ph;
+        break;
+      }
+    } else {
       requiredHeight = ph;
-      break;
     }
+
     if (requiredHeight > boundsh) {
       // Height adjustment depends on bounds being already set.
       this.adjustHeight(requiredHeight, ph, valign);
@@ -467,7 +476,7 @@ class RLine extends BaseRCollection {
    * @param newHeight
    * @param alignmentY
    */
-  private void adjustHeight(final int newHeight, final int elementHeight, final int valign) {
+  private void adjustHeight(final int newHeight, final int elementHeight, final @Nullable VerticalAlign valign) {
     // Set new line height
     // int oldHeight = this.height;
     this.height = newHeight;
@@ -497,26 +506,26 @@ class RLine extends BaseRCollection {
     // their alignments?
 
     int baseline;
-    switch (valign) {
-    case RElement.VALIGN_ABSBOTTOM:
-      baseline = newHeight - maxDescent;
-      break;
-    case RElement.VALIGN_ABSMIDDLE:
-      baseline = ((newHeight + textHeight) / 2) - maxDescent;
-      break;
-    case RElement.VALIGN_BASELINE:
-    case RElement.VALIGN_BOTTOM:
+    if (valign != null) {
+      switch (valign) {
+      case BOTTOM:
+        baseline = newHeight - maxDescent;
+        break;
+      case MIDDLE:
+        baseline = ((newHeight + textHeight) / 2) - maxDescent;
+        break;
+      case BASELINE:
+        baseline = elementHeight;
+        break;
+      case TOP:
+        baseline = maxAscentPlusLeading;
+        break;
+      default:
+        baseline = elementHeight;
+        break;
+      }
+    } else {
       baseline = elementHeight;
-      break;
-    case RElement.VALIGN_MIDDLE:
-      baseline = newHeight / 2;
-      break;
-    case RElement.VALIGN_TOP:
-      baseline = maxAscentPlusLeading;
-      break;
-    default:
-      baseline = elementHeight;
-      break;
     }
     this.baseLineOffset = baseline;
 

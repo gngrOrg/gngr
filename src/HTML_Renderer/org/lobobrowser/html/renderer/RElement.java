@@ -23,6 +23,8 @@ package org.lobobrowser.html.renderer;
 
 import org.lobobrowser.html.domimpl.UINode;
 
+import cz.vutbr.web.css.CSSProperty.VerticalAlign;
+
 /**
  * A renderer node for elements such as blocks, lists, tables, inputs, images,
  * etc.
@@ -45,7 +47,9 @@ public interface RElement extends RCollection, UINode {
    * Vertical alignment for elements rendered in a line. Returns one of the
    * constants defined in this class.
    */
-  public int getVAlign();
+  default public VerticalAlign getVAlign() {
+    return VerticalAlign.BASELINE;
+  }
 
   public int getMarginTop();
 

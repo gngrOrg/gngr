@@ -63,11 +63,6 @@ class RTable extends BaseElementRenderable {
     this.tableMatrix = new TableMatrix(modelNode, pcontext, rcontext, frameContext, this, this);
   }
 
-  public int getVAlign() {
-    // Not used
-    return VALIGN_BASELINE;
-  }
-
   @Override
   public void paintShifted(final Graphics g) {
     final RenderState rs = this.modelNode.getRenderState();

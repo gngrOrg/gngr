@@ -27,6 +27,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 
+import cz.vutbr.web.css.CSSProperty.VerticalAlign;
+
 abstract interface UIControl {
   public void setRUIControl(RUIControl ruicontrol);
 
@@ -39,7 +41,9 @@ abstract interface UIControl {
 
   public Dimension getPreferredSize();
 
-  public int getVAlign();
+  default public VerticalAlign getVAlign() {
+    return VerticalAlign.BASELINE;
+  }
 
   public void setBounds(int x, int y, int width, int height);
 

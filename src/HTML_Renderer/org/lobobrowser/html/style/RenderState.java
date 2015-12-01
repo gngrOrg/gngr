@@ -29,6 +29,8 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.util.Optional;
 
+import cz.vutbr.web.css.CSSProperty;
+
 /**
  * @author J. H. S.
  */
@@ -151,4 +153,7 @@ public interface RenderState {
   public String getTop();
   public String getRight();
   public String getBottom();
+
+  // TODO: This should return a more abstract type that can represent values like length and percentage
+  public CSSProperty.VerticalAlign getVerticalAlign();
 }

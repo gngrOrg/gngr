@@ -32,6 +32,8 @@ import javax.swing.JComponent;
 
 import org.lobobrowser.html.domimpl.HTMLElementImpl;
 
+import cz.vutbr.web.css.CSSProperty.VerticalAlign;
+
 abstract class BaseControl extends JComponent implements UIControl {
   private static final Logger logger = Logger.getLogger(BaseControl.class.getName());
   protected static final Dimension ZERO_DIMENSION = new Dimension(0, 0);
@@ -53,8 +55,8 @@ abstract class BaseControl extends JComponent implements UIControl {
     this.ruicontrol = ruicontrol;
   }
 
-  public int getVAlign() {
-    return RElement.VALIGN_BASELINE;
+  public VerticalAlign getVAlign() {
+    return VerticalAlign.BASELINE;
   }
 
   /**

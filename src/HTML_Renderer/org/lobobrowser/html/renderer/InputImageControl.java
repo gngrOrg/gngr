@@ -42,6 +42,8 @@ import org.lobobrowser.ua.ImageResponse;
 import org.lobobrowser.ua.ImageResponse.State;
 import org.lobobrowser.util.gui.WrapperLayout;
 
+import cz.vutbr.web.css.CSSProperty.VerticalAlign;
+
 class InputImageControl extends BaseInputControl implements ImageListener {
   // private JButton button;
   private boolean mouseBeingPressed;
@@ -76,7 +78,6 @@ class InputImageControl extends BaseInputControl implements ImageListener {
     });
   }
 
-  private int valign = RElement.VALIGN_BASELINE;
   private Dimension preferredSize;
   private int declaredWidth;
   private int declaredHeight;
@@ -91,34 +92,12 @@ class InputImageControl extends BaseInputControl implements ImageListener {
     this.declaredWidth = dw;
     this.declaredHeight = dh;
     this.preferredSize = this.createPreferredSize(dw, dh);
-    int valign;
-    String alignText = element.getAttribute("align");
-    if (alignText == null) {
-      valign = RElement.VALIGN_BASELINE;
-    } else {
-      alignText = alignText.toLowerCase().trim();
-      if ("middle".equals(alignText)) {
-        valign = RElement.VALIGN_MIDDLE;
-      } else if ("absmiddle".equals(alignText)) {
-        valign = RElement.VALIGN_ABSMIDDLE;
-      } else if ("top".equals(alignText)) {
-        valign = RElement.VALIGN_TOP;
-      } else if ("bottom".equals(alignText)) {
-        valign = RElement.VALIGN_BOTTOM;
-      } else if ("baseline".equals(alignText)) {
-        valign = RElement.VALIGN_BASELINE;
-      } else if ("absbottom".equals(alignText)) {
-        valign = RElement.VALIGN_ABSBOTTOM;
-      } else {
-        valign = RElement.VALIGN_BASELINE;
-      }
-    }
-    this.valign = valign;
   }
 
   @Override
-  public int getVAlign() {
-    return this.valign;
+  public VerticalAlign getVAlign() {
+    final HTMLElementImpl element = this.controlElement;
+    return element.getRenderState().getVerticalAlign();
   }
 
   @Override

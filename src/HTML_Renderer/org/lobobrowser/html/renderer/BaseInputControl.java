@@ -29,6 +29,8 @@ import java.io.File;
 import org.lobobrowser.html.domimpl.HTMLBaseInputElement;
 import org.lobobrowser.html.domimpl.InputContext;
 
+import cz.vutbr.web.css.CSSProperty.VerticalAlign;
+
 abstract class BaseInputControl extends BaseControl implements InputContext {
   protected String value;
 
@@ -51,8 +53,8 @@ abstract class BaseInputControl extends BaseControl implements InputContext {
   }
 
   @Override
-  public int getVAlign() {
-    return RElement.VALIGN_ABSBOTTOM;
+  public VerticalAlign getVAlign() {
+    return VerticalAlign.BOTTOM;
   }
 
   protected int size = -1;

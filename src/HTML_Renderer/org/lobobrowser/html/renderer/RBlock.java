@@ -116,11 +116,6 @@ public class RBlock extends BaseElementRenderable {
     super.finalize();
   }
 
-  public int getVAlign() {
-    // Not used
-    return VALIGN_BASELINE;
-  }
-
   public void ensureVisible(final Point point) {
     final RBlockViewport bodyLayout = this.bodyLayout;
     final boolean hscroll = this.hasHScrollBar;

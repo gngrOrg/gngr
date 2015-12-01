@@ -26,6 +26,8 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.util.Optional;
 
+import cz.vutbr.web.css.CSSProperty.VerticalAlign;
+
 public abstract class RenderStateDelegator implements RenderState {
   protected final RenderState delegate;
 
@@ -188,5 +190,10 @@ public abstract class RenderStateDelegator implements RenderState {
 
   public double getFontXHeight() {
     return this.delegate.getFontXHeight();
+  }
+
+  @Override
+  public VerticalAlign getVerticalAlign() {
+    return this.delegate.getVerticalAlign();
   }
 }

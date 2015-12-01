@@ -25,10 +25,6 @@ class BrowserFrameUIControl implements UIControl {
     this.element = element;
   }
 
-  public int getVAlign() {
-    return RElement.VALIGN_BASELINE;
-  }
-
   public Color getBackgroundColor() {
     return this.component.getBackground();
   }

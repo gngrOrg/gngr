@@ -35,12 +35,15 @@ import java.awt.image.ImageObserver;
 import javax.swing.SwingUtilities;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.lobobrowser.html.domimpl.HTMLElementImpl;
 import org.lobobrowser.html.domimpl.HTMLImageElementImpl;
 import org.lobobrowser.html.domimpl.ImageEvent;
 import org.lobobrowser.html.domimpl.ImageListener;
 import org.lobobrowser.html.style.HtmlValues;
 import org.lobobrowser.ua.ImageResponse;
+
+import cz.vutbr.web.css.CSSProperty.VerticalAlign;
 
 class ImgControl extends BaseControl implements ImageListener {
   private volatile ImageResponse imageResponse = new ImageResponse();
@@ -81,7 +84,6 @@ class ImgControl extends BaseControl implements ImageListener {
     }
   }
 
-  private int valign = RElement.VALIGN_BASELINE;
   private Dimension preferredSize;
   private int declaredWidth;
   private int declaredHeight;
@@ -101,34 +103,13 @@ class ImgControl extends BaseControl implements ImageListener {
     this.declaredWidth = dw;
     this.declaredHeight = dh;
     this.preferredSize = this.createPreferredSize(dw, dh);
-    int valign;
-    String alignText = element.getAttribute("align");
-    if (alignText == null) {
-      valign = RElement.VALIGN_BASELINE;
-    } else {
-      alignText = alignText.toLowerCase().trim();
-      if ("middle".equals(alignText)) {
-        valign = RElement.VALIGN_MIDDLE;
-      } else if ("absmiddle".equals(alignText)) {
-        valign = RElement.VALIGN_ABSMIDDLE;
-      } else if ("top".equals(alignText)) {
-        valign = RElement.VALIGN_TOP;
-      } else if ("bottom".equals(alignText)) {
-        valign = RElement.VALIGN_BOTTOM;
-      } else if ("baseline".equals(alignText)) {
-        valign = RElement.VALIGN_BASELINE;
-      } else if ("absbottom".equals(alignText)) {
-        valign = RElement.VALIGN_ABSBOTTOM;
-      } else {
-        valign = RElement.VALIGN_BASELINE;
-      }
-    }
-    this.valign = valign;
   }
 
   @Override
-  public int getVAlign() {
-    return this.valign;
+  public VerticalAlign getVAlign() {
+    final HTMLElementImpl element = this.controlElement;
+    final @Nullable VerticalAlign verticalAlign = element.getRenderState().getVerticalAlign();
+    return verticalAlign == null ? VerticalAlign.BASELINE : verticalAlign;
   }
 
   @Override

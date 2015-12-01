@@ -30,10 +30,6 @@ class UIControlWrapper implements UIControl {
     return this.component;
   }
 
-  public int getVAlign() {
-    return RElement.VALIGN_BASELINE;
-  }
-
   public Color getBackgroundColor() {
     return this.component.getBackground();
   }
