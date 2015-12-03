@@ -209,6 +209,10 @@ class GrinderServer implements Runnable {
         progressEvent = frame.getProgressEvent();
       }
 
+      while (frame.getComponentContent() == null) {
+        Thread.sleep(10);
+      }
+
       final Component component = frame.getComponentContent().getComponent();
       if (component instanceof DefferedLayoutSupport) {
         final DefferedLayoutSupport defSupport = (DefferedLayoutSupport) component;
