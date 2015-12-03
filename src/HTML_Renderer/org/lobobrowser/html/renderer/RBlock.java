@@ -1827,10 +1827,6 @@ public class RBlock extends BaseElementRenderable {
     }
   }
 
-  public boolean isReadyToPaint() {
-    return super.isReadyToPaint() && bodyLayout.isReadyToPaint();
-  }
-
   private boolean collapseTopMargin = false;
   private boolean collapseBottomMargin = false;
   private @Nullable Integer marginTopOriginal = null;
