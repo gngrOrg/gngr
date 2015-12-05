@@ -50,7 +50,7 @@ import org.w3c.dom.stylesheets.MediaList;
 
 import cz.vutbr.web.css.CSSException;
 import cz.vutbr.web.css.CSSFactory;
-import cz.vutbr.web.css.MediaSpecNone;
+import cz.vutbr.web.css.MediaSpec;
 import cz.vutbr.web.css.NetworkProcessor;
 import cz.vutbr.web.css.RuleFactory;
 import cz.vutbr.web.css.StyleSheet;
@@ -147,10 +147,10 @@ public class CSSUtilities {
   private static StyleSheet jParseCSS2(final org.w3c.dom.Node ownerNode, final String cssURI, final String processedText,
       final UserAgentContext bcontext) {
 
-    CSSFactory.setAutoImportMedia(new MediaSpecNone());
     try {
       final URL base = new URL(cssURI);
-      return CSSParserFactory.getInstance().parse(processedText, new SafeNetworkProcessor(bcontext), null, SourceType.EMBEDDED, base);
+      CSSFactory.setAutoImportMedia(new MediaSpec("screen"));
+      return CSSParserFactory.getInstance().parse(processedText, new SafeNetworkProcessor(bcontext), "utf-8", SourceType.EMBEDDED, base);
     } catch (IOException | CSSException e) {
       logger.log(Level.SEVERE, "Unable to parse CSS. URI=[" + cssURI + "].", e);
       return getEmptyStyleSheet();

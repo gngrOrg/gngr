@@ -38,12 +38,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.lobobrowser.html.domimpl.DocumentTypeImpl;
+import org.lobobrowser.html.domimpl.HTMLDocumentImpl;
 import org.lobobrowser.html.io.WritableLineReader;
 import org.lobobrowser.ua.UserAgentContext;
 import org.lobobrowser.util.ArrayUtilities;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
+import org.w3c.dom.DocumentType;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.ErrorHandler;
@@ -61,8 +66,6 @@ public class HtmlParser {
   private final Document document;
   private final UserAgentContext ucontext;
   private final ErrorHandler errorHandler;
-  private final String publicId;
-  private final String systemId;
   private final boolean isXML;
 
   // TODO: The quirks mode should go
@@ -70,7 +73,7 @@ public class HtmlParser {
   private Node lastRootElement = null;
   private Node lastHeadElement = null;
   private Node lastBodyElement = null;
-  private final boolean needRoot;
+  private boolean needRoot;
 
   private static final Map<String, Character> ENTITIES = new HashMap<>(256);
   private static final Map<String, ElementInfo> ELEMENT_INFOS = new HashMap<>(35);
@@ -454,8 +457,6 @@ public class HtmlParser {
     this.ucontext = null;
     this.document = document;
     this.errorHandler = errorHandler;
-    this.publicId = publicId;
-    this.systemId = systemId;
     this.isXML = false;
     this.needRoot = true;
   }
@@ -480,8 +481,6 @@ public class HtmlParser {
     this.ucontext = ucontext;
     this.document = document;
     this.errorHandler = errorHandler;
-    this.publicId = publicId;
-    this.systemId = systemId;
     this.isXML = isXML;
     this.needRoot = needRoot;
   }
@@ -498,8 +497,6 @@ public class HtmlParser {
     this.ucontext = ucontext;
     this.document = document;
     this.errorHandler = null;
-    this.publicId = null;
-    this.systemId = null;
     this.isXML = false;
     this.needRoot = true;
   }
@@ -720,6 +717,7 @@ public class HtmlParser {
 
   private void ensureRootElement(final Node parent) {
     if (lastRootElement == null) {
+      System.out.println("Inserting HTML");
       lastRootElement = document.createElement("HTML");
       parent.appendChild(lastRootElement);
     }
@@ -737,14 +735,16 @@ public class HtmlParser {
   private void ensureBodyAppendChild(final Node parent, final Node child) {
     Node newParent = parent;
     if (QUIRKS_MODE && needRoot) {
-      final String nodeName = child.getNodeName();
-      if ("BODY".equalsIgnoreCase(nodeName)) {
+      // final String nodeName = child.getNodeName();
+      final String nodeNameTU = child.getNodeName().toUpperCase();
+      if ("BODY".equals(nodeNameTU)) {
         lastBodyElement = child;
-      } else if ("HEAD".equalsIgnoreCase(nodeName)) {
+        System.out.println("Found body elem: " + child);
+      } else if ("HEAD".equals(nodeNameTU)) {
         lastHeadElement = child;
       } else if ((child instanceof Element) && (depthAtMost(parent, 2))) {
-        final boolean dontNeedBody = ArrayUtilities.contains(elementsThatDontNeedBodyElement, nodeName);
-        final boolean dontNeedHead = ArrayUtilities.contains(elementsThatDontNeedHeadElement, nodeName);
+        final boolean dontNeedBody = ArrayUtilities.contains(elementsThatDontNeedBodyElement, nodeNameTU);
+        final boolean dontNeedHead = ArrayUtilities.contains(elementsThatDontNeedHeadElement, nodeNameTU);
         if((!hasAncestorTag(parent, "BODY")) && (!dontNeedBody)) {
           ensureBodyElement(parent);
           newParent = lastBodyElement;
@@ -759,6 +759,7 @@ public class HtmlParser {
 
   private void ensureBodyElement(final Node parent) {
     if (lastBodyElement == null) {
+      System.out.println("Inserting BODY");
       lastBodyElement = document.createElement("BODY");
       parent.appendChild(lastBodyElement);
     }
@@ -771,6 +772,8 @@ public class HtmlParser {
       parent.appendChild(lastHeadElement);
     }
   }
+
+  private final static Pattern doctypePattern = Pattern.compile("(\\S+)\\s+PUBLIC\\s+\"([^\"]*)\"\\s+\"([^\"]*)\".*>");
 
   /**
    * Parses text followed by one element.
@@ -791,6 +794,7 @@ public class HtmlParser {
       final LinkedList<String> ancestors)
       throws IOException, StopException, SAXException {
     final Document doc = this.document;
+    final HTMLDocumentImpl htmlDoc = (HTMLDocumentImpl) doc;
     final StringBuffer textSb = this.readUpToTagBegin(reader);
     if (textSb == null) {
       return TOKEN_EOD;
@@ -812,7 +816,7 @@ public class HtmlParser {
       if (tag == null) {
         return TOKEN_EOD;
       }
-      String normalTag = tag.toUpperCase();
+      String normalTag = htmlDoc.isXML() ? tag : tag.toUpperCase();
       try {
         if (tag.startsWith("!")) {
           if ("!--".equals(tag)) {
@@ -823,9 +827,20 @@ public class HtmlParser {
             safeAppendChild(parent, doc.createComment(decText.toString()));
 
             return TOKEN_COMMENT;
+          } else if ("!DOCTYPE".equals(tag)) {
+            final String doctypeStr = this.parseEndOfTag(reader);
+            final Matcher doctypeMatcher = doctypePattern.matcher(doctypeStr);
+            if (doctypeMatcher.matches()) {
+              final String qName = doctypeMatcher.group(1);
+              final String publicId = doctypeMatcher.group(2);
+              final String systemId = doctypeMatcher.group(3);
+              final DocumentTypeImpl doctype = new DocumentTypeImpl(qName, publicId, systemId);
+              htmlDoc.setDoctype(doctype);
+              needRoot = false;
+            }
+            return TOKEN_BAD;
           } else {
-            // TODO: DOCTYPE node GH #124
-            this.passEndOfTag(reader);
+            passEndOfTag(reader);
             return TOKEN_BAD;
           }
         } else if (tag.startsWith("/")) {
@@ -862,7 +877,7 @@ public class HtmlParser {
             // This is necessary for incremental rendering.
             safeAppendChild(parent, element);
             if (!this.justReadEmptyElement) {
-              ElementInfo einfo = ELEMENT_INFOS.get(localName);
+              ElementInfo einfo = ELEMENT_INFOS.get(localName.toUpperCase());
               int endTagType = einfo == null ? ElementInfo.END_ELEMENT_REQUIRED : einfo.endElementType;
               if (endTagType != ElementInfo.END_ELEMENT_FORBIDDEN) {
                 boolean childrenOk = einfo == null ? true : einfo.childElementOk;
@@ -900,10 +915,10 @@ public class HtmlParser {
                       }
                       if (token == TOKEN_END_ELEMENT) {
                         final String normalLastTag = this.normalLastTag;
-                        if (normalTag.equals(normalLastTag)) {
+                        if (normalTag.equalsIgnoreCase(normalLastTag)) {
                           return TOKEN_FULL_ELEMENT;
                         } else {
-                          final ElementInfo closeTagInfo = ELEMENT_INFOS.get(normalLastTag);
+                          final ElementInfo closeTagInfo = ELEMENT_INFOS.get(normalLastTag.toUpperCase());
                           if ((closeTagInfo == null) || (closeTagInfo.endElementType != ElementInfo.END_ELEMENT_FORBIDDEN)) {
                             // TODO: Rather inefficient algorithm, but it's
                             // probably executed infrequently?
@@ -1046,7 +1061,7 @@ public class HtmlParser {
                   this.justReadTagBegin = false;
                   this.justReadTagEnd = true;
                   this.justReadEmptyElement = false;
-                  this.normalLastTag = thisTag.toUpperCase();
+                  this.normalLastTag = thisTag;
                   if (addTextNode) {
                     if (decodeEntities) {
                       sb = entityDecode(sb);
@@ -1358,6 +1373,33 @@ public class HtmlParser {
     return sb;
   }
 
+  private final String parseEndOfTag(final Reader reader) throws IOException {
+    if (this.justReadTagEnd) {
+      return "";
+    }
+    StringBuilder result = new StringBuilder();
+    boolean readSomething = false;
+    for (;;) {
+      final int chInt = reader.read();
+      if (chInt == -1) {
+        break;
+      }
+      result.append((char) chInt);
+      readSomething = true;
+      final char ch = (char) chInt;
+      if (ch == '>') {
+        this.justReadTagEnd = true;
+        this.justReadTagBegin = false;
+        return result.toString();
+      }
+    }
+    if (readSomething) {
+      this.justReadTagBegin = false;
+      this.justReadTagEnd = false;
+    }
+    return result.toString();
+  }
+
   private final void passEndOfTag(final Reader reader) throws IOException {
     if (this.justReadTagEnd) {
       return;
@@ -1624,10 +1666,6 @@ public class HtmlParser {
       }
       startIdx = colonIdx + 1;
     }
-  }
-
-  private final Locator getLocator(final int lineNumber, final int columnNumber) {
-    return new LocatorImpl(this.publicId, this.systemId, lineNumber, columnNumber);
   }
 
   private final static int getEntityChar(final String spec) {

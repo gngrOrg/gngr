@@ -8,8 +8,8 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/Platform_Public_API"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Platform_Core"/>
 	<classpathentry kind="lib" path="/XAMJ_Build/ext/jstyleDomBridge.jar"/>
-	<classpathentry kind="lib" path="/XAMJ_Build/ext/jstyleparser-1.22-SNAPSHOT.jar"/>
-	<classpathentry kind="lib" path="/XAMJ_Build/ext/unbescape-1.1.1.RELEASE.jar"/>
+	<classpathentry kind="lib" path="/XAMJ_Build/ext/jstyleparser-1.23-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="/XAMJ_Build/ext/unbescape-1.1.2.RELEASE.jar"/>
 	<classpathentry kind="lib" path="/XAMJ_Build/org.eclipse.jdt.annotation_2.0.100.v20150311-1658.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

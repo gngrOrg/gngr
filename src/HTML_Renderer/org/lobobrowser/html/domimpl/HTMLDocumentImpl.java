@@ -110,9 +110,13 @@ import org.xml.sax.SAXException;
 import co.uproot.css.domimpl.JStyleSheetWrapper;
 import co.uproot.css.domimpl.StyleSheetBridge;
 import cz.vutbr.web.css.CSSException;
-import cz.vutbr.web.css.CSSFactory;
+import cz.vutbr.web.css.ElementMatcher;
 import cz.vutbr.web.css.MediaSpec;
 import cz.vutbr.web.css.StyleSheet;
+import cz.vutbr.web.csskit.ElementMatcherSafeCS;
+import cz.vutbr.web.csskit.ElementMatcherSafeStd;
+import cz.vutbr.web.csskit.antlr.CSSParserFactory;
+import cz.vutbr.web.csskit.antlr.CSSParserFactory.SourceType;
 import cz.vutbr.web.domassign.Analyzer.Holder;
 import cz.vutbr.web.domassign.AnalyzerUtil;
 
@@ -491,9 +495,9 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
     }
   }
 
-  private boolean isXML() {
-    // TODO: Consider doc type when that is implemented. GH #124
-    return "application/xhtml+xml".equals(contentType);
+  @HideFromJS
+  public boolean isXML() {
+    return isDocTypeXHTML || "application/xhtml+xml".equals(contentType);
   }
 
   public void close() {
@@ -564,12 +568,20 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
 
   private DocumentType doctype;
 
+  private boolean isDocTypeXHTML = false;
+
   public DocumentType getDoctype() {
     return this.doctype;
   }
 
+  private final static String XHTML_STRICT_PUBLIC_ID = "-//W3C//DTD XHTML 1.0 Strict//EN";
+  private final static String XHTML_STRICT_SYS_ID = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd";
+
   public void setDoctype(final DocumentType doctype) {
     this.doctype = doctype;
+    isDocTypeXHTML = (doctype != null) && (doctype.getName().equals("html"))
+        && (doctype.getPublicId().equals(XHTML_STRICT_PUBLIC_ID)) && (doctype.getSystemId().equals(XHTML_STRICT_SYS_ID));
+
   }
 
   public Element getDocumentElement() {
@@ -1435,18 +1447,24 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
   }
 
   private Holder classifiedRules = null;
-  private static final StyleSheet recommendedStyle = parseStyle(CSSNorm.stdStyleSheet(), StyleSheet.Origin.AGENT);
-  private static final StyleSheet userAgentStyle = parseStyle(CSSNorm.userStyleSheet(), StyleSheet.Origin.AGENT);
+  private static final StyleSheet recommendedStyle = parseStyle(CSSNorm.stdStyleSheet(), StyleSheet.Origin.AGENT, false);
+  private static final StyleSheet userAgentStyle = parseStyle(CSSNorm.userStyleSheet(), StyleSheet.Origin.AGENT, false);
+  private static final StyleSheet recommendedStyleXML = parseStyle(CSSNorm.stdStyleSheet(), StyleSheet.Origin.AGENT, true);
+  private static final StyleSheet userAgentStyleXML = parseStyle(CSSNorm.userStyleSheet(), StyleSheet.Origin.AGENT, true);
   private void updateStyleRules() {
     synchronized (treeLock) {
       if (classifiedRules == null) {
         final List<StyleSheet> jSheets = new ArrayList<>();
-        jSheets.add(recommendedStyle);
-        jSheets.add(userAgentStyle);
+        jSheets.add(isXML() ? recommendedStyleXML : recommendedStyle);
+        jSheets.add(isXML() ? userAgentStyleXML : userAgentStyle);
         jSheets.addAll(styleSheetManager.getEnabledJStyleSheets());
         classifiedRules = AnalyzerUtil.getClassifiedRules(jSheets, new MediaSpec("screen"));
       }
     }
+  }
+
+  ElementMatcher getMatcher() {
+    return isXML() ? xhtmlMatcher : stdMatcher;
   }
 
   /**
@@ -1473,9 +1491,12 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
     }
   }
 
-  private static StyleSheet parseStyle(final String cssdata, final StyleSheet.Origin origin) {
+  final static ElementMatcher xhtmlMatcher = new ElementMatcherSafeCS();
+  final static ElementMatcher stdMatcher = new ElementMatcherSafeStd();
+
+  private static StyleSheet parseStyle(final String cssdata, final StyleSheet.Origin origin, final boolean isXML) {
     try {
-      final StyleSheet newsheet = CSSFactory.parse(cssdata);
+      final StyleSheet newsheet = CSSParserFactory.getInstance().parse(cssdata, null, null, SourceType.EMBEDDED, null);
       newsheet.setOrigin(origin);
       return newsheet;
     } catch (IOException | CSSException e) {

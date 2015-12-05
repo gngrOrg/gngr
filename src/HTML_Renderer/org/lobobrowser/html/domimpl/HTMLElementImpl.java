@@ -50,12 +50,14 @@ import org.lobobrowser.js.HideFromJS;
 import org.lobobrowser.util.Strings;
 import org.w3c.css.sac.InputSource;
 import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.html.HTMLElement;
 import org.w3c.dom.html.HTMLFormElement;
 import org.xml.sax.SAXException;
 
+import cz.vutbr.web.css.CSSFactory;
 import cz.vutbr.web.css.CombinedSelector;
 import cz.vutbr.web.css.MatchCondition;
 import cz.vutbr.web.css.NodeData;
@@ -159,6 +161,8 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
           return cachedNodeData;
         }
 
+        final HTMLDocumentImpl doc = (HTMLDocumentImpl) this.document;
+
         if (cachedRules == null) {
           final ArrayList<RuleSet> jSheets = new ArrayList<>(2);
           final StyleSheet attributeStyle = StyleElements.convertAttributesToStyles(this);
@@ -171,12 +175,11 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
             jSheets.add((RuleSet) inlineStyle.get(0));
           }
 
-          final HTMLDocumentImpl doc = (HTMLDocumentImpl) this.document;
           cachedRules = AnalyzerUtil.getApplicableRules(this, doc.getClassifiedRules(), jSheets.size() > 0 ? jSheets.toArray(new RuleSet[jSheets.size()]) : null);
           cachedHasHoverRule = hasHoverRule(cachedRules);
         }
 
-        final NodeData nodeData = AnalyzerUtil.getElementStyle(this, psuedoElement, elementMatchCondition, cachedRules);
+        final NodeData nodeData = AnalyzerUtil.getElementStyle(this, psuedoElement, doc.getMatcher(), elementMatchCondition, cachedRules);
         final Node parent = this.parentNode;
         if ((parent != null) && (parent instanceof HTMLElementImpl)) {
           final HTMLElementImpl parentElement = (HTMLElementImpl) parent;
@@ -423,7 +426,8 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
     if (rules == null) {
       return false;
     }
-    return AnalyzerUtil.hasPseudoSelectorForAncestor(rules, this, ancestor, hoverCondition, PseudoDeclaration.HOVER);
+    final HTMLDocumentImpl doc = (HTMLDocumentImpl) this.document;
+    return AnalyzerUtil.hasPseudoSelectorForAncestor(rules, this, ancestor, doc.getMatcher(), hoverCondition, PseudoDeclaration.HOVER);
   }
 
   /**
