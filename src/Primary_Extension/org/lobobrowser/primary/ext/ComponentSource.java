@@ -682,8 +682,10 @@ public class ComponentSource implements NavigatorWindowListener {
   }
 
   public void navigateOrSearch() {
-    final String addressText = this.addressField.getText();
-    if (addressText.charAt(0) == '?') {
+    final String addressText = this.addressField.getText().trim();
+    final int periodIdx = addressText.indexOf('.');
+    final int spaceIdx = addressText.indexOf(' ');
+    if (addressText.charAt(0) == '?' || periodIdx == -1 || spaceIdx != -1) {
       this.search();
     } else {
       this.navigate(addressText, RequestType.ADDRESS_BAR);
@@ -696,8 +698,12 @@ public class ComponentSource implements NavigatorWindowListener {
     if (searchEngine != null) {
       try {
         final String addressText = this.addressField.getText();
-        assert (addressText.charAt(0) == '?');
-        this.navigate(searchEngine.getURL(addressText.substring(1)));
+        if (addressText.charAt(0) == '?') {
+          assert (addressText.charAt(0) == '?');
+          this.navigate(searchEngine.getURL(addressText.substring(1)));
+        } else {
+        this.navigate(searchEngine.getURL(addressText));
+        }
       } catch (final java.net.MalformedURLException mfu) {
         window.getTopFrame().alert("Malformed search URL.");
       }
