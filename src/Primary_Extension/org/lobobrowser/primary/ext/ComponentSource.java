@@ -26,6 +26,7 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
@@ -685,8 +686,16 @@ public class ComponentSource implements NavigatorWindowListener {
     final String addressText = this.addressField.getText().trim();
     final int periodIdx = addressText.indexOf('.');
     final int spaceIdx = addressText.indexOf(' ');
-    if (addressText.charAt(0) == '?' || periodIdx == -1 || spaceIdx != -1) {
+    final int aboutIdx = addressText.indexOf("about:");
+    if (addressText.charAt(0) == '?') {
       this.search();
+    } else if ((spaceIdx != -1 || periodIdx == -1) && aboutIdx == -1) {
+      try {
+        URL url = new URL("about:confirmSearch?" + addressText);
+        this.navigate(url);
+      } catch (MalformedURLException e) {
+        window.getTopFrame().alert("Malformed search URL.");
+      }
     } else {
       this.navigate(addressText, RequestType.ADDRESS_BAR);
     }
@@ -695,9 +704,9 @@ public class ComponentSource implements NavigatorWindowListener {
   public void search() {
     final ToolsSettings settings = ToolsSettings.getInstance();
     final SearchEngine searchEngine = settings.getSelectedSearchEngine();
+    final String addressText = this.addressField.getText();
     if (searchEngine != null) {
       try {
-        final String addressText = this.addressField.getText();
         if (addressText.charAt(0) == '?') {
           assert (addressText.charAt(0) == '?');
           this.navigate(searchEngine.getURL(addressText.substring(1)));
