@@ -684,20 +684,22 @@ public class ComponentSource implements NavigatorWindowListener {
 
   public void navigateOrSearch() {
     final String addressText = this.addressField.getText().trim();
-    final int periodIdx = addressText.indexOf('.');
-    final int spaceIdx = addressText.indexOf(' ');
-    final int aboutIdx = addressText.indexOf("about:");
     if (addressText.charAt(0) == '?') {
       this.search();
-    } else if ((spaceIdx != -1 || periodIdx == -1) && aboutIdx == -1) {
-      try {
-        final URL url = new URL("about:confirmSearch?" + addressText);
-        this.navigate(url);
-      } catch (MalformedURLException e) {
-        window.getTopFrame().alert("Malformed search URL.");
-      }
     } else {
-      this.navigate(addressText, RequestType.ADDRESS_BAR);
+      final boolean hasPeriod = addressText.indexOf('.') != -1;
+      final boolean hasSpace = addressText.indexOf(' ') != -1;
+      final boolean hasProtocol = addressText.matches("^[a-z]+:.*");
+      if ((!hasProtocol) && ((!hasPeriod) || hasSpace)) {
+        try {
+          final URL url = new URL("about:confirmSearch?" + addressText);
+          this.navigate(url);
+        } catch (MalformedURLException e) {
+          window.getTopFrame().alert("Malformed search URL.");
+        }
+      } else {
+        this.navigate(addressText, RequestType.ADDRESS_BAR);
+      }
     }
   }
 
