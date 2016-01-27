@@ -39,6 +39,8 @@ import org.lobobrowser.main.PlatformInit;
 import org.lobobrowser.primary.ext.BookmarkInfo;
 import org.lobobrowser.primary.ext.BookmarksHistory;
 import org.lobobrowser.primary.ext.HistoryEntry;
+import org.lobobrowser.primary.settings.SearchEngine;
+import org.lobobrowser.primary.settings.ToolsSettings;
 import org.lobobrowser.util.Strings;
 import org.lobobrowser.util.Timing;
 
@@ -110,6 +112,17 @@ public class AboutURLConnection extends URLConnection {
       return getSystemProperties();
     } else if ("welcome".equals(path)) {
       return getWelcomeMessage();
+    } else if ("confirmSearch".equals(path)) {
+      String query = url.getQuery();
+      if (query == null) {
+        query = "";
+      }
+      try {
+        final String searchQuery = java.net.URLDecoder.decode(query, "UTF-8");
+        return this.getSearchConfirmation(searchQuery);
+      } catch (final java.io.UnsupportedEncodingException uee) {
+        throw new IllegalStateException("not expected", uee);
+      }
     } else {
       return "<p>Unknown about path: " + path + "</p>" +
           "<h3>Known paths are:</h3>" +
@@ -120,6 +133,50 @@ public class AboutURLConnection extends URLConnection {
           "<li><a href='about:java-properties'>about:java-properties</a></li>" +
           "</ul>";
     }
+  }
+  
+  private String getSearchConfirmation(final String searchQuery) {
+    final ToolsSettings settings = ToolsSettings.getInstance();
+    final Collection<SearchEngine> searchEngines = settings.getSearchEngines();
+    final StringWriter swriter = new StringWriter();
+    final PrintWriter writer = new PrintWriter(swriter);
+    writer.println("<html>");
+    writer.println("<head>Confirm Search</head>");
+    writer.println("<body>");
+    if (searchEngines.size() == 0) {
+      writer.println("No search engines were found.");
+    } else {
+      writer.println("<h3>Confirm external search by selecting a search engine:</h3>");
+      writer.println("<ol>");
+      for (final SearchEngine searchEngine : searchEngines) {
+        writeSearchEngineEntry(writer, searchEngine, searchQuery);
+      }
+      writer.println("</ol>");
+    }
+    writer.println("</body>");
+    writer.println("</html>");
+    writer.flush();
+    return swriter.toString();
+  }
+  
+  private static void writeSearchEngineEntry(final PrintWriter writer, final SearchEngine searchEngine, final String searchQuery) {
+    final ToolsSettings settings = ToolsSettings.getInstance();
+    java.net.URL url = null;
+    try {
+      url = searchEngine.getURL(searchQuery);
+    } catch (final java.net.MalformedURLException mfu) {
+      mfu.printStackTrace();
+    }
+    final String urlText = "Search with " + searchEngine.getName();
+    writer.println("<LI>");
+    writer.println("<DIV>");
+    writer.println("<A href='" + url + "'>" + urlText + "</A>");
+    if (searchEngine.equals(settings.getSelectedSearchEngine())) {
+      writer.print("(Default)");
+    }
+    writer.println("<BR><BR>");
+    writer.println("</DIV>");
+    writer.println("</LI>");
   }
 
   private static String getWelcomeMessage() {
