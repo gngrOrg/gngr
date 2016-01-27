@@ -704,8 +704,8 @@ public class ComponentSource implements NavigatorWindowListener {
   public void search() {
     final ToolsSettings settings = ToolsSettings.getInstance();
     final SearchEngine searchEngine = settings.getSelectedSearchEngine();
-    final String addressText = this.addressField.getText();
     if (searchEngine != null) {
+      final String addressText = this.addressField.getText();
       try {
         if (addressText.charAt(0) == '?') {
           assert (addressText.charAt(0) == '?');
