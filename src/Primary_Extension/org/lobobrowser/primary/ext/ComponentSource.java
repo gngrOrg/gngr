@@ -691,7 +691,7 @@ public class ComponentSource implements NavigatorWindowListener {
       this.search();
     } else if ((spaceIdx != -1 || periodIdx == -1) && aboutIdx == -1) {
       try {
-        URL url = new URL("about:confirmSearch?" + addressText);
+        final URL url = new URL("about:confirmSearch?" + addressText);
         this.navigate(url);
       } catch (MalformedURLException e) {
         window.getTopFrame().alert("Malformed search URL.");
