@@ -119,7 +119,7 @@ public class AboutURLConnection extends URLConnection {
       }
       try {
         final String searchQuery = java.net.URLDecoder.decode(query, "UTF-8");
-        return this.getSearchConfirmation(searchQuery);
+        return AboutURLConnection.getSearchConfirmation(searchQuery);
       } catch (final java.io.UnsupportedEncodingException uee) {
         throw new IllegalStateException("not expected", uee);
       }
@@ -134,15 +134,18 @@ public class AboutURLConnection extends URLConnection {
           "</ul>";
     }
   }
-  
-  private String getSearchConfirmation(final String searchQuery) {
+
+  private static String getSearchConfirmation(final String searchQuery) {
     final ToolsSettings settings = ToolsSettings.getInstance();
     final Collection<SearchEngine> searchEngines = settings.getSearchEngines();
     final StringWriter swriter = new StringWriter();
     final PrintWriter writer = new PrintWriter(swriter);
     writer.println("<html>");
-    writer.println("<head>Confirm Search</head>");
+    writer.println("<head><title>Confirm Search<title></head>");
     writer.println("<body>");
+    writer.println("<h3>The address bar text was ambiguous.</h3>");
+    final String directURL = "https://" + searchQuery;
+    writer.println("<p>Click <a href='" + directURL + "'>here</a> to continue to <span style='font-family:mono'>"+directURL+"</span></p>");
     if (searchEngines.size() == 0) {
       writer.println("No search engines were found.");
     } else {
