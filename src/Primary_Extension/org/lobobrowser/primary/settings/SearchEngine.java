@@ -21,6 +21,9 @@
 package org.lobobrowser.primary.settings;
 
 import java.io.Serializable;
+import java.net.URL;
+
+import org.eclipse.jdt.annotation.NonNull;
 
 public class SearchEngine implements Serializable {
   private static final long serialVersionUID = 225745010000001000L;
@@ -37,7 +40,7 @@ public class SearchEngine implements Serializable {
     this.queryParameter = queryParameter;
   }
 
-  public java.net.URL getURL(final String query) throws java.net.MalformedURLException {
+  public @NonNull URL getURL(final String query) throws java.net.MalformedURLException {
     final String baseUrl = this.baseUrl;
     final int qmIdx = baseUrl.indexOf('?');
     final char join = qmIdx == -1 ? '?' : '&';
