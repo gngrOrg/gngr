@@ -45,6 +45,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.KeyStroke;
 import javax.swing.event.MenuEvent;
+import javax.swing.text.DefaultEditorKit;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.gui.ConsoleModel;
@@ -194,7 +195,9 @@ public class ComponentSource implements NavigatorWindowListener {
     final JMenu menu = new JMenu("Edit");
     menu.setMnemonic('E');
 
-    menu.add(menuItem("Copy", 'C', KeyStroke.getKeyStroke(KeyEvent.VK_C, CMD_CTRL_KEY_MASK), this.actionPool.copyAction));
+    menu.add(menuItem("Cut", 'X', KeyStroke.getKeyStroke(KeyEvent.VK_X, CMD_CTRL_KEY_MASK), new DefaultEditorKit.CutAction()));
+    menu.add(menuItem("Copy", 'C', KeyStroke.getKeyStroke(KeyEvent.VK_C, CMD_CTRL_KEY_MASK), new DefaultEditorKit.CopyAction()));
+    menu.add(menuItem("Paste", 'V', KeyStroke.getKeyStroke(KeyEvent.VK_V, CMD_CTRL_KEY_MASK), new DefaultEditorKit.PasteAction()));
 
     return menu;
   }
