@@ -419,12 +419,12 @@ public class LocalSecurityPolicy extends Policy {
         permissions.add(new PropertyPermission("rhino.stack.style", "read"));
         permissions.add(new RuntimePermission("getClassLoader"));
 
-      } else if (path.endsWith("okhttp-urlconnection-2.5.0.jar")) {
+      } else if (path.endsWith("okhttp-urlconnection-2.7.2.jar")) {
         permissions.add(new NetPermission("getProxySelector"));
         permissions.add(new NetPermission("getCookieHandler"));
         permissions.add(new PropertyPermission("http.*", "read"));
         permissions.add(new SocketPermission("*", "connect,resolve,listen,accept"));
-      } else if (path.endsWith("okhttp-2.5.0.jar")) {
+      } else if (path.endsWith("okhttp-2.7.2.jar")) {
         permissions.add(new NetPermission("getProxySelector"));
         permissions.add(new NetPermission("getCookieHandler"));
         permissions.add(new PropertyPermission("http.*", "read"));
