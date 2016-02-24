@@ -234,8 +234,11 @@ public final class RequestManager {
     }
 
     private final class WindowListenerImpl implements WindowListener {
+      private String initialPermissionStates;
+    	
       @Override
       public void windowOpened(final WindowEvent e) {
+    	initialPermissionStates = permissionSystemOpt.get().dumpPermissions();
       }
 
       @Override
@@ -256,7 +259,10 @@ public final class RequestManager {
 
       @Override
       public void windowClosed(final WindowEvent e) {
-        frame.reload();
+    	final String finalPermissionStates = permissionSystemOpt.get().dumpPermissions();
+    	if (!finalPermissionStates.equals(initialPermissionStates)) {
+    	  frame.reload();
+    	}
       }
 
       @Override
