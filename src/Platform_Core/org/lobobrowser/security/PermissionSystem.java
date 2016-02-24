@@ -87,10 +87,11 @@ public class PermissionSystem {
     getLastBoard().dump();
   }
   
-  public String dumpPermissions() {
+  public String getPermissionsAsString() {
 	  StringBuilder permissions = new StringBuilder();
-	  permissions.append(boards.get(0).dumpString());
-	  permissions.append(getLastBoard().dumpString());
+	  for (PermissionBoard board : boards) {
+	    permissions.append(board.getBoardPermissionsAsString());
+	  }
 	  return permissions.toString();
   }
 
@@ -149,13 +150,13 @@ public class PermissionSystem {
       });
     }
     
-    public String dumpString() {
+    public String getBoardPermissionsAsString() {
     	StringBuilder permissionState = new StringBuilder();
-        permissionState.append(headerRowOpt.isPresent() ? headerRowOpt.get().dumpString() : "");
-        requestHostMap.forEach((host, row) -> {
-          permissionState.append(row.dumpString());
-        });
-        return permissionState.toString();
+      permissionState.append(headerRowOpt.isPresent() ? headerRowOpt.get().getRowPermissionsAsString() : "");
+      requestHostMap.forEach((host, row) -> {
+        permissionState.append(row.getRowPermissionsAsString());
+      });
+      return permissionState.toString();
     }
 
     public int getRowCount() {
@@ -220,17 +221,16 @@ public class PermissionSystem {
         });
       }
       
-      public String dumpString() {
+      public String getRowPermissionsAsString() {
     	  StringBuilder rowPermissionState = new StringBuilder();
-          Arrays.stream(requestCells).forEach(c -> {
-            final PermissionResult permissionResult = c.getEffectivePermission();
-            final String permStr = permissionResult.permission.toString().substring(0, 1);
-            final String permFmtStr = permissionResult.isDefault ? " " + permStr + " " : "[" + permStr + "]";
-            rowPermissionState.append(permFmtStr);
-            System.out.print(String.format(" %s%d", permFmtStr, c.parentCells.size()));
-          });
-          return rowPermissionState.toString();
-        }
+        Arrays.stream(requestCells).forEach(c -> {
+          final PermissionResult permissionResult = c.getEffectivePermission();
+          final String permStr = permissionResult.permission.toString().substring(0, 1);
+          final String permFmtStr = permissionResult.isDefault ? " " + permStr + " " : "[" + permStr + "]";
+          rowPermissionState.append(permFmtStr);
+        });
+        return rowPermissionState.toString();
+      }
 
       public PermissionCell getHostCell() {
         return hostCell;

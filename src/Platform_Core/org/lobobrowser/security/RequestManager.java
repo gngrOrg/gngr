@@ -238,7 +238,7 @@ public final class RequestManager {
     	
       @Override
       public void windowOpened(final WindowEvent e) {
-    	initialPermissionStates = permissionSystemOpt.get().dumpPermissions();
+        initialPermissionStates = permissionSystemOpt.get().getPermissionsAsString();
       }
 
       @Override
@@ -259,10 +259,10 @@ public final class RequestManager {
 
       @Override
       public void windowClosed(final WindowEvent e) {
-    	final String finalPermissionStates = permissionSystemOpt.get().dumpPermissions();
-    	if (!finalPermissionStates.equals(initialPermissionStates)) {
-    	  frame.reload();
-    	}
+      	final String finalPermissionStates = permissionSystemOpt.get().getPermissionsAsString();
+      	if (!finalPermissionStates.equals(initialPermissionStates)) {
+      	  frame.reload();
+      	}
       }
 
       @Override
