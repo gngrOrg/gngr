@@ -86,13 +86,13 @@ public class PermissionSystem {
     boards.get(0).dump();
     getLastBoard().dump();
   }
-  
+
   public String getPermissionsAsString() {
-	  StringBuilder permissions = new StringBuilder();
-	  for (PermissionBoard board : boards) {
-	    permissions.append(board.getBoardPermissionsAsString());
-	  }
-	  return permissions.toString();
+    StringBuilder permissions = new StringBuilder();
+    for (PermissionBoard board : boards) {
+      permissions.append(board.getBoardPermissionsAsString());
+    }
+    return permissions.toString();
   }
 
   static <T> Stream<T> streamOpt(final Optional<T> opt) {
@@ -149,9 +149,9 @@ public class PermissionSystem {
         System.out.println("");
       });
     }
-    
+
     public String getBoardPermissionsAsString() {
-    	StringBuilder permissionState = new StringBuilder();
+      StringBuilder permissionState = new StringBuilder();
       permissionState.append(headerRowOpt.isPresent() ? headerRowOpt.get().getRowPermissionsAsString() : "");
       requestHostMap.forEach((host, row) -> {
         permissionState.append(row.getRowPermissionsAsString());
@@ -220,9 +220,9 @@ public class PermissionSystem {
           System.out.print(String.format(" %s%d", permFmtStr, c.parentCells.size()));
         });
       }
-      
+
       public String getRowPermissionsAsString() {
-    	  StringBuilder rowPermissionState = new StringBuilder();
+        StringBuilder rowPermissionState = new StringBuilder();
         Arrays.stream(requestCells).forEach(c -> {
           final PermissionResult permissionResult = c.getEffectivePermission();
           final String permStr = permissionResult.permission.toString().substring(0, 1);
