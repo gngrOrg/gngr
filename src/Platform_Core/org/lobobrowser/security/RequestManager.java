@@ -156,7 +156,8 @@ public final class RequestManager {
 
   public void manageRequests(final JComponent initiatorComponent) {
     // permissionSystemOpt.ifPresent(r -> r.dump());
-    final ManageDialog dlg = new ManageDialog(new JFrame(), getFrameURL().map(u -> u.toExternalForm()).orElse("Empty!"), initiatorComponent);
+    final ManageDialog dlg = new ManageDialog(new JFrame(), getFrameURL().map(u -> u.toExternalForm()).orElse("Empty!"),
+        initiatorComponent);
     dlg.setVisible(true);
   }
 
@@ -234,8 +235,11 @@ public final class RequestManager {
     }
 
     private final class WindowListenerImpl implements WindowListener {
+      private String initialPermissionStates;
+
       @Override
       public void windowOpened(final WindowEvent e) {
+        initialPermissionStates = permissionSystemOpt.get().getPermissionsAsString();
       }
 
       @Override
@@ -256,7 +260,10 @@ public final class RequestManager {
 
       @Override
       public void windowClosed(final WindowEvent e) {
-        frame.reload();
+        final String finalPermissionStates = permissionSystemOpt.get().getPermissionsAsString();
+        if (!finalPermissionStates.equals(initialPermissionStates)) {
+          frame.reload();
+        }
       }
 
       @Override
