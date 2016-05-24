@@ -27,6 +27,9 @@ import java.awt.Component;
 import java.net.URL;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.lobobrowser.ua.ParameterInfo;
+import org.lobobrowser.ua.RequestType;
+import org.lobobrowser.ua.TargetType;
 import org.w3c.dom.Document;
 
 /**
@@ -84,4 +87,7 @@ public interface BrowserFrame {
    *          See constants in {@link org.lobobrowser.html.style.RenderState}.
    */
   public void setDefaultOverflowY(int overflowY);
+
+  // Trying out a way for a frame's target to be set to an iframe. for issue #96
+  public void navigate(@NonNull URL url, String method, ParameterInfo pinfo, TargetType targetType, RequestType form);
 }

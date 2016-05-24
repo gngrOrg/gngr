@@ -389,10 +389,14 @@ public class ComponentSource implements NavigatorWindowListener {
 
   public void documentAccessed(final NavigatorWindowEvent event) {
     final java.net.URL url = event.getUrl();
+    final boolean isRootEvent = event.getNavigatorFrame().getParentFrame() == null;
+    if (isRootEvent) {
 
-    // TODO: Have a better condition for isManageable, or change requestManager to deal with other protocols as well
-    final boolean isManageable = "http".equals(url.getProtocol()) || "https".equals(url.getProtocol());
-    reqManagerButton.getAction().setEnabled(isManageable);
+      // TODO: Have a better condition for isManageable, or change requestManager to deal with other protocols as well
+      final boolean isManageable = "http".equals(url.getProtocol()) || "https".equals(url.getProtocol());
+      reqManagerButton.getAction().setEnabled(isManageable);
+      // reqManagerButton.getAction().setEnabled(true);
+    }
 
     if ("GET".equals(event.getMethod()) && isHistoryRequest(event.getRequestType())) {
       NavigationHistory.getInstance().addAsRecent(url, null);

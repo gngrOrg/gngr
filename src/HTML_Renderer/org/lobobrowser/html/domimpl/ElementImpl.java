@@ -142,10 +142,10 @@ public class ElementImpl extends NodeImpl implements Element, EventTarget {
 
   public final String getAttribute(final String name) {
     final String normalName = normalizeAttributeName(name);
-    synchronized (this) {
-      final Map<String, String> attributes = this.attributes;
-      return attributes == null ? null : attributes.get(normalName);
-    }
+    // synchronized (this) {
+    final Map<String, String> attributes = this.attributes;
+    return attributes == null ? null : attributes.get(normalName);
+    // }
   }
 
   private Attr getAttr(final String normalName, final String value) {
@@ -174,6 +174,7 @@ public class ElementImpl extends NodeImpl implements Element, EventTarget {
     return node.getNodeName().equalsIgnoreCase(name);
   }
 
+  @Override
   public NodeList getElementsByTagName(final String name) {
     final boolean matchesAll = "*".equals(name);
     final List<Node> descendents = new LinkedList<>();
@@ -216,10 +217,11 @@ public class ElementImpl extends NodeImpl implements Element, EventTarget {
 
   public boolean hasAttribute(final String name) {
     final String normalName = normalizeAttributeName(name);
-    synchronized (this) {
-      final Map<String, String> attributes = this.attributes;
-      return attributes == null ? false : attributes.containsKey(normalName);
-    }
+    // This was causing deadlocks, hence removed the sync
+    // synchronized (this) {
+    final Map<String, String> attributes = this.attributes;
+    return attributes == null ? false : attributes.containsKey(normalName);
+    // }
   }
 
   public boolean hasAttributeNS(final String namespaceURI, final String localName) throws DOMException {

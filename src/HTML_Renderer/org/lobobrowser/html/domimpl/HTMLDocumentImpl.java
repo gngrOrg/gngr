@@ -158,7 +158,7 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
         // with setCookie() method.
         final String protocol = docURL.getProtocol();
         if ("http".equalsIgnoreCase(protocol) || "https".equalsIgnoreCase(protocol)) {
-        sm.checkPermission(new java.net.SocketPermission(docURL.getHost(), "connect"));
+          sm.checkPermission(new java.net.SocketPermission(docURL.getHost(), "connect"));
         }
       }
       this.documentURL = docURL;
@@ -279,6 +279,7 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
     this.defaultTarget = value;
   }
 
+  // TODO: Is this required? Check JS DOM specs.
   public AbstractView getDefaultView() {
     return this.window;
   }
@@ -414,16 +415,19 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
   }
 
   public void setCookie(final String cookie) throws DOMException {
+    // Update in gngr: Whoa! No, we won't allow the privilege escalation below until better justification is presented ;)
+    // Chagned for Issue #78
+
     // Justification: A caller (e.g. Google Analytics script)
     // might want to set cookies on the parent document.
     // If the caller has access to the document, it appears
     // they should be able to set cookies on that document.
     // Note that this Document instance cannot be created
     // with an arbitrary URL.
-    SecurityUtil.doPrivileged(() -> {
-      ucontext.setCookie(documentURL, cookie);
-      return null;
-    });
+    // SecurityUtil.doPrivileged(() -> {
+    ucontext.setCookie(documentURL, cookie);
+    // return null;
+    // });
   }
 
   public void open() {
@@ -645,6 +649,7 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
    *          The element tag name or an asterisk character (*) to match all
    *          elements.
    */
+  @Override
   public NodeList getElementsByTagName(final String tagname) {
     if ("*".equals(tagname)) {
       return this.getNodeList(new ElementFilter());

@@ -650,7 +650,8 @@ abstract public class JStyleProperties extends AbstractScriptableDelegate implem
     return helperGetProperty("float");
   }
 
-  abstract protected NodeData getNodeData();
+  // TODO: temporary made public
+  abstract public NodeData getNodeData();
 
   private String helperGetValue(final String propertyName) {
     final NodeData nodeData = getNodeData();
