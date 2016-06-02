@@ -164,7 +164,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
       final HTMLElementImpl element = (HTMLElementImpl) rootNode;
       final CSS2Properties props = element.getCurrentStyle();
       final String valueText = propertyGetter.apply(props);
-      if ((valueText == null) || "".equals(valueText)) {
+      if ((valueText == null) || "".equals(valueText) || "none".equals(valueText)) {
         return null;
       }
       return new Integer(HtmlValues.getPixelSize(valueText, renderState, -1, baseValue));
