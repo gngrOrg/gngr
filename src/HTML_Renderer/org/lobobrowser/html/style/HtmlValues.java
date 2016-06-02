@@ -363,7 +363,11 @@ public class HtmlValues {
   }
 
   public static final float getFontSize(final String spec, final RenderState parentRenderState) {
-    return Math.max(MINIMUM_FONT_SIZE_PIXELS, getFontSizeImpl(spec, parentRenderState));
+    final float specifiedFontSize = getFontSizeImpl(spec, parentRenderState);
+    if (specifiedFontSize == 0f) {
+      return specifiedFontSize;
+    }
+    return Math.max(MINIMUM_FONT_SIZE_PIXELS, specifiedFontSize);
   }
 
   private static final float getFontSizeImpl(final String spec, final RenderState parentRenderState) {
