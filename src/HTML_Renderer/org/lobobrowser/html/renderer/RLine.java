@@ -359,8 +359,8 @@ class RLine extends BaseRCollection {
     relement.setY(yoffset);
   }
 
-  private final void addElement(final RElement relement) throws OverflowException {
-    // Check if it fits horizontally
+  // Check if it fits horizontally
+  final boolean checkFit(final RElement relement) {
     final int origXOffset = this.xoffset;
     final int desiredMaxWidth = this.desiredMaxWidth;
     final int pw = relement.getWidth();
@@ -369,12 +369,20 @@ class RLine extends BaseRCollection {
     if (allowOverflow && firstAllowOverflowWord) {
       this.firstAllowOverflowWord = false;
     }
-    if ((!allowOverflow || firstAllowOverflowWord) && (origXOffset != 0) && ((origXOffset + pw) > desiredMaxWidth)) {
+    final boolean overflows = (!allowOverflow || firstAllowOverflowWord) && (origXOffset != 0) && ((origXOffset + pw) > desiredMaxWidth);
+    return !overflows;
+  }
+
+  private final void addElement(final RElement relement) throws OverflowException {
+    if (!checkFit(relement)) {
       throw new OverflowException(Collections.singleton((Renderable) relement));
     }
+
     // Note: Renderable for widget doesn't paint the widget, but
     // it's needed for height readjustment.
     final int boundsh = this.height;
+    final int origXOffset = this.xoffset;
+    final int pw = relement.getWidth();
     final int ph = relement.getHeight();
     int requiredHeight;
 
@@ -728,4 +736,5 @@ class RLine extends BaseRCollection {
   public String toString() {
     return "RLine belonging to: " + getParent();
   }
+
 }

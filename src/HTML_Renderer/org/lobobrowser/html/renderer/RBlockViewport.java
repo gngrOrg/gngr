@@ -2635,13 +2635,18 @@ public class RBlockViewport extends BaseRCollection {
   private Collection<RFloatInfo> pendingFloats = null;
 
   private void lineDone(final RLine line) {
-    final int yAfterLine = line == null ? this.paddingInsets.top : line.y + line.height;
     final Collection<RFloatInfo> pfs = this.pendingFloats;
     if (pfs != null) {
       this.pendingFloats = null;
       final Iterator<RFloatInfo> i = pfs.iterator();
+      int yAfterLine = 0;
+      boolean yComputed = false;
       while (i.hasNext()) {
         final RFloatInfo pf = i.next();
+        if (!yComputed) {
+          yAfterLine = line == null ? this.paddingInsets.top : (line.checkFit(pf.getRenderable()) ? line.y : line.y + line.height);
+          yComputed = true;
+        }
         this.placeFloat(pf.getRenderable(), yAfterLine, pf.isLeftFloat());
       }
     }
