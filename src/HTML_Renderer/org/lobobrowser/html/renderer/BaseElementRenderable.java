@@ -1181,7 +1181,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
 
       int left = 0;
 
-      if (leftText != null) {
+      if (leftText != null && (!"auto".equals(leftText))) {
         left = HtmlValues.getPixelSize(leftText, rs, 0, containerWidth);
       } else {
         final String rightText = rs.getRight();
@@ -1195,7 +1195,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
 
       int top = 0;
 
-      if (topText != null) {
+      if (topText != null && (!"auto".equals(topText))) {
         top = HtmlValues.getPixelSize(topText, rs, top, containerHeight);
       } else {
         final String bottomText = rs.getBottom();
