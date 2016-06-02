@@ -537,6 +537,16 @@ public class RBlock extends BaseElementRenderable {
     int declaredWidth = dw == null ? -1 : dw.intValue();
     int declaredHeight = dh == null ? -1 : dh.intValue();
 
+    final Integer declaredMinWidth = getDeclaredMinWidth(renderState, tentativeAvailWidth);
+    if (declaredMinWidth != null) {
+      declaredWidth = Math.max(declaredWidth, declaredMinWidth);
+    }
+
+    final Integer declaredMinHeight = getDeclaredMinHeight(renderState, tentativeAvailHeight);
+    if ((declaredMinHeight != null) && (dh != null)) {
+      declaredHeight = Math.max(declaredHeight, declaredMinHeight);
+    }
+
     // Remove all GUI components previously added by descendents
     // The RBlockViewport.layout() method is expected to add all of them
     // back.
