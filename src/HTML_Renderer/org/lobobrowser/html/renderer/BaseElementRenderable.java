@@ -673,8 +673,8 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
             final int imageX = getImageX(totalWidth, binfo, w);
 
             // TODO: optimise this. Although it works fine, it makes an extra `draw` call when imageX or imageY are negative
-            final int baseX = (bleft % w) + ((bkgBounds.x / w) * w) - (w - imageX);
-            final int baseY = (btop % h) + ((bkgBounds.y / h) * h) - (h - imageY);
+            final int baseX = (bleft % w) + ((bkgBounds.x / w) * w) - (w - (imageX%w));
+            final int baseY = (btop % h) + ((bkgBounds.y / h) * h) - (h - (imageY%h));
 
             switch (binfo == null ? BackgroundInfo.BR_REPEAT : binfo.backgroundRepeat) {
             case BackgroundInfo.BR_NO_REPEAT: {
