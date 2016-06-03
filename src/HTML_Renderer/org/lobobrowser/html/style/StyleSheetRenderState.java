@@ -185,6 +185,10 @@ public class StyleSheetRenderState implements RenderState {
     final JStyleProperties style = this.getCssProperties();
     final RenderState prs = this.prevRenderState;
     if (style == null) {
+      if (prs != null) {
+        final Font font = prs.getFont();
+        return font;
+      }
       f = DEFAULT_FONT;
       this.iFont = f;
       return f;
@@ -205,9 +209,13 @@ public class StyleSheetRenderState implements RenderState {
     final boolean isSub = (verticalAlign != null) && verticalAlign.equalsIgnoreCase("sub");
     if ((newFontSize == null) && (newFontWeight == null) && (newFontStyle == null) && (newFontFamily == null) && (newFontVariant == null)) {
       if (!isSuper && !isSub) {
-        f = DEFAULT_FONT;
-        this.iFont = f;
-        return f;
+        if (prs != null) {
+          return prs.getFont();
+        } else {
+          f = DEFAULT_FONT;
+          this.iFont = f;
+          return f;
+        }
       }
     }
     if (newFontSize != null) {
