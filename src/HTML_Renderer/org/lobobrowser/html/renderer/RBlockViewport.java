@@ -1941,13 +1941,21 @@ public class RBlockViewport extends BaseRCollection {
   }
 
   public void paint(final Graphics gIn) {
+    paint(gIn, gIn);
+  }
+
+  public void paint(final Graphics gIn, Graphics gInUnClipped) {
     final boolean translationRequired = (x | y) != 0;
     final Graphics g = translationRequired ? gIn.create() : gIn;
     if (translationRequired) {
       g.translate(x, y);
     }
+    final Graphics gUnClipped = translationRequired ? gInUnClipped.create() : gInUnClipped;
+    if (translationRequired) {
+      gUnClipped.translate(x, y);
+    }
     try {
-      final Rectangle clipBounds = g.getClipBounds();
+      final Rectangle clipBounds = gUnClipped.getClipBounds();
       final Iterator<Renderable> i = this.getRenderables(clipBounds);
       if (i != null) {
         while (i.hasNext()) {
@@ -1962,7 +1970,8 @@ public class RBlockViewport extends BaseRCollection {
             }
           } else {
             // PositionedRenderable, etc because they don't inherit from BoundableRenderable
-            final Graphics selectedG = robj.isFixed() ? gIn : g;
+            final boolean isReplacedElement = robj.isReplacedElement();
+            final Graphics selectedG = isReplacedElement ? (robj.isFixed() ? gIn: g) : (robj.isFixed() ? gInUnClipped : gUnClipped);
 
             if (getModelNode() instanceof HTMLDocument) {
               Renderable htmlRenderable = RenderUtils.findHtmlRenderable(this);
@@ -1995,6 +2004,7 @@ public class RBlockViewport extends BaseRCollection {
     } finally {
       if (translationRequired) {
         g.dispose();
+        gUnClipped.dispose();
       }
     }
   }

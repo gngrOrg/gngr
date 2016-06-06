@@ -267,7 +267,7 @@ public class RBlock extends BaseElementRenderable {
         // Second, translate
         newG.translate(-insets.left, -insets.top);
         // Third, paint in clipped + translated region.
-        bodyLayout.paint(newG);
+        bodyLayout.paint(newG, g);
       } finally {
         newG.dispose();
       }

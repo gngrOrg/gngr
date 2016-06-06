@@ -44,4 +44,9 @@ public interface Renderable {
   default public boolean isReadyToPaint() {
     return true;
   }
+
+  default public boolean isReplacedElement() {
+    // TODO: Match all other replaced elements such as audio, video, canvas, etc. Refer: http://stackoverflow.com/a/12468620
+    return getModelNode().getNodeName().equalsIgnoreCase("IMG");
+  }
 }

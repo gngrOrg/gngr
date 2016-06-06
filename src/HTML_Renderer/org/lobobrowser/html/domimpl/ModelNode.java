@@ -55,4 +55,6 @@ public interface ModelNode {
   public void setDocumentItem(String name, Object value);
 
   public Object getDocumentItem(String name);
+
+  public String getNodeName();
 }
