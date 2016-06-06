@@ -538,7 +538,7 @@ public class RBlock extends BaseElementRenderable {
     int declaredHeight = dh == null ? -1 : dh.intValue();
 
     final Integer declaredMinWidth = getDeclaredMinWidth(renderState, tentativeAvailWidth);
-    if (declaredMinWidth != null) {
+    if ((declaredMinWidth != null) && (dw != null)) {
       declaredWidth = Math.max(declaredWidth, declaredMinWidth);
     }
 
@@ -546,6 +546,7 @@ public class RBlock extends BaseElementRenderable {
     if ((declaredMinHeight != null) && (dh != null)) {
       declaredHeight = Math.max(declaredHeight, declaredMinHeight);
     }
+
 
     // Remove all GUI components previously added by descendents
     // The RBlockViewport.layout() method is expected to add all of them
@@ -585,6 +586,15 @@ public class RBlock extends BaseElementRenderable {
 
     // Step # 2: Do a layout with the tentativeWidth (adjusted if Step # 1 was done),
     // but in case overflow-y is "auto", then we check for possible overflow.
+
+    if (declaredMinWidth != null) {
+      tentativeWidth = Math.max(tentativeWidth, declaredMinWidth);
+    }
+
+    if (declaredMinHeight != null) {
+      tentativeHeight = Math.max(tentativeHeight, declaredMinHeight);
+    }
+
     FloatingBounds viewportFloatBounds = null;
     FloatingBounds blockFloatBounds = null;
     if (blockFloatBoundsSource != null) {
