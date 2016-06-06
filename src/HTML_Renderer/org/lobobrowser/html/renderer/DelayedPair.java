@@ -67,7 +67,7 @@ public class DelayedPair {
 
   private static Integer helperGetPixelSize(final String spec, final RenderState rs, final int errorValue, final int avail) {
     if (spec != null) {
-      return HtmlValues.getPixelSize(spec, rs, errorValue, avail);
+      return "auto".equals(spec) ? null : HtmlValues.getPixelSize(spec, rs, errorValue, avail);
     } else {
       return null;
     }
