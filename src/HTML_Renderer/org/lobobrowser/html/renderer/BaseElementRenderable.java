@@ -58,6 +58,7 @@ import org.lobobrowser.ua.UserAgentContext.RequestKind;
 import org.lobobrowser.util.SecurityUtil;
 import org.lobobrowser.util.Strings;
 import org.lobobrowser.util.gui.GUITasks;
+import org.w3c.dom.Node;
 import org.w3c.dom.css.CSS2Properties;
 
 abstract class BaseElementRenderable extends BaseRCollection implements RElement, RenderableContainer, java.awt.image.ImageObserver {
@@ -410,7 +411,16 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
       return;
     }
     final RenderState rs = rootElement.getRenderState();
-    final BackgroundInfo binfo = rs.getBackgroundInfo();
+
+    BackgroundInfo binfo = rs.getBackgroundInfo();
+    if (isRootBlock && (binfo == null || (binfo.backgroundColor == null && binfo.backgroundImage == null))) {
+      final Node bodyNode = rootElement.getElementsByTagName("body").item(0);
+      if (bodyNode != null && bodyNode instanceof HTMLElementImpl) {
+        final HTMLElementImpl bodyElement = (HTMLElementImpl) bodyNode;
+        binfo = bodyElement.getRenderState().getBackgroundInfo();
+      }
+    }
+
     this.backgroundColor = binfo == null ? null : binfo.backgroundColor;
     final java.net.URL backgroundImageUri = binfo == null ? null : binfo.backgroundImage;
     if (backgroundImageUri == null) {
