@@ -175,7 +175,8 @@ public class HTMLTableElementImpl extends HTMLAbstractUIElement implements HTMLT
       } else {
         return new HtmlLength(HtmlValues.getPixelSize(heightText, this.getRenderState(), 0, availHeight));
       }
-    } catch (final Exception err) {
+    } catch (final NumberFormatException err) {
+      System.out.println("Number format exception: " + err);
       return null;
     }
   }
@@ -194,7 +195,8 @@ public class HTMLTableElementImpl extends HTMLAbstractUIElement implements HTMLT
       } else {
         return new HtmlLength(HtmlValues.getPixelSize(widthText, this.getRenderState(), 0, availWidth));
       }
-    } catch (final Exception err) {
+    } catch (final NumberFormatException err) {
+      System.out.println("Number format exception: " + err);
       return null;
     }
   }

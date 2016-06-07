@@ -140,6 +140,7 @@ class TableMatrix {
           border = 0;
         }
       } catch (final NumberFormatException nfe) {
+        System.out.println("Exception while parsing border: " + nfe);
         // ignore
       }
     }
@@ -153,6 +154,7 @@ class TableMatrix {
           cellSpacing = 0;
         }
       } catch (final NumberFormatException nfe) {
+        System.out.println("Exception while parsing cellSpacing: " + nfe);
         // ignore
       }
     }
@@ -217,7 +219,8 @@ class TableMatrix {
       } else {
         return new HtmlLength(HtmlValues.getPixelSize(widthText, element.getRenderState(), 0, availWidth));
       }
-    } catch (final Exception err) {
+    } catch (final NumberFormatException err) {
+      System.out.println("Exception while parsing width: " + err);
       return null;
     }
   }
@@ -236,7 +239,8 @@ class TableMatrix {
       } else {
         return new HtmlLength(HtmlValues.getPixelSize(heightText, element.getRenderState(), 0, availHeight));
       }
-    } catch (final Exception err) {
+    } catch (final NumberFormatException err) {
+      System.out.println("Exception while parsing height: " + err);
       return null;
     }
   }
