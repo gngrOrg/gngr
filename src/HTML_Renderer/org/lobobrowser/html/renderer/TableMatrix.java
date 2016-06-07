@@ -34,9 +34,6 @@ import java.util.Map;
 import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.html.HtmlRendererContext;
 import org.lobobrowser.html.domimpl.HTMLElementImpl;
-import org.lobobrowser.html.domimpl.HTMLTableCellElementImpl;
-import org.lobobrowser.html.domimpl.HTMLTableElementImpl;
-import org.lobobrowser.html.domimpl.HTMLTableRowElementImpl;
 import org.lobobrowser.html.domimpl.NodeFilter;
 import org.lobobrowser.html.domimpl.NodeImpl;
 import org.lobobrowser.html.style.HtmlLength;
@@ -46,7 +43,6 @@ import org.lobobrowser.html.style.RenderState;
 import org.lobobrowser.html.style.RenderThreadState;
 import org.lobobrowser.ua.UserAgentContext;
 import org.w3c.dom.Node;
-import org.w3c.dom.html.HTMLTableCellElement;
 import org.w3c.dom.html.HTMLTableRowElement;
 
 class TableMatrix {
@@ -54,7 +50,7 @@ class TableMatrix {
   private static final NodeFilter COLUMNS_FILTER = new ColumnsFilter();
   private final ArrayList<ArrayList<VirtualCell>> ROWS = new ArrayList<>();
   private final ArrayList<@NonNull Renderable> ALL_CELLS = new ArrayList<>();
-  private final ArrayList<HTMLTableRowElementImpl> ROW_ELEMENTS = new ArrayList<>();
+  private final ArrayList<HTMLElementImpl> ROW_ELEMENTS = new ArrayList<>();
   private final HTMLElementImpl tableElement;
   private final UserAgentContext parserContext;
   private final HtmlRendererContext rendererContext;
@@ -193,14 +189,20 @@ class TableMatrix {
     this.determineRowSizes(hasBorder, this.cellSpacingY, availHeight, sizeOnly);
   }
 
-  private final static HTMLTableRowElementImpl getParentRow(final HTMLTableCellElementImpl cellNode) {
+  private final static HTMLElementImpl getParentRow(final HTMLElementImpl cellNode, final HTMLElementImpl te) {
     org.w3c.dom.Node parentNode = cellNode.getParentNode();
     for (;;) {
-      if (parentNode instanceof HTMLTableRowElementImpl) {
-        return (HTMLTableRowElementImpl) parentNode;
-      }
-      if (parentNode instanceof HTMLTableElementImpl) {
+      if (parentNode == null || parentNode == te) {
         return null;
+      } else if (parentNode instanceof HTMLElementImpl) {
+        final HTMLElementImpl parentElem = (HTMLElementImpl) parentNode;
+        final int parentDisplay = parentElem.getRenderState().getDisplay();
+        if (parentDisplay == RenderState.DISPLAY_TABLE_ROW) {
+          return parentElem;
+        }
+        if (parentDisplay == RenderState.DISPLAY_TABLE) {
+          return null;
+        }
       }
       parentNode = parentNode.getParentNode();
     }
@@ -211,11 +213,12 @@ class TableMatrix {
       final JStyleProperties props = element.getCurrentStyle();
       final String widthText = props.getWidth();
       if (widthText == null) {
+        // TODO: convert attributes to CSS properties
         final String widthAttr = element.getAttribute("width");
         if (widthAttr == null) {
           return null;
         }
-        return new HtmlLength(widthAttr);
+        return new HtmlLength(HtmlValues.getPixelSize(widthAttr, element.getRenderState(), 0, availWidth));
       } else {
         return new HtmlLength(HtmlValues.getPixelSize(widthText, element.getRenderState(), 0, availWidth));
       }
@@ -234,7 +237,7 @@ class TableMatrix {
         if (ha == null) {
           return null;
         } else {
-          return new HtmlLength(ha);
+          return new HtmlLength(HtmlValues.getPixelSize(ha, element.getRenderState(), 0, availHeight));
         }
       } else {
         return new HtmlLength(HtmlValues.getPixelSize(heightText, element.getRenderState(), 0, availHeight));
@@ -251,15 +254,15 @@ class TableMatrix {
   private void populateRows() {
     final HTMLElementImpl te = this.tableElement;
     final ArrayList<ArrayList<VirtualCell>> rows = this.ROWS;
-    final ArrayList<HTMLTableRowElementImpl> rowElements = this.ROW_ELEMENTS;
+    final ArrayList<HTMLElementImpl> rowElements = this.ROW_ELEMENTS;
     final ArrayList<Renderable> allCells = this.ALL_CELLS;
-    final Map<HTMLTableRowElementImpl, ArrayList<VirtualCell>> rowElementToRowArray = new HashMap<>(2);
+    final Map<HTMLElementImpl, ArrayList<VirtualCell>> rowElementToRowArray = new HashMap<>(2);
     final ArrayList<NodeImpl> cellList = te.getDescendents(COLUMNS_FILTER, false);
     ArrayList<VirtualCell> currentNullRow = null;
     final Iterator<NodeImpl> ci = cellList.iterator();
     while (ci.hasNext()) {
-      final HTMLTableCellElementImpl columnNode = (HTMLTableCellElementImpl) ci.next();
-      final HTMLTableRowElementImpl rowElement = getParentRow(columnNode);
+      final HTMLElementImpl columnNode = (HTMLElementImpl) ci.next();
+      final HTMLElementImpl rowElement = getParentRow(columnNode, te);
       if ((rowElement != null) && (rowElement.getRenderState().getDisplay() == RenderState.DISPLAY_NONE)) {
         // Skip row [ 2047122 ]
         continue;
@@ -384,7 +387,7 @@ class TableMatrix {
     final SizeInfo[] rowSizes = new SizeInfo[numRows];
     this.rowSizes = rowSizes;
     int numCols = 0;
-    final ArrayList<HTMLTableRowElementImpl> rowElements = this.ROW_ELEMENTS;
+    final ArrayList<HTMLElementImpl> rowElements = this.ROW_ELEMENTS;
     for (int i = 0; i < numRows; i++) {
       final ArrayList<VirtualCell> row = rows.get(i);
       final int rs = row.size();
@@ -393,7 +396,7 @@ class TableMatrix {
       }
       final SizeInfo rowSizeInfo = new SizeInfo();
       rowSizes[i] = rowSizeInfo;
-      HTMLTableRowElement rowElement;
+      HTMLElementImpl rowElement;
       try {
         rowElement = rowElements.get(i);
         // Possible rowElement is null because TD does not have TR parent
@@ -402,15 +405,19 @@ class TableMatrix {
         rowElement = null;
       }
       // TODO: TR.height an IE quirk?
-      final String rowHeightText = rowElement == null ? null : rowElement.getAttribute("height");
       HtmlLength rowHeightLength = null;
-      if (rowHeightText != null) {
-        try {
-          rowHeightLength = new HtmlLength(rowHeightText);
-        } catch (final Exception err) {
-          // ignore
+      if (rowElement != null) {
+        final String rowHeightText = rowElement.getAttribute("height");
+        if (rowHeightText != null) {
+          try {
+            rowHeightLength = new HtmlLength(HtmlValues.getPixelSize(rowHeightText, rowElement.getRenderState(), 0));
+          } catch (final NumberFormatException err) {
+            System.out.println("Exception while parsing row height: " + err);
+            // ignore
+          }
         }
       }
+
       if (rowHeightLength != null) {
         rowSizeInfo.htmlLength = rowHeightLength;
       } else {
@@ -1599,7 +1606,11 @@ class TableMatrix {
 
   private static class ColumnsFilter implements NodeFilter {
     public final boolean accept(final Node node) {
-      return (node instanceof HTMLTableCellElement);
+      if (node instanceof HTMLElementImpl) {
+        final HTMLElementImpl elem = (HTMLElementImpl) node;
+        return elem.getRenderState().getDisplay() == RenderState.DISPLAY_TABLE_CELL;
+      }
+      return false;
     }
   }
 

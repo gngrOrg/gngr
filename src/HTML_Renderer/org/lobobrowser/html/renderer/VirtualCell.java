@@ -24,6 +24,7 @@
 package org.lobobrowser.html.renderer;
 
 import org.lobobrowser.html.style.HtmlLength;
+import org.lobobrowser.html.style.HtmlValues;
 
 class VirtualCell {
   private final RTableCell actualCell;
@@ -86,7 +87,7 @@ class VirtualCell {
     final String heightText = cell.getHeightText();
     HtmlLength length;
     try {
-      length = heightText == null ? null : new HtmlLength(heightText);
+      length = heightText == null ? null : new HtmlLength(HtmlValues.getPixelSize(heightText, cell.getModelNode().getRenderState(), 0));
     } catch (final NumberFormatException err) {
       length = null;
     }
@@ -101,7 +102,7 @@ class VirtualCell {
     final String widthText = cell.getWidthText();
     HtmlLength length;
     try {
-      length = widthText == null ? null : new HtmlLength(widthText);
+      length = widthText == null ? null : new HtmlLength(HtmlValues.getPixelSize(widthText, cell.getModelNode().getRenderState(), 0));
     } catch (final NumberFormatException err) {
       length = null;
     }

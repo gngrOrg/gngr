@@ -81,11 +81,13 @@ public class HTMLTableElementImpl extends HTMLAbstractUIElement implements HTMLT
   }
 
   public HTMLCollection getRows() {
+    // TODO: filter by display: table-row
     return new DescendentHTMLCollection(this, new NodeNameFilter("TR"), this.treeLock, false);
   }
 
   @PropertyName("tBodies")
   public HTMLCollection getTBodies() {
+    // TODO: filter by display: table-row-group
     return new DescendentHTMLCollection(this, new NodeNameFilter("TBODY"), this.treeLock, false);
   }
 
@@ -171,7 +173,8 @@ public class HTMLTableElementImpl extends HTMLAbstractUIElement implements HTMLT
       final JStyleProperties props = this.getCurrentStyle();
       final String heightText = props.getHeight();
       if (heightText == null) {
-        return new HtmlLength(this.getAttribute("height"));
+        // TODO: convert attributes to CSS properties
+        return new HtmlLength(HtmlValues.getPixelSize(this.getAttribute("height"), this.getRenderState(), 0, availHeight));
       } else {
         return new HtmlLength(HtmlValues.getPixelSize(heightText, this.getRenderState(), 0, availHeight));
       }
@@ -191,7 +194,8 @@ public class HTMLTableElementImpl extends HTMLAbstractUIElement implements HTMLT
       final JStyleProperties props = this.getCurrentStyle();
       final String widthText = props.getWidth();
       if (widthText == null) {
-        return new HtmlLength(this.getAttribute("width"));
+        // TODO: convert attributes to CSS properties
+        return new HtmlLength(HtmlValues.getPixelSize(this.getAttribute("width"), this.getRenderState(), 0, availWidth));
       } else {
         return new HtmlLength(HtmlValues.getPixelSize(widthText, this.getRenderState(), 0, availWidth));
       }

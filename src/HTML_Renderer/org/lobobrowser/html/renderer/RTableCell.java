@@ -26,12 +26,12 @@ package org.lobobrowser.html.renderer;
 import java.awt.Dimension;
 
 import org.lobobrowser.html.HtmlRendererContext;
-import org.lobobrowser.html.domimpl.HTMLTableCellElementImpl;
+import org.lobobrowser.html.domimpl.HTMLElementImpl;
 import org.lobobrowser.html.style.RenderState;
 import org.lobobrowser.ua.UserAgentContext;
 
 class RTableCell extends RBlock {
-  private final HTMLTableCellElementImpl cellElement;
+  private final HTMLElementImpl cellElement;
   private VirtualCell topLeftVirtualCell;
 
   // private int cellPadding;
@@ -39,7 +39,7 @@ class RTableCell extends RBlock {
   /**
    * @param element
    */
-  public RTableCell(final HTMLTableCellElementImpl element, final UserAgentContext pcontext, final HtmlRendererContext rcontext,
+  public RTableCell(final HTMLElementImpl element, final UserAgentContext pcontext, final HtmlRendererContext rcontext,
       final FrameContext frameContext,
       final RenderableContainer tableAsContainer) {
     super(element, 0, pcontext, rcontext, frameContext, tableAsContainer);
@@ -126,10 +126,23 @@ class RTableCell extends RBlock {
     return vc == null ? 0 : vc.getRow();
   }
 
+  private static int getColSpan(final HTMLElementImpl elem) {
+    final String colSpanText = elem.getAttribute("colspan");
+    if (colSpanText == null) {
+      return 1;
+    } else {
+      try {
+        return Integer.parseInt(colSpanText);
+      } catch (final NumberFormatException nfe) {
+        return 1;
+      }
+    }
+  }
+
   public int getColSpan() {
     int cs = this.colSpan;
     if (cs == -1) {
-      cs = this.cellElement.getColSpan();
+      cs = getColSpan(this.cellElement);
       if (cs < 1) {
         cs = 1;
       }
@@ -138,10 +151,23 @@ class RTableCell extends RBlock {
     return cs;
   }
 
+  private static int getRowSpan(final HTMLElementImpl elem) {
+    final String rowSpanText = elem.getAttribute("rowspan");
+    if (rowSpanText == null) {
+      return 1;
+    } else {
+      try {
+        return Integer.parseInt(rowSpanText);
+      } catch (final NumberFormatException nfe) {
+        return 1;
+      }
+    }
+  }
+
   public int getRowSpan() {
     int rs = this.rowSpan;
     if (rs == -1) {
-      rs = this.cellElement.getRowSpan();
+      rs = getRowSpan(this.cellElement);
       if (rs < 1) {
         rs = 1;
       }
