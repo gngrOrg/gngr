@@ -728,12 +728,13 @@ public class RBlock extends BaseElementRenderable {
       resultingHeight = Math.min(resultingHeight, declaredMaxHeight + paddingTotalHeight + insetsTotalHeight);
     }
 
-    final Dimension changes = this.applyAutoStyles(availWidth - resultingWidth, availHeight - resultingHeight);
-    if (changes != null) {
-      resultingWidth += changes.width;
-      resultingHeight += changes.height;
+    if (renderState.getPosition() == RenderState.POSITION_STATIC) {
+      final Dimension changes = this.applyAutoStyles(availWidth - resultingWidth, availHeight - resultingHeight);
+      if (changes != null) {
+        resultingWidth += changes.width;
+        resultingHeight += changes.height;
+      }
     }
-
 
     insets = getInsetsMarginBorder(hscroll, vscroll);
 
