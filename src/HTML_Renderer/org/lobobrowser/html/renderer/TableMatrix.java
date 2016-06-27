@@ -50,7 +50,6 @@ class TableMatrix {
   private static final NodeFilter COLUMNS_FILTER = new ColumnsFilter();
   private final ArrayList<ArrayList<VirtualCell>> ROWS = new ArrayList<>();
   private final ArrayList<@NonNull Renderable> ALL_CELLS = new ArrayList<>();
-  private final ArrayList<HTMLElementImpl> ROW_ELEMENTS = new ArrayList<>();
   private final HTMLElementImpl tableElement;
   private final UserAgentContext parserContext;
   private final HtmlRendererContext rendererContext;
@@ -125,7 +124,6 @@ class TableMatrix {
     // sizes properly based on parameters.
     ROWS.clear();
     ALL_CELLS.clear();
-    ROW_ELEMENTS.clear();
     // TODO: Does it need this old-style border?
     final String borderText = this.tableElement.getAttribute("border");
     int border = 0;
@@ -159,9 +157,9 @@ class TableMatrix {
 
     this.tableWidthLength = TableMatrix.getWidthLength(this.tableElement, availWidth);
 
-    this.populateRows();
+    final ArrayList<HTMLElementImpl> rowElements = this.populateRows();
     this.adjustForCellSpans();
-    this.createSizeArrays();
+    this.createSizeArrays(rowElements);
 
     // Calculate widths of extras
     final SizeInfo[] columnSizes = this.columnSizes;
@@ -251,10 +249,10 @@ class TableMatrix {
   /**
    * Populates the ROWS and ALL_CELLS collections.
    */
-  private void populateRows() {
+  private ArrayList<HTMLElementImpl> populateRows() {
     final HTMLElementImpl te = this.tableElement;
     final ArrayList<ArrayList<VirtualCell>> rows = this.ROWS;
-    final ArrayList<HTMLElementImpl> rowElements = this.ROW_ELEMENTS;
+    final ArrayList<HTMLElementImpl> rowElements = new ArrayList<>();
     final ArrayList<Renderable> allCells = this.ALL_CELLS;
     final Map<HTMLElementImpl, ArrayList<VirtualCell>> rowElementToRowArray = new HashMap<>(2);
     final ArrayList<NodeImpl> cellList = te.getDescendents(COLUMNS_FILTER, false);
@@ -275,7 +273,6 @@ class TableMatrix {
           row = new ArrayList<>();
           rowElementToRowArray.put(rowElement, row);
           rows.add(row);
-          rowElements.add(rowElement);
         }
       } else {
         // Doesn't have a TR parent. Let's add a ROW just for itself.
@@ -286,10 +283,10 @@ class TableMatrix {
           row = new ArrayList<>();
           currentNullRow = row;
           rows.add(row);
-          // Null TR element must be added to match.
-          rowElements.add(null);
         }
       }
+
+      rowElements.add(rowElement);
       RTableCell ac = (RTableCell) columnNode.getUINode();
       if (ac == null) {
         // Saved UI nodes must be reused, because they
@@ -303,6 +300,8 @@ class TableMatrix {
       row.add(vc);
       allCells.add(ac);
     }
+
+    return rowElements;
   }
 
   /**
@@ -381,13 +380,12 @@ class TableMatrix {
    * Populates the columnSizes and rowSizes arrays, setting htmlLength in each
    * element.
    */
-  private void createSizeArrays() {
+  private void createSizeArrays(final ArrayList<HTMLElementImpl> rowElements) {
     final ArrayList<ArrayList<VirtualCell>> rows = this.ROWS;
     final int numRows = rows.size();
     final SizeInfo[] rowSizes = new SizeInfo[numRows];
     this.rowSizes = rowSizes;
     int numCols = 0;
-    final ArrayList<HTMLElementImpl> rowElements = this.ROW_ELEMENTS;
     for (int i = 0; i < numRows; i++) {
       final ArrayList<VirtualCell> row = rows.get(i);
       final int rs = row.size();
