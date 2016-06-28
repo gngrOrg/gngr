@@ -246,44 +246,61 @@ class TableMatrix {
     }
   }
 
+  /** A class that helps map elements to children (or their delegates). It automatically takes care of
+   *  non-existing parents by creating a place holder.
+   *  For example, helps map table rows to virtual cells (which are delegates for table columns).
+   */
+  private static class TableRelation<T> {
+    private final Map<HTMLElementImpl, ArrayList<T>> elementToListOfT = new HashMap<>(2);
+    private ArrayList<T> currentFallbackListOfT = null;
+    final ArrayList<ArrayList<T>> listOfListOfT;
+
+    public TableRelation(ArrayList<ArrayList<T>> listOfListOfT) {
+      this.listOfListOfT = listOfListOfT;
+    }
+
+    void associate(final HTMLElementImpl parent, final T child) {
+      ArrayList<T> listOfT;
+      if (parent != null) {
+        currentFallbackListOfT = null;
+        listOfT = elementToListOfT.get(parent);
+        if (listOfT == null) {
+          listOfT = new ArrayList<>();
+          this.listOfListOfT.add(listOfT);
+          elementToListOfT.put(parent, listOfT);
+        }
+      } else {
+        // Doesn't have a parent. Let's add a list just for itself.
+        if (currentFallbackListOfT != null) {
+          listOfT = currentFallbackListOfT;
+        } else {
+          listOfT = new ArrayList<>();
+          this.listOfListOfT.add(listOfT);
+          currentFallbackListOfT = listOfT;
+        }
+      }
+      listOfT.add(child);
+    }
+  }
+
   /**
    * Populates the ROWS and ALL_CELLS collections.
    */
   private ArrayList<HTMLElementImpl> populateRows() {
     final HTMLElementImpl te = this.tableElement;
-    final ArrayList<ArrayList<VirtualCell>> rows = this.ROWS;
     final ArrayList<HTMLElementImpl> rowElements = new ArrayList<>();
     final ArrayList<Renderable> allCells = this.ALL_CELLS;
-    final Map<HTMLElementImpl, ArrayList<VirtualCell>> rowElementToRowArray = new HashMap<>(2);
     final ArrayList<NodeImpl> cellList = te.getDescendents(COLUMNS_FILTER, false);
-    ArrayList<VirtualCell> currentNullRow = null;
     final Iterator<NodeImpl> ci = cellList.iterator();
+
+    final TableRelation<VirtualCell> rowRelation = new TableRelation<>(this.ROWS);
+
     while (ci.hasNext()) {
       final HTMLElementImpl columnNode = (HTMLElementImpl) ci.next();
       final HTMLElementImpl rowElement = getParentRow(columnNode, te);
       if ((rowElement != null) && (rowElement.getRenderState().getDisplay() == RenderState.DISPLAY_NONE)) {
         // Skip row [ 2047122 ]
         continue;
-      }
-      ArrayList<VirtualCell> row;
-      if (rowElement != null) {
-        currentNullRow = null;
-        row = rowElementToRowArray.get(rowElement);
-        if (row == null) {
-          row = new ArrayList<>();
-          rowElementToRowArray.put(rowElement, row);
-          rows.add(row);
-        }
-      } else {
-        // Doesn't have a TR parent. Let's add a ROW just for itself.
-        // Both IE and FireFox have this behavior.
-        if (currentNullRow != null) {
-          row = currentNullRow;
-        } else {
-          row = new ArrayList<>();
-          currentNullRow = row;
-          rows.add(row);
-        }
       }
 
       rowElements.add(rowElement);
@@ -297,7 +314,7 @@ class TableMatrix {
       }
       final VirtualCell vc = new VirtualCell(ac, true);
       ac.setTopLeftVirtualCell(vc);
-      row.add(vc);
+      rowRelation.associate(rowElement, vc);
       allCells.add(ac);
     }
 
