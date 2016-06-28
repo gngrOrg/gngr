@@ -43,10 +43,8 @@ import org.lobobrowser.html.style.RenderState;
 import org.lobobrowser.html.style.RenderThreadState;
 import org.lobobrowser.ua.UserAgentContext;
 import org.w3c.dom.Node;
-import org.w3c.dom.html.HTMLTableRowElement;
 
 class TableMatrix {
-  // private static final NodeFilter ROWS_FILTER = new RowsFilter();
   private static final NodeFilter COLUMNS_FILTER = new ColumnsFilter();
   private final ArrayList<ArrayList<VirtualCell>> ROWS = new ArrayList<>();
   private final ArrayList<@NonNull Renderable> ALL_CELLS = new ArrayList<>();
@@ -1611,12 +1609,6 @@ class TableMatrix {
 
   public Iterator<@NonNull Renderable> getRenderables() {
     return this.ALL_CELLS.iterator();
-  }
-
-  private static class RowsFilter implements NodeFilter {
-    public final boolean accept(final Node node) {
-      return (node instanceof HTMLTableRowElement);
-    }
   }
 
   private static class ColumnsFilter implements NodeFilter {
