@@ -926,10 +926,7 @@ class TableMatrix {
       colSizes[i].layoutSize = 0;
     }
 
-    final ArrayList<RTableCell> allCells = this.ALL_CELLS;
-    final int numCells = allCells.size();
-    for (int i = 0; i < numCells; i++) {
-      final RTableCell cell = allCells.get(i);
+    for (@NonNull RTableCell cell: this.ALL_CELLS) {
       final int col = cell.getVirtualColumn();
       final int colSpan = cell.getColSpan();
       int cellsTotalWidth;
@@ -1234,12 +1231,9 @@ class TableMatrix {
   private final void finalRender(final int hasBorder, final int cellSpacing, final boolean sizeOnly) {
     // finalRender needs to adjust actualSize of columns and rows
     // given that things might change as we render one last time.
-    final ArrayList<RTableCell> allCells = this.ALL_CELLS;
     final SizeInfo[] colSizes = this.columnSizes;
     final SizeInfo[] rowSizes = this.rowSizes;
-    final int numCells = allCells.size();
-    for (int i = 0; i < numCells; i++) {
-      final RTableCell cell = allCells.get(i);
+    for (@NonNull RTableCell cell : this.ALL_CELLS) {
       final int col = cell.getVirtualColumn();
       final int colSpan = cell.getColSpan();
       int totalCellWidth;
@@ -1377,19 +1371,13 @@ class TableMatrix {
 
     // Set offsets of each cell
 
-    final ArrayList<RTableCell> allCells = this.ALL_CELLS;
-    final int numCells = allCells.size();
-    for (int i = 0; i < numCells; i++) {
-      final RTableCell cell = allCells.get(i);
+    for (@NonNull RTableCell cell : this.ALL_CELLS) {
       cell.setCellBounds(colSizes, rowSizes, hasBorder, cellSpacingX, cellSpacingY);
     }
   }
 
   public final void paint(final Graphics g, final Dimension size) {
-    final ArrayList<RTableCell> allCells = this.ALL_CELLS;
-    final int numCells = allCells.size();
-    for (int i = 0; i < numCells; i++) {
-      final RTableCell cell = allCells.get(i);
+    for (@NonNull RTableCell cell : this.ALL_CELLS) {
       // Should clip table cells, just in case.
       final Graphics newG = g.create(cell.x, cell.y, cell.width, cell.height);
       try {
@@ -1415,8 +1403,7 @@ class TableMatrix {
       // Paint cell borders
 
       g.setColor(Color.GRAY);
-      for (int i = 0; i < numCells; i++) {
-        final RTableCell cell = allCells.get(i);
+      for (@NonNull RTableCell cell : this.ALL_CELLS) {
         final int cx = cell.getX() - 1;
         final int cy = cell.getY() - 1;
         final int cwidth = cell.getWidth() + 1;
@@ -1473,10 +1460,7 @@ class TableMatrix {
    * int)
    */
   public RenderableSpot getLowestRenderableSpot(final int x, final int y) {
-    final ArrayList<RTableCell> allCells = this.ALL_CELLS;
-    final int numCells = allCells.size();
-    for (int i = 0; i < numCells; i++) {
-      final RTableCell cell = allCells.get(i);
+    for (@NonNull RTableCell cell : this.ALL_CELLS) {
       final Rectangle bounds = cell.getVisualBounds();
       if (bounds.contains(x, y)) {
         final RenderableSpot rp = cell.getLowestRenderableSpot(x - bounds.x, y - bounds.y);
@@ -1496,10 +1480,7 @@ class TableMatrix {
    * .MouseEvent, int, int)
    */
   public boolean onMouseClick(final MouseEvent event, final int x, final int y) {
-    final ArrayList<RTableCell> allCells = this.ALL_CELLS;
-    final int numCells = allCells.size();
-    for (int i = 0; i < numCells; i++) {
-      final RTableCell cell = allCells.get(i);
+    for (@NonNull RTableCell cell : this.ALL_CELLS) {
       final Rectangle bounds = cell.getVisualBounds();
       if (bounds.contains(x, y)) {
         if (!cell.onMouseClick(event, x - bounds.x, y - bounds.y)) {
@@ -1512,10 +1493,7 @@ class TableMatrix {
   }
 
   public boolean onDoubleClick(final MouseEvent event, final int x, final int y) {
-    final ArrayList<RTableCell> allCells = this.ALL_CELLS;
-    final int numCells = allCells.size();
-    for (int i = 0; i < numCells; i++) {
-      final RTableCell cell = allCells.get(i);
+    for (@NonNull RTableCell cell : this.ALL_CELLS) {
       final Rectangle bounds = cell.getVisualBounds();
       if (bounds.contains(x, y)) {
         if (!cell.onDoubleClick(event, x - bounds.x, y - bounds.y)) {
