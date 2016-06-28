@@ -409,43 +409,18 @@ class TableMatrix {
       }
       final SizeInfo rowSizeInfo = new SizeInfo();
       rowSizes[i] = rowSizeInfo;
-      HTMLElementImpl rowElement;
-      try {
-        rowElement = rowElements.get(i);
-        // Possible rowElement is null because TD does not have TR parent
-      } catch (final IndexOutOfBoundsException iob) {
-        // Possible if rowspan expands beyond that
-        rowElement = null;
-      }
-      // TODO: TR.height an IE quirk?
-      HtmlLength rowHeightLength = null;
-      if (rowElement != null) {
-        final String rowHeightText = rowElement.getAttribute("height");
-        if (rowHeightText != null) {
-          try {
-            rowHeightLength = new HtmlLength(HtmlValues.getPixelSize(rowHeightText, rowElement.getRenderState(), 0));
-          } catch (final NumberFormatException err) {
-            System.out.println("Exception while parsing row height: " + err);
-            // ignore
-          }
-        }
-      }
 
-      if (rowHeightLength != null) {
-        rowSizeInfo.htmlLength = rowHeightLength;
-      } else {
-        HtmlLength bestHeightLength = null;
-        for (int x = 0; x < rs; x++) {
-          final VirtualCell vc = row.get(x);
-          if (vc != null) {
-            final HtmlLength vcHeightLength = vc.getHeightLength();
-            if ((vcHeightLength != null) && vcHeightLength.isPreferredOver(bestHeightLength)) {
-              bestHeightLength = vcHeightLength;
-            }
+      HtmlLength bestHeightLength = null;
+      for (int x = 0; x < rs; x++) {
+        final VirtualCell vc = row.get(x);
+        if (vc != null) {
+          final HtmlLength vcHeightLength = vc.getHeightLength();
+          if ((vcHeightLength != null) && vcHeightLength.isPreferredOver(bestHeightLength)) {
+            bestHeightLength = vcHeightLength;
           }
         }
-        rowSizeInfo.htmlLength = bestHeightLength;
       }
+      rowSizeInfo.htmlLength = bestHeightLength;
     }
     final SizeInfo[] columnSizes = new SizeInfo[numCols];
     this.columnSizes = columnSizes;
