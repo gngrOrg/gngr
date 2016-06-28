@@ -47,7 +47,7 @@ import org.w3c.dom.Node;
 class TableMatrix {
   private static final NodeFilter COLUMNS_FILTER = new ColumnsFilter();
   private final ArrayList<ArrayList<VirtualCell>> ROWS = new ArrayList<>();
-  private final ArrayList<@NonNull Renderable> ALL_CELLS = new ArrayList<>();
+  private final ArrayList<@NonNull RTableCell> ALL_CELLS = new ArrayList<>();
   private final HTMLElementImpl tableElement;
   private final UserAgentContext parserContext;
   private final HtmlRendererContext rendererContext;
@@ -287,7 +287,7 @@ class TableMatrix {
   private ArrayList<HTMLElementImpl> populateRows() {
     final HTMLElementImpl te = this.tableElement;
     final ArrayList<HTMLElementImpl> rowElements = new ArrayList<>();
-    final ArrayList<Renderable> allCells = this.ALL_CELLS;
+    final ArrayList<RTableCell> allCells = this.ALL_CELLS;
     final ArrayList<NodeImpl> cellList = te.getDescendents(COLUMNS_FILTER, false);
     final Iterator<NodeImpl> ci = cellList.iterator();
 
@@ -926,10 +926,10 @@ class TableMatrix {
       colSizes[i].layoutSize = 0;
     }
 
-    final ArrayList<Renderable> allCells = this.ALL_CELLS;
+    final ArrayList<RTableCell> allCells = this.ALL_CELLS;
     final int numCells = allCells.size();
     for (int i = 0; i < numCells; i++) {
-      final RTableCell cell = (RTableCell) allCells.get(i);
+      final RTableCell cell = allCells.get(i);
       final int col = cell.getVirtualColumn();
       final int colSpan = cell.getColSpan();
       int cellsTotalWidth;
@@ -1234,12 +1234,12 @@ class TableMatrix {
   private final void finalRender(final int hasBorder, final int cellSpacing, final boolean sizeOnly) {
     // finalRender needs to adjust actualSize of columns and rows
     // given that things might change as we render one last time.
-    final ArrayList<Renderable> allCells = this.ALL_CELLS;
+    final ArrayList<RTableCell> allCells = this.ALL_CELLS;
     final SizeInfo[] colSizes = this.columnSizes;
     final SizeInfo[] rowSizes = this.rowSizes;
     final int numCells = allCells.size();
     for (int i = 0; i < numCells; i++) {
-      final RTableCell cell = (RTableCell) allCells.get(i);
+      final RTableCell cell = allCells.get(i);
       final int col = cell.getVirtualColumn();
       final int colSpan = cell.getColSpan();
       int totalCellWidth;
@@ -1377,19 +1377,19 @@ class TableMatrix {
 
     // Set offsets of each cell
 
-    final ArrayList<Renderable> allCells = this.ALL_CELLS;
+    final ArrayList<RTableCell> allCells = this.ALL_CELLS;
     final int numCells = allCells.size();
     for (int i = 0; i < numCells; i++) {
-      final RTableCell cell = (RTableCell) allCells.get(i);
+      final RTableCell cell = allCells.get(i);
       cell.setCellBounds(colSizes, rowSizes, hasBorder, cellSpacingX, cellSpacingY);
     }
   }
 
   public final void paint(final Graphics g, final Dimension size) {
-    final ArrayList<Renderable> allCells = this.ALL_CELLS;
+    final ArrayList<RTableCell> allCells = this.ALL_CELLS;
     final int numCells = allCells.size();
     for (int i = 0; i < numCells; i++) {
-      final RTableCell cell = (RTableCell) allCells.get(i);
+      final RTableCell cell = allCells.get(i);
       // Should clip table cells, just in case.
       final Graphics newG = g.create(cell.x, cell.y, cell.width, cell.height);
       try {
@@ -1416,7 +1416,7 @@ class TableMatrix {
 
       g.setColor(Color.GRAY);
       for (int i = 0; i < numCells; i++) {
-        final RTableCell cell = (RTableCell) allCells.get(i);
+        final RTableCell cell = allCells.get(i);
         final int cx = cell.getX() - 1;
         final int cy = cell.getY() - 1;
         final int cwidth = cell.getWidth() + 1;
@@ -1473,10 +1473,10 @@ class TableMatrix {
    * int)
    */
   public RenderableSpot getLowestRenderableSpot(final int x, final int y) {
-    final ArrayList<Renderable> allCells = this.ALL_CELLS;
+    final ArrayList<RTableCell> allCells = this.ALL_CELLS;
     final int numCells = allCells.size();
     for (int i = 0; i < numCells; i++) {
-      final RTableCell cell = (RTableCell) allCells.get(i);
+      final RTableCell cell = allCells.get(i);
       final Rectangle bounds = cell.getVisualBounds();
       if (bounds.contains(x, y)) {
         final RenderableSpot rp = cell.getLowestRenderableSpot(x - bounds.x, y - bounds.y);
@@ -1496,10 +1496,10 @@ class TableMatrix {
    * .MouseEvent, int, int)
    */
   public boolean onMouseClick(final MouseEvent event, final int x, final int y) {
-    final ArrayList<Renderable> allCells = this.ALL_CELLS;
+    final ArrayList<RTableCell> allCells = this.ALL_CELLS;
     final int numCells = allCells.size();
     for (int i = 0; i < numCells; i++) {
-      final RTableCell cell = (RTableCell) allCells.get(i);
+      final RTableCell cell = allCells.get(i);
       final Rectangle bounds = cell.getVisualBounds();
       if (bounds.contains(x, y)) {
         if (!cell.onMouseClick(event, x - bounds.x, y - bounds.y)) {
@@ -1512,10 +1512,10 @@ class TableMatrix {
   }
 
   public boolean onDoubleClick(final MouseEvent event, final int x, final int y) {
-    final ArrayList<Renderable> allCells = this.ALL_CELLS;
+    final ArrayList<RTableCell> allCells = this.ALL_CELLS;
     final int numCells = allCells.size();
     for (int i = 0; i < numCells; i++) {
-      final RTableCell cell = (RTableCell) allCells.get(i);
+      final RTableCell cell = allCells.get(i);
       final Rectangle bounds = cell.getVisualBounds();
       if (bounds.contains(x, y)) {
         if (!cell.onDoubleClick(event, x - bounds.x, y - bounds.y)) {
@@ -1554,10 +1554,10 @@ class TableMatrix {
    * .MouseEvent, int, int)
    */
   public boolean onMousePressed(final MouseEvent event, final int x, final int y) {
-    final ArrayList<Renderable> allCells = this.ALL_CELLS;
+    final ArrayList<RTableCell> allCells = this.ALL_CELLS;
     final int numCells = allCells.size();
     for (int i = 0; i < numCells; i++) {
-      final RTableCell cell = (RTableCell) allCells.get(i);
+      final RTableCell cell = allCells.get(i);
       final Rectangle bounds = cell.getVisualBounds();
       if (bounds.contains(x, y)) {
         if (!cell.onMousePressed(event, x - bounds.x, y - bounds.y)) {
@@ -1578,11 +1578,11 @@ class TableMatrix {
    * .MouseEvent, int, int)
    */
   public boolean onMouseReleased(final MouseEvent event, final int x, final int y) {
-    final ArrayList<Renderable> allCells = this.ALL_CELLS;
+    final ArrayList<RTableCell> allCells = this.ALL_CELLS;
     final int numCells = allCells.size();
     boolean found = false;
     for (int i = 0; i < numCells; i++) {
-      final RTableCell cell = (RTableCell) allCells.get(i);
+      final RTableCell cell = allCells.get(i);
       final Rectangle bounds = cell.getVisualBounds();
       if (bounds.contains(x, y)) {
         found = true;
@@ -1607,7 +1607,7 @@ class TableMatrix {
     return true;
   }
 
-  public Iterator<@NonNull Renderable> getRenderables() {
+  public Iterator<@NonNull RTableCell> getCells() {
     return this.ALL_CELLS.iterator();
   }
 
