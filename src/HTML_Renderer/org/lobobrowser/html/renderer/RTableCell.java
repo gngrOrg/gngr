@@ -25,6 +25,7 @@ package org.lobobrowser.html.renderer;
 
 import java.awt.Dimension;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.html.HtmlRendererContext;
 import org.lobobrowser.html.domimpl.HTMLElementImpl;
 import org.lobobrowser.html.style.RenderState;
@@ -198,15 +199,15 @@ class RTableCell extends RBlock {
   //
   //
 
-  public void setCellBounds(final TableMatrix.SizeInfo[] colSizes, final TableMatrix.SizeInfo[] rowSizes, final int hasBorder,
+  public void setCellBounds(final TableMatrix.ColSizeInfo[] colSizes, final TableMatrix.RowSizeInfo[] rowSizes, final int hasBorder,
       final int cellSpacingX,
       final int cellSpacingY) {
     final int vcol = this.getVirtualColumn();
     final int vrow = this.getVirtualRow();
-    final TableMatrix.SizeInfo colSize = colSizes[vcol];
-    final TableMatrix.SizeInfo rowSize = rowSizes[vrow];
-    final int x = colSize.offset;
-    final int y = rowSize.offset;
+    final TableMatrix.ColSizeInfo colSize = colSizes[vcol];
+    final TableMatrix.RowSizeInfo rowSize = rowSizes[vrow];
+    final int x = colSize.offsetX + rowSize.offsetX;
+    final int y = rowSize.offsetY;
     int width;
     int height;
     final int colSpan = this.getColSpan();
@@ -242,4 +243,9 @@ class RTableCell extends RBlock {
   protected boolean isMarginBoundary() {
     return true;
   }
+
+  @NonNull RenderState getRenderState() {
+    return cellElement.getRenderState();
+  }
+
 }

@@ -120,6 +120,12 @@ public class StyleSheetRenderState implements RenderState {
         displayInt = DISPLAY_NONE;
       } else if ("list-item".equals(displayTextTL)) {
         displayInt = DISPLAY_LIST_ITEM;
+      } else if ("table-row-group".equals(displayTextTL)) {
+        displayInt = DISPLAY_TABLE_ROW_GROUP;
+      } else if ("table-header-group".equals(displayTextTL)) {
+        displayInt = DISPLAY_TABLE_HEADER_GROUP;
+      } else if ("table-footer-group".equals(displayTextTL)) {
+        displayInt = DISPLAY_TABLE_FOOTER_GROUP;
       } else if ("table".equals(displayTextTL)) {
         displayInt = DISPLAY_TABLE;
       } else if ("table-cell".equals(displayTextTL)) {

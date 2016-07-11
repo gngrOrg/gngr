@@ -98,7 +98,7 @@ public class RBlockViewport extends BaseRCollection {
   // of the RBlockViewport, so ancestor blocks can obtain them to adjust
   // their own bounds.
 
-  public static final Insets ZERO_INSETS = new Insets(0, 0, 0, 0);
+  public static final @NonNull Insets ZERO_INSETS = new Insets(0, 0, 0, 0);
 
   // private final ArrayList awtComponents = new ArrayList();
   private final int listNesting;

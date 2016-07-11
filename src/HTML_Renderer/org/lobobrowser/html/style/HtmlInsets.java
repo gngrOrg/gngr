@@ -36,6 +36,17 @@ public class HtmlInsets {
   public HtmlInsets() {
   }
 
+  public HtmlInsets(int top, int left, int bottom, int right, int type) {
+    this.top = top;
+    this.left = left;
+    this.bottom = bottom;
+    this.right = right;
+    this.topType = type;
+    this.leftType = type;
+    this.bottomType = type;
+    this.rightType = type;
+  }
+
   public int getTop() {
     return top;
   }

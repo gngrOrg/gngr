@@ -98,6 +98,8 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
 
   protected final UserAgentContext userAgentContext;
 
+  final BorderOverrider borderOverrider = new BorderOverrider();
+
   public BaseElementRenderable(final RenderableContainer container, final ModelNode modelNode, final UserAgentContext ucontext) {
     super(container, modelNode);
     this.userAgentContext = ucontext;
@@ -447,7 +449,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
       }
       if (updateLayout) {
         this.borderInfo = borderInfo;
-        final HtmlInsets binsets = borderInfo == null ? null : borderInfo.insets;
+        final HtmlInsets binsets = borderInfo == null ? null : borderOverrider.get(borderInfo.insets);
         final HtmlInsets minsets = rs.getMarginInsets();
         final HtmlInsets pinsets = rs.getPaddingInsets();
         // TODO: These zero values are not modified anywhere; can be inlined
@@ -653,7 +655,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
     prePaintBorder(g, totalWidth, totalHeight, startX, startY, borderInsets);
   }
 
-  private void prePaintBackground(final java.awt.Graphics g, final int totalWidth, final int totalHeight, final int startX, final int startY, final ModelNode node,
+  protected void prePaintBackground(final java.awt.Graphics g, final int totalWidth, final int totalHeight, final int startX, final int startY, final ModelNode node,
       final RenderState rs, final Insets borderInsets) {
     // TODO: Check if we can use TexturePaint to draw repeated background images
     // See example: http://www.informit.com/articles/article.aspx?p=26349&seqNum=4
@@ -728,7 +730,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
     }
   }
 
-  private void prePaintBorder(final java.awt.Graphics g, final int totalWidth, final int totalHeight, final int startX, final int startY, final Insets borderInsets) {
+  protected void prePaintBorder(final java.awt.Graphics g, final int totalWidth, final int totalHeight, final int startX, final int startY, final Insets borderInsets) {
     if (borderInsets != null) {
       final int btop = borderInsets.top;
       final int bleft = borderInsets.left;
@@ -932,8 +934,9 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
 
   protected static final int SCROLL_BAR_THICKNESS = 16;
 
-  public Insets getBorderInsets() {
-    return this.borderInsets == null ? RBlockViewport.ZERO_INSETS : this.borderInsets;
+  public @NonNull Insets getBorderInsets() {
+    Insets bi = this.borderInsets;
+    return bi == null ? RBlockViewport.ZERO_INSETS : borderOverrider.get(bi);
   }
 
   /**
