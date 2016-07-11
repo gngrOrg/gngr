@@ -34,4 +34,12 @@ public class BorderInfo {
   public Color rightColor;
 
   public HtmlInsets insets;
+
+  @Override
+  public String toString() {
+    return "BorderInfo [topStyle=" + topStyle + ", leftStyle=" + leftStyle + ", bottomStyle=" + bottomStyle + ", rightStyle=" + rightStyle
+        + ", topColor=" + topColor + ", leftColor=" + leftColor + ", bottomColor=" + bottomColor + ", rightColor=" + rightColor
+        + ", insets=" + insets + "]";
+  }
+
 }
