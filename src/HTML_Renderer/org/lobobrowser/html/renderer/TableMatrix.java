@@ -137,7 +137,7 @@ class TableMatrix {
       }
     }
     final String cellSpacingText = this.tableElement.getAttribute("cellspacing");
-    int cellSpacing = 1;
+    int cellSpacing = 0;
     if (cellSpacingText != null) {
       try {
         // TODO: cellSpacing can be a percentage as well
