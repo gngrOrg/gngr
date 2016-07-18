@@ -720,12 +720,22 @@ public class RBlock extends BaseElementRenderable {
       }
     }
 
+    final int scrollWidth = vscroll ? SCROLL_BAR_THICKNESS : 0;
+    if (declaredWidth >= 0) {
+      resultingWidth = Math.min(resultingWidth, declaredWidth + paddingTotalWidth + insetsTotalWidth - scrollWidth);
+    }
+
     if (declaredMaxWidth != null) {
-      resultingWidth = Math.min(resultingWidth, declaredMaxWidth + paddingTotalWidth + insetsTotalWidth);
+      resultingWidth = Math.min(resultingWidth, declaredMaxWidth + paddingTotalWidth + insetsTotalWidth - scrollWidth);
+    }
+
+    final int scrollHeight = hscroll ? SCROLL_BAR_THICKNESS : 0;
+    if (declaredHeight >= 0) {
+      resultingHeight = Math.min(resultingHeight, declaredHeight + paddingTotalHeight + insetsTotalHeight - scrollHeight);
     }
 
     if (declaredMaxHeight != null) {
-      resultingHeight = Math.min(resultingHeight, declaredMaxHeight + paddingTotalHeight + insetsTotalHeight);
+      resultingHeight = Math.min(resultingHeight, declaredMaxHeight + paddingTotalHeight + insetsTotalHeight - scrollHeight);
     }
 
     if (renderState.getPosition() == RenderState.POSITION_STATIC) {
