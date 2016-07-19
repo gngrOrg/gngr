@@ -611,7 +611,7 @@ public class RBlock extends BaseElementRenderable {
       bodyLayout.layout(desiredViewportWidth, desiredViewportHeight, paddingInsets, maxY, viewportFloatBounds, sizeOnly);
     } catch (final SizeExceededException see) {
       // Getting this exception means that we need to add a vertical scrollbar.
-      // Wee need to relayout and adjust insets and widths for scrollbar.
+      // We need to relayout and adjust insets and widths for scrollbar.
       vscroll = true;
       insets = this.getInsetsMarginBorder(hscroll, vscroll);
       insetsTotalWidth = insets.left + insets.right;
@@ -627,7 +627,6 @@ public class RBlock extends BaseElementRenderable {
 
     if (marginInsets != this.marginInsets) {
       // Can happen because of margin top being absorbed from child
-
       insets = this.getInsetsMarginBorder(hscroll, vscroll);
       insetsTotalHeight = insets.top + insets.bottom;
     }
@@ -1887,13 +1886,11 @@ public class RBlock extends BaseElementRenderable {
       final Insets mi = this.marginInsets;
       this.marginTopOriginal = mi.top;
       this.marginInsets = new Insets(0, mi.left, mi.bottom, mi.right);
-      // System.out.println("Collapsed top margin to zero in " + this);
     }
     if (collapseBottomMargin) {
       final Insets mi = this.marginInsets;
       this.marginBottomOriginal = mi.bottom;
       this.marginInsets = new Insets(mi.top, mi.left, 0, mi.right);
-      // System.out.println("Collapsed bottom margin to zero in " + this);
     }
   }
 
@@ -1920,8 +1917,6 @@ public class RBlock extends BaseElementRenderable {
 
   void absorbMarginBottomChild(@Nullable Integer marginBottomChild) {
     if (marginBottomChild != null) {
-      // System.out.println("In: " + this);
-      // System.out.println("  Absorbing: " + marginTopChild);
       final Insets mi = this.marginInsets;
       if (mi != null) {
         if (marginBottomChild > mi.bottom) {
