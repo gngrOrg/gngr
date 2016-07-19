@@ -2922,7 +2922,7 @@ public class RBlockViewport extends BaseRCollection {
           final Insets rcInsets = rc.getInsetsMarginBorder(false, false);
           // double rcMaxY = rc.getY() + rc.getVisualHeight() + rcInsets.top + rcInsets.bottom;
           // double rcMaxY = rc.getVisualBounds().getMaxY() + rcInsets.top + rcInsets.bottom;
-          double rcMaxY = rc.getVisualBounds().getMaxY() + rcInsets.bottom;
+          double rcMaxY = rc.getVisualBounds().getMaxY(); //  + rcInsets.bottom;
           if (rcMaxY > maxY) {
             maxY = rcMaxY;
           }
