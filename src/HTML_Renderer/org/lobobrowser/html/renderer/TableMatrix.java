@@ -118,6 +118,7 @@ final class TableMatrix {
   private int widthsOfExtras;
   private int heightsOfExtras;
   private HtmlLength tableWidthLength;
+  private ArrayList<RowGroupSizeInfo> rowGroupSizes;
 
   /**
    * Called on every relayout. Element children might have changed.
@@ -128,6 +129,7 @@ final class TableMatrix {
     ROW_GROUPS.clear();
     ROWS.clear();
     ALL_CELLS.clear();
+    rowGroupSizes = null;
     // TODO: Does it need this old-style border?
     final String borderText = this.tableElement.getAttribute("border");
     int border = 0;
@@ -1601,9 +1603,10 @@ final class TableMatrix {
     for (@NonNull RTableCell cell : this.ALL_CELLS) {
       cell.setCellBounds(colSizes, rowSizes, hasBorder, cellSpacingX, cellSpacingY);
     }
+    this.rowGroupSizes = prepareRowGroupSizes();
   }
 
-  private static class RTableRowGroup extends BaseElementRenderable {
+  static class RTableRowGroup extends BaseElementRenderable {
 
     public RTableRowGroup(RenderableContainer container, ModelNode modelNode, UserAgentContext ucontext, final BorderOverrider borderOverrider) {
       super(container, modelNode, ucontext);
@@ -1633,6 +1636,11 @@ final class TableMatrix {
     @Override
     public boolean onDoubleClick(MouseEvent event, int x, int y) {
       return false;
+    }
+
+    @Override
+    public void repaint() {
+      container.repaint(x, y, width, height);
     }
 
     @Override
@@ -1668,11 +1676,9 @@ final class TableMatrix {
   }
 
   public final void paint(final Graphics g, final Dimension size) {
-    final ArrayList<RowGroupSizeInfo> rowGroupSizes = prepareRowGroupSizes(g);
-
     // Paint row group backgrounds
     for (final RowGroupSizeInfo rgsi : rowGroupSizes) {
-      rgsi.prePaintBackground();
+      rgsi.prePaintBackground(g);
     }
 
     for (final @NonNull RTableCell cell : this.ALL_CELLS) {
@@ -1712,12 +1718,12 @@ final class TableMatrix {
 
     // Paint row group borders
     for (final RowGroupSizeInfo rgsi : rowGroupSizes) {
-      rgsi.prePaintBorder();
+      rgsi.prePaintBorder(g);
     }
   }
 
   // Called during paint
-  private ArrayList<RowGroupSizeInfo> prepareRowGroupSizes(final Graphics g) {
+  private ArrayList<RowGroupSizeInfo> prepareRowGroupSizes() {
     final ArrayList<RowGroupSizeInfo> rowGroupSizes = new ArrayList<>();
     {
       final RowSizeInfo[] rowSizesLocal = this.rowSizes;
@@ -1739,7 +1745,7 @@ final class TableMatrix {
           rRowGroup.setWidth(groupWidth);
           rRowGroup.setHeight(groupHeight);
           rRowGroup.applyStyle(groupWidth, groupHeight, true);
-          final RowGroupSizeInfo rgsi = new RowGroupSizeInfo(groupWidth, groupHeight, g, rRowGroup, x, y);
+          final RowGroupSizeInfo rgsi = new RowGroupSizeInfo(groupWidth, groupHeight, rRowGroup, x, y);
           rowGroupSizes.add(rgsi);
         }
       }
@@ -1921,7 +1927,7 @@ final class TableMatrix {
     return true;
   }
 
-  public Iterator<@NonNull RTableCell> getCells() {
+  Iterator<@NonNull RTableCell> getCells() {
     return this.ALL_CELLS.iterator();
   }
 
@@ -1963,28 +1969,30 @@ final class TableMatrix {
     private final int x;
     private final int y;
 
-    private final RTableRowGroup r;
-    private final Graphics g;
+    private final @NonNull RTableRowGroup r;
 
-    RowGroupSizeInfo(final int width, final int height, final Graphics g, final RTableRowGroup r, final int x, final int y) {
+    RowGroupSizeInfo(final int width, final int height, final @NonNull RTableRowGroup r, final int x, final int y) {
       this.height = height;
       this.width = width;
-      this.g = g;
       this.r = r;
       this.x = x;
       this.y = y;
     }
 
 
-    void prePaintBackground() {
+    void prePaintBackground(final Graphics g) {
       final Insets bi = r.getBorderInsets();
       final ModelNode rowGroupElem = r.getModelNode();
       r.prePaintBackground(g, width - (bi.left/2), height, x, y, rowGroupElem, rowGroupElem.getRenderState(), bi);
     }
 
-    void prePaintBorder() {
+    void prePaintBorder(final Graphics g) {
       final Insets bi = r.getBorderInsets();
       r.prePaintBorder(g, width + (bi.left)/2  + bi.right, height + bi.top + bi.bottom, x - bi.left, y - bi.top , bi);
     }
+  }
+
+  public Iterator<@NonNull RTableRowGroup> getRowGroups() {
+    return this.rowGroupSizes.stream().map(rgs -> rgs.r).iterator();
   }
 }

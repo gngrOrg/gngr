@@ -43,9 +43,11 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.html.HtmlRendererContext;
 import org.lobobrowser.html.domimpl.HTMLElementImpl;
 import org.lobobrowser.html.domimpl.ModelNode;
+import org.lobobrowser.html.renderer.TableMatrix.RTableRowGroup;
 import org.lobobrowser.html.style.RenderState;
 import org.lobobrowser.html.style.RenderThreadState;
 import org.lobobrowser.ua.UserAgentContext;
+import org.lobobrowser.util.CollectionUtilities;
 
 class RTable extends BaseElementRenderable {
   private static final int MAX_CACHE_SIZE = 10;
@@ -326,13 +328,19 @@ class RTable extends BaseElementRenderable {
         c.add(i2.next());
       }
 
+      final Iterator<@NonNull RTableRowGroup> i3 = this.tableMatrix.getRowGroups();
+      while (i3.hasNext()) {
+        c.add(i3.next());
+      }
+
       if (topFirst) {
         Collections.reverse(c);
       }
 
       return c.iterator();
     } else {
-      return this.tableMatrix.getCells();
+      final Iterator<@NonNull Renderable>[] rs = new Iterator[] {this.tableMatrix.getCells(), this.tableMatrix.getRowGroups()};
+      return CollectionUtilities.iteratorUnion(rs);
     }
   }
 
