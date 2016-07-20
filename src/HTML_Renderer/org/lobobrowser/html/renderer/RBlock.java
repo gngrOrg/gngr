@@ -1933,4 +1933,12 @@ public class RBlock extends BaseElementRenderable {
       }
     }
   }
+
+  public int getHorizontalScrollBarHeight() {
+    return hasHScrollBar ? SCROLL_BAR_THICKNESS : 0;
+  }
+
+  public int getVerticalScrollBarHeight() {
+    return hasVScrollBar ? SCROLL_BAR_THICKNESS : 0;
+  }
 }

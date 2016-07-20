@@ -175,4 +175,12 @@ public interface BoundableRenderable extends Renderable {
 
   public void setDelegator(final BoundableRenderable pDelegator);
   public boolean isDelegated();
+
+  default public int getHorizontalScrollBarHeight() {
+    return 0;
+  }
+
+  default public int getVerticalScrollBarHeight() {
+    return 0;
+  }
 }

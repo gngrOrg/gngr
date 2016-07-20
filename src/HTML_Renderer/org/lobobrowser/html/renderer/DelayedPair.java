@@ -128,41 +128,45 @@ public class DelayedPair {
 
     Integer x = this.getLeft();
     Integer y = this.getTop();
+
     final Integer width = getWidth();
     final Integer height = getHeight();
     final Integer right = this.getRight();
     final Integer bottom = this.getBottom();
+    final int childVerticalScrollBarHeight = child.getVerticalScrollBarHeight();
     if (right != null) {
       if (x != null) {
         // width = parent.getInnerWidth() - (x + right);
-        child.setInnerWidth(parent.getInnerWidth() - (x + right));
+        child.setInnerWidth(parent.getInnerWidth() - (x + right) - childVerticalScrollBarHeight);
       } else {
         if (width != null) {
-          child.setInnerWidth(width);
+          child.setInnerWidth(width - childVerticalScrollBarHeight);
         }
         final int childWidth = child.getWidth();
-        x = parent.getInnerWidth() - (childWidth + right);
+        x = parent.getInnerWidth() - (childWidth + right - childVerticalScrollBarHeight);
       }
     } else {
       if (width != null) {
-        child.setInnerWidth(width);
+        child.setInnerWidth(width - childVerticalScrollBarHeight);
       }
     }
+
+    final int childHorizontalScrollBarHeight = child.getHorizontalScrollBarHeight();
     if (bottom != null) {
       if (y != null) {
         // height = parent.getInnerHeight() - (y + bottom);
-        child.setInnerHeight(parent.getInnerHeight() - (y + bottom));
+        child.setInnerHeight(parent.getInnerHeight() - (y + bottom) - childHorizontalScrollBarHeight);
       } else {
         if (height != null) {
-          child.setInnerHeight(height);
+          child.setInnerHeight(height - childHorizontalScrollBarHeight);
         }
         // final int childHeight = height == null? child.getHeight() : height;
         final int childHeight = child.getHeight();
-        y = parent.getInnerHeight() - (childHeight + bottom);
+        y = parent.getInnerHeight() - (childHeight + bottom - childHorizontalScrollBarHeight);
       }
     } else {
       if (height != null) {
-        child.setInnerHeight(height);
+        child.setInnerHeight(height - childHorizontalScrollBarHeight);
       }
     }
 
