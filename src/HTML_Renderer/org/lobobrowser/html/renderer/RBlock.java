@@ -497,6 +497,9 @@ public class RBlock extends BaseElementRenderable {
     Insets marginInsets = this.marginInsets;
     if (marginInsets == null) {
       marginInsets = RBlockViewport.ZERO_INSETS;
+
+      // This causes a single trivial regression. Keeping it disabled for now, but worth checking out later.
+      // this.marginInsets = marginInsets;
     }
     final int paddingTotalWidth = paddingInsets.left + paddingInsets.right;
     final int paddingTotalHeight = paddingInsets.top + paddingInsets.bottom;
@@ -525,6 +528,12 @@ public class RBlock extends BaseElementRenderable {
     if (declaredMaxWidth != null) {
       tentativeAvailWidth = Math.min(tentativeAvailWidth, declaredMaxWidth);
     }
+
+    /* Has no effect apparently, but worth checking out again, later.
+    if (declaredMaxHeight != null) {
+      tentativeAvailHeight = Math.min(tentativeAvailHeight, declaredMaxHeight);
+    }
+    */
 
     final boolean isHtmlElem = getModelNode() instanceof HTMLHtmlElement;
     int actualAvailWidth = tentativeAvailWidth;
