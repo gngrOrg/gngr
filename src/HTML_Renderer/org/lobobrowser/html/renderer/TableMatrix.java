@@ -910,6 +910,9 @@ final class TableMatrix {
       if (si.actualSize < si.layoutSize) {
         si.actualSize = si.layoutSize;
       }
+      if (si.fullActualSize < si.fullLayoutSize) {
+        si.fullActualSize = si.fullLayoutSize;
+      }
       // else if(si.htmlLength == null) {
       // // For cells without a declared width, see if
       // // their tentative width is a bit too big.
@@ -975,6 +978,13 @@ final class TableMatrix {
             if (size.width > colSize.layoutSize) {
               colSize.layoutSize = size.width;
             }
+
+            @NonNull Insets cbi = ac.getBorderInsets();
+            final int cellFullLayoutWidth = size.width + cbi.left + cbi.right;
+            if (cellFullLayoutWidth > colSize.fullLayoutSize) {
+              colSize.fullLayoutSize = cellFullLayoutWidth;
+            }
+
             final int rowSpan = ac.getRowSpan();
             final int vch = (size.height - ((rowSpan - 1) * (this.cellSpacingY + (2 * hasBorder)))) / rowSpan;
             for (int y = 0; y < rowSpan; y++) {
@@ -996,9 +1006,10 @@ final class TableMatrix {
     int currentTotal = 0;
     final int numCols = columnSizes.length;
     for (int i = 0; i < numCols; i++) {
-      currentTotal += columnSizes[i].actualSize;
+      currentTotal += columnSizes[i].fullActualSize;
     }
-    int difference = currentTotal - cellAvailWidth;
+    int difference = currentTotal - (this.widthsOfExtras + cellAvailWidth);
+    // int difference = currentTotal - (cellAvailWidth);
     if ((difference > 0) || ((difference < 0) && expand)) {
       // First, try to contract/expand columns with no width
       int noWidthTotal = 0;
@@ -1006,21 +1017,21 @@ final class TableMatrix {
       for (int i = 0; i < numCols; i++) {
         if (columnSizes[i].htmlLength == null) {
           numNoWidth++;
-          noWidthTotal += columnSizes[i].actualSize;
+          noWidthTotal += columnSizes[i].fullActualSize;
         }
       }
-      if (noWidthTotal > 0) {
+      if (numNoWidth > 0) {
         // TODO: This is not shrinking correctly.
-        int expectedNoWidthTotal = noWidthTotal - difference;
+        int expectedNoWidthTotal = noWidthTotal - difference - this.widthsOfExtras;
         if (expectedNoWidthTotal < 0) {
           expectedNoWidthTotal = 0;
         }
-        final double ratio = (double) expectedNoWidthTotal / noWidthTotal;
+        final double ratio = ((double) expectedNoWidthTotal) / noWidthTotal;
         int noWidthCount = 0;
         for (int i = 0; i < numCols; i++) {
           final ColSizeInfo sizeInfo = columnSizes[i];
           if (sizeInfo.htmlLength == null) {
-            final int oldActualSize = sizeInfo.actualSize;
+            final int oldActualSize = sizeInfo.fullActualSize;
             int newActualSize;
             if (++noWidthCount == numNoWidth) {
               // Last column without a width.
@@ -1033,7 +1044,7 @@ final class TableMatrix {
               newActualSize = (int) Math.round(oldActualSize * ratio);
             }
             sizeInfo.actualSize = newActualSize;
-            if (newActualSize < sizeInfo.layoutSize) {
+            if (newActualSize < sizeInfo.fullLayoutSize) {
               // See if it actually fits.
               this.layoutColumn(columnSizes, sizeInfo, i, cellSpacingX, hasBorder);
               if (newActualSize < sizeInfo.layoutSize) {
@@ -1054,23 +1065,23 @@ final class TableMatrix {
         for (int i = 0; i < numCols; i++) {
           final HtmlLength widthLength = columnSizes[i].htmlLength;
           if ((widthLength != null) && (widthLength.getLengthType() != HtmlLength.LENGTH)) {
-            absoluteWidthTotal += columnSizes[i].actualSize;
+            absoluteWidthTotal += columnSizes[i].fullActualSize;
           }
         }
         if (absoluteWidthTotal > 0) {
-          int expectedAbsoluteWidthTotal = absoluteWidthTotal - difference;
+          int expectedAbsoluteWidthTotal = absoluteWidthTotal - difference - this.widthsOfExtras;
           if (expectedAbsoluteWidthTotal < 0) {
             expectedAbsoluteWidthTotal = 0;
           }
-          final double ratio = (double) expectedAbsoluteWidthTotal / absoluteWidthTotal;
+          final double ratio = ((double) expectedAbsoluteWidthTotal) / absoluteWidthTotal;
           for (int i = 0; i < numCols; i++) {
             final ColSizeInfo sizeInfo = columnSizes[i];
             final HtmlLength widthLength = columnSizes[i].htmlLength;
             if ((widthLength != null) && (widthLength.getLengthType() != HtmlLength.LENGTH)) {
-              final int oldActualSize = sizeInfo.actualSize;
+              final int oldActualSize = sizeInfo.fullActualSize;
               int newActualSize = (int) Math.round(oldActualSize * ratio);
               sizeInfo.actualSize = newActualSize;
-              if (newActualSize < sizeInfo.layoutSize) {
+              if (newActualSize < sizeInfo.fullLayoutSize) {
                 // See if it actually fits.
                 this.layoutColumn(columnSizes, sizeInfo, i, cellSpacingX, hasBorder);
                 if (newActualSize < sizeInfo.layoutSize) {
@@ -1122,6 +1133,13 @@ final class TableMatrix {
           }
         }
       }
+    } else {
+      if (expand) {
+        for (int i = 0; i < numCols; i++) {
+          final ColSizeInfo sizeInfo = columnSizes[i];
+          sizeInfo.actualSize = sizeInfo.fullActualSize;
+        }
+      }
     }
     return currentTotal;
   }
@@ -1148,6 +1166,7 @@ final class TableMatrix {
     final int numCols = colSizes.length;
     for (int i = 0; i < numCols; i++) {
       colSizes[i].layoutSize = 0;
+      colSizes[i].fullLayoutSize = 0;
     }
 
     for (@NonNull RTableCell cell: this.ALL_CELLS) {
@@ -1190,7 +1209,10 @@ final class TableMatrix {
       }
       // Set render widths
       final int cellLayoutWidth = size.width;
+      @NonNull Insets cbi = cell.getBorderInsets();
+      final int cellFullLayoutWidth = size.width + cbi.left + cbi.right;
       if (colSpan > 1) {
+        // TODO: set fullLayoutSize
         if (cellsUsedWidth > 0) {
           final double ratio = (double) cellLayoutWidth / cellsUsedWidth;
           for (int x = 0; x < colSpan; x++) {
@@ -1213,6 +1235,9 @@ final class TableMatrix {
         final ColSizeInfo colSizeInfo = colSizes[col];
         if (colSizeInfo.layoutSize < cellLayoutWidth) {
           colSizeInfo.layoutSize = cellLayoutWidth;
+        }
+        if (colSizeInfo.fullLayoutSize < cellFullLayoutWidth) {
+          colSizeInfo.fullLayoutSize = cellFullLayoutWidth;
         }
       }
 
@@ -1943,7 +1968,9 @@ final class TableMatrix {
   static final class ColSizeInfo {
     HtmlLength htmlLength;
     int actualSize;
+    int fullActualSize; // Full size including border and padding
     int layoutSize;
+    int fullLayoutSize; // Full size including border and padding
     int minSize;
     int offsetX;
   }
