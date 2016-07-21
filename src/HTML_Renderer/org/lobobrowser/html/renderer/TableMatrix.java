@@ -504,12 +504,11 @@ final class TableMatrix {
     final ArrayList<HTMLElementImpl> rowElements = new ArrayList<>();
     final ArrayList<RTableCell> allCells = this.ALL_CELLS;
     final ArrayList<NodeImpl> cellList = te.getDescendents(COLUMNS_FILTER, false);
-    final Iterator<NodeImpl> ci = cellList.iterator();
 
     final TableRelation rowRelation = new TableRelation(this.ROWS, this.ROW_GROUPS);
 
-    while (ci.hasNext()) {
-      final HTMLElementImpl columnNode = (HTMLElementImpl) ci.next();
+    for (final NodeImpl cn : cellList) {
+      final HTMLElementImpl columnNode = (HTMLElementImpl) cn;
       final HTMLElementImpl rowElement = getParentRow(columnNode, te);
       if ((rowElement != null) && (rowElement.getRenderState().getDisplay() == RenderState.DISPLAY_NONE)) {
         // Skip row [ 2047122 ]
@@ -788,7 +787,7 @@ final class TableMatrix {
 
   /**
    * This method sets the tentative actual sizes of columns (rows) based on
-   * specified witdhs (heights) if available.
+   * specified widths (heights) if available.
    *
    * @param columnSizes
    * @param widthsOfExtras
