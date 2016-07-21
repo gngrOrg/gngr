@@ -900,7 +900,7 @@ final class TableMatrix {
   }
 
   /**
-   * Contracts column sizes according to layout sizes.
+   * Expands column sizes according to layout sizes.
    */
   private static void adjustForLayoutWidths(final ColSizeInfo[] columnSizes, final int hasBorder, final int cellSpacing,
       final boolean tableWidthKnown) {
