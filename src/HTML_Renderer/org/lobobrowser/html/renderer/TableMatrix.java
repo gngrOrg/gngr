@@ -759,6 +759,8 @@ final class TableMatrix {
       tableWidth = availWidth;
       widthKnown = false;
     }
+    tableWidth -= (this.maxRowGroupLeft + this.maxRowGroupRight) / 2;
+
     final ColSizeInfo[] columnSizes = this.columnSizes;
     final int widthsOfExtras = this.widthsOfExtras;
     int cellAvailWidth = tableWidth - widthsOfExtras;
