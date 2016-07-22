@@ -100,11 +100,12 @@ public class DelayedPair {
   public @NonNull BoundableRenderable positionPairChild() {
     final RenderableContainer parent = this.containingBlock;
     if (isRelative) {
-      ((RElement) child).setupRelativePosition(this.immediateContainingBlock);
-      TranslatedRenderable tr = new TranslatedRenderable(child);
-      // tr.setX(child.getX() + tp.x);
-      // tr.setY(child.getY() + tp.y);
-      child.setDelegator(tr);
+      final RElement rChild = (RElement) this.child;
+      rChild.setupRelativePosition(this.immediateContainingBlock);
+      TranslatedRenderable tr = new TranslatedRenderable(rChild);
+      // tr.setX(rChild.getX() + tp.x);
+      // tr.setY(rChild.getY() + tp.y);
+      rChild.setDelegator(tr);
       return tr;
     }
 
