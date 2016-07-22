@@ -23,14 +23,15 @@ Security-wise, the code isn't hardened *at all!* Use the current version:
 
 **Do Not use the current version with critical websites such as banking websites or web-mail.**
 
-### Development Status
-As of November 2015, our focus is to improve layout and rendering. We have developed
-[grinder](https://github.com/UprootLabs/grinder) to automate layout and rendering tests.
+### Development Status [![Build Status](https://travis-ci.org/UprootLabs/gngr.svg?branch=master)](https://travis-ci.org/UprootLabs/gngr)
+
+As of July 2016, our focus is to improve layout and rendering. We have developed
+[grinder](https://github.com/UprootLabs/grinder) to automate layout and rendering tests. Here's a chart showing our progress *(click for more details)*:
+
+<a target="_blank" href="https://gngr.info/awty/"><img width="800" src="https://gngr.info/awty/ChartCSS21.PNG"></img></a>
 
 We are also using [web-platform-tests](https://github.com/w3c/web-platform-tests/) for
 stabilising the DOM support.
-
-[![Build Status](https://travis-ci.org/UprootLabs/gngr.svg?branch=master)](https://travis-ci.org/UprootLabs/gngr)
 
 ### Building
 
