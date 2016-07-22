@@ -97,4 +97,5 @@ public interface RenderableContainer {
 
   public Point getOriginRelativeTo(RCollection bodyLayout);
 
+  public Point getOriginRelativeToAbs(RCollection bodyLayout);
 }

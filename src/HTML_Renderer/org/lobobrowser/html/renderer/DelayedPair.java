@@ -119,7 +119,7 @@ public class DelayedPair {
 
     // final java.awt.Point tp = parent.translateDescendentPoint((BoundableRenderable)(immediateContainingBlock), initX, initY);
     // final java.awt.Point tp = immediateContainingBlock.getOriginRelativeTo(((RBlock)parent).bodyLayout);
-    final java.awt.Point tp = immediateContainingBlock.getOriginRelativeTo((RCollection) parent);
+    final java.awt.Point tp = immediateContainingBlock.getOriginRelativeToAbs((RCollection) parent);
     tp.translate(initX, initY);
 
     if (this.immediateContainingBlock != parent) {

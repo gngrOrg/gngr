@@ -1077,6 +1077,12 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
     return null;
   }
 
+  @Override
+  public Point getOriginRelativeToAbs(RCollection bodyLayout) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
   @SuppressWarnings("unused")
   private static void dumpRndTree(final Renderable root) {
     System.out.println("------------------------------");

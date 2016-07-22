@@ -46,6 +46,7 @@ public interface BoundableRenderable extends Renderable {
   public Point getOrigin();
 
   public Point getOriginRelativeTo(RCollection ancestor);
+  public Point getOriginRelativeToAbs(RCollection ancestor);
   public Point getOriginRelativeToNoScroll(RCollection ancestor);
 
   /**

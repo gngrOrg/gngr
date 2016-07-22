@@ -374,6 +374,39 @@ abstract class BaseBoundableRenderable extends BaseRenderable implements Boundab
     }
   }
 
+
+  public Point getOriginRelativeToAbs(final RCollection ancestor) {
+    if (ancestor == this) {
+      return new Point(0, 0);
+    }
+
+    int x = this.getVisualX();
+    int y = this.getVisualY();
+
+    int nextX = 0;
+    int nextY = 0;
+
+    RCollection parent = this.parent;
+    for (;;) {
+      if (parent == null) {
+        // throw new java.lang.IllegalArgumentException("Not an ancestor: " + ancestor);
+        /* This condition can legitimately happen when mousing-out of an old
+         * renderable which is no longer part of the render hierarchy due to a
+         * layout change between the mouse-in and mouse-out events.
+         */
+        return new Point(x, y);
+      }
+      if (parent == ancestor) {
+        return new Point(x, y);
+      }
+      x += nextX;
+      y += nextY;
+      nextX = parent.getVisualX();
+      nextY = parent.getVisualY();
+      parent = parent.getParent();
+    }
+  }
+
   public Point getOriginRelativeToNoScroll(final RCollection ancestor) {
     if (ancestor == this) {
       return new Point(0, 0);

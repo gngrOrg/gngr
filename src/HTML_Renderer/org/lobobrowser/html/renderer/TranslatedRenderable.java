@@ -50,6 +50,10 @@ public class TranslatedRenderable extends BaseBoundableRenderable implements RCo
     return translatedChild.getOriginRelativeTo(ancestor);
   }
 
+  public Point getOriginRelativeToAbs(final RCollection ancestor) {
+    return translatedChild.getOriginRelativeToAbs(ancestor);
+  }
+
   public Point getOriginRelativeToNoScroll(final RCollection ancestor) {
     return translatedChild.getOriginRelativeToNoScroll(ancestor);
   }
