@@ -746,7 +746,7 @@ public class RBlock extends BaseElementRenderable {
       resultingHeight = Math.min(resultingHeight, declaredMaxHeight + paddingTotalHeight + insetsTotalHeight - scrollHeight);
     }
 
-    if (renderState.getPosition() == RenderState.POSITION_STATIC) {
+    if (renderState.getPosition() == RenderState.POSITION_STATIC || renderState.getPosition() == RenderState.POSITION_RELATIVE) {
       final Dimension changes = this.applyAutoStyles(availWidth - resultingWidth, availHeight - resultingHeight);
       if (changes != null) {
         resultingWidth += changes.width;
