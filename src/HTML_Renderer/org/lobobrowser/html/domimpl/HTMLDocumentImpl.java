@@ -115,8 +115,8 @@ import cz.vutbr.web.css.MediaSpec;
 import cz.vutbr.web.css.StyleSheet;
 import cz.vutbr.web.csskit.ElementMatcherSafeCS;
 import cz.vutbr.web.csskit.ElementMatcherSafeStd;
-import cz.vutbr.web.csskit.antlr.CSSParserFactory;
-import cz.vutbr.web.csskit.antlr.CSSParserFactory.SourceType;
+import cz.vutbr.web.csskit.antlr4.CSSParserFactory;
+import cz.vutbr.web.csskit.antlr4.CSSParserFactory.SourceType;
 import cz.vutbr.web.domassign.Analyzer.Holder;
 import cz.vutbr.web.domassign.AnalyzerUtil;
 
