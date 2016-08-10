@@ -61,7 +61,7 @@ public class RBlock extends BaseElementRenderable {
 
   protected final FrameContext frameContext;
   protected final int listNesting;
-  protected final HtmlRendererContext rendererContext;
+  // protected final HtmlRendererContext rendererContext;
   protected final @NonNull RBlockViewport bodyLayout;
 
   // Used for relative positioning
@@ -92,7 +92,7 @@ public class RBlock extends BaseElementRenderable {
     super(parentContainer, modelNode, pcontext);
     this.listNesting = listNesting;
     this.frameContext = frameContext;
-    this.rendererContext = rcontext;
+    // this.rendererContext = rcontext;
     final RBlockViewport bl = new RBlockViewport(modelNode, this, this.getViewportListNesting(listNesting), pcontext, rcontext,
         frameContext,
         this);

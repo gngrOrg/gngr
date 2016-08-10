@@ -433,7 +433,10 @@ public class LocalSecurityPolicy extends Policy {
         // This is to allow libraries to be loaded by JDK classes. Required for SSL libraries for example.
         permissions.add(new FilePermission(JAVA_HOME + recursiveSuffix, "read,execute"));
 
-        permissions.add(new RuntimePermission("loadLibrary.sunec"));
+        // JDK classes are allowed to load libraries. For example,
+        // cryptography libraries and
+        // accessibility library on MS Windows
+        permissions.add(new RuntimePermission("loadLibrary.*"));
 
         permissions.add(new RuntimePermission("accessClassInPackage.*"));
         permissions.add(new SecurityPermission("putProviderProperty.*"));
