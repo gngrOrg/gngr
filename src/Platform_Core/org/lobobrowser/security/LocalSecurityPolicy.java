@@ -437,6 +437,16 @@ public class LocalSecurityPolicy extends Policy {
         // cryptography libraries and
         // accessibility library on MS Windows
         permissions.add(new RuntimePermission("loadLibrary.*"));
+        
+        //Test for use with Windows 10, after getting this error:
+        //Caused by: java.security.AccessControlException: access denied 
+        //("java.io.FilePermission" "C:\Program%20Files\Java\jre1.8.0_91\lib\ext\amd64\JavaAccessBridge-64.dll" "read")
+        /*
+         * This error was caused by the user account not having permissions to access files in that path
+         * on a Windows machine. There are no problems with the code, just restrictive permissions on 
+         * user accounts. The following line is no longer needed.
+         */
+        //permissions.add(new FilePermission(JAVA_HOME + "\\lib\\ext\\amd64\\JavaAccessBridge-64.dll", "read,execute"));
 
         permissions.add(new RuntimePermission("accessClassInPackage.*"));
         permissions.add(new SecurityPermission("putProviderProperty.*"));
