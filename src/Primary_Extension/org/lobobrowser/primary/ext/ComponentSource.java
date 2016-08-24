@@ -179,7 +179,10 @@ public class ComponentSource implements NavigatorWindowListener {
     openMenu.add(menuItem("New Window", 'N', KeyStroke.getKeyStroke(KeyEvent.VK_N, CMD_CTRL_KEY_MASK),
         this.actionPool.blankWindowAction));
     openMenu.add(menuItem("Cloned Window", 'C', this.actionPool.clonedWindowAction));
-    openMenu.add(menuItem("File...", 'F', KeyStroke.getKeyStroke(KeyEvent.VK_O, CMD_CTRL_KEY_MASK), this.actionPool.openFileAction));
+    final JMenuItem fileMenuItem = menuItem("File...", 'F', KeyStroke.getKeyStroke(KeyEvent.VK_O, CMD_CTRL_KEY_MASK), this.actionPool.openFileAction);
+    // TODO enable the menu item once access control UI is implemented
+    fileMenuItem.setEnabled(false);
+    openMenu.add(fileMenuItem);
 
     final JMenu menu = new JMenu("File");
     menu.setMnemonic('F');
