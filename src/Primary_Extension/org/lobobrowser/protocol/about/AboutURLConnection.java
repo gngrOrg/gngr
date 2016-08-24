@@ -191,7 +191,7 @@ public class AboutURLConnection extends URLConnection {
         "<h1>Welcome to gngr</h1>" +
         "<p>Version: " + relProps.getProperty(PlatformInit.RELEASE_VERSION_STRING) + "<br/>" +
         "Published on: " + relProps.getProperty(PlatformInit.RELEASE_VERSION_RELEASE_DATE) + "</p>" +
-        "<p><b>gngr</b> is a browser that cares deeply about privacy.</p>"
+        "<p><b><a href='https://gngr.info'>gngr</a></b> is a browser that cares deeply about privacy.</p>"
         +
         "<p>It is currently a proof-of-concept, and not very stable or secure.</p>"
         +
@@ -205,7 +205,6 @@ public class AboutURLConnection extends URLConnection {
           "<li style='margin:1em 0'>#gngr and #gngr-dev on Freenode IRC</li>" +
           "<li style='margin:1em 0'><a href='https://reddit.com/r/gngr'>/r/gngr</a> on Reddit</li>" +
           "<li style='margin:1em 0'><a href='https://twitter.com/gngrInfo'>@gngrInfo</a> on Twitter</li>" +
-          "<li style='margin:1em 0'>Project <a href='https://gngr.info'>Home</a></li>" +
         "</ul>" +
         "</div>"
         +
