@@ -547,13 +547,13 @@ public class RBlock extends BaseElementRenderable {
     int declaredHeight = dh == null ? -1 : dh.intValue();
 
     final Integer declaredMinWidth = getDeclaredMinWidth(renderState, tentativeAvailWidth);
-    if ((declaredMinWidth != null) && (dw != null)) {
-      declaredWidth = Math.max(declaredWidth, declaredMinWidth);
+    if ((declaredMinWidth != null) && declaredMinWidth > 0) {
+      declaredWidth = dw == null ? declaredMinWidth : Math.max(declaredWidth, declaredMinWidth);
     }
 
     final Integer declaredMinHeight = getDeclaredMinHeight(renderState, tentativeAvailHeight);
-    if ((declaredMinHeight != null) && (dh != null)) {
-      declaredHeight = Math.max(declaredHeight, declaredMinHeight);
+    if ((declaredMinHeight != null) && declaredMinHeight > 0) {
+      declaredHeight = dh == null ? declaredMinHeight : Math.max(declaredHeight, declaredMinHeight);
     }
 
 

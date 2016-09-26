@@ -161,13 +161,13 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
   }
 
   protected Integer getDeclaredHelper(final RenderState renderState, final int baseValue,
-      final Function<CSS2Properties, String> propertyGetter) {
+      final Function<CSS2Properties, String> propertyGetter, final boolean ignorePercentage) {
     final Object rootNode = this.modelNode;
     if (rootNode instanceof HTMLElementImpl) {
       final HTMLElementImpl element = (HTMLElementImpl) rootNode;
       final CSS2Properties props = element.getCurrentStyle();
       final String valueText = propertyGetter.apply(props);
-      if ((valueText == null) || "".equals(valueText) || "none".equals(valueText)) {
+      if ((valueText == null) || "".equals(valueText) || "none".equals(valueText) || (ignorePercentage && valueText.endsWith("%"))) {
         return null;
       }
       return new Integer(HtmlValues.getPixelSize(valueText, renderState, -1, baseValue));
@@ -176,20 +176,42 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
     }
   }
 
+  private boolean isParentHeightDeclared() {
+    final ModelNode parentNode = getModelNode().getParentModelNode();
+    if (parentNode instanceof HTMLElementImpl) {
+      final HTMLElementImpl element = (HTMLElementImpl) parentNode;
+      final CSS2Properties props = element.getCurrentStyle();
+      final String decHeight = props.getHeight();
+      return !(Strings.isBlank(decHeight) || "auto".equals(decHeight));
+    }
+    return false;
+  }
+
+  private boolean isParentWidthDeclared() {
+    final ModelNode parentNode = getModelNode().getParentModelNode();
+    if (parentNode instanceof HTMLElementImpl) {
+      final HTMLElementImpl element = (HTMLElementImpl) parentNode;
+      final CSS2Properties props = element.getCurrentStyle();
+      final String decWidth = props.getWidth();
+      return !(Strings.isBlank(decWidth) || "auto".equals(decWidth));
+    }
+    return false;
+  }
+
   protected Integer getDeclaredMaxWidth(final RenderState renderState, final int actualAvailWidth) {
-    return getDeclaredHelper(renderState, actualAvailWidth, props -> props.getMaxWidth());
+    return getDeclaredHelper(renderState, actualAvailWidth, props -> props.getMaxWidth(), !isParentWidthDeclared());
   }
 
   protected Integer getDeclaredMinWidth(final RenderState renderState, final int actualAvailWidth) {
-    return getDeclaredHelper(renderState, actualAvailWidth, props -> props.getMinWidth());
+    return getDeclaredHelper(renderState, actualAvailWidth, props -> props.getMinWidth(), !isParentWidthDeclared());
   }
 
   protected Integer getDeclaredMaxHeight(final RenderState renderState, final int actualAvailHeight) {
-    return getDeclaredHelper(renderState, actualAvailHeight, props -> props.getMaxHeight());
+    return getDeclaredHelper(renderState, actualAvailHeight, props -> props.getMaxHeight(), !isParentHeightDeclared());
   }
 
   protected Integer getDeclaredMinHeight(final RenderState renderState, final int actualAvailHeight) {
-    return getDeclaredHelper(renderState, actualAvailHeight, props -> props.getMinHeight());
+    return getDeclaredHelper(renderState, actualAvailHeight, props -> props.getMinHeight(), !isParentHeightDeclared());
   }
 
   public final boolean hasDeclaredWidth() {
