@@ -204,7 +204,7 @@ public class CollectionUtilities {
   }
 
   public static class FilterIterator<@NonNull T> implements Iterator<@NonNull T> {
-    private final Iterator<T> iterator;
+    private final Iterator<@NonNull T> iterator;
     private @Nullable T next;
     private final FilterFunction<T> filterFunction;
 
@@ -219,8 +219,9 @@ public class CollectionUtilities {
     }
 
     public T next() {
-      if (next != null) {
-        final T returnValue = next;
+      final @Nullable T lNext = this.next;
+      if (lNext != null) {
+        final @NonNull T returnValue = lNext;
         toNext();
         return returnValue;
       } else {
