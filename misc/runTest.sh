@@ -26,7 +26,7 @@ xvfb-run -s "-dpi 96 -screen 0 900x900x24+32" ant -f src/build.xml -Dgngr.grinde
 
 mkdir ~/grinder
 cd ~/grinder
-wget -O grinder.jar "https://github.com/UprootLabs/grinder/releases/download/v1.3.0/grinder-assembly-1.3.0.jar"
+wget -O grinder.jar "https://github.com/UprootLabs/grinder/releases/download/v1.3.1/grinder-assembly-1.3.1.jar"
 
 git clone --depth=1 https://github.com/UprootStaging/grinderBaselines.git ~/grinderBaselines
 
