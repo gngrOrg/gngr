@@ -394,24 +394,26 @@ final class TableMatrix {
       return getCSSInsets(getLeftMostCell().getActualCell().getRenderState()).left;
     }
 
-    void add(final VirtualCell cell) {
-      final RTableCell ac = cell.getActualCell();
-      final @NonNull RenderState rs = ac.getRenderState();
-      BorderInfo binfo = rs.getBorderInfo();
-      if (binfo != null) {
-        final HtmlInsets bi = binfo.insets;
-        if (bi != null) {
-          if (bi.top > maxCellBorderTop) {
-            maxCellBorderTop = bi.top;
-          }
-          if ((bi.top < minCellBorderTop) || (minCellBorderTop == -1)) {
-            minCellBorderTop = bi.top;
-          }
-          if (bi.bottom > maxCellBorderBottom) {
-            maxCellBorderBottom = bi.bottom;
-          }
-          if ((bi.bottom < minCellBorderBottom) || (minCellBorderBottom == -1)) {
-            minCellBorderBottom = bi.bottom;
+    void add(final @Nullable VirtualCell cell) {
+      if (cell != null) {
+        final RTableCell ac = cell.getActualCell();
+        final @NonNull RenderState rs = ac.getRenderState();
+        BorderInfo binfo = rs.getBorderInfo();
+        if (binfo != null) {
+          final HtmlInsets bi = binfo.insets;
+          if (bi != null) {
+            if (bi.top > maxCellBorderTop) {
+              maxCellBorderTop = bi.top;
+            }
+            if ((bi.top < minCellBorderTop) || (minCellBorderTop == -1)) {
+              minCellBorderTop = bi.top;
+            }
+            if (bi.bottom > maxCellBorderBottom) {
+              maxCellBorderBottom = bi.bottom;
+            }
+            if ((bi.bottom < minCellBorderBottom) || (minCellBorderBottom == -1)) {
+              minCellBorderBottom = bi.bottom;
+            }
           }
         }
       }
