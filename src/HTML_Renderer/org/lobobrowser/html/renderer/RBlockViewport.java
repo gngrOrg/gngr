@@ -2226,6 +2226,9 @@ public class RBlockViewport extends BaseRCollection {
           if ("none".equalsIgnoreCase(display)) {
             // For hidden iframes: GH-140
             // return;
+            if (!"iframe".equalsIgnoreCase(markupElement.getNodeName())) {
+              return;
+            }
           } else if ("block".equalsIgnoreCase(display)) {
             currMethod = ADD_AS_BLOCK;
           } else if ("inline".equalsIgnoreCase(display)) {
