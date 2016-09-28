@@ -34,7 +34,7 @@ public class RImgControl extends RUIControl {
   }
 
   // TODO: This is a hack. RUIControl excludes border insets from the UI control. Images need to exclude padding as well.
-  // Hence, we are returing getInsets() from getBorderInsets().
+  // Hence, we are returning getInsets() from getBorderInsets().
   // A better way would be to create two methods: one for excluded space and one for included space and implement as per convenience.
   // Yet another idea: check if RImgControl really needs to sub-class RUIControl or it can directly sub-class BaseElementRenderable.
   @Override
