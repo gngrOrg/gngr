@@ -92,7 +92,7 @@ class ImgControl extends BaseControl implements ImageListener {
   @Override
   public void reset(final int availWidth, final int availHeight) {
     // Expected in the GUI thread.
-    final HTMLElementImpl element = this.controlElement;
+    // final HTMLElementImpl element = this.controlElement;
 
     // TODO: Remove the parameters dw, dh, and members declaredWith, declaredHeight completely.
     //       They seem to be used only for old style syntax.

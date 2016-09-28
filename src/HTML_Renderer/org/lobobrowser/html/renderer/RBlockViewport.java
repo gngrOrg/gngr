@@ -2924,7 +2924,7 @@ public class RBlockViewport extends BaseRCollection {
         if (r instanceof RenderableContainer) {
           final RenderableContainer rc = (RenderableContainer) r;
           // double rcMaxY = rc.getVisualBounds().getMaxY();
-          final Insets rcInsets = rc.getInsetsMarginBorder(false, false);
+          // final Insets rcInsets = rc.getInsetsMarginBorder(false, false);
           // double rcMaxY = rc.getY() + rc.getVisualHeight() + rcInsets.top + rcInsets.bottom;
           // double rcMaxY = rc.getVisualBounds().getMaxY() + rcInsets.top + rcInsets.bottom;
           double rcMaxY = rc.getVisualBounds().getMaxY(); //  + rcInsets.bottom;

@@ -1289,7 +1289,7 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
       // Executor.executeFunction(this, onloadHandler, null);
     }
 
-    final Event loadEvent = new Event("load", getBody()); // TODO: What should be the target for this event?
+    // final Event loadEvent = new Event("load", getBody()); // TODO: What should be the target for this event?
     // dispatchEventToHandlers(loadEvent, onloadHandlers);
 
     final Event domContentLoadedEvent = new Event("DOMContentLoaded", getBody()); // TODO: What should be the target for this event?
