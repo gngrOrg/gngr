@@ -50,14 +50,12 @@ import org.lobobrowser.js.HideFromJS;
 import org.lobobrowser.util.Strings;
 import org.w3c.css.sac.InputSource;
 import org.w3c.dom.DOMException;
-import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.html.HTMLElement;
 import org.w3c.dom.html.HTMLFormElement;
 import org.xml.sax.SAXException;
 
-import cz.vutbr.web.css.CSSFactory;
 import cz.vutbr.web.css.CombinedSelector;
 import cz.vutbr.web.css.MatchCondition;
 import cz.vutbr.web.css.NodeData;
