@@ -2324,6 +2324,8 @@ public class RBlockViewport extends BaseRCollection {
         }
       }
       switch (display) {
+      case RenderState.DISPLAY_TABLE_COLUMN:
+      case RenderState.DISPLAY_TABLE_COLUMN_GROUP:
       case RenderState.DISPLAY_NONE:
         // skip it completely.
         final UINode node = markupElement.getUINode();
