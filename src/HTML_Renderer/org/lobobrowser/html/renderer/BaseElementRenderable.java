@@ -965,7 +965,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
    * Gets insets of content area. It includes margin, borders, padding and
    * scrollbars.
    */
-  public Insets getInsets(final boolean hscroll, final boolean vscroll) {
+  public @NonNull Insets getInsets(final boolean hscroll, final boolean vscroll) {
     return getInsets(hscroll, vscroll, true, true, true);
   }
 
@@ -986,7 +986,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
   }
 
   // TODO: This method could be inlined manually for performance
-  private Insets getInsets(final boolean hscroll, final boolean vscroll,
+  private @NonNull Insets getInsets(final boolean hscroll, final boolean vscroll,
       final boolean includeMI, final boolean includeBI, final boolean includePI) {
     final Insets mi = this.marginInsets;
     final Insets bi = this.borderInsets;
