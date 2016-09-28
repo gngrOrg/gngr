@@ -565,7 +565,7 @@ public class RBlockViewport extends BaseRCollection {
     firstElementProcessed = false;
     lastElementBeingProcessed = false;
 
-    final NodeImpl[] childrenArray = node.getChildrenArray();
+    final NodeImpl[] childrenArray = getAllNodeChildren(node);
     if (childrenArray != null) {
       final int length = childrenArray.length;
       for (int i = 0; i < length; i++) {
@@ -604,6 +604,41 @@ public class RBlockViewport extends BaseRCollection {
           System.err.println("Unknown node: " + child);
 
         }
+      }
+    }
+  }
+
+  private NodeImpl[] getAllNodeChildren(final NodeImpl node) {
+    final NodeImpl[] childrenArray = node.getChildrenArray();
+    NodeImpl beforeNode = null;
+    NodeImpl afterNode = null;
+    if (node instanceof HTMLElementImpl) {
+      HTMLElementImpl htmlElementImpl = (HTMLElementImpl) node;
+      beforeNode = htmlElementImpl.getBeforeNode();
+      afterNode = htmlElementImpl.getAfterNode();
+    }
+    if (beforeNode == null && afterNode == null) {
+      return childrenArray;
+    } else {
+      final int totalNodes = (childrenArray == null ? 0 : childrenArray.length) +
+          (beforeNode == null ? 0 : 1) +
+          (afterNode == null ? 0 : 1);
+      if (totalNodes == 0) {
+        return null;
+      } else {
+        NodeImpl[] result = new NodeImpl[totalNodes];
+        int count = 0;
+        if (beforeNode != null) {
+          result[count++] = beforeNode;
+        }
+        if (childrenArray != null) {
+          System.arraycopy(childrenArray, 0, result, count, childrenArray.length);
+          count += childrenArray.length;
+        }
+        if (afterNode != null) {
+          result[count++] = afterNode;
+        }
+        return result;
       }
     }
   }

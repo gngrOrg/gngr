@@ -149,6 +149,8 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
    *  This is a very crude measure, but highly effective with most web-sites.
    */
   private boolean cachedHasHoverRule = false;
+  private GeneratedElement beforeNode;
+  private GeneratedElement afterNode;
 
   private NodeData getNodeData(final Selector.PseudoDeclaration psuedoElement) {
     // The analyzer needs the tree lock, when traversing the DOM.
@@ -175,6 +177,23 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
 
           cachedRules = AnalyzerUtil.getApplicableRules(this, doc.getClassifiedRules(), jSheets.size() > 0 ? jSheets.toArray(new RuleSet[jSheets.size()]) : null);
           cachedHasHoverRule = hasHoverRule(cachedRules);
+
+        }
+
+        final NodeData beforeNodeData = AnalyzerUtil.getElementStyle(this, Selector.PseudoDeclaration.BEFORE, doc.getMatcher(), elementMatchCondition, cachedRules);
+        final String beforeContentString = beforeNodeData.getAsString("content", true);
+        if (contentStringSupported(beforeContentString)) {
+          this.beforeNode = new GeneratedElement(this, beforeNodeData);
+        } else {
+          this.beforeNode = null;
+        }
+
+        final NodeData afterNodeData = AnalyzerUtil.getElementStyle(this, Selector.PseudoDeclaration.AFTER, doc.getMatcher(), elementMatchCondition, cachedRules);
+        final String afterContentString = afterNodeData.getAsString("content", true);
+        if (contentStringSupported(afterContentString)) {
+          this.afterNode = new GeneratedElement(this, afterNodeData);
+        } else {
+          this.afterNode = null;
         }
 
         final NodeData nodeData = AnalyzerUtil.getElementStyle(this, psuedoElement, doc.getMatcher(), elementMatchCondition, cachedRules);
@@ -190,6 +209,22 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
         return nodeData;
       }
     }
+  }
+
+  private boolean contentStringSupported(final String contentString) {
+    // Currently we only support quoted strings in "content" property
+    return contentString != null && (!"none".equals(contentString))
+        && (contentString.charAt(0) == '\'' && contentString.charAt(contentString.length() - 1) == '\'');
+  }
+
+  @HideFromJS
+  public NodeImpl getBeforeNode() {
+    return beforeNode;
+  }
+
+  @HideFromJS
+  public NodeImpl getAfterNode() {
+    return afterNode;
   }
 
   private static boolean hasHoverRule(OrderedRule[] rules) {
