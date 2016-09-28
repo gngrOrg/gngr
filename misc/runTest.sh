@@ -30,6 +30,7 @@ wget -O grinder.jar "https://github.com/UprootLabs/grinder/releases/download/v1.
 
 git clone --depth=1 https://github.com/UprootStaging/grinderBaselines.git ~/grinderBaselines
 
+# TODO: Use soft link instead of copying?
 cp -r ~/grinderBaselines/nightly-unstable ~/grinder
 
 cd ~/grinder
