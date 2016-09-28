@@ -2268,15 +2268,6 @@ public class RBlockViewport extends BaseRCollection {
   }
 
   private static final class CommonLayout implements MarkupLayout {
-    protected static final int DISPLAY_NONE = 0;
-    protected static final int DISPLAY_INLINE = 1;
-    protected static final int DISPLAY_BLOCK = 2;
-    protected static final int DISPLAY_LIST_ITEM = 3;
-    protected static final int DISPLAY_TABLE_ROW = 4;
-    protected static final int DISPLAY_TABLE_CELL = 5;
-    protected static final int DISPLAY_TABLE = 6;
-    protected static final int DISPLAY_INLINE_BLOCK = 7;
-
     public CommonLayout() {
     }
 
@@ -2297,7 +2288,7 @@ public class RBlockViewport extends BaseRCollection {
         }
       }
       switch (display) {
-      case DISPLAY_NONE:
+      case RenderState.DISPLAY_NONE:
         // skip it completely.
         final UINode node = markupElement.getUINode();
         if (node instanceof BaseBoundableRenderable) {
@@ -2306,7 +2297,7 @@ public class RBlockViewport extends BaseRCollection {
           ((BaseBoundableRenderable) node).markLayoutValid();
         }
         break;
-      case DISPLAY_BLOCK:
+      case RenderState.DISPLAY_BLOCK:
         //TODO refer issue #87
         final String tagName = markupElement.getTagName();
         if ("UL".equalsIgnoreCase(tagName) || "OL".equalsIgnoreCase(tagName)) {
@@ -2315,13 +2306,13 @@ public class RBlockViewport extends BaseRCollection {
           bodyLayout.layoutRBlock(markupElement);
         }
         break;
-      case DISPLAY_LIST_ITEM:
+      case RenderState.DISPLAY_LIST_ITEM:
         bodyLayout.layoutListItem(markupElement);
         break;
-      case DISPLAY_TABLE:
+      case RenderState.DISPLAY_TABLE:
         bodyLayout.layoutRTable(markupElement);
         break;
-      case DISPLAY_INLINE_BLOCK:
+      case RenderState.DISPLAY_INLINE_BLOCK:
         bodyLayout.layoutRInlineBlock(markupElement);
         break;
       default:
