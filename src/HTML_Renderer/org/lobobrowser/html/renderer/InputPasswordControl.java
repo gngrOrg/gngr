@@ -29,6 +29,8 @@ import javax.swing.text.JTextComponent;
 import org.lobobrowser.html.domimpl.HTMLBaseInputElement;
 
 class InputPasswordControl extends InputTextControl {
+  private static final long serialVersionUID = -5595867004382157867L;
+
   public InputPasswordControl(final HTMLBaseInputElement modelNode) {
     super(modelNode);
   }

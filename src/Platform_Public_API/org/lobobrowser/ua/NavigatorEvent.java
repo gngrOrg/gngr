@@ -26,6 +26,7 @@ package org.lobobrowser.ua;
  * A navigator event object.
  */
 public class NavigatorEvent extends java.util.EventObject {
+  private static final long serialVersionUID = -2146283038994914735L;
   private final NavigatorFrame clientletFrame;
   private final NavigatorEventType eventType;
 

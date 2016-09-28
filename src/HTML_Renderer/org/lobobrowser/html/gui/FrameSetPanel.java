@@ -52,6 +52,7 @@ import org.lobobrowser.util.gui.WrapperLayout;
  * @see HtmlBlockPanel
  */
 public class FrameSetPanel extends JComponent implements NodeRenderer {
+  private static final long serialVersionUID = 5048031593959987324L;
   private static final Logger logger = Logger.getLogger(FrameSetPanel.class.getName());
 
   public FrameSetPanel() {

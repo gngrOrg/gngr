@@ -38,6 +38,7 @@ import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 
 public class SimpleTextEditDialog extends JDialog {
+  private static final long serialVersionUID = -5913284205529798401L;
   private final JLabel captionLabel = new JLabel();
   private final JTextArea textArea = new JTextArea();
   private final JButton okButton = new JButton();
@@ -101,6 +102,8 @@ public class SimpleTextEditDialog extends JDialog {
   }
 
   private class OkAction extends AbstractAction {
+    private static final long serialVersionUID = -2233622154576810769L;
+
     public void actionPerformed(final ActionEvent e) {
       resultingText = textArea.getText();
       SimpleTextEditDialog.this.dispose();
@@ -108,6 +111,8 @@ public class SimpleTextEditDialog extends JDialog {
   }
 
   private class CancelAction extends AbstractAction {
+    private static final long serialVersionUID = 4935669525318703851L;
+
     public void actionPerformed(final ActionEvent e) {
       resultingText = null;
       SimpleTextEditDialog.this.dispose();

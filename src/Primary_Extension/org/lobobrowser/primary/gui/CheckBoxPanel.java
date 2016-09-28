@@ -29,6 +29,7 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 public class CheckBoxPanel extends JPanel {
+  private static final long serialVersionUID = 2782477589532507458L;
   private final JCheckBox checkBox;
   private final JComponent subPanel;
 
@@ -65,6 +66,8 @@ public class CheckBoxPanel extends JPanel {
   }
 
   public class CheckBoxAction extends AbstractAction {
+    private static final long serialVersionUID = -6447709049915095942L;
+
     public void actionPerformed(final ActionEvent e) {
       SwingTasks.setNestedEnabled(subPanel, checkBox.isSelected());
     }

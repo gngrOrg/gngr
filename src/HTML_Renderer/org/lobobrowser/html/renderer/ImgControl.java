@@ -46,6 +46,7 @@ import org.lobobrowser.ua.ImageResponse;
 import cz.vutbr.web.css.CSSProperty.VerticalAlign;
 
 class ImgControl extends BaseControl implements ImageListener {
+  private static final long serialVersionUID = -1510794248068777990L;
   private volatile ImageResponse imageResponse = new ImageResponse();
   // private final UserAgentContext browserContext;
   private String lastSrc;

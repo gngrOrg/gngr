@@ -41,6 +41,7 @@ import org.lobobrowser.primary.gui.FormPanel;
 import org.lobobrowser.util.Strings;
 
 public class AddBookmarkDialog extends JDialog {
+  private static final long serialVersionUID = -110718959863932643L;
   private final FormField urlField = new FormField(FieldType.TEXT, "URL:");
   private final FormField titleField = new FormField(FieldType.TEXT, "Title:");
   private final FormField descriptionField = new FormField(FieldType.TEXT, "Description:");
@@ -94,6 +95,8 @@ public class AddBookmarkDialog extends JDialog {
   }
 
   private class OkAction extends AbstractAction {
+    private static final long serialVersionUID = -4230406602714956750L;
+
     public void actionPerformed(final ActionEvent e) {
       final BookmarkInfo binfo = new BookmarkInfo();
       binfo.setUrl(url);
@@ -106,6 +109,8 @@ public class AddBookmarkDialog extends JDialog {
   }
 
   private class CancelAction extends AbstractAction {
+    private static final long serialVersionUID = 930999793828359009L;
+
     public void actionPerformed(final ActionEvent e) {
       bookmarkInfo = null;
       AddBookmarkDialog.this.dispose();

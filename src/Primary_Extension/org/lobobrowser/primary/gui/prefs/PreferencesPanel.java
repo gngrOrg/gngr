@@ -29,6 +29,7 @@ import org.lobobrowser.primary.gui.ValidationException;
 import org.lobobrowser.util.gui.WrapperLayout;
 
 public class PreferencesPanel extends JPanel {
+  private static final long serialVersionUID = 5040503015615478080L;
   private AbstractSettingsUI settingsUI;
 
   public PreferencesPanel() {

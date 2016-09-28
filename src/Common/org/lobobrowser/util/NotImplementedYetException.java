@@ -5,6 +5,8 @@ package org.lobobrowser.util;
  *  */
 public class NotImplementedYetException extends RuntimeException {
 
+  private static final long serialVersionUID = -1809608435437763522L;
+
   public NotImplementedYetException() {
     super("Not Implemented Yet");
   }

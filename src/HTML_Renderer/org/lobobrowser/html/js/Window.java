@@ -805,6 +805,7 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
   }
 
   static final class WindowClosingError extends Error {
+    private static final long serialVersionUID = 5375592396498284425L;
   }
 
   private final MyContextFactory windowContextFactory = new MyContextFactory();

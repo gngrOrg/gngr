@@ -67,6 +67,8 @@ import org.lobobrowser.util.OS;
 import org.lobobrowser.util.Timing;
 
 public class DownloadDialog extends JFrame {
+  private static final long serialVersionUID = -733135175100739218L;
+
   private static final Logger logger = Logger.getLogger(DownloadDialog.class.getName());
 
   private final JProgressBar progressBar = new JProgressBar();
@@ -379,6 +381,8 @@ public class DownloadDialog extends JFrame {
   }
 
   private class SaveAction extends AbstractAction {
+    private static final long serialVersionUID = -4635141657953704709L;
+
     public void actionPerformed(final ActionEvent e) {
       final String msg = "Downloads are disabled for security reasons.\nWe are working on a novel way to sandbox the browser and will enable downloads after the design is completed.";
       JOptionPane.showMessageDialog(DownloadDialog.this, msg);
@@ -389,6 +393,8 @@ public class DownloadDialog extends JFrame {
   }
 
   private class OpenFolderAction extends AbstractAction {
+    private static final long serialVersionUID = -6860795246298542670L;
+
     public void actionPerformed(final ActionEvent e) {
       final File file = destinationFile;
       if (file != null) {
@@ -403,6 +409,8 @@ public class DownloadDialog extends JFrame {
   }
 
   private class OpenAction extends AbstractAction {
+    private static final long serialVersionUID = 8435296814556900437L;
+
     public void actionPerformed(final ActionEvent e) {
       final File file = destinationFile;
       if (file != null) {
@@ -418,6 +426,8 @@ public class DownloadDialog extends JFrame {
   }
 
   private class CloseAction extends AbstractAction {
+    private static final long serialVersionUID = 5036020829977878826L;
+
     public void actionPerformed(final ActionEvent e) {
       // windowClosedEvent takes care of cancelling download.
       DownloadDialog.this.dispose();

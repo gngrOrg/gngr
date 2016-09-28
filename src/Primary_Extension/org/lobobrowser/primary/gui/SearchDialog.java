@@ -36,6 +36,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 public class SearchDialog extends JDialog {
+  private static final long serialVersionUID = -781810905634470419L;
   private final FormField tagsField = new FormField(FieldType.TEXT, "Keywords:");
 
   public SearchDialog(final Frame owner, final boolean modal, final String keywordsTooltip) throws HeadlessException {
@@ -72,6 +73,8 @@ public class SearchDialog extends JDialog {
   }
 
   private class OkAction extends AbstractAction {
+    private static final long serialVersionUID = 8109665074729144586L;
+
     public void actionPerformed(final ActionEvent e) {
       searchKeywords = tagsField.getValue();
       SearchDialog.this.dispose();
@@ -79,6 +82,8 @@ public class SearchDialog extends JDialog {
   }
 
   private class CancelAction extends AbstractAction {
+    private static final long serialVersionUID = 4533295115864604199L;
+
     public void actionPerformed(final ActionEvent e) {
       searchKeywords = null;
       SearchDialog.this.dispose();

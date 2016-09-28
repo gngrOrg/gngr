@@ -42,6 +42,7 @@ import org.lobobrowser.ua.NavigatorFrame;
  * @see WindowFactory
  */
 public class DefaultBrowserWindow extends AbstractBrowserWindow {
+  private static final long serialVersionUID = -2359502974718245509L;
   private final FramePanel framePanel;
   private final NavigatorWindowImpl windowContext;
 

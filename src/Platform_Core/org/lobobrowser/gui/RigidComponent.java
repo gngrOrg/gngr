@@ -29,6 +29,8 @@ import javax.swing.Box.Filler;
  * A component used in conjunction with <code>BoxLayout</code>
  */
 public class RigidComponent extends Filler {
+  private static final long serialVersionUID = -255841985460325508L;
+
   public RigidComponent(final Component wrappedComponent, final Dimension d) {
     super(d, d, d);
     this.setLayout(org.lobobrowser.util.gui.WrapperLayout.getInstance());

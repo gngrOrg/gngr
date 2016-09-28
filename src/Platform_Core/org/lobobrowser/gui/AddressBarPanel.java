@@ -29,6 +29,8 @@ import javax.swing.JPanel;
  * The address bar panel of a browser window.
  */
 public class AddressBarPanel extends JPanel {
+  private static final long serialVersionUID = 7431964124359865455L;
+
   public AddressBarPanel() {
     this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
   }

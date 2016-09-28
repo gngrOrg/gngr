@@ -26,6 +26,8 @@ import javax.swing.JFrame;
  * Browser windows should extend this class.
  */
 public abstract class AbstractBrowserWindow extends JFrame implements BrowserWindow {
+  private static final long serialVersionUID = 3803551200903041444L;
+
   /**
    * Gets the root {@link FramePanel} of the window.
    */

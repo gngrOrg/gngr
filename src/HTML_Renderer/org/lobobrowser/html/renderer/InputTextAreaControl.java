@@ -36,6 +36,7 @@ import org.lobobrowser.html.domimpl.HTMLBaseInputElement;
 import org.lobobrowser.util.gui.WrapperLayout;
 
 class InputTextAreaControl extends BaseInputControl {
+  private static final long serialVersionUID = -3789900200642578384L;
   private final JTextComponent widget;
 
   public InputTextAreaControl(final HTMLBaseInputElement modelNode) {

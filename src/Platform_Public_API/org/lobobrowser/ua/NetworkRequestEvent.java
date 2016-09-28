@@ -25,6 +25,7 @@ package org.lobobrowser.ua;
 import java.util.EventObject;
 
 public class NetworkRequestEvent extends EventObject {
+  private static final long serialVersionUID = -412274798030623834L;
   private final int newState;
 
   public NetworkRequestEvent(final Object source, final int newState) {

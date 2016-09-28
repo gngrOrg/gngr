@@ -30,6 +30,8 @@ import java.io.IOException;
  * managed file.
  */
 public class QuotaExceededException extends IOException {
+  private static final long serialVersionUID = -5762824325913845278L;
+
   public QuotaExceededException() {
     super();
   }

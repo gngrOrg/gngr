@@ -33,6 +33,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
 public class FormPanel extends JComponent {
+  private static final long serialVersionUID = 6987655087065214688L;
   private final Collection<FormField> fields = new ArrayList<>();
   private boolean fieldsInvalid = false;
 

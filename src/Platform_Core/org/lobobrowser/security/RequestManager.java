@@ -180,6 +180,7 @@ public final class RequestManager {
   }
 
   public final class ManageDialog extends JDialog implements ActionListener {
+    private static final long serialVersionUID = -2284357432219717106L;
     private final JComponent initiator;
 
     public ManageDialog(final JFrame parent, final String title, final JComponent initiator) {

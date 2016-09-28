@@ -27,6 +27,7 @@ package org.lobobrowser.clientlet;
  * running.
  */
 public class NavigatorVersionException extends ClientletException {
+  private static final long serialVersionUID = 155948070269263523L;
   private final String expectingVersion;
 
   public NavigatorVersionException(final String message, final String expectingVersion) {

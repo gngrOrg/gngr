@@ -23,6 +23,8 @@ package org.lobobrowser.primary.gui;
 import javax.swing.JComponent;
 
 public abstract class AbstractItemEditor<T> extends JComponent {
+  private static final long serialVersionUID = 8568024677021154557L;
+
   public abstract void setItem(T item);
 
   public abstract T getItem();

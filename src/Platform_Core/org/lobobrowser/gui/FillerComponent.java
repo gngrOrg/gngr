@@ -30,6 +30,8 @@ import javax.swing.Box.Filler;
  *
  */
 public class FillerComponent extends Filler {
+  private static final long serialVersionUID = -6482494343603168295L;
+
   public FillerComponent(final Component wrappedComponent, final boolean forMax) {
     super(new Dimension(0, 0), forMax ? new Dimension(0, 0) : new Dimension(Short.MAX_VALUE, Short.MAX_VALUE), new Dimension(
         Short.MAX_VALUE, Short.MAX_VALUE));

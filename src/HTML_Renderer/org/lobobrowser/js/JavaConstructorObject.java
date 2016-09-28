@@ -29,6 +29,7 @@ import org.mozilla.javascript.WrappedException;
 import org.w3c.dom.DOMException;
 
 public class JavaConstructorObject extends ScriptableObject implements Function {
+  private static final long serialVersionUID = 5536902327235533789L;
   private final JavaClassWrapper classWrapper;
   private final JavaInstantiator instantiator;
   private final String name;

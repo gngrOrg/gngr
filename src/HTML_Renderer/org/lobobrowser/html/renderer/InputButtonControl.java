@@ -33,6 +33,7 @@ import org.lobobrowser.html.domimpl.HTMLInputElementImpl;
 import org.lobobrowser.util.gui.WrapperLayout;
 
 class InputButtonControl extends BaseInputControl {
+  private static final long serialVersionUID = -8399402892016789567L;
   private final JButton widget;
 
   public InputButtonControl(final HTMLBaseInputElement modelNode) {

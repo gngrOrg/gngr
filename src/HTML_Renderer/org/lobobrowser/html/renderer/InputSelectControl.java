@@ -21,6 +21,7 @@ import org.w3c.dom.html.HTMLCollection;
 import org.w3c.dom.html.HTMLOptionElement;
 
 class InputSelectControl extends BaseInputControl {
+  private static final long serialVersionUID = 286101283473109265L;
   private final JComboBox<OptionItem> comboBox;
   private final JList<OptionItem> list;
   private final DefaultListModel<OptionItem> listModel;

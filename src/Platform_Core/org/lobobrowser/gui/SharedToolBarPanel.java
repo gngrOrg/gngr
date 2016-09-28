@@ -29,6 +29,8 @@ import javax.swing.JPanel;
  * The shared toolbar component.
  */
 public class SharedToolBarPanel extends JPanel {
+  private static final long serialVersionUID = 1003794828868016488L;
+
   public SharedToolBarPanel() {
     this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
   }

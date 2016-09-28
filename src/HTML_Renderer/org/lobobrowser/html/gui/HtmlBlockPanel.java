@@ -99,6 +99,7 @@ import org.w3c.dom.Node;
  * @author J. H. S.
  */
 public class HtmlBlockPanel extends JComponent implements NodeRenderer, RenderableContainer, ClipboardOwner {
+  private static final long serialVersionUID = 7851587340938903001L;
   private static final Logger logger = Logger.getLogger(HtmlBlockPanel.class.getName());
   private static final boolean loggableInfo = logger.isLoggable(Level.INFO);
   protected final FrameContext frameContext;

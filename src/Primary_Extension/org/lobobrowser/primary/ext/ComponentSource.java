@@ -738,6 +738,8 @@ public class ComponentSource implements NavigatorWindowListener {
         final SearchEngine finalSe = se;
         final JRadioButtonMenuItem item = new JRadioButtonMenuItem();
         item.setAction(new AbstractAction() {
+          private static final long serialVersionUID = -3263394523150719487L;
+
           public void actionPerformed(final ActionEvent e) {
             settings.setSelectedSearchEngine(finalSe);
             settings.save();

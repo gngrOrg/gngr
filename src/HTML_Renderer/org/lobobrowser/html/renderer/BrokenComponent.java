@@ -6,6 +6,8 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 
 class BrokenComponent extends Component {
+  private static final long serialVersionUID = -6506487314783190388L;
+
   @Override
   public Dimension getPreferredSize() {
     return new Dimension(10, 10);

@@ -32,6 +32,8 @@ import javax.swing.text.JTextComponent;
 import org.lobobrowser.html.domimpl.HTMLBaseInputElement;
 
 class InputTextControl extends BaseInputTextControl {
+  private static final long serialVersionUID = 5851737733843879185L;
+
   public InputTextControl(final HTMLBaseInputElement modelNode) {
     super(modelNode);
     final JTextField w = (JTextField) this.widget;

@@ -27,6 +27,7 @@ import java.util.EventObject;
  * Event associated with {@link SelectionChangeListener}.
  */
 public class SelectionChangeEvent extends EventObject {
+  private static final long serialVersionUID = -8905790265416738277L;
   private final boolean hasSelection;
 
   public SelectionChangeEvent(final Object source, final boolean hasSelection) {

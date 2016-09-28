@@ -23,6 +23,7 @@ package org.lobobrowser.security;
 import java.security.BasicPermission;
 
 public class GenericLocalPermission extends BasicPermission {
+  private static final long serialVersionUID = -5208120759119103189L;
   // public static final java.security.Permission FRAME_PARENT = new
   // GenericLocalPermission("frame-parent");
   public static final java.security.Permission EXT_GENERIC = new GenericLocalPermission("extension");

@@ -23,6 +23,7 @@ import org.w3c.dom.html.HTMLDocument;
 
 public class DomViewerWindow extends JFrame implements TreeSelectionListener {
 
+  private static final long serialVersionUID = 5152758358370104207L;
   private final JTree domTree;
   private final JTextArea textArea;
 
@@ -53,6 +54,8 @@ public class DomViewerWindow extends JFrame implements TreeSelectionListener {
   }
 
   private class DomTreeNode extends DefaultMutableTreeNode {
+    private static final long serialVersionUID = -6118030836309592257L;
+
     public DomTreeNode(final Node node) {
       super(node);
       final NodeList childNodes = node.getChildNodes();

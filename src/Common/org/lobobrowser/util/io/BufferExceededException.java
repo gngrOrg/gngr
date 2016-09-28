@@ -21,6 +21,8 @@
 package org.lobobrowser.util.io;
 
 public class BufferExceededException extends Exception {
+  private static final long serialVersionUID = -3105309904365634760L;
+
   public BufferExceededException() {
     super();
   }

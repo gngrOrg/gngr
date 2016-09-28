@@ -35,6 +35,7 @@ import org.lobobrowser.html.domimpl.HTMLElementImpl;
 import cz.vutbr.web.css.CSSProperty.VerticalAlign;
 
 abstract class BaseControl extends JComponent implements UIControl {
+  private static final long serialVersionUID = 7061225345785659580L;
   private static final Logger logger = Logger.getLogger(BaseControl.class.getName());
   protected static final Dimension ZERO_DIMENSION = new Dimension(0, 0);
   protected final HTMLElementImpl controlElement;

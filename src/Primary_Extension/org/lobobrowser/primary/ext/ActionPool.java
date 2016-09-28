@@ -50,6 +50,8 @@ public class ActionPool {
   private final Collection<EnableableAction> enableableActions;
 
   public final Action requestManagerAction = new AbstractAction("Req Mgr") {
+    private static final long serialVersionUID = -5964377537581420944L;
+
     {
       putValue(MNEMONIC_KEY, KeyEvent.VK_R);
     }
@@ -197,10 +199,13 @@ public class ActionPool {
   }
 
   abstract class EnableableAction extends AbstractAction {
+    private static final long serialVersionUID = -8020235092808317096L;
+
     public abstract void updateEnabling();
   }
 
   class UrlPrefixNavigateAction extends EnableableAction {
+    private static final long serialVersionUID = 1891756423914184152L;
     private final String urlPrefix;
     private final boolean urlEncode;
 
@@ -232,24 +237,32 @@ public class ActionPool {
   }
 
   class GoAction extends AbstractAction {
+    private static final long serialVersionUID = -1290364681806794717L;
+
     public void actionPerformed(final ActionEvent e) {
       componentSource.go();
     }
   }
 
   class SearchAction extends AbstractAction {
+    private static final long serialVersionUID = -736644335817165661L;
+
     public void actionPerformed(final ActionEvent e) {
       componentSource.search();
     }
   }
 
   class ExitAction extends AbstractAction {
+    private static final long serialVersionUID = -8690289288514639028L;
+
     public void actionPerformed(final ActionEvent e) {
       window.dispose();
     }
   }
 
   class BlankWindowAction extends AbstractAction {
+    private static final long serialVersionUID = -2907691954325659197L;
+
     public void actionPerformed(final ActionEvent e) {
       try {
         window.getTopFrame().open("about:blank");
@@ -260,6 +273,8 @@ public class ActionPool {
   }
 
   class ClonedWindowAction extends EnableableAction {
+    private static final long serialVersionUID = 7849950571587529087L;
+
     @Override
     public void updateEnabling() {
       final NavigationEntry entry = window.getCurrentNavigationEntry();
@@ -275,6 +290,8 @@ public class ActionPool {
   }
 
   class OpenFileAction extends AbstractAction {
+    private static final long serialVersionUID = 2075598538762531969L;
+
     public void actionPerformed(final ActionEvent e) {
       final JFileChooser fileChooser = new JFileChooser();
       fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -294,6 +311,7 @@ public class ActionPool {
   }
 
   class AboutAction extends AbstractAction {
+    private static final long serialVersionUID = 2320751811484772090L;
     final Properties relProps = PlatformInit.getInstance().relProps;
     public void actionPerformed(final ActionEvent e) {
       window.getTopFrame().alert(
@@ -308,6 +326,8 @@ public class ActionPool {
   }
 
   class BackAction extends EnableableAction {
+    private static final long serialVersionUID = 876416274529605321L;
+
     @Override
     public void updateEnabling() {
       this.setEnabled(window.canBack());
@@ -319,6 +339,8 @@ public class ActionPool {
   }
 
   class ForwardAction extends EnableableAction {
+    private static final long serialVersionUID = 1544065228410858406L;
+
     @Override
     public void updateEnabling() {
       this.setEnabled(window.canForward());
@@ -330,6 +352,8 @@ public class ActionPool {
   }
 
   class ReloadAction extends EnableableAction {
+    private static final long serialVersionUID = 6950917394367022620L;
+
     @Override
     public void updateEnabling() {
       this.setEnabled(window.canReload());
@@ -341,12 +365,16 @@ public class ActionPool {
   }
 
   class StopAction extends AbstractAction {
+    private static final long serialVersionUID = -4716824000957477580L;
+
     public void actionPerformed(final ActionEvent e) {
       window.stop();
     }
   }
 
   class CopyAction extends EnableableAction {
+    private static final long serialVersionUID = -821273079984979618L;
+
     @Override
     public void updateEnabling() {
       this.setEnabled(window.canCopy());
@@ -364,6 +392,8 @@ public class ActionPool {
   // }
 
   class BackMoreAction extends EnableableAction {
+    private static final long serialVersionUID = -6775521598700326951L;
+
     @Override
     public void updateEnabling() {
       this.setEnabled(window.canBack());
@@ -375,6 +405,8 @@ public class ActionPool {
   }
 
   class ForwardMoreAction extends EnableableAction {
+    private static final long serialVersionUID = -495987330645982580L;
+
     @Override
     public void updateEnabling() {
       this.setEnabled(window.canForward());
@@ -386,6 +418,8 @@ public class ActionPool {
   }
 
   class RecentHostsAction extends EnableableAction {
+    private static final long serialVersionUID = -8163457877234153277L;
+
     @Override
     public void updateEnabling() {
       this.setEnabled(ComponentSource.hasRecentEntries());
@@ -397,6 +431,8 @@ public class ActionPool {
   }
 
   class SourceAction extends EnableableAction {
+    private static final long serialVersionUID = -4337186074519005342L;
+
     @Override
     public void updateEnabling() {
       this.setEnabled(window.hasSource());
@@ -408,24 +444,32 @@ public class ActionPool {
   }
 
   class ConsoleAction extends AbstractAction {
+    private static final long serialVersionUID = -515678211458153749L;
+
     public void actionPerformed(final ActionEvent e) {
       ComponentSource.showConsole();
     }
   }
 
   class AddBookmarkAction extends AbstractAction {
+    private static final long serialVersionUID = 2056965796680821875L;
+
     public void actionPerformed(final ActionEvent e) {
       addBookmark();
     }
   }
 
   class SearchBookmarksAction extends AbstractAction {
+    private static final long serialVersionUID = 3227135764906945380L;
+
     public void actionPerformed(final ActionEvent e) {
       searchBookmarks();
     }
   }
 
   class ShowBookmarksAction extends AbstractAction {
+    private static final long serialVersionUID = -8180169982665670397L;
+
     public void actionPerformed(final ActionEvent e) {
       try {
         window.getTopFrame().navigate("about:bookmarks");
@@ -442,6 +486,7 @@ public class ActionPool {
   // }
 
   class NavigateAction extends AbstractAction {
+    private static final long serialVersionUID = 7673811833299305183L;
     private final @NonNull URL url;
 
     public NavigateAction(final @NonNull URL url) {
@@ -454,6 +499,7 @@ public class ActionPool {
   }
 
   class BookmarkNavigateAction extends AbstractAction {
+    private static final long serialVersionUID = -2300129158399659228L;
     private final @NonNull URL url;
 
     public BookmarkNavigateAction(final @NonNull URL url) {
@@ -467,6 +513,7 @@ public class ActionPool {
   }
 
   class GoToAction extends AbstractAction {
+    private static final long serialVersionUID = -2171834516485737367L;
     private final NavigationEntry entry;
 
     public GoToAction(final NavigationEntry entry) {
@@ -479,12 +526,16 @@ public class ActionPool {
   }
 
   class ListExtensionsAction extends AbstractAction {
+    private static final long serialVersionUID = 7111881447756445698L;
+
     public void actionPerformed(final ActionEvent e) {
       // TODO
     }
   }
 
   class PreferencesAction extends AbstractAction {
+    private static final long serialVersionUID = -628816577052900379L;
+
     public void actionPerformed(final ActionEvent e) {
       showPreferences();
     }

@@ -29,6 +29,7 @@ import java.util.Collection;
  * @author J. H. S.
  */
 class OverflowException extends Exception {
+  private static final long serialVersionUID = -5737714010798136643L;
   private final Collection<Renderable> renderables;
 
   /**

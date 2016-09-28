@@ -80,6 +80,8 @@ public class AddressField extends JComboBox<String> {
 
     getActionMap().put("edit URL", new AbstractAction() {
 
+      private static final long serialVersionUID = 891701932843814767L;
+
       public void actionPerformed(final ActionEvent e) {
         requestFocus();
         getEditor().selectAll();
@@ -90,6 +92,8 @@ public class AddressField extends JComboBox<String> {
         .put(KeyStroke.getKeyStroke(KeyEvent.VK_K, ComponentSource.CMD_CTRL_KEY_MASK), "search Keyword");
 
     getActionMap().put("search Keyword", new AbstractAction() {
+
+      private static final long serialVersionUID = -6652427897850176208L;
 
       public void actionPerformed(final ActionEvent e) {
         requestFocus();

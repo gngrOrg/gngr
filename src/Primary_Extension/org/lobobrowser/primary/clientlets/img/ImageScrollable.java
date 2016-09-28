@@ -33,6 +33,7 @@ import javax.swing.Scrollable;
 import javax.swing.SwingConstants;
 
 public class ImageScrollable extends JComponent implements Scrollable {
+  private static final long serialVersionUID = 5025159268512978417L;
   private final Image image;
   private int imageWidth = -1;
   private int imageHeight = -1;

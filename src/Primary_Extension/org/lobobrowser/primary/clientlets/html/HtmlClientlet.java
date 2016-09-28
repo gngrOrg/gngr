@@ -437,6 +437,7 @@ public final class HtmlClientlet implements Clientlet {
   }
 
   private static class HttpEquivRetryException extends RuntimeException {
+    private static final long serialVersionUID = 3943944816518046414L;
     private final Map<String, String> httpEquivData;
 
     public HttpEquivRetryException(final Map<String, String> httpEquiv) {

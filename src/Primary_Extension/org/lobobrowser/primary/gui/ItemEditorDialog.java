@@ -40,6 +40,7 @@ import javax.swing.border.EmptyBorder;
 import org.eclipse.jdt.annotation.Nullable;
 
 public class ItemEditorDialog<T> extends JDialog {
+  private static final long serialVersionUID = -5624516092024297352L;
   private final JLabel captionLabel = new JLabel();
   private final JButton okButton = new JButton();
   private final JButton cancelButton = new JButton();
@@ -106,6 +107,8 @@ public class ItemEditorDialog<T> extends JDialog {
   }
 
   private class OkAction extends AbstractAction {
+    private static final long serialVersionUID = -4808011697369530582L;
+
     public void actionPerformed(final ActionEvent e) {
       try {
         editor.validateItem();
@@ -119,6 +122,8 @@ public class ItemEditorDialog<T> extends JDialog {
   }
 
   private class CancelAction extends AbstractAction {
+    private static final long serialVersionUID = 3129498045750775250L;
+
     public void actionPerformed(final ActionEvent e) {
       resultingItem = null;
       ItemEditorDialog.this.dispose();

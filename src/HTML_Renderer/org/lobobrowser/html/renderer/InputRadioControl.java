@@ -31,6 +31,7 @@ import org.lobobrowser.html.domimpl.HTMLElementImpl;
 import org.lobobrowser.util.gui.WrapperLayout;
 
 class InputRadioControl extends BaseInputControl {
+  private static final long serialVersionUID = 8518656510826949865L;
   private final JRadioButton widget;
 
   public InputRadioControl(final HTMLBaseInputElement modelNode) {

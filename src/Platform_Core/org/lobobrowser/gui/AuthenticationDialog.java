@@ -44,6 +44,7 @@ import javax.swing.border.EmptyBorder;
  * Dialog used in HTTP and proxy authentication.
  */
 public class AuthenticationDialog extends JDialog {
+  private static final long serialVersionUID = 5601837809153264164L;
   private final JTextField userNameField = new JTextField();
   private final JPasswordField passwordField = new JPasswordField();
 
@@ -118,6 +119,8 @@ public class AuthenticationDialog extends JDialog {
   }
 
   private class OkAction extends AbstractAction {
+    private static final long serialVersionUID = 3308644732677944619L;
+
     public void actionPerformed(final ActionEvent e) {
       authentication = new PasswordAuthentication(userNameField.getText(), passwordField.getPassword());
       AuthenticationDialog.this.dispose();
@@ -125,6 +128,8 @@ public class AuthenticationDialog extends JDialog {
   }
 
   private class CancelAction extends AbstractAction {
+    private static final long serialVersionUID = 703637268854289240L;
+
     public void actionPerformed(final ActionEvent e) {
       authentication = null;
       AuthenticationDialog.this.dispose();

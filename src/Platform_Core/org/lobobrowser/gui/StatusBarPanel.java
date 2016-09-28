@@ -30,6 +30,8 @@ import javax.swing.border.BevelBorder;
  * The status bar component.
  */
 public class StatusBarPanel extends JPanel {
+  private static final long serialVersionUID = 1332713399200070195L;
+
   public StatusBarPanel() {
     this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
     this.setBorder(new BevelBorder(BevelBorder.LOWERED));

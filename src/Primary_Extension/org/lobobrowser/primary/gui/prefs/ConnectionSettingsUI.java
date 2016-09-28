@@ -42,6 +42,7 @@ import org.lobobrowser.primary.gui.ValidationException;
 import org.lobobrowser.settings.ConnectionSettings;
 
 public class ConnectionSettingsUI extends AbstractSettingsUI {
+  private static final long serialVersionUID = 4456678024374314397L;
   private final ConnectionSettings settings = ConnectionSettings.getInstance();
   private final JRadioButton noProxyRadioButton = new JRadioButton();
   private final JRadioButton httpProxyRadioButton = new JRadioButton();

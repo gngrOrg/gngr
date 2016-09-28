@@ -21,6 +21,8 @@
 package org.lobobrowser.primary.gui;
 
 public class ValidationException extends Exception {
+  private static final long serialVersionUID = -2982468047856404314L;
+
   public ValidationException() {
     super();
   }

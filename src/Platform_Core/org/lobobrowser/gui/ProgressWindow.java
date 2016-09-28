@@ -49,6 +49,7 @@ import org.lobobrowser.ua.UserAgentContext;
  * Progress window shown before a window is opened.
  */
 public class ProgressWindow extends JFrame {
+  private static final long serialVersionUID = 7625806507431580931L;
   private final OpenProgressBar statusProgressBar;
   private final JLabel statusLabel;
 

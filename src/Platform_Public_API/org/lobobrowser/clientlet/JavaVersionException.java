@@ -27,6 +27,7 @@ package org.lobobrowser.clientlet;
  * the clientlet engine.
  */
 public class JavaVersionException extends ClientletException {
+  private static final long serialVersionUID = -6317337395233908091L;
   private final String expectingVersion;
 
   /**

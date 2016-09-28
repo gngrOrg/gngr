@@ -37,6 +37,7 @@ import javax.swing.JOptionPane;
 import org.eclipse.jdt.annotation.Nullable;
 
 public class ItemListControl<T> extends JComponent {
+  private static final long serialVersionUID = 3251022502906426556L;
   private final JComboBox<T> comboBox;
   private final ItemEditorFactory<T> itemEditorFactory;
 
@@ -112,6 +113,8 @@ public class ItemListControl<T> extends JComponent {
   }
 
   private class RemoveAction extends AbstractAction {
+    private static final long serialVersionUID = -2348978279945841470L;
+
     public void actionPerformed(final ActionEvent e) {
       if (JOptionPane.showConfirmDialog(ItemListControl.this, "Are you sure you want to remove the selected item?", "Confirm",
           JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
@@ -121,6 +124,7 @@ public class ItemListControl<T> extends JComponent {
   }
 
   private class EditAction extends AbstractAction {
+    private static final long serialVersionUID = -4963725376330300896L;
     private final boolean add;
 
     public EditAction(final boolean add) {

@@ -33,6 +33,7 @@ import javax.swing.JTextField;
 import org.lobobrowser.html.domimpl.HTMLBaseInputElement;
 
 public class InputFileControl extends BaseInputControl {
+  private static final long serialVersionUID = 4255784506085448850L;
   private final JTextField textField = new JTextField();
   private final JButton browseButton = new JButton();
 
@@ -88,6 +89,8 @@ public class InputFileControl extends BaseInputControl {
   }
 
   private class BrowseAction extends AbstractAction {
+    private static final long serialVersionUID = -967133652737594806L;
+
     public void actionPerformed(final ActionEvent e) {
       final JFileChooser chooser = new JFileChooser();
       if (chooser.showOpenDialog(InputFileControl.this) == JFileChooser.APPROVE_OPTION) {

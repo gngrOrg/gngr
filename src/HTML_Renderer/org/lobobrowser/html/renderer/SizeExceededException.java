@@ -1,6 +1,8 @@
 package org.lobobrowser.html.renderer;
 
 class SizeExceededException extends RuntimeException {
+  private static final long serialVersionUID = 5789004695720876706L;
+
   public SizeExceededException() {
     super();
   }

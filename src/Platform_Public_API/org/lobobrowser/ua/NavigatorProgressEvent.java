@@ -32,6 +32,7 @@ import org.eclipse.jdt.annotation.NonNull;
  * @see NavigatorWindowListener#progressUpdated(NavigatorProgressEvent)
  */
 public class NavigatorProgressEvent extends NavigatorEvent {
+  private static final long serialVersionUID = 1808435207463060420L;
   private final ProgressType progressType;
   private final @NonNull URL url;
   private final String method;

@@ -26,6 +26,8 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 
 public class PreferencesTree extends JTree {
+  private static final long serialVersionUID = -6816581073312582184L;
+
   public PreferencesTree() {
     final TreeNode rootNode = createRootNode();
     this.setModel(new DefaultTreeModel(rootNode));

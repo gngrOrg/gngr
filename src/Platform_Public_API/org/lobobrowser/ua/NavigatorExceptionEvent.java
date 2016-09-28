@@ -30,6 +30,7 @@ import org.lobobrowser.clientlet.ClientletResponse;
  * @see NavigatorErrorListener#errorOcurred(NavigatorExceptionEvent)
  */
 public class NavigatorExceptionEvent extends NavigatorResponseEvent {
+  private static final long serialVersionUID = -8424617577849639539L;
   private final Throwable exception;
 
   public NavigatorExceptionEvent(final Object source, final NavigatorEventType eventType, final NavigatorFrame clientletFrame,

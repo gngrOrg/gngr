@@ -26,6 +26,7 @@ package org.lobobrowser.clientlet;
  * Exception thrown by clientlets.
  */
 public class ClientletException extends Exception {
+  private static final long serialVersionUID = -3172234813987721169L;
   private final String sourceCode;
 
   /**

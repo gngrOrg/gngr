@@ -35,6 +35,7 @@ import org.lobobrowser.primary.settings.SearchEngine;
 import org.lobobrowser.primary.settings.ToolsSettings;
 
 public class ToolsSettingsUI extends AbstractSettingsUI {
+  private static final long serialVersionUID = -5143806324711270675L;
   private final ToolsSettings settings = ToolsSettings.getInstance();
   private final ItemListControl<SearchEngine> searchEngineListControl;
 

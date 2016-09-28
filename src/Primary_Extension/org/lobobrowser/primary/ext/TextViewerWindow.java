@@ -42,6 +42,7 @@ import org.lobobrowser.ua.UserAgentContext;
 import org.lobobrowser.util.gui.WrapperLayout;
 
 public class TextViewerWindow extends JFrame {
+  private static final long serialVersionUID = -7762248535000880129L;
   private final JTextArea textArea;
   private boolean scrollsOnAppends;
 
@@ -129,18 +130,24 @@ public class TextViewerWindow extends JFrame {
   }
 
   private class CloseAction extends javax.swing.AbstractAction {
+    private static final long serialVersionUID = -6888783455425269396L;
+
     public void actionPerformed(final ActionEvent e) {
       TextViewerWindow.this.dispose();
     }
   }
 
   private class CopyAction extends javax.swing.AbstractAction {
+    private static final long serialVersionUID = -5105000513871920161L;
+
     public void actionPerformed(final ActionEvent e) {
       textArea.copy();
     }
   }
 
   private class SelectAllAction extends javax.swing.AbstractAction {
+    private static final long serialVersionUID = -18517295931751577L;
+
     public void actionPerformed(final ActionEvent e) {
       textArea.selectAll();
     }

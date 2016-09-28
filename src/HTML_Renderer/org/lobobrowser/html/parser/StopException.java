@@ -26,6 +26,7 @@ package org.lobobrowser.html.parser;
 import org.w3c.dom.Element;
 
 class StopException extends Exception {
+  private static final long serialVersionUID = 5937640406056298831L;
   private final Element element;
 
   /**

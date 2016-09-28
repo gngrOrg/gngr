@@ -30,6 +30,7 @@ import javax.swing.JProgressBar;
 import org.lobobrowser.ua.ProgressType;
 
 public class ProgressBar extends JProgressBar {
+  private static final long serialVersionUID = -6283186577566949668L;
   private static final Logger logger = Logger.getLogger(ProgressBar.class.getName());
 
   public ProgressBar() {

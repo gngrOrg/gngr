@@ -36,6 +36,7 @@ import org.lobobrowser.html.domimpl.HTMLBaseInputElement;
 import org.lobobrowser.util.gui.WrapperLayout;
 
 abstract class BaseInputTextControl extends BaseInputControl {
+  private static final long serialVersionUID = -4852316720577045230L;
   private static final float DEFAULT_FONT_SIZE = 14.0f;
   protected final JTextComponent widget;
 
@@ -181,6 +182,8 @@ abstract class BaseInputTextControl extends BaseInputControl {
    * Implements maxlength functionality.
    */
   private class LimitedDocument extends javax.swing.text.PlainDocument {
+    private static final long serialVersionUID = 5095817476961455383L;
+
     /*
      * (non-Javadoc)
      *

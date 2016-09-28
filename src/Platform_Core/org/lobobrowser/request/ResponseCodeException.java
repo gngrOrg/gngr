@@ -29,6 +29,8 @@ import java.io.IOException;
  * @author J. H. S.
  */
 public class ResponseCodeException extends IOException {
+  private static final long serialVersionUID = 6074419260110935027L;
+
   /**
    *
    */

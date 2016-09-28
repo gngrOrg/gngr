@@ -24,6 +24,7 @@
 package org.lobobrowser.html.domimpl;
 
 class StopVisitorException extends RuntimeException {
+  private static final long serialVersionUID = -2910258563737355879L;
   private final Object tag;
 
   public StopVisitorException() {

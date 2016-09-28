@@ -45,6 +45,7 @@ import org.lobobrowser.util.gui.WrapperLayout;
 import cz.vutbr.web.css.CSSProperty.VerticalAlign;
 
 class InputImageControl extends BaseInputControl implements ImageListener {
+  private static final long serialVersionUID = -2242175570423778798L;
   // private JButton button;
   private boolean mouseBeingPressed;
 

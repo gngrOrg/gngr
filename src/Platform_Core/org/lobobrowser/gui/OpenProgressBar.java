@@ -27,6 +27,7 @@ import java.util.logging.Logger;
 import javax.swing.JProgressBar;
 
 public class OpenProgressBar extends JProgressBar {
+  private static final long serialVersionUID = -4070820733226115064L;
   private static final Logger logger = Logger.getLogger(OpenProgressBar.class.getName());
 
   @Override

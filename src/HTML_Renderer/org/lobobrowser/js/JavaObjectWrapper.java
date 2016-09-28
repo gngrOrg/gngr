@@ -36,6 +36,7 @@ import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.WrappedException;
 
 public class JavaObjectWrapper extends ScriptableObject {
+  private static final long serialVersionUID = -2669458528000105312L;
   private static final Logger logger = Logger.getLogger(JavaObjectWrapper.class.getName());
   private static final boolean loggableInfo = logger.isLoggable(Level.INFO);
   private final Object delegate;

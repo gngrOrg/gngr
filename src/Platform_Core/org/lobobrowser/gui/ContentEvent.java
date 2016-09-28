@@ -26,6 +26,7 @@ import org.lobobrowser.clientlet.ClientletResponse;
 import org.lobobrowser.clientlet.ComponentContent;
 
 public class ContentEvent extends EventObject {
+  private static final long serialVersionUID = -4559311049724136049L;
   private final ComponentContent content;
   private final ClientletResponse response;
 

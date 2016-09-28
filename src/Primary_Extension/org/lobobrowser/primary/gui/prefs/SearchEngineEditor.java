@@ -30,6 +30,7 @@ import org.lobobrowser.util.Strings;
 import org.lobobrowser.util.gui.WrapperLayout;
 
 public class SearchEngineEditor extends AbstractItemEditor<SearchEngine> {
+  private static final long serialVersionUID = -954134608217263931L;
   private final FormPanel formPanel = new FormPanel();
   private final FormField nameField = new FormField(FieldType.TEXT);
   private final FormField descriptionField = new FormField(FieldType.TEXT);

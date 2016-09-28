@@ -42,6 +42,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
 public class PreferencesDialog extends JDialog {
+  private static final long serialVersionUID = -148597361750375739L;
   private final PreferencesPanel preferencesPanel;
   private final PreferencesTree preferencesTree;
 
@@ -109,6 +110,8 @@ public class PreferencesDialog extends JDialog {
   }
 
   private class OkAction extends AbstractAction {
+    private static final long serialVersionUID = 7832036190597301058L;
+
     public void actionPerformed(final ActionEvent e) {
       if (preferencesPanel.save()) {
         PreferencesDialog.this.dispose();
@@ -117,18 +120,24 @@ public class PreferencesDialog extends JDialog {
   }
 
   private class CancelAction extends AbstractAction {
+    private static final long serialVersionUID = -3998178114429802555L;
+
     public void actionPerformed(final ActionEvent e) {
       PreferencesDialog.this.dispose();
     }
   }
 
   private class ApplyAction extends AbstractAction {
+    private static final long serialVersionUID = -7866587653471893125L;
+
     public void actionPerformed(final ActionEvent e) {
       preferencesPanel.save();
     }
   }
 
   private class DefaultsAction extends AbstractAction {
+    private static final long serialVersionUID = -757394078911310763L;
+
     public void actionPerformed(final ActionEvent e) {
       if (JOptionPane.showConfirmDialog(PreferencesDialog.this, "Are you sure you want to restore defaults?", "Confirm",
           JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {

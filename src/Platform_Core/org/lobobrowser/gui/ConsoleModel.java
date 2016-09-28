@@ -39,6 +39,7 @@ import javax.swing.text.Position;
  * The Swing document model that is used to store console output.
  */
 public class ConsoleModel extends PlainDocument {
+  private static final long serialVersionUID = 1067196363975764005L;
   private static final int MAX_LENGTH = 20000;
   private static final Logger logger = Logger.getLogger(ConsoleModel.class.getName());
   private final OutputStream outputStream;

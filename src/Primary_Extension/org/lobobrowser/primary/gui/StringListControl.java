@@ -35,6 +35,7 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 
 public class StringListControl extends JComponent {
+  private static final long serialVersionUID = -2386603668956131744L;
   private final JComboBox<String> comboBox;
 
   public StringListControl() {
@@ -98,6 +99,8 @@ public class StringListControl extends JComponent {
   }
 
   private class EditAction extends AbstractAction {
+    private static final long serialVersionUID = -3588446306085995091L;
+
     public void actionPerformed(final ActionEvent e) {
       final Frame parentFrame = SwingTasks.getFrame(StringListControl.this);
       SimpleTextEditDialog dialog;

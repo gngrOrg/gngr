@@ -27,6 +27,8 @@ import org.lobobrowser.clientlet.ClientletResponse;
 public class ResponseEvent extends EventObject {
   // private final ClientletResponse response;
 
+  private static final long serialVersionUID = 493816215818742336L;
+
   public ResponseEvent(final Object source, final ClientletResponse response) {
     super(source);
     // this.response = response;

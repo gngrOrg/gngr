@@ -34,6 +34,7 @@ import org.lobobrowser.primary.gui.SwingTasks;
 import org.lobobrowser.settings.GeneralSettings;
 
 public class GeneralSettingsUI extends AbstractSettingsUI {
+  private static final long serialVersionUID = -3806746723795038605L;
   private final GeneralSettings settings = GeneralSettings.getInstance();
   /*
   private final FormField ieVersionField;

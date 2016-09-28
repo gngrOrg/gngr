@@ -27,6 +27,8 @@ package org.lobobrowser.ua;
  * @see NavigationListener
  */
 public class NavigationVetoException extends Exception {
+  private static final long serialVersionUID = -3613259503559453757L;
+
   public NavigationVetoException() {
     super();
   }

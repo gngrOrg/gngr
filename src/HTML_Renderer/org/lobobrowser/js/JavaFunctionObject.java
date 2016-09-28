@@ -39,6 +39,7 @@ import org.mozilla.javascript.WrappedException;
 import org.w3c.dom.DOMException;
 
 public class JavaFunctionObject extends ScriptableObject implements Function {
+  private static final long serialVersionUID = 3716471130167741876L;
   private static final Logger logger = Logger.getLogger(JavaFunctionObject.class.getName());
   private static final boolean loggableInfo = logger.isLoggable(Level.INFO);
   private final String methodName;

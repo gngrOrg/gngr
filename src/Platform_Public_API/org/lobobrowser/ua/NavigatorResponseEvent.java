@@ -28,6 +28,7 @@ import org.lobobrowser.clientlet.ClientletResponse;
  * An event containing response information.
  */
 public class NavigatorResponseEvent extends NavigatorEvent {
+  private static final long serialVersionUID = 8569384791191603705L;
   private final ClientletResponse response;
   private final RequestType requestType;
 

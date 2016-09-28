@@ -32,6 +32,7 @@ import org.lobobrowser.html.domimpl.InputContext;
 import cz.vutbr.web.css.CSSProperty.VerticalAlign;
 
 abstract class BaseInputControl extends BaseControl implements InputContext {
+  private static final long serialVersionUID = -5300609640161763515L;
   protected String value;
 
   public BaseInputControl(final HTMLBaseInputElement modelNode) {

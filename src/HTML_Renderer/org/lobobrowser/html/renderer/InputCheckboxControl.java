@@ -29,6 +29,7 @@ import org.lobobrowser.html.domimpl.HTMLBaseInputElement;
 import org.lobobrowser.util.gui.WrapperLayout;
 
 class InputCheckboxControl extends BaseInputControl {
+  private static final long serialVersionUID = -7156618963339104117L;
   private final JCheckBox widget;
 
   public InputCheckboxControl(final HTMLBaseInputElement modelNode) {

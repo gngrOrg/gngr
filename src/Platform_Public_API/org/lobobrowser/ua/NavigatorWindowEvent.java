@@ -28,6 +28,7 @@ import org.lobobrowser.clientlet.ClientletResponse;
  * An event containing information about navigation.
  */
 public class NavigatorWindowEvent extends NavigatorResponseEvent {
+  private static final long serialVersionUID = -7761109600834439651L;
   private final String message;
 
   public NavigatorWindowEvent(final Object source, final NavigatorEventType eventType, final NavigatorFrame clientletFrame,

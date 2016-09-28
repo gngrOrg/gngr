@@ -35,6 +35,8 @@ package org.lobobrowser.clientlet;
  * @author J. H. S.
  */
 public class CancelClientletException extends ClientletException {
+  private static final long serialVersionUID = -2733027023927994062L;
+
   /**
    * @param message
    */

@@ -24,6 +24,8 @@
 package org.lobobrowser.html.domimpl;
 
 class SkipVisitorException extends RuntimeException {
+  private static final long serialVersionUID = 4031730152218808122L;
+
   public SkipVisitorException() {
     super();
   }

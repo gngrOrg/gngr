@@ -69,6 +69,7 @@ import org.lobobrowser.util.Urls;
  * @see PlatformInit#init(boolean, boolean)
  */
 public class BrowserPanel extends JPanel implements NavigatorWindow, BrowserWindow, WindowCallback {
+  private static final long serialVersionUID = -861661039719372331L;
   private static final Logger logger = Logger.getLogger(BrowserPanel.class.getName());
   // private final boolean hasAddressBar;
   private final boolean hasToolBar;

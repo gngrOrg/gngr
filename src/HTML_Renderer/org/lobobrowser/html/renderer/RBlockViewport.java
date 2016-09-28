@@ -2119,6 +2119,7 @@ public class RBlockViewport extends BaseRCollection {
     }
 
     static class CanvasControl extends BaseControl {
+      private static final long serialVersionUID = -3487994653091311061L;
       private final HTMLCanvasElementImpl canvasNode;
 
       public CanvasControl(HTMLCanvasElementImpl canvasNode) {

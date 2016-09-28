@@ -66,6 +66,7 @@ import org.w3c.dom.html.HTMLFrameSetElement;
  * schedule a document for rendering.
  */
 public class HtmlPanel extends JComponent implements FrameContext, DefferedLayoutSupport {
+  private static final long serialVersionUID = -8342517547909796721L;
   private final EventDispatch2 selectionDispatch = new SelectionDispatch();
   private final javax.swing.Timer notificationTimer;
   private final DocumentNotificationListener notificationListener;

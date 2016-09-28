@@ -29,6 +29,8 @@ import java.security.BasicPermission;
  * Permission for restricted store access.
  */
 public class StoreHostPermission extends BasicPermission {
+  private static final long serialVersionUID = -2443254654269379066L;
+
   /**
    * @param name
    */

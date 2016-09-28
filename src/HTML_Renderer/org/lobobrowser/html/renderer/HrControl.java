@@ -29,6 +29,8 @@ import java.awt.Graphics;
 import org.lobobrowser.html.domimpl.HTMLElementImpl;
 
 class HrControl extends BaseControl {
+  private static final long serialVersionUID = 2138367420714598428L;
+
   public HrControl(final HTMLElementImpl modelNode) {
     super(modelNode);
   }

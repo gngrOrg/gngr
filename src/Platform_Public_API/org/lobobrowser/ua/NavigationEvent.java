@@ -31,6 +31,7 @@ import org.eclipse.jdt.annotation.NonNull;
  * @see NavigatorExtensionContext#addNavigationListener(NavigationListener)
  */
 public class NavigationEvent extends java.util.EventObject {
+  private static final long serialVersionUID = -3655001617854084211L;
   private final @NonNull URL uRL;
   private final String method;
   private final ParameterInfo paramInfo;
