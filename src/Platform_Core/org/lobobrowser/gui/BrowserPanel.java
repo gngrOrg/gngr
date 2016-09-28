@@ -554,6 +554,8 @@ public class BrowserPanel extends JPanel implements NavigatorWindow, BrowserWind
       case DEFAULT_STATUS_UPDATED:
         nwl.defaultStatusUpdated((NavigatorWindowEvent) ne);
         break;
+      default:
+        break;
       }
     }
   }
