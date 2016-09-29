@@ -63,6 +63,7 @@ import cz.vutbr.web.css.RuleSet;
 import cz.vutbr.web.css.Selector;
 import cz.vutbr.web.css.Selector.PseudoDeclaration;
 import cz.vutbr.web.css.StyleSheet;
+import cz.vutbr.web.css.TermList;
 import cz.vutbr.web.csskit.MatchConditionOnElements;
 import cz.vutbr.web.domassign.Analyzer.OrderedRule;
 import cz.vutbr.web.domassign.AnalyzerUtil;
@@ -180,22 +181,6 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
 
         }
 
-        final NodeData beforeNodeData = AnalyzerUtil.getElementStyle(this, Selector.PseudoDeclaration.BEFORE, doc.getMatcher(), elementMatchCondition, cachedRules);
-        final String beforeContentString = beforeNodeData.getAsString("content", true);
-        if (contentStringSupported(beforeContentString)) {
-          this.beforeNode = new GeneratedElement(this, beforeNodeData);
-        } else {
-          this.beforeNode = null;
-        }
-
-        final NodeData afterNodeData = AnalyzerUtil.getElementStyle(this, Selector.PseudoDeclaration.AFTER, doc.getMatcher(), elementMatchCondition, cachedRules);
-        final String afterContentString = afterNodeData.getAsString("content", true);
-        if (contentStringSupported(afterContentString)) {
-          this.afterNode = new GeneratedElement(this, afterNodeData);
-        } else {
-          this.afterNode = null;
-        }
-
         final NodeData nodeData = AnalyzerUtil.getElementStyle(this, psuedoElement, doc.getMatcher(), elementMatchCondition, cachedRules);
         final Node parent = this.parentNode;
         if ((parent != null) && (parent instanceof HTMLElementImpl)) {
@@ -203,6 +188,10 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
           nodeData.inheritFrom(parentElement.getNodeData(psuedoElement));
           nodeData.concretize();
         }
+
+        this.beforeNode = setupGeneratedNode(doc, nodeData, Selector.PseudoDeclaration.BEFORE, cachedRules, this);
+        this.afterNode = setupGeneratedNode(doc, nodeData, Selector.PseudoDeclaration.AFTER, cachedRules, this);
+
         cachedNodeData = nodeData;
         // System.out.println("In " + this);
         // System.out.println("  Node data: " + nodeData);
@@ -211,11 +200,21 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
     }
   }
 
-  private boolean contentStringSupported(final String contentString) {
-    // Currently we only support quoted strings in "content" property. Note that double quoted strings in input are
-    // converted to single-quoted strings by JStyleParser
-    return contentString != null
-        && (contentString.charAt(0) == '\'' && contentString.charAt(contentString.length() - 1) == '\'');
+  private static GeneratedElement setupGeneratedNode(final HTMLDocumentImpl doc, final NodeData nodeData, final Selector.PseudoDeclaration decl, final OrderedRule[] rules, final HTMLElementImpl elem) {
+    final NodeData genNodeData = AnalyzerUtil.getElementStyle(elem, decl, doc.getMatcher(), elementMatchCondition, rules);
+    /*
+     * TODO: getValue returns null when `content:inherit` is set. This gives correct behavior per spec,
+     * but one of the test disagrees https://github.com/w3c/csswg-test/issues/1133
+     * If the test is accepted to be valid, then we should call inherit() and concretize() before getting the "content" value.
+     */
+    final TermList content = genNodeData.getValue(TermList.class, "content", true);
+    if (content != null) {
+      genNodeData.inheritFrom(nodeData);
+      genNodeData.concretize();
+      return new GeneratedElement(elem, genNodeData, content);
+    } else {
+      return null;
+    }
   }
 
   @HideFromJS
