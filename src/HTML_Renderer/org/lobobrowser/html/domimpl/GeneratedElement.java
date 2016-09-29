@@ -12,11 +12,19 @@ public class GeneratedElement extends HTMLElementImpl {
 
   private NodeData nodeData;
   private JStyleProperties currentStyle;
+  private final String unescapedText;
 
   public GeneratedElement(HTMLElementImpl parent, NodeData nodeData) {
     super("");
     setParentImpl(parent);
     this.nodeData = nodeData;
+
+    final String text = nodeData.getAsString("content", true);
+
+    // The string returned by node data is single quoted automatically by JStyleParser
+    // And quotes inside the string are escaped.
+    final String unquotedText = text.substring(1, text.length() - 1);
+    this.unescapedText = unquotedText.replace("\\", "");
   }
 
   @HideFromJS
@@ -32,13 +40,6 @@ public class GeneratedElement extends HTMLElementImpl {
 
   @Override
   public NodeImpl[] getChildrenArray() {
-    final String text = nodeData.getAsString("content", true);
-
-    // The string returned by node data is single quoted automatically by JStyleParser
-    // And quotes inside the string are escaped.
-    final String unquotedText = text.substring(1, text.length() - 1);
-    final String unescapedText = unquotedText.replace("\\", "");
-
     return new NodeImpl[] {new TextImpl(unescapedText)};
   }
 }
