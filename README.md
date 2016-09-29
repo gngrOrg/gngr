@@ -1,5 +1,6 @@
 gngr
 ====
+[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/UprootLabs/gngr?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 This is the source code of [gngr](https://gngr.info), a new cross-platform browser that champions privacy. `gngr`
 is an independent implementation of web standards in pure Java. It is *not* a wrapper around other browser engines.
