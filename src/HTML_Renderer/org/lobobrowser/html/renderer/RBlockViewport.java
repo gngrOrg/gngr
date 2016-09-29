@@ -2852,14 +2852,7 @@ public class RBlockViewport extends BaseRCollection {
     if (floatValue != RenderState.FLOAT_NONE) {
       return Boolean.TRUE;
     }
-    final int overflowX = rs.getOverflowX();
-    final int overflowY = rs.getOverflowY();
-    if (
-      (overflowX == RenderState.OVERFLOW_AUTO) || (overflowX == RenderState.OVERFLOW_SCROLL)
-      || (overflowY == RenderState.OVERFLOW_AUTO) || (overflowY == RenderState.OVERFLOW_SCROLL)) {
-      return Boolean.TRUE;
-    }
-    return Boolean.FALSE;
+    return !isOverflowVisibleOrNone(rs);
   }
 
   // /**
