@@ -49,9 +49,11 @@ final public class NavigationEngine {
   }
 
   public void addNavigationEntry(final NavigationEntry entry) {
+    /*
     if (logger.isLoggable(Level.INFO)) {
       logger.info("addNavigationEntry(): entry=" + entry);
     }
+    */
     final int newIndex = this.currentIndex + 1;
     if (newIndex == this.history.size()) {
       this.history.add(entry);

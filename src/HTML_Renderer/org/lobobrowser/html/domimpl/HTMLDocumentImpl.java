@@ -1522,8 +1522,8 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
       if (!stopRequested.get() && !loadOver.get()) {
         loadOver.set(true);
         dispatchLoadEvent();
-        System.out.println("In " + baseURI);
-        System.out.println("  calling window.jobsFinished()");
+        // System.out.println("In " + baseURI);
+        // System.out.println("  calling window.jobsFinished()");
         rcontext.jobsFinished();
         window.jobsFinished();
       }
