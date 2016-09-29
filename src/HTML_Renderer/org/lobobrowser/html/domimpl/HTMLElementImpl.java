@@ -212,8 +212,9 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
   }
 
   private boolean contentStringSupported(final String contentString) {
-    // Currently we only support quoted strings in "content" property
-    return contentString != null && (!"none".equals(contentString))
+    // Currently we only support quoted strings in "content" property. Note that double quoted strings in input are
+    // converted to single-quoted strings by JStyleParser
+    return contentString != null
         && (contentString.charAt(0) == '\'' && contentString.charAt(contentString.length() - 1) == '\'');
   }
 
