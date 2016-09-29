@@ -1197,11 +1197,16 @@ public class RBlockViewport extends BaseRCollection {
   private static boolean isCollapsibleParentBlock(final RBlock block, final Function<HtmlInsets, Boolean> insetChecker) {
     final ModelNode mn = block.getModelNode();
     final RenderState rs = mn.getRenderState();
+    return isCollapsibleBlock(block, insetChecker) && isOverflowVisibleOrNone(rs);
+  }
+
+  private static boolean isOverflowVisibleOrNone(final RenderState rs) {
     final int overflowX = rs.getOverflowX();
     final int overflowY = rs.getOverflowY();
     final boolean xOverflowFine = (overflowX == RenderState.OVERFLOW_VISIBLE) || (overflowX == RenderState.OVERFLOW_NONE);
     final boolean yOverflowFine = (overflowY == RenderState.OVERFLOW_VISIBLE) || (overflowY == RenderState.OVERFLOW_NONE);
-    return isCollapsibleBlock(block, insetChecker) && xOverflowFine && yOverflowFine;
+    final boolean overflowFine = xOverflowFine && yOverflowFine;
+    return overflowFine;
   }
 
   private boolean isFirstCollapsibleBlock(final RBlock child) {
