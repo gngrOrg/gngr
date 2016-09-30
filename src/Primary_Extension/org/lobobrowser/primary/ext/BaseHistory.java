@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.lobobrowser.util.ArrayUtilities;
 
@@ -41,7 +42,7 @@ public abstract class BaseHistory<T> implements java.io.Serializable {
     super();
   }
 
-  private final SortedSet<String> historySortedSet = new TreeSet<>();
+  private final SortedSet<@NonNull String> historySortedSet = new TreeSet<>();
   private final Map<String, TimedEntry> historyMap = new HashMap<>();
   private final SortedSet<TimedEntry> historyTimedSet = new TreeSet<>();
 
@@ -148,7 +149,7 @@ public abstract class BaseHistory<T> implements java.io.Serializable {
   }
 
   public void addAsRecent(final java.net.URL url, final T itemInfo) {
-    final String item = url.toExternalForm();
+    final @NonNull String item = url.toExternalForm();
     synchronized (this) {
       TimedEntry entry = this.historyMap.get(item);
       if (entry != null) {
