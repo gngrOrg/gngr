@@ -60,6 +60,7 @@ public interface RenderState {
   public static final int DISPLAY_TABLE_FOOTER_GROUP = 10;
   public static final int DISPLAY_TABLE_COLUMN = 11;
   public static final int DISPLAY_TABLE_COLUMN_GROUP = 12;
+  public static final int DISPLAY_TABLE_CAPTION = 13;
 
   public static final int WS_NORMAL = 0;
   public static final int WS_PRE = 1;

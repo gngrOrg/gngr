@@ -138,6 +138,8 @@ public class StyleSheetRenderState implements RenderState {
         displayInt = DISPLAY_TABLE_COLUMN;
       } else if ("table-column-group".equals(displayTextTL)) {
         displayInt = DISPLAY_TABLE_COLUMN_GROUP;
+      } else if ("table-caption".equals(displayTextTL)) {
+        displayInt = DISPLAY_TABLE_CAPTION;
       } else {
         displayInt = this.getDefaultDisplay();
       }
