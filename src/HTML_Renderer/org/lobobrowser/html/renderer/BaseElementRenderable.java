@@ -413,7 +413,7 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
     // and availHeight, so it doesn't need to be redone on
     // every resize.
     // Note: Overridden by tables and lists.
-    final Object rootNode = this.modelNode;
+    final ModelNode rootNode = this.modelNode;
     HTMLElementImpl rootElement;
     boolean isRootBlock;
     if (rootNode instanceof HTMLDocumentImpl) {
