@@ -1,8 +1,5 @@
 package org.lobobrowser.html.domimpl;
 
-import org.eclipse.jdt.annotation.NonNull;
-import org.lobobrowser.html.style.ParagraphRenderState;
-import org.lobobrowser.html.style.RenderState;
 import org.w3c.dom.html.HTMLParagraphElement;
 
 public class HTMLPElementImpl extends HTMLAbstractUIElement implements HTMLParagraphElement {
@@ -44,8 +41,4 @@ public class HTMLPElementImpl extends HTMLAbstractUIElement implements HTMLParag
     buffer.append("\r\n\r\n");
   }
 
-  @Override
-  protected @NonNull RenderState createRenderState(final RenderState prevRenderState) {
-    return new ParagraphRenderState(prevRenderState, this);
-  }
 }

@@ -23,9 +23,6 @@
  */
 package org.lobobrowser.html.domimpl;
 
-import org.eclipse.jdt.annotation.NonNull;
-import org.lobobrowser.html.style.ListRenderState;
-import org.lobobrowser.html.style.RenderState;
 import org.w3c.dom.html.HTMLUListElement;
 
 public class HTMLUListElementImpl extends HTMLAbstractUIElement implements HTMLUListElement {
@@ -50,8 +47,4 @@ public class HTMLUListElementImpl extends HTMLAbstractUIElement implements HTMLU
     this.setAttribute("type", type);
   }
 
-  @Override
-  protected @NonNull RenderState createRenderState(final RenderState prevRenderState) {
-    return new ListRenderState(prevRenderState, this);
-  }
 }
