@@ -58,6 +58,7 @@ public class CSSNorm
         "tbody           { display: table-row-group }" +
         "tfoot           { display: table-footer-group }" +
         "col             { display: table-column }" +
+        "colgroup        { display: table-column-group }" +
         "td, th          { display: table-cell; }" +
         "caption         { display: table-caption }" +
         "th              { font-weight: bolder; text-align: center }" +
