@@ -20,17 +20,20 @@
  */
 package org.lobobrowser.html.domimpl;
 
-import org.eclipse.jdt.annotation.NonNull;
-import org.lobobrowser.html.style.BlockQuoteRenderState;
-import org.lobobrowser.html.style.RenderState;
+import org.w3c.dom.html.HTMLQuoteElement;
 
-public class HTMLBlockQuoteElementImpl extends HTMLAbstractUIElement {
-  public HTMLBlockQuoteElementImpl(final String name) {
+public class HTMLQuoteElementImpl extends HTMLElementImpl implements HTMLQuoteElement {
+  public HTMLQuoteElementImpl(final String name) {
     super(name);
   }
 
   @Override
-  protected @NonNull RenderState createRenderState(final RenderState prevRenderState) {
-    return new BlockQuoteRenderState(prevRenderState, this);
+  public String getCite() {
+    return getAttribute("cite");
+  }
+
+  @Override
+  public void setCite(String cite) {
+    setAttribute("cite", cite);
   }
 }
