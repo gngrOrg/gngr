@@ -88,8 +88,6 @@ class ElementFactory {
     builders.put("SMALL", new HTMLElementBuilder.Small());
     builders.put("BIG", new HTMLElementBuilder.Big());
 
-    builders.put("U", new HTMLElementBuilder.Underline());
-    builders.put("STRIKE", new HTMLElementBuilder.Strike());
     builders.put("SUP", new HTMLElementBuilder.Sup());
     builders.put("SUB", new HTMLElementBuilder.Sub());
 

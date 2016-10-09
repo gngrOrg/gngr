@@ -336,20 +336,6 @@ public abstract class HTMLElementBuilder {
     }
   }
 
-  public static class Underline extends HTMLElementBuilder {
-    @Override
-    public HTMLElementImpl build(final String name) {
-      return new HTMLUnderlineElementImpl(name);
-    }
-  }
-
-  public static class Strike extends HTMLElementBuilder {
-    @Override
-    public HTMLElementImpl build(final String name) {
-      return new HTMLStrikeElementImpl(name);
-    }
-  }
-
   public static class NonStandard extends HTMLElementBuilder {
     @Override
     public HTMLElementImpl build(final String name) {
