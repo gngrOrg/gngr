@@ -27,7 +27,7 @@ import org.lobobrowser.html.style.HtmlLength;
 import org.lobobrowser.html.style.HtmlValues;
 
 class VirtualCell {
-  private final RTableCell actualCell;
+  private final RAbstractCell actualCell;
   private final boolean isTopLeft;
   private int column;
   private int row;
@@ -35,7 +35,7 @@ class VirtualCell {
   /**
    * @param cell
    */
-  public VirtualCell(final RTableCell cell, final boolean isTopLeft) {
+  public VirtualCell(final RAbstractCell cell, final boolean isTopLeft) {
     actualCell = cell;
     this.isTopLeft = isTopLeft;
   }
@@ -77,13 +77,13 @@ class VirtualCell {
   /**
    * @return Returns the actualCell.
    */
-  public RTableCell getActualCell() {
+  public RAbstractCell getActualCell() {
     return actualCell;
   }
 
   public HtmlLength getHeightLength() {
     // TODO: Does not consider cellpadding and border
-    final RTableCell cell = this.actualCell;
+    final RAbstractCell cell = this.actualCell;
     final String heightText = cell.getHeightText();
     HtmlLength length;
     try {
@@ -98,7 +98,7 @@ class VirtualCell {
   }
 
   public HtmlLength getWidthLength() {
-    final RTableCell cell = this.actualCell;
+    final RAbstractCell cell = this.actualCell;
     final String widthText = cell.getWidthText();
     HtmlLength length;
     try {

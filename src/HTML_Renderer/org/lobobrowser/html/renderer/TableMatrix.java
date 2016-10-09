@@ -34,10 +34,11 @@ import java.util.Map;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.lobobrowser.html.HtmlRendererContext;
+import org.lobobrowser.html.domimpl.AnonymousNodeImpl;
 import org.lobobrowser.html.domimpl.HTMLElementImpl;
 import org.lobobrowser.html.domimpl.ModelNode;
-import org.lobobrowser.html.domimpl.NodeFilter;
 import org.lobobrowser.html.domimpl.NodeImpl;
+import org.lobobrowser.html.domimpl.TextImpl;
 import org.lobobrowser.html.style.BorderInfo;
 import org.lobobrowser.html.style.HtmlInsets;
 import org.lobobrowser.html.style.HtmlLength;
@@ -49,10 +50,9 @@ import org.lobobrowser.ua.UserAgentContext;
 import org.w3c.dom.Node;
 
 final class TableMatrix {
-  private static final NodeFilter COLUMNS_FILTER = new ColumnsFilter();
   private final ArrayList<Row> ROWS = new ArrayList<>();
   private final ArrayList<RowGroup> ROW_GROUPS = new ArrayList<>();
-  private final ArrayList<@NonNull RTableCell> ALL_CELLS = new ArrayList<>();
+  private final ArrayList<@NonNull RAbstractCell> ALL_CELLS = new ArrayList<>();
   private final HTMLElementImpl tableElement;
   private final UserAgentContext uaContext;
   private final HtmlRendererContext rendererContext;
@@ -193,7 +193,7 @@ final class TableMatrix {
     this.determineRowSizes(hasBorder, this.cellSpacingY, availHeight, sizeOnly);
   }
 
-  private final static @Nullable HTMLElementImpl getParentRow(final HTMLElementImpl cellNode, final HTMLElementImpl te) {
+  private final static @Nullable HTMLElementImpl getParentRow(final Node cellNode, final HTMLElementImpl te) {
     org.w3c.dom.Node parentNode = cellNode.getParentNode();
     for (;;) {
       if (parentNode == null || parentNode == te) {
@@ -277,7 +277,8 @@ final class TableMatrix {
   }
 
   static Insets getCSSInsets(final RenderState rs) {
-    final HtmlInsets elemBorderHtmlInsets = rs.getBorderInfo().insets;
+    final BorderInfo borderInfo = rs.getBorderInfo();
+    final HtmlInsets elemBorderHtmlInsets = borderInfo == null ? null : borderInfo.insets;
     return elemBorderHtmlInsets == null ? RBlockViewport.ZERO_INSETS : elemBorderHtmlInsets.getAWTInsets(0, 0, 0, 0, 0, 0, 0, 0);
   }
 
@@ -396,7 +397,7 @@ final class TableMatrix {
 
     void add(final @Nullable VirtualCell cell) {
       if (cell != null) {
-        final RTableCell ac = cell.getActualCell();
+        final RAbstractCell ac = cell.getActualCell();
         final @NonNull RenderState rs = ac.getRenderState();
         BorderInfo binfo = rs.getBorderInfo();
         if (binfo != null) {
@@ -504,35 +505,29 @@ final class TableMatrix {
   private ArrayList<HTMLElementImpl> populateRows() {
     final HTMLElementImpl te = this.tableElement;
     final ArrayList<HTMLElementImpl> rowElements = new ArrayList<>();
-    final ArrayList<RTableCell> allCells = this.ALL_CELLS;
-    final ArrayList<NodeImpl> cellList = te.getDescendents(COLUMNS_FILTER, false);
-
+    final ArrayList<RAbstractCell> allCells = this.ALL_CELLS;
+    final NodeImpl[] tChildren = te.getChildrenArray();
     final TableRelation rowRelation = new TableRelation(this.ROWS, this.ROW_GROUPS);
 
-    for (final NodeImpl cn : cellList) {
-      final HTMLElementImpl columnNode = (HTMLElementImpl) cn;
-      final HTMLElementImpl rowElement = getParentRow(columnNode, te);
-      if ((rowElement != null) && (rowElement.getRenderState().getDisplay() == RenderState.DISPLAY_NONE)) {
-        // Skip row [ 2047122 ]
-        continue;
+    if (tChildren != null) {
+      for (final NodeImpl cn : tChildren) {
+        if (cn instanceof HTMLElementImpl) {
+          final HTMLElementImpl ce = (HTMLElementImpl) cn;
+          final int display = ce.getRenderState().getDisplay();
+          if (display == RenderState.DISPLAY_TABLE_ROW_GROUP || display == RenderState.DISPLAY_TABLE_HEADER_GROUP
+              || display == RenderState.DISPLAY_TABLE_FOOTER_GROUP) {
+            processRowGroup(ce, rowRelation);
+          } else if (display == RenderState.DISPLAY_TABLE_ROW) {
+            processRow(ce, null, rowRelation);
+          } else if (display == RenderState.DISPLAY_TABLE_CELL) {
+            processCell(ce, null, null, rowRelation);
+          } else if (display != RenderState.DISPLAY_TABLE_COLUMN && display != RenderState.DISPLAY_TABLE_COLUMN_GROUP) {
+            addAnonCell(rowRelation, null, null, cn);
+          }
+        } else if (cn instanceof TextImpl) {
+          addAnonTextCell(rowRelation, null, null, (TextImpl) cn);
+        }
       }
-
-      rowElements.add(rowElement);
-
-      final @Nullable HTMLElementImpl rowGroupElement = getParentRowGroup(rowElement, te);
-
-      RTableCell ac = (RTableCell) columnNode.getUINode();
-      if (ac == null) {
-        // Saved UI nodes must be reused, because they
-        // can contain a collection of GUI components.
-        ac = new RTableCell(columnNode, this.uaContext, this.rendererContext, this.frameContext, this.container);
-        ac.setParent(this.relement);
-        columnNode.setUINode(ac);
-      }
-      final VirtualCell vc = new VirtualCell(ac, true);
-      ac.setTopLeftVirtualCell(vc);
-      rowRelation.associate(rowGroupElement, rowElement, vc);
-      allCells.add(ac);
     }
 
     rowRelation.finish();
@@ -557,6 +552,72 @@ final class TableMatrix {
     return rowElements;
   }
 
+  private void processCell(HTMLElementImpl ce, HTMLElementImpl rowGroupElem, HTMLElementImpl rowElem, TableRelation rowRelation) {
+    RTableCell ac = new RTableCell(ce, this.uaContext, this.rendererContext, this.frameContext, this.container);
+    ac.setParent(this.relement);
+    ce.setUINode(ac);
+    final VirtualCell vc = new VirtualCell(ac, true);
+    ac.setTopLeftVirtualCell(vc);
+    rowRelation.associate(rowGroupElem, rowElem, vc);
+    this.ALL_CELLS.add(ac);
+  }
+
+  private void processRow(HTMLElementImpl rowE, HTMLElementImpl rowGroupElem, TableRelation rowRelation) {
+    final NodeImpl[] rChildren = rowE.getChildrenArray();
+    if (rChildren != null) {
+      for (final NodeImpl cn : rChildren) {
+        if (cn instanceof HTMLElementImpl) {
+          final HTMLElementImpl ce = (HTMLElementImpl) cn;
+          final int display = ce.getRenderState().getDisplay();
+          if (display == RenderState.DISPLAY_TABLE_CELL) {
+            processCell(ce, rowGroupElem, rowE, rowRelation);
+          } else {
+            addAnonCell(rowRelation, rowGroupElem, rowE, cn);
+          }
+        } else if (cn instanceof TextImpl) {
+          addAnonTextCell(rowRelation, rowGroupElem, rowE, (TextImpl) cn);
+        }
+      }
+    }
+  }
+
+  private void processRowGroup(HTMLElementImpl rowGroupElem, TableRelation rowRelation) {
+    final NodeImpl[] rChildren = rowGroupElem.getChildrenArray();
+    if (rChildren != null) {
+      for (final NodeImpl cn : rChildren) {
+        if (cn instanceof HTMLElementImpl) {
+          final HTMLElementImpl ce = (HTMLElementImpl) cn;
+          final int display = ce.getRenderState().getDisplay();
+          if (display == RenderState.DISPLAY_TABLE_ROW) {
+            processRow(ce, rowGroupElem, rowRelation);
+          } else {
+            addAnonCell(rowRelation, rowGroupElem, null, cn);
+          }
+        } else if (cn instanceof TextImpl) {
+          addAnonTextCell(rowRelation, rowGroupElem, null, (TextImpl) cn);
+        }
+      }
+    }
+  }
+
+  private void addAnonTextCell(final TableRelation rowRelation, HTMLElementImpl rowGroupElem, HTMLElementImpl rowElem, final TextImpl tn) {
+    if (!tn.isElementContentWhitespace()) {
+      addAnonCell(rowRelation, rowGroupElem, rowElem, tn);
+    }
+  }
+
+  private void addAnonCell(final TableRelation rowRelation, HTMLElementImpl rowGroupElem, HTMLElementImpl rowElem, final NodeImpl node) {
+    final AnonymousNodeImpl acn = new AnonymousNodeImpl(node.getParentNode());
+    acn.appendChildSilently(node);
+    final RAnonTableCell ac = new RAnonTableCell(acn, this.uaContext, this.rendererContext, this.frameContext, this.container);
+    ac.setParent(this.relement);
+    acn.setUINode(ac);
+    final VirtualCell vc = new VirtualCell(ac, true);
+    ac.setTopLeftVirtualCell(vc);
+    rowRelation.associate(rowGroupElem, rowElem, vc);
+    this.ALL_CELLS.add(ac);
+  }
+
   /**
    * Based on colspans and rowspans, creates additional virtual cells from
    * actual table cells.
@@ -570,7 +631,7 @@ final class TableMatrix {
       for (int c = 0; c < numCols; c++) {
         final VirtualCell vc = row.get(c);
         if ((vc != null) && vc.isTopLeft()) {
-          final RTableCell ac = vc.getActualCell();
+          final RAbstractCell ac = vc.getActualCell();
           int colspan = ac.getColSpan();
           if (colspan < 1) {
             colspan = 1;
@@ -688,7 +749,7 @@ final class TableMatrix {
           vc = null;
         }
         if (vc != null) {
-          final RTableCell ac = vc.getActualCell();
+          final RAbstractCell ac = vc.getActualCell();
           if (ac.getColSpan() == 1) {
             final HtmlLength vcWidthLength = vc.getWidthLength();
             if ((vcWidthLength != null) && vcWidthLength.isPreferredOver(bestWidthLength)) {
@@ -708,7 +769,7 @@ final class TableMatrix {
             vc = null;
           }
           if (vc != null) {
-            final RTableCell ac = vc.getActualCell();
+            final RAbstractCell ac = vc.getActualCell();
             if (ac.getColSpan() > 1) {
               final HtmlLength vcWidthLength = vc.getWidthLength();
               if ((vcWidthLength != null) && vcWidthLength.isPreferredOver(bestWidthLength)) {
@@ -942,7 +1003,7 @@ final class TableMatrix {
       } catch (final IndexOutOfBoundsException iob) {
         vc = null;
       }
-      final RTableCell ac = vc == null ? null : vc.getActualCell();
+      final RAbstractCell ac = vc == null ? null : vc.getActualCell();
       if (ac != null) {
         if (ac.getVirtualRow() == rowIndx) {
           // Only process actual cells with a row
@@ -1173,7 +1234,7 @@ final class TableMatrix {
       colSizes[i].fullLayoutSize = 0;
     }
 
-    for (@NonNull RTableCell cell: this.ALL_CELLS) {
+    for (@NonNull RAbstractCell cell: this.ALL_CELLS) {
       final int col = cell.getVirtualColumn();
       final int colSpan = cell.getColSpan();
       int cellsTotalWidth;
@@ -1486,7 +1547,7 @@ final class TableMatrix {
     // given that things might change as we layout one last time.
     final ColSizeInfo[] colSizes = this.columnSizes;
     final RowSizeInfo[] rowSizes = this.rowSizes;
-    for (@NonNull RTableCell cell : this.ALL_CELLS) {
+    for (@NonNull RAbstractCell cell : this.ALL_CELLS) {
       final int col = cell.getVirtualColumn();
       final int colSpan = cell.getColSpan();
       int totalCellWidth;
@@ -1628,7 +1689,7 @@ final class TableMatrix {
 
     // Set offsets of each cell
 
-    for (@NonNull RTableCell cell : this.ALL_CELLS) {
+    for (@NonNull RAbstractCell cell : this.ALL_CELLS) {
       cell.setCellBounds(colSizes, rowSizes, hasBorder, cellSpacingX, cellSpacingY);
     }
     this.rowGroupSizes = prepareRowGroupSizes();
@@ -1709,7 +1770,7 @@ final class TableMatrix {
       rgsi.prePaintBackground(g);
     }
 
-    for (final @NonNull RTableCell cell : this.ALL_CELLS) {
+    for (final @NonNull RAbstractCell cell : this.ALL_CELLS) {
       // Should clip table cells, just in case.
       final Graphics newG = g.create(cell.x, cell.y, cell.width, cell.height);
       try {
@@ -1735,7 +1796,7 @@ final class TableMatrix {
       // Paint cell borders
 
       g.setColor(Color.GRAY);
-      for (@NonNull RTableCell cell : this.ALL_CELLS) {
+      for (@NonNull RAbstractCell cell : this.ALL_CELLS) {
         final int cx = cell.getX() - 1;
         final int cy = cell.getY() - 1;
         final int cwidth = cell.getWidth() + 1;
@@ -1828,7 +1889,7 @@ final class TableMatrix {
    * int)
    */
   public RenderableSpot getLowestRenderableSpot(final int x, final int y) {
-    for (@NonNull RTableCell cell : this.ALL_CELLS) {
+    for (@NonNull RAbstractCell cell : this.ALL_CELLS) {
       final Rectangle bounds = cell.getVisualBounds();
       if (bounds.contains(x, y)) {
         final RenderableSpot rp = cell.getLowestRenderableSpot(x - bounds.x, y - bounds.y);
@@ -1848,7 +1909,7 @@ final class TableMatrix {
    * .MouseEvent, int, int)
    */
   public boolean onMouseClick(final MouseEvent event, final int x, final int y) {
-    for (@NonNull RTableCell cell : this.ALL_CELLS) {
+    for (@NonNull RAbstractCell cell : this.ALL_CELLS) {
       final Rectangle bounds = cell.getVisualBounds();
       if (bounds.contains(x, y)) {
         if (!cell.onMouseClick(event, x - bounds.x, y - bounds.y)) {
@@ -1861,7 +1922,7 @@ final class TableMatrix {
   }
 
   public boolean onDoubleClick(final MouseEvent event, final int x, final int y) {
-    for (@NonNull RTableCell cell : this.ALL_CELLS) {
+    for (@NonNull RAbstractCell cell : this.ALL_CELLS) {
       final Rectangle bounds = cell.getVisualBounds();
       if (bounds.contains(x, y)) {
         if (!cell.onDoubleClick(event, x - bounds.x, y - bounds.y)) {
@@ -1902,10 +1963,10 @@ final class TableMatrix {
    * .MouseEvent, int, int)
    */
   public boolean onMousePressed(final MouseEvent event, final int x, final int y) {
-    final ArrayList<RTableCell> allCells = this.ALL_CELLS;
+    final ArrayList<RAbstractCell> allCells = this.ALL_CELLS;
     final int numCells = allCells.size();
     for (int i = 0; i < numCells; i++) {
-      final RTableCell cell = allCells.get(i);
+      final RAbstractCell cell = allCells.get(i);
       final Rectangle bounds = cell.getVisualBounds();
       if (bounds.contains(x, y)) {
         if (!cell.onMousePressed(event, x - bounds.x, y - bounds.y)) {
@@ -1926,11 +1987,11 @@ final class TableMatrix {
    * .MouseEvent, int, int)
    */
   public boolean onMouseReleased(final MouseEvent event, final int x, final int y) {
-    final ArrayList<RTableCell> allCells = this.ALL_CELLS;
+    final ArrayList<RAbstractCell> allCells = this.ALL_CELLS;
     final int numCells = allCells.size();
     boolean found = false;
     for (int i = 0; i < numCells; i++) {
-      final RTableCell cell = allCells.get(i);
+      final RAbstractCell cell = allCells.get(i);
       final Rectangle bounds = cell.getVisualBounds();
       if (bounds.contains(x, y)) {
         found = true;
@@ -1955,18 +2016,8 @@ final class TableMatrix {
     return true;
   }
 
-  Iterator<@NonNull RTableCell> getCells() {
+  Iterator<@NonNull RAbstractCell> getCells() {
     return this.ALL_CELLS.iterator();
-  }
-
-  private static class ColumnsFilter implements NodeFilter {
-    public final boolean accept(final Node node) {
-      if (node instanceof HTMLElementImpl) {
-        final HTMLElementImpl elem = (HTMLElementImpl) node;
-        return elem.getRenderState().getDisplay() == RenderState.DISPLAY_TABLE_CELL;
-      }
-      return false;
-    }
   }
 
   static final class ColSizeInfo {

@@ -323,7 +323,7 @@ class RTable extends BaseElementRenderable {
         final BoundableRenderable r = pr.renderable;
         c.add(r);
       }
-      final Iterator<@NonNull RTableCell> i2 = this.tableMatrix.getCells();
+      final Iterator<@NonNull RAbstractCell> i2 = this.tableMatrix.getCells();
       while (i2.hasNext()) {
         c.add(i2.next());
       }

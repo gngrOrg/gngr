@@ -27,21 +27,21 @@ import java.awt.Dimension;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.html.HtmlRendererContext;
-import org.lobobrowser.html.domimpl.HTMLElementImpl;
+import org.lobobrowser.html.domimpl.NodeImpl;
 import org.lobobrowser.html.style.RenderState;
 import org.lobobrowser.ua.UserAgentContext;
 
-class RTableCell extends RAbstractCell {
-  private final HTMLElementImpl cellElement;
+class RAnonTableCell extends RAbstractCell {
+  private final NodeImpl cellNode;
 
   /**
    * @param element
    */
-  public RTableCell(final HTMLElementImpl element, final UserAgentContext pcontext, final HtmlRendererContext rcontext,
+  public RAnonTableCell(final NodeImpl element, final UserAgentContext pcontext, final HtmlRendererContext rcontext,
       final FrameContext frameContext,
       final RenderableContainer tableAsContainer) {
     super(element, 0, pcontext, rcontext, frameContext, tableAsContainer);
-    this.cellElement = element;
+    this.cellNode = element;
   }
 
   protected Dimension doCellLayout(final int width, final int height, final boolean expandWidth, final boolean expandHeight,
@@ -64,6 +64,7 @@ class RTableCell extends RAbstractCell {
       this.doLayout(width, height, expandWidth, expandHeight, null, RenderState.OVERFLOW_NONE, RenderState.OVERFLOW_NONE, sizeOnly, useCache);
       */
       this.layout(width, height, expandWidth, expandHeight, null, sizeOnly);
+
       return new Dimension(this.width, this.height);
     } finally {
       this.layoutUpTreeCanBeInvalidated = true;
@@ -97,87 +98,26 @@ class RTableCell extends RAbstractCell {
     super.finalize();
   }
 
-  private int colSpan = -1;
-  private int rowSpan = -1;
-
-  private static int getColSpan(final HTMLElementImpl elem) {
-    final String colSpanText = elem.getAttribute("colspan");
-    if (colSpanText == null) {
-      return 1;
-    } else {
-      try {
-        return Integer.parseInt(colSpanText);
-      } catch (final NumberFormatException nfe) {
-        return 1;
-      }
-    }
-  }
-
-  @Override
   public int getColSpan() {
-    int cs = this.colSpan;
-    if (cs == -1) {
-      cs = getColSpan(this.cellElement);
-      if (cs < 1) {
-        cs = 1;
-      }
-      this.colSpan = cs;
-    }
-    return cs;
+    return 1;
   }
 
-  private static int getRowSpan(final HTMLElementImpl elem) {
-    final String rowSpanText = elem.getAttribute("rowspan");
-    if (rowSpanText == null) {
-      return 1;
-    } else {
-      try {
-        return Integer.parseInt(rowSpanText);
-      } catch (final NumberFormatException nfe) {
-        return 1;
-      }
-    }
-  }
-
-  @Override
   public int getRowSpan() {
-    int rs = this.rowSpan;
-    if (rs == -1) {
-      rs = getRowSpan(this.cellElement);
-      if (rs < 1) {
-        rs = 1;
-      }
-      this.rowSpan = rs;
-    }
-    return rs;
+    return 1;
   }
 
-  @Override
   public void setRowSpan(final int rowSpan) {
-    this.rowSpan = rowSpan;
+    throw new IllegalStateException();
   }
 
-  @Override
   public String getHeightText() {
-    return this.cellElement.getCurrentStyle().getHeight();
-    // return this.cellElement.getHeight();
+    return null;
   }
 
-  @Override
   public String getWidthText() {
-    return this.cellElement.getCurrentStyle().getWidth();
-    // return this.cellElement.getWidth();
+    return null;
   }
 
-  // public Dimension layoutMinWidth() {
-  //
-  // return this.panel.layoutMinWidth();
-  //
-  // }
-  //
-  //
-
-  @Override
   public void setCellBounds(final TableMatrix.ColSizeInfo[] colSizes, final TableMatrix.RowSizeInfo[] rowSizes, final int hasBorder,
       final int cellSpacingX,
       final int cellSpacingY) {
@@ -224,7 +164,7 @@ class RTableCell extends RAbstractCell {
   }
 
   @NonNull RenderState getRenderState() {
-    return cellElement.getRenderState();
+    return cellNode.getRenderState();
   }
 
 }
