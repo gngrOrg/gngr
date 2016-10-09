@@ -45,8 +45,6 @@ class ElementFactory {
     builders.put("DL", div);
 
     builders.put("BODY", new HTMLElementBuilder.Body());
-    builders.put("CENTER", new HTMLElementBuilder.Center());
-    builders.put("CAPTION", new HTMLElementBuilder.Center());
     builders.put("PRE", new HTMLElementBuilder.Pre());
     builders.put("P", new HTMLElementBuilder.P());
 
@@ -89,8 +87,6 @@ class ElementFactory {
     builders.put("CODE", new HTMLElementBuilder.Code());
     builders.put("SMALL", new HTMLElementBuilder.Small());
     builders.put("BIG", new HTMLElementBuilder.Big());
-    builders.put("B", new HTMLElementBuilder.Strong());
-    builders.put("STRONG", new HTMLElementBuilder.Strong());
 
     builders.put("U", new HTMLElementBuilder.Underline());
     builders.put("STRIKE", new HTMLElementBuilder.Strike());

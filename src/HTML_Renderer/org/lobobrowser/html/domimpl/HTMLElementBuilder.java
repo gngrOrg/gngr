@@ -336,13 +336,6 @@ public abstract class HTMLElementBuilder {
     }
   }
 
-  public static class Strong extends HTMLElementBuilder {
-    @Override
-    public HTMLElementImpl build(final String name) {
-      return new HTMLStrongElementImpl(name);
-    }
-  }
-
   public static class Underline extends HTMLElementBuilder {
     @Override
     public HTMLElementImpl build(final String name) {
@@ -354,13 +347,6 @@ public abstract class HTMLElementBuilder {
     @Override
     public HTMLElementImpl build(final String name) {
       return new HTMLStrikeElementImpl(name);
-    }
-  }
-
-  public static class Center extends HTMLElementBuilder {
-    @Override
-    public HTMLElementImpl build(final String name) {
-      return new HTMLCenterElementImpl(name);
     }
   }
 
