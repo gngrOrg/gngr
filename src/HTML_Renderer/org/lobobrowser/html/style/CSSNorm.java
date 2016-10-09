@@ -107,13 +107,9 @@ public class CSSNorm
         "ol ul, ul ol," +
         "ul ul, ol ol    { margin-top: 0; margin-bottom: 0 }" +
         "u, ins          { text-decoration: underline }" +
-        // TODO
-        // the right thing to do would be to implement :before and then follow the recommended default
-        // from the CSS Standards. But since we are not supporting :before and content we are keeping it
-        // commented so that it does not slow down the selector lookup.
-        // Note: {white-space: pre-line} is also missing.
-        //"br:before       { content: \"\\A\" }"+
+        "br:before       { content: \"\\A\" }"+
 
+        // TODO
         // added by jStyle library and since it does not affect us, leaving it commented.
         //":before, :after { white-space: pre-line }"+
         "center          { text-align: center }" +
