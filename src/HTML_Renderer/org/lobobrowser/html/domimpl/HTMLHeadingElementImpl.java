@@ -20,9 +20,6 @@
  */
 package org.lobobrowser.html.domimpl;
 
-import org.eclipse.jdt.annotation.NonNull;
-import org.lobobrowser.html.style.HeadingRenderState;
-import org.lobobrowser.html.style.RenderState;
 import org.w3c.dom.html.HTMLHeadingElement;
 
 public class HTMLHeadingElementImpl extends HTMLAbstractUIElement implements HTMLHeadingElement {
@@ -36,14 +33,6 @@ public class HTMLHeadingElementImpl extends HTMLAbstractUIElement implements HTM
 
   public void setAlign(final String align) {
     this.setAttribute("align", align);
-  }
-
-  @Override
-  protected @NonNull RenderState createRenderState(final RenderState prevRenderState) {
-    // (can't put a RenderState in the middle - messes up "em" sizes).
-    // prevRenderState = new FontSizeRenderState(prevRenderState, fontSize,
-    // java.awt.Font.BOLD);
-    return new HeadingRenderState(prevRenderState, this);
   }
 
   @Override
