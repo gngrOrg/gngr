@@ -27,7 +27,8 @@ public abstract class RAbstractCell extends RBlock {
 
   public abstract int getColSpan();
 
-  protected abstract Dimension doCellLayout(int cellsTotalWidth, int i, boolean b, boolean c, boolean d);
+  protected abstract Dimension doCellLayout(final int width, final int height, final boolean expandWidth, final boolean expandHeight,
+      final boolean sizeOnly);
 
   abstract @NonNull RenderState getRenderState();
 
