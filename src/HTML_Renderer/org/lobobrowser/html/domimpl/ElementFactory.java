@@ -83,19 +83,6 @@ class ElementFactory {
     builders.put("FONT", new HTMLElementBuilder.Font());
     builders.put("BASEFONT", new HTMLElementBuilder.BaseFont());
 
-    builders.put("TT", new HTMLElementBuilder.Tt());
-    builders.put("CODE", new HTMLElementBuilder.Code());
-    builders.put("SMALL", new HTMLElementBuilder.Small());
-    builders.put("BIG", new HTMLElementBuilder.Big());
-
-    builders.put("SUP", new HTMLElementBuilder.Sup());
-    builders.put("SUB", new HTMLElementBuilder.Sub());
-
-    final HTMLElementBuilder em = new HTMLElementBuilder.Em();
-    builders.put("I", em);
-    builders.put("EM", em);
-    builders.put("CITE", em);
-
     final HTMLElementBuilder heading = new HTMLElementBuilder.Heading();
     builders.put("H1", heading);
     builders.put("H2", heading);

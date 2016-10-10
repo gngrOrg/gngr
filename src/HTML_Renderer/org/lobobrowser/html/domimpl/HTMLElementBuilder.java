@@ -294,20 +294,6 @@ public abstract class HTMLElementBuilder {
     }
   }
 
-  public static class Tt extends HTMLElementBuilder {
-    @Override
-    public HTMLElementImpl build(final String name) {
-      return new HTMLMonospacedElementImpl(name);
-    }
-  }
-
-  public static class Code extends HTMLElementBuilder {
-    @Override
-    public HTMLElementImpl build(final String name) {
-      return new HTMLMonospacedElementImpl(name);
-    }
-  }
-
   public static class Heading extends HTMLElementBuilder {
     @Override
     public HTMLElementImpl build(final String name) {
@@ -315,45 +301,10 @@ public abstract class HTMLElementBuilder {
     }
   }
 
-  public static class Small extends HTMLElementBuilder {
-    @Override
-    public HTMLElementImpl build(final String name) {
-      return new HTMLFontSizeChangeElementImpl(name, -1);
-    }
-  }
-
-  public static class Big extends HTMLElementBuilder {
-    @Override
-    public HTMLElementImpl build(final String name) {
-      return new HTMLFontSizeChangeElementImpl(name, +1);
-    }
-  }
-
-  public static class Em extends HTMLElementBuilder {
-    @Override
-    public HTMLElementImpl build(final String name) {
-      return new HTMLEmElementImpl(name);
-    }
-  }
-
   public static class NonStandard extends HTMLElementBuilder {
     @Override
     public HTMLElementImpl build(final String name) {
       return new HTMLNonStandardElement(name);
-    }
-  }
-
-  public static class Sup extends HTMLElementBuilder {
-    @Override
-    public HTMLElementImpl build(final String name) {
-      return new HTMLSuperscriptElementImpl(name, 1);
-    }
-  }
-
-  public static class Sub extends HTMLElementBuilder {
-    @Override
-    public HTMLElementImpl build(final String name) {
-      return new HTMLSuperscriptElementImpl(name, -1);
     }
   }
 
