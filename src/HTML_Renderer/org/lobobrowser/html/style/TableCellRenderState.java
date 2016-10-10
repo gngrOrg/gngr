@@ -11,9 +11,9 @@ import org.w3c.dom.css.CSS2Properties;
 import org.w3c.dom.html.HTMLElement;
 import org.w3c.dom.html.HTMLTableElement;
 
-public class TableCellRenderState extends DisplayRenderState {
+public class TableCellRenderState extends StyleSheetRenderState {
   public TableCellRenderState(final RenderState prevRenderState, final HTMLElementImpl element) {
-    super(prevRenderState, element, RenderState.DISPLAY_TABLE_CELL);
+    super(prevRenderState, element);
   }
 
   private int alignXPercent = -1;
