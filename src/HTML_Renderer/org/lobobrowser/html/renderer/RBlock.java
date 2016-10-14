@@ -686,7 +686,7 @@ public class RBlock extends BaseElementRenderable {
     int resultingHeight;
     if (adjDeclaredWidth == -1) {
       resultingWidth = expandWidth ? Math.max(prelimBlockWidth, tentativeWidth) : prelimBlockWidth;
-      if (hscroll && (resultingWidth > tentativeWidth)) {
+      if ((tentativeWidth > 0) && hscroll && (resultingWidth > tentativeWidth)) {
         resultingWidth = Math.max(tentativeWidth, SCROLL_BAR_THICKNESS);
       }
     } else {
