@@ -47,7 +47,6 @@ import org.lobobrowser.html.style.JStyleProperties;
 import org.lobobrowser.html.style.RenderState;
 import org.lobobrowser.html.style.RenderThreadState;
 import org.lobobrowser.ua.UserAgentContext;
-import org.w3c.dom.Node;
 
 final class TableMatrix {
   private final ArrayList<Row> ROWS = new ArrayList<>();
@@ -191,49 +190,6 @@ final class TableMatrix {
     final int hasBorder = this.hasOldStyleBorder;
     this.determineColumnSizes(hasBorder, this.cellSpacingX, this.cellSpacingY, availWidth);
     this.determineRowSizes(hasBorder, this.cellSpacingY, availHeight, sizeOnly);
-  }
-
-  private final static @Nullable HTMLElementImpl getParentRow(final Node cellNode, final HTMLElementImpl te) {
-    org.w3c.dom.Node parentNode = cellNode.getParentNode();
-    for (;;) {
-      if (parentNode == null || parentNode == te) {
-        return null;
-      } else if (parentNode instanceof HTMLElementImpl) {
-        final HTMLElementImpl parentElem = (HTMLElementImpl) parentNode;
-        final int parentDisplay = parentElem.getRenderState().getDisplay();
-        if (parentDisplay == RenderState.DISPLAY_TABLE_ROW) {
-          return parentElem;
-        }
-        if (parentDisplay == RenderState.DISPLAY_TABLE) {
-          return null;
-        }
-      }
-      parentNode = parentNode.getParentNode();
-    }
-  }
-
-  private final static @Nullable HTMLElementImpl getParentRowGroup(final @Nullable HTMLElementImpl rowNode, final HTMLElementImpl te) {
-    if (rowNode == null) {
-      return null;
-    }
-    org.w3c.dom.Node parentNode = rowNode.getParentNode();
-    for (;;) {
-      if (parentNode == null || parentNode == te) {
-        return null;
-      } else if (parentNode instanceof HTMLElementImpl) {
-        final HTMLElementImpl parentElem = (HTMLElementImpl) parentNode;
-        final int parentDisplay = parentElem.getRenderState().getDisplay();
-        if ((parentDisplay == RenderState.DISPLAY_TABLE_ROW_GROUP)
-            || (parentDisplay == RenderState.DISPLAY_TABLE_HEADER_GROUP)
-            || (parentDisplay == RenderState.DISPLAY_TABLE_FOOTER_GROUP)) {
-          return parentElem;
-        }
-        if (parentDisplay == RenderState.DISPLAY_TABLE) {
-          return null;
-        }
-      }
-      parentNode = parentNode.getParentNode();
-    }
   }
 
   private static HtmlLength getWidthLength(final HTMLElementImpl element, final int availWidth) {
@@ -505,7 +461,6 @@ final class TableMatrix {
   private ArrayList<HTMLElementImpl> populateRows() {
     final HTMLElementImpl te = this.tableElement;
     final ArrayList<HTMLElementImpl> rowElements = new ArrayList<>();
-    final ArrayList<RAbstractCell> allCells = this.ALL_CELLS;
     final NodeImpl[] tChildren = te.getChildrenArray();
     final TableRelation rowRelation = new TableRelation(this.ROWS, this.ROW_GROUPS);
 
