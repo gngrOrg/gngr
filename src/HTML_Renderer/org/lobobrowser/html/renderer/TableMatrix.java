@@ -1724,11 +1724,6 @@ final class TableMatrix {
     }
 
     @Override
-    protected void doLayout(int availWidth, int availHeight, boolean expand, boolean sizeOnly) {
-      // TODO Auto-generated method stub
-    }
-
-    @Override
     public @NonNull Insets getBorderInsets() {
       return borderOverrider.get(super.getBorderInsets());
     }

@@ -308,8 +308,6 @@ abstract class BaseElementRenderable extends BaseRCollection implements RElement
 
   protected abstract void doLayout(int availWidth, int availHeight, boolean sizeOnly);
 
-  protected abstract void doLayout(int availWidth, int availHeight, boolean expand, boolean sizeOnly);
-
   protected final void sendGUIComponentsToParent() {
     // Ensures that parent has all the components
     // below this renderer node. (Parent expected to have removed them).

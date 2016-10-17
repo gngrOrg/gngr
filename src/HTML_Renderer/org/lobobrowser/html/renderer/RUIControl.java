@@ -425,12 +425,6 @@ class RUIControl extends BaseElementRenderable {
     }
   }
 
-  @Override
-  protected void doLayout(final int availWidth, final int availHeight, final boolean expand, final boolean sizeOnly) {
-    // TODO: Is it okay to ignore `expand`?
-    doLayout(availWidth, availHeight, sizeOnly);
-  }
-
   private boolean widthConstrained = false;
   private boolean heightConstrained = false;
 

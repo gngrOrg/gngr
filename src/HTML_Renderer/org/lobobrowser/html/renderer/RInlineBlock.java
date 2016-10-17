@@ -109,13 +109,6 @@ public class RInlineBlock extends BaseElementRenderable {
   }
 
   @Override
-  protected void doLayout(final int availWidth, final int availHeight, final boolean expand, final boolean sizeOnly) {
-    this.child.doLayout(availWidth, availHeight, expand, expand, null, 0, 0, sizeOnly, true);
-    // TODO: Assign dimension?
-    // TODO: Is this method called?
-  }
-
-  @Override
   public String toString() {
     return "RInlineBlock [" + this.child + "]";
   }
