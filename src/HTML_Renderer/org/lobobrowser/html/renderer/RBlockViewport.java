@@ -1257,6 +1257,8 @@ public class RBlockViewport extends BaseRCollection {
   }
 
   private void layoutText(final NodeImpl textNode) {
+    final String text = textNode.getNodeValue();
+    final int length = text.length();
     final RenderState renderState = textNode.getRenderState();
     final FontMetrics fm = renderState.getFontMetrics();
     final int descent = fm.getDescent();
@@ -1265,13 +1267,11 @@ public class RBlockViewport extends BaseRCollection {
     final int blankWidth = fm.charWidth(' ');
     final int whiteSpace = this.overrideNoWrap ? RenderState.WS_NOWRAP : renderState.getWhiteSpace();
     final int textTransform = renderState.getTextTransform();
-    final String text = textNode.getNodeValue();
     if (whiteSpace != RenderState.WS_PRE) {
       final boolean prevAllowOverflow = this.currentLine.isAllowOverflow();
       final boolean allowOverflow = whiteSpace == RenderState.WS_NOWRAP;
       this.currentLine.setAllowOverflow(allowOverflow);
       try {
-        final int length = text.length();
         final StringBuffer word = new StringBuffer(12);
         for (int i = 0; i < length; i++) {
           char ch = text.charAt(i);
@@ -1306,7 +1306,6 @@ public class RBlockViewport extends BaseRCollection {
         this.currentLine.setAllowOverflow(prevAllowOverflow);
       }
     } else {
-      final int length = text.length();
       boolean lastCharSlashR = false;
       final StringBuffer line = new StringBuffer();
       for (int i = 0; i < length; i++) {
