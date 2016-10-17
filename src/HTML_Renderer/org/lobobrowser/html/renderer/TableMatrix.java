@@ -130,19 +130,7 @@ final class TableMatrix {
     ALL_CELLS.clear();
     rowGroupSizes = null;
     // TODO: Does it need this old-style border?
-    final String borderText = this.tableElement.getAttribute("border");
-    int border = 0;
-    if (borderText != null) {
-      try {
-        border = Integer.parseInt(borderText);
-        if (border < 0) {
-          border = 0;
-        }
-      } catch (final NumberFormatException nfe) {
-        System.out.println("Exception while parsing border: " + nfe);
-        // ignore
-      }
-    }
+    final int border = getBorderAttribute();
     final String cellSpacingText = this.tableElement.getAttribute("cellspacing");
     int cellSpacing = 0;
     if (cellSpacingText != null) {
@@ -184,6 +172,23 @@ final class TableMatrix {
     }
     this.heightsOfExtras = heightsOfExtras;
     this.hasOldStyleBorder = border > 0 ? 1 : 0;
+  }
+
+  private int getBorderAttribute() {
+    int border = 0;
+    final String borderText = this.tableElement.getAttribute("border");
+    if (borderText != null) {
+      try {
+        border = Integer.parseInt(borderText);
+        if (border < 0) {
+          border = 0;
+        }
+      } catch (final NumberFormatException nfe) {
+        System.out.println("Exception while parsing border: " + nfe);
+        // ignore
+      }
+    }
+    return border;
   }
 
   public void build(final int availWidth, final int availHeight, final boolean sizeOnly) {
