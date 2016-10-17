@@ -178,14 +178,18 @@ final class TableMatrix {
     int border = 0;
     final String borderText = this.tableElement.getAttribute("border");
     if (borderText != null) {
-      try {
-        border = Integer.parseInt(borderText);
-        if (border < 0) {
-          border = 0;
+      if (borderText.length() == 0) {
+        border = 1;
+      } else {
+        try {
+          border = Integer.parseInt(borderText);
+          if (border < 0) {
+            border = 0;
+          }
+        } catch (final NumberFormatException nfe) {
+          System.out.println("Exception while parsing border: " + nfe);
+          // ignore
         }
-      } catch (final NumberFormatException nfe) {
-        System.out.println("Exception while parsing border: " + nfe);
-        // ignore
       }
     }
     return border;
