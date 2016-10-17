@@ -131,20 +131,8 @@ final class TableMatrix {
     rowGroupSizes = null;
     // TODO: Does it need this old-style border?
     final int border = getBorderAttribute();
-    final String cellSpacingText = this.tableElement.getAttribute("cellspacing");
-    int cellSpacing = 0;
-    if (cellSpacingText != null) {
-      try {
-        // TODO: cellSpacing can be a percentage as well
-        cellSpacing = Integer.parseInt(cellSpacingText);
-        if (cellSpacing < 0) {
-          cellSpacing = 0;
-        }
-      } catch (final NumberFormatException nfe) {
-        System.out.println("Exception while parsing cellSpacing: " + nfe);
-        // ignore
-      }
-    }
+    final int cellSpacing = getCellSpacingAttribute();
+
     this.cellSpacingX = cellSpacing;
     this.cellSpacingY = cellSpacing;
 
@@ -172,6 +160,24 @@ final class TableMatrix {
     }
     this.heightsOfExtras = heightsOfExtras;
     this.hasOldStyleBorder = border > 0 ? 1 : 0;
+  }
+
+  private int getCellSpacingAttribute() {
+    int cellSpacing = 0;
+    final String cellSpacingText = this.tableElement.getAttribute("cellspacing");
+    if (cellSpacingText != null) {
+      try {
+        // TODO: cellSpacing can be a percentage as well
+        cellSpacing = Integer.parseInt(cellSpacingText);
+        if (cellSpacing < 0) {
+          cellSpacing = 0;
+        }
+      } catch (final NumberFormatException nfe) {
+        System.out.println("Exception while parsing cellSpacing: " + nfe);
+        // ignore
+      }
+    }
+    return cellSpacing;
   }
 
   private int getBorderAttribute() {
