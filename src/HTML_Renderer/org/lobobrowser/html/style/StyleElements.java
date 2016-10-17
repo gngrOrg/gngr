@@ -192,8 +192,7 @@ public class StyleElements {
    * <ul>
    * <li>Table cleanup
    * <ul>
-   * <li>elements that are not acceptable witin a table are moved before the
-   * table</li>
+   * <li>elements that are not acceptable within a table are moved before the table</li>
    * </ul>
    * </li>
    * </ul>
@@ -257,6 +256,7 @@ public class StyleElements {
   }
 
   private static void moveSubtreeBefore(final Node root, final Node ref) {
+    root.getParentNode().removeChild(root);
     ref.getParentNode().insertBefore(root, ref);
   }
 
