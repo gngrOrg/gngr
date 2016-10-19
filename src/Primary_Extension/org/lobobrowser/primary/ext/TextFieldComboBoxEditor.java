@@ -22,6 +22,7 @@ package org.lobobrowser.primary.ext;
 
 import java.awt.Component;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseListener;
 
 import javax.swing.ComboBoxEditor;
 import javax.swing.JTextField;
@@ -109,6 +110,10 @@ public class TextFieldComboBoxEditor implements ComboBoxEditor {
 
   public void addKeyListener(final java.awt.event.KeyListener listener) {
     this.textField.addKeyListener(listener);
+  }
+
+  public void addMouseListener(MouseListener listener) {
+    this.textField.addMouseListener(listener);
   }
 
   public void removeKeyListener(final java.awt.event.KeyListener listener) {

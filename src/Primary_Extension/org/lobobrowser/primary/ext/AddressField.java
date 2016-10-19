@@ -24,6 +24,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -54,6 +56,35 @@ public class AddressField extends JComboBox<String> {
         onKeyPressed(e);
       }
     });
+
+    editor.addMouseListener(new MouseListener() {
+
+      @Override
+      public void mouseReleased(MouseEvent e) {
+        processMouseEvent(e);
+      }
+
+      @Override
+      public void mousePressed(MouseEvent e) {
+        processMouseEvent(e);
+      }
+
+      @Override
+      public void mouseExited(MouseEvent e) {
+        processMouseEvent(e);
+      }
+
+      @Override
+      public void mouseEntered(MouseEvent e) {
+        processMouseEvent(e);
+      }
+
+      @Override
+      public void mouseClicked(MouseEvent e) {
+        processMouseEvent(e);
+      }
+    });
+
     this.addPopupMenuListener(new PopupMenuListener() {
       public void popupMenuWillBecomeVisible(final PopupMenuEvent e) {
         onBeforePopupVisible();
