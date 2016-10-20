@@ -292,9 +292,12 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
     throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Cannot set style property");
   }
 
+  /*
+   currentStyle is not a standard property. See GH 141.
   public void setCurrentStyle(final Object value) {
     throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Cannot set currentStyle property");
   }
+  */
 
   public String getClassName() {
     final String className = this.getAttribute("class");
