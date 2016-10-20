@@ -56,7 +56,7 @@ import org.w3c.dom.html.HTMLHtmlElement;
  * Immediately below an <code>RBlock</code> you will find a node of type
  * {@link RBlockViewport}.
  */
-public class RBlock extends BaseElementRenderable {
+public class RBlock extends BaseBlockyRenderable {
   // private static final int MAX_CACHE_SIZE = 10;
 
   protected final FrameContext frameContext;

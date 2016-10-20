@@ -29,22 +29,26 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.html.HtmlRendererContext;
 import org.lobobrowser.html.domimpl.HTMLElementImpl;
 import org.lobobrowser.html.domimpl.ModelNode;
+import org.lobobrowser.html.style.RenderState;
 import org.lobobrowser.ua.UserAgentContext;
 import org.lobobrowser.util.CollectionUtilities;
 
 public class RInlineBlock extends BaseElementRenderable {
-  private final @NonNull RBlock child;
+  private final @NonNull BaseBlockyRenderable child;
 
   public RInlineBlock(final RenderableContainer container, final HTMLElementImpl modelNode, final UserAgentContext uacontext,
       final HtmlRendererContext rendererContext, final FrameContext frameContext) {
     super(container, modelNode, uacontext);
-    final RBlock child = new RBlock(modelNode, 0, userAgentContext, rendererContext, frameContext, this);
+    final int display = modelNode.getRenderState().getDisplay();
+    final BaseBlockyRenderable child = display == RenderState.DISPLAY_INLINE_TABLE
+        ? new RTable(modelNode, userAgentContext, rendererContext, frameContext, this)
+        : new RBlock(modelNode, 0, userAgentContext, rendererContext, frameContext, this);
     child.setOriginalParent(this);
     child.setParent(this);
     this.child = child;
   }
 
-  public void assignDimension() {
+  private void assignDimension() {
     this.width = child.getWidth();
     this.height = child.getHeight();
   }

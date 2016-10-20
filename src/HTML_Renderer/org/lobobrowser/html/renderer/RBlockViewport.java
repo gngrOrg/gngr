@@ -2314,7 +2314,7 @@ public class RBlockViewport extends BaseRCollection {
     public void layoutMarkup(final RBlockViewport bodyLayout, final HTMLElementImpl markupElement) {
       final RenderState rs = markupElement.getRenderState();
       int display = rs.getDisplay();
-      if (display == RenderState.DISPLAY_INLINE || display == RenderState.DISPLAY_INLINE_BLOCK) {
+      if (display == RenderState.DISPLAY_INLINE || display == RenderState.DISPLAY_INLINE_BLOCK || display == RenderState.DISPLAY_INLINE_TABLE) {
         // Inline elements with absolute or fixed positions need to be treated as blocks.
         // TODO: ^^Verify; is that an internal hack or a spec requirement?
         final int position = rs.getPosition();
@@ -2353,6 +2353,9 @@ public class RBlockViewport extends BaseRCollection {
         break;
       case RenderState.DISPLAY_TABLE:
         bodyLayout.layoutRTable(markupElement);
+        break;
+      case RenderState.DISPLAY_INLINE_TABLE:
+        bodyLayout.layoutRInlineBlock(markupElement);
         break;
       case RenderState.DISPLAY_INLINE_BLOCK:
         bodyLayout.layoutRInlineBlock(markupElement);

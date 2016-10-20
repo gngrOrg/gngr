@@ -49,7 +49,7 @@ import org.lobobrowser.html.style.RenderThreadState;
 import org.lobobrowser.ua.UserAgentContext;
 import org.lobobrowser.util.CollectionUtilities;
 
-class RTable extends BaseElementRenderable {
+class RTable extends BaseBlockyRenderable {
   private static final int MAX_CACHE_SIZE = 10;
   private final Map<LayoutKey, LayoutValue> cachedLayout = new HashMap<>(5);
   private final TableMatrix tableMatrix;
@@ -426,6 +426,11 @@ class RTable extends BaseElementRenderable {
       this.width = width;
       this.height = height;
     }
+  }
+
+  @Override
+  public void layout(int availWidth, int availHeight, boolean b, boolean c, FloatingBoundsSource source, boolean sizeOnly) {
+    this.doLayout(availWidth, availHeight, sizeOnly);
   }
 
 }

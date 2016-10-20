@@ -128,6 +128,8 @@ public class StyleSheetRenderState implements RenderState {
         displayInt = DISPLAY_TABLE_FOOTER_GROUP;
       } else if ("table".equals(displayTextTL)) {
         displayInt = DISPLAY_TABLE;
+      } else if ("inline-table".equals(displayTextTL)) {
+        displayInt = DISPLAY_INLINE_TABLE;
       } else if ("table-cell".equals(displayTextTL)) {
         displayInt = DISPLAY_TABLE_CELL;
       } else if ("table-row".equals(displayTextTL)) {
