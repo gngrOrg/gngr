@@ -89,6 +89,8 @@ import org.w3c.dom.views.AbstractView;
 import org.w3c.dom.views.DocumentView;
 
 public class Window extends AbstractScriptableDelegate implements AbstractView, EventTarget {
+  private static final Storage STORAGE = new Storage();
+
   private static final Logger logger = Logger.getLogger(Window.class.getName());
   private static final Map<HtmlRendererContext, WeakReference<Window>> CONTEXT_WINDOWS = new WeakHashMap<>();
   // private static final JavaClassWrapper IMAGE_WRAPPER =
@@ -851,6 +853,10 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
       }
     };
     defineInstantiator(ws, "Event", EVENT_WRAPPER, ei);
+
+    // We can use a single shared instance since it is dummy for now
+    ScriptableObject.putProperty(ws, "localStorage", STORAGE);
+    ScriptableObject.putProperty(ws, "sessionStorage", STORAGE);
 
     // ScriptableObject.defineClass(ws, org.mozilla.javascript.ast.Comment.class);
     defineElementClass(ws, doc, "Comment", "comment", CommentImpl.class);
