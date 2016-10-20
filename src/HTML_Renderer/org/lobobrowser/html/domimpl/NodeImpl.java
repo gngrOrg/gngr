@@ -1541,8 +1541,8 @@ public abstract class NodeImpl extends AbstractScriptableDelegate implements Nod
 
   private static CombinedSelector[] makeSelectors(final String query) throws IOException, CSSException {
     // this is quick way to parse the selectors. TODO: check if jStyleParser supports a better option.
-    final String tempBlock = query + " { }";
-    final StyleSheet styleSheet = CSSFactory.parse(tempBlock);
+    final String tempBlock = query + " { display: none}";
+    final StyleSheet styleSheet = CSSFactory.parseString(tempBlock, null);
     final RuleSet firstRuleBlock = (RuleSet) styleSheet.get(0);
     final CombinedSelector[] selectors = firstRuleBlock.getSelectors();
     return selectors;
