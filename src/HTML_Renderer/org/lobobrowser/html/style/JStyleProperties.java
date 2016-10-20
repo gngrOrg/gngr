@@ -688,6 +688,10 @@ abstract public class JStyleProperties extends AbstractScriptableDelegate implem
     return property == null || property.isEmpty() ? helperGetValue(propertyName) : property;
     */
 
-    return getNodeData().getAsString(propertyName, true);
+    final NodeData nodeData = getNodeData();
+    if (nodeData == null) {
+      return null;
+    }
+    return nodeData.getAsString(propertyName, true);
   }
 }
