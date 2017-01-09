@@ -185,7 +185,7 @@ public class DefaultWindowFactory implements WindowFactory {
   }
 
   /**
-   * Creates, sizes a browser window, and registeres listeners that allow the
+   * Creates, sizes a browser window, and registers listeners that allow the
    * platform to persist window settings and shut itself down when all windows
    * are closed.
    */
