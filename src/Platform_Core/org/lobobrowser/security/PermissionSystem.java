@@ -146,7 +146,7 @@ public class PermissionSystem {
     public boolean isHTTPPermitted(final Request request) {
       final String requestHost = request.url.getHost().toLowerCase();
       final PermissionRow row = getRow(requestHost);
-      return row.isHTTPPermitted(request);
+      return row.isHTTPPermitted();
     }
 
     public void dump() {
@@ -222,13 +222,8 @@ public class PermissionSystem {
         return requestCells[requestOrdinal].getEffectivePermission();
       }
 
-      public boolean isHTTPPermitted(final Request request) {
-        return getHTTPPermission(request).permission == Permission.Allow;
-      }
-
-      public PermissionResult getHTTPPermission(final Request request) {
-        final int requestOrdinal = RequestKind.HTTP.ordinal();
-        return requestCells[requestOrdinal].getEffectivePermission();
+      public boolean isHTTPPermitted() {
+        return requestCells[RequestKind.UnsecuredHTTP.ordinal()].getEffectivePermission().permission == Permission.Allow;
       }
 
       public void dump() {

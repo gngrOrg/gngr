@@ -123,7 +123,7 @@ public final class RequestManager {
         String frameProtocol = getFrameURL().get().getProtocol();
 
         if (protocolTest.equals("http") && frameProtocol.equals("https")) {
-          updateCounter(finalRequest.url.getHost(), RequestKind.HTTP);
+          updateCounter(finalRequest.url.getHost(), RequestKind.UnsecuredHTTP);
           if (!httpPermitted) {
             return false;
           }
