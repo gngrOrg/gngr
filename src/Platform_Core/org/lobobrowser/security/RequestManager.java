@@ -118,7 +118,7 @@ public final class RequestManager {
       final Boolean permitted = permissionSystemOpt.map(p -> p.isRequestPermitted(finalRequest)).orElse(false);
       updateCounter(finalRequest);
       if (permitted) {
-        final boolean httpPermitted = permissionSystemOpt.get().isHTTPPermitted(finalRequest);
+        final boolean httpPermitted = permissionSystemOpt.get().isUnsecuredHTTPPermitted(finalRequest);
         String protocolTest = request.url.getProtocol();
         String frameProtocol = getFrameURL().get().getProtocol();
 

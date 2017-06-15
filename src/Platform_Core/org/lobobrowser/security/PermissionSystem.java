@@ -74,8 +74,8 @@ public class PermissionSystem {
     }
   }
 
-  public boolean isHTTPPermitted(final Request request) {
-    return getLastBoard().isHTTPPermitted(request);
+  public boolean isUnsecuredHTTPPermitted(final Request request) {
+    return getLastBoard().isUnsecuredHTTPPermitted(request);
   }
 
   public List<PermissionBoard> getBoards() {
@@ -143,10 +143,10 @@ public class PermissionSystem {
       return row.isRequestPermitted(request);
     }
 
-    public boolean isHTTPPermitted(final Request request) {
+    public boolean isUnsecuredHTTPPermitted(final Request request) {
       final String requestHost = request.url.getHost().toLowerCase();
       final PermissionRow row = getRow(requestHost);
-      return row.isHTTPPermitted();
+      return row.isUnsecuredHTTPPermitted();
     }
 
     public void dump() {
@@ -222,7 +222,7 @@ public class PermissionSystem {
         return requestCells[requestOrdinal].getEffectivePermission();
       }
 
-      public boolean isHTTPPermitted() {
+      public boolean isUnsecuredHTTPPermitted() {
         return requestCells[RequestKind.UnsecuredHTTP.ordinal()].getEffectivePermission().permission == Permission.Allow;
       }
 
