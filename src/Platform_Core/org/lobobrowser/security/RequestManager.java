@@ -50,7 +50,7 @@ public final class RequestManager {
   private static class RequestCounters {
     private final int counters[] = new int[UserAgentContext.RequestKind.values().length];
 
-    public void updateCounts(final Request request) {
+    void updateCounts(final Request request) {
       counters[request.kind.ordinal()]++;
       if (request.url.getProtocol().equals("http")) {
         counters[UserAgentContext.RequestKind.HTTP.ordinal()]++;
