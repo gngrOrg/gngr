@@ -50,11 +50,8 @@ public final class RequestManager {
   private static class RequestCounters {
     private final int counters[] = new int[UserAgentContext.RequestKind.values().length];
 
-    void updateCounts(final Request request) {
-      counters[request.kind.ordinal()]++;
-      if (request.url.getProtocol().equals("http")) {
-        counters[UserAgentContext.RequestKind.HTTP.ordinal()]++;
-      }
+    void updateCounts(final RequestKind kind) {
+      counters[kind.ordinal()]++;
     }
 
     @Override
@@ -70,8 +67,12 @@ public final class RequestManager {
 
   private synchronized void updateCounter(final Request request) {
     final String host = request.url.getHost().toLowerCase();
+    updateCounter(host, request.kind);
+  }
+
+  private synchronized void updateCounter(final String host, final RequestKind kind) {
     ensureHostInCounter(host);
-    hostToCounterMap.get(host).updateCounts(request);
+    hostToCounterMap.get(host).updateCounts(kind);
   }
 
   private void ensureHostInCounter(final String host) {
@@ -117,13 +118,15 @@ public final class RequestManager {
       final Boolean permitted = permissionSystemOpt.map(p -> p.isRequestPermitted(finalRequest)).orElse(false);
       updateCounter(finalRequest);
       if (permitted) {
-        boolean selectHTTP = permissionSystemOpt.get().isHTTPPermitted(finalRequest);
+        final boolean httpPermitted = permissionSystemOpt.get().isHTTPPermitted(finalRequest);
         String protocolTest = request.url.getProtocol();
         String frameProtocol = getFrameURL().get().getProtocol();
 
-        if (protocolTest.equals("http") && frameProtocol.equals("https") && !selectHTTP) {
-          System.out.println("Denied " + request);
-          return false;
+        if (protocolTest.equals("http") && frameProtocol.equals("https")) {
+          updateCounter(finalRequest.url.getHost(), RequestKind.HTTP);
+          if (!httpPermitted) {
+            return false;
+          }
         }
       }
 
