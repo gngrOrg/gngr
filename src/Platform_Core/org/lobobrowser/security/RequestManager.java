@@ -42,6 +42,7 @@ public final class RequestManager {
 
   private final NavigatorFrame frame;
 
+
   public RequestManager(final NavigatorFrame frame) {
     this.frame = frame;
   }
@@ -49,8 +50,11 @@ public final class RequestManager {
   private static class RequestCounters {
     private final int counters[] = new int[UserAgentContext.RequestKind.values().length];
 
-    public void updateCounts(final RequestKind kind) {
-      counters[kind.ordinal()]++;
+    public void updateCounts(final Request request) {
+      counters[request.kind.ordinal()]++;
+      if (request.url.getProtocol().equals("http")) {
+        counters[UserAgentContext.RequestKind.HTTP.ordinal()]++;
+      }
     }
 
     @Override
@@ -67,7 +71,7 @@ public final class RequestManager {
   private synchronized void updateCounter(final Request request) {
     final String host = request.url.getHost().toLowerCase();
     ensureHostInCounter(host);
-    hostToCounterMap.get(host).updateCounts(request.kind);
+    hostToCounterMap.get(host).updateCounts(request);
   }
 
   private void ensureHostInCounter(final String host) {
@@ -106,11 +110,23 @@ public final class RequestManager {
   }
 
   public boolean isRequestPermitted(final Request request) {
+
     final Request finalRequest = rewriteRequest(request);
 
     if (permissionSystemOpt.isPresent()) {
       final Boolean permitted = permissionSystemOpt.map(p -> p.isRequestPermitted(finalRequest)).orElse(false);
       updateCounter(finalRequest);
+      if (permitted) {
+        boolean selectHTTP = permissionSystemOpt.get().isHTTPPermitted(finalRequest);
+        String protocolTest = request.url.getProtocol();
+        String frameProtocol = getFrameURL().get().getProtocol();
+
+        if (protocolTest.equals("http") && frameProtocol.equals("https") && !selectHTTP) {
+          System.out.println("Denied " + request);
+          return false;
+        }
+      }
+
       // dumpCounters();
       return permitted;
     } else {
