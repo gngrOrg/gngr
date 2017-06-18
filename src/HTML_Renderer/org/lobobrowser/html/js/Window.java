@@ -330,7 +330,7 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
     // If they are always freshly created, the taskIdCounter will be more reliable.
     private volatile AtomicInteger taskIdCounter = new AtomicInteger(0);
 
-    private String name;
+    private final String name;
 
     public JSScheduler(final Window window) {
       super("JS Scheduler");
@@ -438,7 +438,7 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
   private URL getCurrURL() {
     try {
       return new URL(rcontext.getCurrentURL());
-    } catch (MalformedURLException e) {
+    } catch (final MalformedURLException e) {
       return null;
     }
   }
@@ -798,7 +798,7 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
     }
 
     @Override
-    protected boolean hasFeature(Context cx, int featureIndex) {
+    protected boolean hasFeature(final Context cx, final int featureIndex) {
       if (featureIndex == Context.FEATURE_V8_EXTENSIONS) {
         return true;
       }
@@ -1484,7 +1484,7 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
   // private Function windowLoadListeners;
 
   // TODO: Move job scheduling logic into Window class
-  private AtomicBoolean jobsOver = new AtomicBoolean(false);
+  private final AtomicBoolean jobsOver = new AtomicBoolean(false);
   @HideFromJS
   public void jobsFinished() {
     final Event windowLoadEvent = new Event("load", document);
