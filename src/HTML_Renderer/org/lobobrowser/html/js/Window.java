@@ -221,7 +221,6 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
     private final AccessControlContext context;
 
     // TODO: Add a context parameter that will be combined with current context, to help with creation of timer tasks
-    // public JSTask(final int priority, final Runnable runnable) {
     public JSTask(final int priority, final String description) {
       this.priority = priority;
       this.description = description;
@@ -243,11 +242,15 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
       }
     }
 
+    public boolean shouldExecute() {
+      return true;
+    }
+
     public abstract void run();
 
   }
 
-  public final static class JSRunnableTask extends JSTask {
+  public static class JSRunnableTask extends JSTask {
     private final Runnable runnable;
 
     public JSRunnableTask(final int priority, final Runnable runnable) {
@@ -296,10 +299,14 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
     private static final class ScheduledTask implements Comparable<ScheduledTask> {
       final int id;
       final JSTask task;
+      private final URL urlContext;
+      private final UserAgentContext uaContext;
 
-      public ScheduledTask(final int id, final JSTask task) {
+      public ScheduledTask(final int id, final JSTask task, final UserAgentContext uaContext, final URL urlContext) {
         this.id = id;
         this.task = task;
+        this.uaContext = uaContext;
+        this.urlContext = urlContext;
       }
 
       public int compareTo(final ScheduledTask other) {
@@ -318,6 +325,18 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
       @Override
       public String toString() {
         return "Scheduled Task (" + id + ", " + task + ")";
+      }
+
+      public boolean shouldExecute() {
+        if (task.shouldExecute()) {
+          if (urlContext != null) {
+            return uaContext.isRequestPermitted(new Request(urlContext, RequestKind.JavaScript));
+          } else {
+            return true;
+          }
+        } else {
+          return false;
+        }
       }
     }
 
@@ -346,7 +365,7 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
           // TODO: uncomment if synchronization is necessary with the add methods
           // synchronized (this) {
           scheduledTask = jsQueue.poll(JS_SCHED_POLL_INTERVAL_MILLIS, TimeUnit.MILLISECONDS);
-          if (scheduledTask != null) {
+          if (scheduledTask != null && scheduledTask.shouldExecute()) {
             final PrivilegedAction<Object> action = new PrivilegedAction<Object>() {
               public Object run() {
                 // System.out.println("In " + window.document.getBaseURI() + "\n  Running task: " + scheduledTask);
@@ -404,13 +423,13 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
       return windowClosing;
     }
 
-    public void addJSTask(final JSTask task) {
+    public void addJSTask(final JSTask task, final UserAgentContext uaContext, final URL urlContext) {
       // synchronized (this) {
-      jsQueue.add(new ScheduledTask(0, task));
+      jsQueue.add(new ScheduledTask(0, task, uaContext, urlContext));
       // }
     }
 
-    public int addUniqueJSTask(final int oldId, final JSTask task) {
+    public int addUniqueJSTask(final int oldId, final JSTask task, final UserAgentContext uaContext, final URL urlContext) {
       // synchronized (this) {
       if (oldId != -1) {
         if (jsQueue.contains(oldId)) {
@@ -425,7 +444,7 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
         }*/
       }
       final int newId = taskIdCounter.addAndGet(1);
-      jsQueue.add(new ScheduledTask(newId, task));
+      jsQueue.add(new ScheduledTask(newId, task, uaContext, urlContext));
       return newId;
       // }
     }
@@ -457,11 +476,8 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
       }*/
     final URL urlContext = getCurrURL();
     if (urlContext != null) {
-      if (uaContext.isRequestPermitted(new Request(urlContext, RequestKind.JavaScript))) {
-        // System.out.println("Adding task: " + task);
-        synchronized (this) {
-          jsScheduler.addJSTask(task);
-        }
+      synchronized (this) {
+        jsScheduler.addJSTask(task, uaContext, urlContext);
       }
     } else {
       // TODO: This happens when the URL is not accepted by okhttp
@@ -482,7 +498,7 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
   public void addJSTaskUnchecked(final JSTask task) {
     // System.out.println("Adding task: " + task);
     synchronized (this) {
-      jsScheduler.addJSTask(task);
+      jsScheduler.addJSTask(task, null, null);
     }
   }
 
@@ -491,7 +507,7 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
     System.out.println("Adding unique task: " + task);
 
     synchronized (this) {
-      return jsScheduler.addUniqueJSTask(oldId, task);
+      return jsScheduler.addUniqueJSTask(oldId, task, null, null);
     }
   }
 

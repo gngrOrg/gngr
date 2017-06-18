@@ -17,6 +17,36 @@ import org.w3c.dom.events.EventListener;
 
 public final class EventTargetManager {
 
+  private final class JSEventTask extends JSRunnableTask {
+    private final NodeImpl node;
+    private final Event evt;
+    private final List<NodeImpl> propagationPath;
+    private List<EventListener> handlers;
+    private List<Function> functions;
+
+    private JSEventTask(final int priority, final String description, final List<NodeImpl> propagationPath, final NodeImpl node, final Event evt) {
+      super(priority, description, () -> { });
+      this.node = node;
+      this.evt = evt;
+      this.propagationPath = propagationPath;
+    }
+
+    public boolean shouldExecute() {
+      handlers = getListenerList(evt.getType(), node, false);
+      functions = getFunctionList(evt.getType(), node, false);
+      return (handlers != null && handlers.size() > 0) || (functions != null && functions.size() > 0);
+    }
+
+    public void run() {
+      for (int i = 0; (i < propagationPath.size()) && !evt.isPropagationStopped(); i++) {
+        final NodeImpl currNode = propagationPath.get(i);
+        dispatchEventToHandlers(currNode, evt, handlers);
+        dispatchEventToJSHandlers(currNode, evt, functions);
+        evt.setPhase(org.w3c.dom.events.Event.BUBBLING_PHASE);
+      }
+    }
+  }
+
   private final Map<NodeImpl, Map<String, List<EventListener>>> nodeOnEventListeners = new IdentityHashMap<>();
   private final Window window;
 
@@ -114,17 +144,7 @@ public final class EventTargetManager {
     // TODO: Capture phase, and distinction between target phase and bubbling phase
     evt.setPhase(org.w3c.dom.events.Event.AT_TARGET);
     // TODO: The JS Task should be added with the correct base URL
-    window.addJSTask(new JSRunnableTask(0, "Event dispatch for " + evt, () -> {
-      for (int i = 0; (i < propagationPath.size()) && !evt.isPropagationStopped(); i++) {
-        final NodeImpl currNode = propagationPath.get(i);
-        // System.out.println("Dipatching " + i + " to: " + currNode);
-        // TODO: Make request manager checks here.
-        dispatchEventToHandlers(currNode, evt);
-        dispatchEventToJSHandlers(currNode, evt);
-        evt.setPhase(org.w3c.dom.events.Event.BUBBLING_PHASE);
-      }
-    }
-        ));
+    window.addJSTask(new JSEventTask(0, "Event dispatch for " + evt, propagationPath, node, evt));
 
     // dispatchEventToHandlers(node, evt);
     // dispatchEventToJSHandlers(node, evt);
@@ -147,8 +167,7 @@ public final class EventTargetManager {
   }
 
   // private void dispatchEventToHandlers(final NodeImpl node, final Event event, final List<EventListener> handlers) {
-  private void dispatchEventToHandlers(final NodeImpl node, final Event event) {
-    final List<EventListener> handlers = getListenerList(event.getType(), node, false);
+  private void dispatchEventToHandlers(final NodeImpl node, final Event event, final List<EventListener> handlers) {
     if (handlers != null) {
       // We clone the collection and check if original collection still contains
       // the handler before dispatching
@@ -175,8 +194,7 @@ public final class EventTargetManager {
   }
 
   // protected void dispatchEventToJSHandlers(final NodeImpl node, final Event event, final List<Function> handlers) {
-  protected void dispatchEventToJSHandlers(final NodeImpl node, final Event event) {
-    final List<Function> handlers = getFunctionList(event.getType(), node, false);
+  protected void dispatchEventToJSHandlers(final NodeImpl node, final Event event, final List<Function> handlers) {
     if (handlers != null) {
       // We clone the collection and check if original collection still contains
       // the handler before dispatching
