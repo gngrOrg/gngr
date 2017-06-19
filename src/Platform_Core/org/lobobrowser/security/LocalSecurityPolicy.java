@@ -359,7 +359,13 @@ public class LocalSecurityPolicy extends Policy {
     if (isLocal) {
       final String path = location.toExternalForm();
 
-      if (path.endsWith("h2-1.4.188.jar")) {
+      if (path.endsWith("slf4j-api-1.7.21.jar")) {
+        permissions.add(new PropertyPermission("slf4j.*", "read"));
+        permissions.add(new PropertyPermission("java.vendor.url", "read"));
+      } else if (path.endsWith("jstyleparser-2.2-SNAPSHOT.jar")) {
+        permissions.add(new PropertyPermission("slf4j.*", "read"));
+        permissions.add(new PropertyPermission("java.vendor.url", "read"));
+      } else if (path.endsWith("h2-1.4.188.jar")) {
         final String userDBPath = StorageManager.getInstance().userDBPath;
         permissions.add(new FilePermission(STORE_DIRECTORY_CANONICAL, "read"));
 
