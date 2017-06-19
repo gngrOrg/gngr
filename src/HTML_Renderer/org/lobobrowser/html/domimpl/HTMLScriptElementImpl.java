@@ -28,6 +28,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.logging.Level;
 
+import org.lobobrowser.html.js.Event;
 import org.lobobrowser.html.js.Executor;
 import org.lobobrowser.html.js.Window;
 import org.lobobrowser.html.js.Window.JSRunnableTask;
@@ -126,6 +127,11 @@ public class HTMLScriptElementImpl extends HTMLElementImpl implements HTMLScript
       "text/x-javascript"
   };
 
+  private void dispatchEvent(final String type) {
+    final Event domContentLoadedEvent = new Event(type, this);
+    dispatchEvent(domContentLoadedEvent);
+  }
+
   protected final void processScript() {
     final String scriptType = getType();
     if (scriptType != null) {
@@ -208,6 +214,7 @@ public class HTMLScriptElementImpl extends HTMLElementImpl implements HTMLScript
                 // logger.log(Level.WARNING,
                 // "Javascript error at " + ecmaError.sourceName() + ":" + ecmaError.lineNumber() + ": " + ecmaError.getMessage(),
                 // ecmaError);
+                dispatchEvent("load");
               } catch (final Exception err) {
                 Executor.logJSException(err);
               }

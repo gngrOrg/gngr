@@ -26,6 +26,7 @@ import java.util.Optional;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.html.HtmlRendererContext;
+import org.lobobrowser.html.js.Event;
 import org.lobobrowser.html.js.Window;
 import org.lobobrowser.html.style.CSSUtilities;
 import org.lobobrowser.js.HideFromJS;
@@ -305,6 +306,11 @@ public class HTMLLinkElementImpl extends HTMLAbstractUIElement implements HTMLLi
     return ((type == null) || (type.trim().length() == 0) || (type.equalsIgnoreCase("text/css")));
   }
 
+  private void dispatchLoadEvent() {
+    final Event domContentLoadedEvent = new Event("load", this);
+    dispatchEvent(domContentLoadedEvent);
+  }
+
   private void processLink() {
     final HTMLDocumentImpl doc = (HTMLDocumentImpl) this.getOwnerDocument();
     try {
@@ -322,6 +328,7 @@ public class HTMLLinkElementImpl extends HTMLAbstractUIElement implements HTMLLi
           }
           this.styleSheet.setDisabled(this.isAltStyleSheet() | this.disabled);
           doc.styleSheetManager.invalidateStyles();
+          dispatchLoadEvent();
         } catch (final MalformedURLException mfe) {
           this.detachStyleSheet();
           this.warn("Will not parse CSS. URI=[" + this.getHref() + "] with BaseURI=[" + doc.getBaseURI()
