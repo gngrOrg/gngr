@@ -889,7 +889,11 @@ public class HtmlValues {
 
   private static java.awt.Color getBorderColor(final ColorFactory cf, final String colorSpec, final RenderState renderState) {
     if (colorSpec != null && (colorSpec.trim().length() != 0)) {
-      return cf.getColor(colorSpec);
+      if ("currentColor".equalsIgnoreCase(colorSpec)) {
+        return renderState.getColor();
+      } else {
+        return cf.getColor(colorSpec);
+      }
     } else {
       return renderState.getColor();
     }
