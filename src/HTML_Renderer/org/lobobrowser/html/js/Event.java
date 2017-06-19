@@ -39,6 +39,14 @@ public class Event extends AbstractScriptableDelegate implements org.w3c.dom.eve
   private String type;
   private final java.awt.event.InputEvent inputEvent;
   private boolean propagationStopped = false;
+  private final boolean bubbles;
+
+  public Event(final String type, final Node srcElement, final boolean bubbles) {
+    this.type = type;
+    this.srcElement = srcElement;
+    this.inputEvent = null;
+    this.bubbles = bubbles;
+  }
 
   public Event(final String type, final Node srcElement, final java.awt.event.InputEvent mouseEvent, final int leafX, final int leafY) {
     this.type = type;
@@ -46,18 +54,21 @@ public class Event extends AbstractScriptableDelegate implements org.w3c.dom.eve
     this.leafX = leafX;
     this.leafY = leafY;
     this.inputEvent = mouseEvent;
+    this.bubbles = true;
   }
 
   public Event(final String type, final Node srcElement, final java.awt.event.KeyEvent keyEvent) {
     this.type = type;
     this.srcElement = srcElement;
     this.inputEvent = keyEvent;
+    this.bubbles = true;
   }
 
   public Event(final String type, final Node srcElement) {
     this.type = type;
     this.srcElement = srcElement;
     this.inputEvent = null;
+    this.bubbles = true;
   }
 
   public boolean getAltKey() {
@@ -220,8 +231,7 @@ public class Event extends AbstractScriptableDelegate implements org.w3c.dom.eve
 
   @Override
   public boolean getBubbles() {
-    System.out.println("TODO: Event.getBubbles()");
-    return false;
+    return this.bubbles;
   }
 
   @Override

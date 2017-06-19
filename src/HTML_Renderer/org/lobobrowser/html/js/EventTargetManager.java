@@ -137,9 +137,8 @@ public final class EventTargetManager {
     // dispatchEventToHandlers(node, evt, onEventListeners.get(evt.getType()));
     // dispatchEventToJSHandlers(node, evt, onEventHandlers.get(evt.getType()));
 
-    // TODO: Event Bubbling
     // TODO: get Window into the propagation path
-    final List<NodeImpl> propagationPath = getPropagationPath(node);
+    final List<NodeImpl> propagationPath = getPropagationPath(node, evt);
 
     // TODO: Capture phase, and distinction between target phase and bubbling phase
     evt.setPhase(org.w3c.dom.events.Event.AT_TARGET);
@@ -151,11 +150,15 @@ public final class EventTargetManager {
     return false;
   }
 
-  private static List<NodeImpl> getPropagationPath(NodeImpl node) {
+  private static List<NodeImpl> getPropagationPath(NodeImpl node, final Event evt) {
     final List<NodeImpl> nodes = new LinkedList<>();
     while (node != null) {
       if ((node instanceof Element) || (node instanceof Document)) { //  TODO || node instanceof Window) {
         nodes.add(node);
+
+        if (!evt.getBubbles()) {
+          break;
+        }
       }
       node = (NodeImpl) node.getParentNode();
     }

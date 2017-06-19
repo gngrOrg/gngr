@@ -128,7 +128,7 @@ public class HTMLScriptElementImpl extends HTMLElementImpl implements HTMLScript
   };
 
   private void dispatchEvent(final String type) {
-    final Event domContentLoadedEvent = new Event(type, this);
+    final Event domContentLoadedEvent = new Event(type, this, false);
     dispatchEvent(domContentLoadedEvent);
   }
 

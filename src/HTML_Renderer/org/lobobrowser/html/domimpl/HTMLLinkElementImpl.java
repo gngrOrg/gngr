@@ -307,7 +307,7 @@ public class HTMLLinkElementImpl extends HTMLAbstractUIElement implements HTMLLi
   }
 
   private void dispatchLoadEvent() {
-    final Event domContentLoadedEvent = new Event("load", this);
+    final Event domContentLoadedEvent = new Event("load", this, false);
     dispatchEvent(domContentLoadedEvent);
   }
 
