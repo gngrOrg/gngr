@@ -642,8 +642,13 @@ abstract public class JStyleProperties extends AbstractScriptableDelegate implem
 
   // TODO references to this in internal code can use a more specific method.
   //      (we can implement specific methods like we have for other properties)
-  public String getPropertyValue(final String string) {
+  @HideFromJS
+  public String getPropertyValueInternal(final String string) {
     return helperGetProperty(string);
+  }
+
+  public String getPropertyValue(final String string) {
+    return helperTryBoth(string);
   }
 
   public String getFloat() {

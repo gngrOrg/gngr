@@ -941,7 +941,7 @@ public class StyleSheetRenderState implements RenderState {
       overflow = OVERFLOW_NONE;
     } else {
       // TODO need to implement specific method for this instead of using getPropertyValue.
-      String overflowText = props.getPropertyValue("overflow-x");
+      String overflowText = props.getPropertyValueInternal("overflow-x");
       if (overflowText == null) {
         overflowText = props.getOverflow();
       }
@@ -976,7 +976,7 @@ public class StyleSheetRenderState implements RenderState {
       overflow = OVERFLOW_NONE;
     } else {
       // TODO need to implement specific method for this instead of using getPropertyValue.
-      String overflowText = props.getPropertyValue("overflow-y");
+      String overflowText = props.getPropertyValueInternal("overflow-y");
       if (overflowText == null) {
         overflowText = props.getOverflow();
       }
@@ -1025,7 +1025,7 @@ public class StyleSheetRenderState implements RenderState {
       return prevCursorOpt;
     } else {
       // TODO need to implement specific method for this instead of using getPropertyValue.
-      final String cursor = props.getPropertyValue("cursor");
+      final String cursor = props.getPropertyValueInternal("cursor");
       if (cursor == null) {
         return prevCursorOpt;
       } else {
