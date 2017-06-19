@@ -107,26 +107,29 @@ public class CSSUtilities {
   }
 
   public static StyleSheet jParse(final org.w3c.dom.Node ownerNode, final String href, final HTMLDocumentImpl doc, final String baseUri,
-      final boolean considerDoubleSlashComments) throws MalformedURLException {
+      final boolean considerDoubleSlashComments) throws IOException {
     final UserAgentContext bcontext = doc.getUserAgentContext();
     final NetworkRequest request = bcontext.createHttpRequest();
     final URL baseURL = new URL(baseUri);
     final URL cssURL = Urls.createURL(baseURL, href);
     final String cssURI = cssURL.toExternalForm();
     // Perform a synchronous request
-    SecurityUtil.doPrivileged(() -> {
+    final IOException ioException = SecurityUtil.doPrivileged(() -> {
       try {
         request.open("GET", cssURI, false);
         request.send(null, new Request(cssURL, RequestKind.CSS));
+        return null;
       } catch (final java.io.IOException thrown) {
         logger.log(Level.WARNING, "parse()", thrown);
+        return thrown;
       }
-      return getEmptyStyleSheet();
     });
+    if (ioException != null) {
+      throw ioException;
+    }
     final int status = request.getStatus();
-    if ((status != 200) && (status != 0)) {
-      logger.warning("Unable to parse CSS. URI=[" + cssURI + "]. Response status was " + status + ".");
-      return getEmptyStyleSheet();
+    if (status != 200 && status != 0) {
+      throw new IOException("Unable to parse CSS. URI=[" + cssURI + "]. Response status was " + status + ".");
     }
 
     final String text = request.getResponseText();

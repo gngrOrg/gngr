@@ -180,12 +180,14 @@ public class HTMLScriptElementImpl extends HTMLElementImpl implements HTMLScript
               request.send(null, new Request(scriptURL, RequestKind.JavaScript));
             } catch (final java.io.IOException thrown) {
               logger.log(Level.WARNING, "processScript()", thrown);
+              dispatchEvent("error");
             }
             return null;
           });
           final int status = request.getStatus();
           if ((status != 200) && (status != 0)) {
             this.warn("Script at [" + scriptURI + "] failed to load; HTTP status: " + status + ".");
+            dispatchEvent("error");
             return;
           }
           text = request.getResponseText();

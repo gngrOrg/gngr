@@ -20,6 +20,7 @@
  */
 package org.lobobrowser.html.domimpl;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Optional;
@@ -306,8 +307,8 @@ public class HTMLLinkElementImpl extends HTMLAbstractUIElement implements HTMLLi
     return ((type == null) || (type.trim().length() == 0) || (type.equalsIgnoreCase("text/css")));
   }
 
-  private void dispatchLoadEvent() {
-    final Event domContentLoadedEvent = new Event("load", this, false);
+  private void dispatchEvent(final String type) {
+    final Event domContentLoadedEvent = new Event(type, this, false);
     dispatchEvent(domContentLoadedEvent);
   }
 
@@ -328,13 +329,15 @@ public class HTMLLinkElementImpl extends HTMLAbstractUIElement implements HTMLLi
           }
           this.styleSheet.setDisabled(this.isAltStyleSheet() | this.disabled);
           doc.styleSheetManager.invalidateStyles();
-          dispatchLoadEvent();
+          dispatchEvent("load");
         } catch (final MalformedURLException mfe) {
           this.detachStyleSheet();
           this.warn("Will not parse CSS. URI=[" + this.getHref() + "] with BaseURI=[" + doc.getBaseURI()
               + "] does not appear to be a valid URI.");
-        } catch (final Exception err) {
+          dispatchEvent("error");
+        } catch (final IOException err) {
           this.warn("Unable to parse CSS. URI=[" + this.getHref() + "].", err);
+          dispatchEvent("error");
         }
       }
     } finally {
