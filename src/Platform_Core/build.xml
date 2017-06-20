@@ -31,7 +31,7 @@
         <pathelement location="lib/okhttp-2.7.2.jar"/>
         <pathelement location="lib/okhttp-urlconnection-2.7.2.jar"/>
         <pathelement location="lib/okio-1.6.0.jar"/>
-        <pathelement location="lib/h2-1.4.188.jar"/>
+        <pathelement location="lib/h2-1.4.196.jar"/>
         <pathelement location="${XAMJ_Build.location}/org.eclipse.jdt.annotation_2.0.100.v20150311-1658.jar"/>
     </path>
     <target name="init">
