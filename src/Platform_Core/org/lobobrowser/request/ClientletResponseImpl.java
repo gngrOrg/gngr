@@ -353,7 +353,7 @@ public class ClientletResponseImpl implements ClientletResponse {
     if (this.connection instanceof HttpURLConnection) {
       return ((HttpURLConnection) this.connection).getResponseCode();
     } else {
-      return 0;
+      return 200;
     }
   }
 

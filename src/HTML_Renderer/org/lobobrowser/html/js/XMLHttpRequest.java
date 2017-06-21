@@ -107,7 +107,7 @@ public class XMLHttpRequest extends AbstractScriptableDelegate {
       throws java.io.IOException {
     final String adjustedMethod = checkAndAdjustMethod(method);
     try {
-      request.open(adjustedMethod, this.getFullURL(url), asyncFlag, userName, password);
+      request.open(adjustedMethod, this.getFullURL(url), asyncFlag, userName, password, null);
     } catch (final MalformedURLException mfe) {
       throw ScriptRuntime.typeError("url malformed");
     }

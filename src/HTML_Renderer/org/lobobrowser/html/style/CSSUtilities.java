@@ -106,8 +106,7 @@ public class CSSUtilities {
     return jParseCSS2(ownerNode, baseURI, stylesheetStr, bcontext);
   }
 
-  public static StyleSheet jParse(final org.w3c.dom.Node ownerNode, final String href, final HTMLDocumentImpl doc, final String baseUri,
-      final boolean considerDoubleSlashComments) throws IOException {
+  public static StyleSheet jParse(final org.w3c.dom.Node ownerNode, final String href, final String integrity, final HTMLDocumentImpl doc, final String baseUri, final boolean considerDoubleSlashComments) throws IOException {
     final UserAgentContext bcontext = doc.getUserAgentContext();
     final NetworkRequest request = bcontext.createHttpRequest();
     final URL baseURL = new URL(baseUri);
@@ -116,7 +115,7 @@ public class CSSUtilities {
     // Perform a synchronous request
     final IOException ioException = SecurityUtil.doPrivileged(() -> {
       try {
-        request.open("GET", cssURI, false);
+        request.open("GET", cssURI, false, integrity);
         request.send(null, new Request(cssURL, RequestKind.CSS));
         return null;
       } catch (final java.io.IOException thrown) {
@@ -128,9 +127,15 @@ public class CSSUtilities {
       throw ioException;
     }
     final int status = request.getStatus();
-    if (status != 200 && status != 0) {
-      throw new IOException("Unable to parse CSS. URI=[" + cssURI + "]. Response status was " + status + ".");
+    if (status != 200) {
+      throw new IOException("Unable to fetch CSS. URI=[" + cssURI + "]. Response status was " + status + ".");
     }
+    /*
+    if ((status != 200) && (status != 0)) {
+      logger.warning("Unable to parse CSS. URI=[" + cssURI + "]. Response status was " + status + ".");
+      return getEmptyStyleSheet();
+    }
+    */
 
     final String text = request.getResponseText();
     if ((text != null) && !"".equals(text)) {

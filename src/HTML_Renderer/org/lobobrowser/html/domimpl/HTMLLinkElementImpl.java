@@ -128,6 +128,10 @@ public class HTMLLinkElementImpl extends HTMLAbstractUIElement implements HTMLLi
     this.setAttribute("type", type);
   }
 
+  public String getIntegrity() {
+	  return this.getAttribute("integrity");
+  }
+
   // TODO can go in Urls util class.
   private boolean isWellFormedURL() {
     final HTMLDocumentImpl doc = (HTMLDocumentImpl) this.getOwnerDocument();
@@ -319,7 +323,8 @@ public class HTMLLinkElementImpl extends HTMLAbstractUIElement implements HTMLLi
       if (uacontext.isExternalCSSEnabled()) {
         try {
           final String href = this.getHref();
-          final StyleSheet jSheet = CSSUtilities.jParse(this, href, doc, doc.getBaseURI(), false);
+          final String integrity = this.getIntegrity();
+          final StyleSheet jSheet = CSSUtilities.jParse(this, href, integrity, doc, doc.getBaseURI(), false);
           if (this.styleSheet != null) {
             this.styleSheet.setJStyleSheet(jSheet);
           } else {
@@ -336,7 +341,7 @@ public class HTMLLinkElementImpl extends HTMLAbstractUIElement implements HTMLLi
               + "] does not appear to be a valid URI.");
           dispatchEvent("error");
         } catch (final IOException err) {
-          this.warn("Unable to parse CSS. URI=[" + this.getHref() + "].", err);
+          this.warn("Exception while fetching CSS. URI=[" + this.getHref() + "].", err);
           dispatchEvent("error");
         }
       }
