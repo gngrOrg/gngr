@@ -41,6 +41,7 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+
 import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.clientlet.ClientletAccess;
 import org.lobobrowser.clientlet.ClientletContext;
@@ -155,37 +156,39 @@ public class NetworkRequestImpl implements NetworkRequest {
   }
 
   public void open(final String method, final String url) throws IOException {
-    this.open(method, url, true);
+    this.open(method, url, true, null);
   }
 
   public void open(final String method, final @NonNull URL url) {
-    this.open(method, url, true, null, null);
+    this.open(method, url, true, null, null, null);
   }
 
   public void open(final String method, final @NonNull URL url, final boolean asyncFlag) {
-    this.open(method, url, asyncFlag, null, null);
+    this.open(method, url, asyncFlag, null, null, null);
   }
 
-  public void open(final String method, final String url, final boolean asyncFlag) throws IOException {
+  public void open(final String method, final String url, final boolean asyncFlag, final String integrity) throws IOException {
     final URL urlObj = Urls.createURL(null, url);
-    this.open(method, urlObj, asyncFlag, null, null);
+    this.open(method, urlObj, asyncFlag, null, null, integrity);
   }
 
   public void open(final String method, final @NonNull URL url, final boolean asyncFlag, final String userName) {
-    this.open(method, url, asyncFlag, userName, null);
+    this.open(method, url, asyncFlag, userName, null, null);
   }
 
   private boolean isAsynchronous = false;
   private String requestMethod;
   private URL requestURL;
+  private String integrity;
 
   // private String requestUserName;
   // private String requestPassword;
 
-  public void open(final String method, final @NonNull URL url, final boolean asyncFlag, final String userName, final String password) {
+  public void open(final String method, final @NonNull URL url, final boolean asyncFlag, final String userName, final String password, final String integrity) {
     this.isAsynchronous = asyncFlag;
     this.requestMethod = method;
     this.requestURL = url;
+    this.integrity = integrity;
     // this.requestUserName = userName;
     // this.requestPassword = password;
     this.changeReadyState(NetworkRequest.STATE_LOADING);
@@ -235,10 +238,12 @@ public class NetworkRequestImpl implements NetworkRequest {
   }
 
   private void setResponse(final ClientletResponse response) {
+
     final Runnable runnable = () -> {
       if (response.isFromCache()) {
         final Object cachedResponse = response.getTransientCachedObject();
         if (cachedResponse instanceof CacheableResponse) {
+        	System.out.println("Cached response for " + response.getResponseURL());
           // It can be of a different type.
           final CacheableResponse cr = (CacheableResponse) cachedResponse;
           this.changeReadyState(NetworkRequest.STATE_LOADING);
@@ -251,7 +256,7 @@ public class NetworkRequestImpl implements NetworkRequest {
       }
       try {
         this.changeReadyState(NetworkRequest.STATE_LOADING);
-        final LocalResponse newResponse = new LocalResponse(response);
+        LocalResponse newResponse = new LocalResponse(response); //was final before
         this.localResponse = newResponse;
         this.changeReadyState(NetworkRequest.STATE_LOADED);
         final int cl = response.getContentLength();
@@ -284,6 +289,8 @@ public class NetworkRequestImpl implements NetworkRequest {
               }
             }
             newResponse.writeBytes(buffer, 0, numRead);
+
+
             if (firstTime) {
               firstTime = false;
               this.changeReadyState(NetworkRequest.STATE_INTERACTIVE);
@@ -294,7 +301,18 @@ public class NetworkRequestImpl implements NetworkRequest {
             threadContext.setProgressEvent(prevProgress);
           }
         }
+
+        // here goes integrity
+        final boolean valid = AlgorithmDigest.validate(newResponse.getBuffer().toByteArray(), integrity);
+
+        if (valid == false) {
+          this.localResponse = null;
+        }
+
+        //TODO: CORS support
+
         newResponse.setComplete(true);
+
         // The following should return non-null if the response is complete.
         final CacheableResponse cacheable = newResponse.getCacheableResponse();
         if (cacheable != null) {
@@ -518,6 +536,10 @@ public class NetworkRequestImpl implements NetworkRequest {
         this.cacheable.buffer = out;
       }
       out.write(bytes, offset, length);
+    }
+
+    private ByteArrayOutputStream getBuffer() {
+      return this.cacheable.buffer;
     }
 
     public void setComplete(final boolean complete) {

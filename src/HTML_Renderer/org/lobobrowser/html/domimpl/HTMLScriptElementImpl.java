@@ -108,6 +108,10 @@ public class HTMLScriptElementImpl extends HTMLElementImpl implements HTMLScript
     this.setAttribute("type", type);
   }
 
+  public String getIntegrity() {
+	  return this.getAttribute("integrity");
+  }
+
   private static final String[] jsTypes = {
       "application/ecmascript",
       "application/javascript",
@@ -176,7 +180,8 @@ public class HTMLScriptElementImpl extends HTMLElementImpl implements HTMLScript
             // Code might have restrictions on accessing
             // items from elsewhere.
             try {
-              request.open("GET", scriptURI, false);
+              final String integrity = this.getIntegrity();
+              request.open("GET", scriptURI, false, integrity);
               request.send(null, new Request(scriptURL, RequestKind.JavaScript));
             } catch (final java.io.IOException thrown) {
               logger.log(Level.WARNING, "processScript()", thrown);
@@ -185,9 +190,10 @@ public class HTMLScriptElementImpl extends HTMLElementImpl implements HTMLScript
             return null;
           });
           final int status = request.getStatus();
-          if ((status != 200) && (status != 0)) {
+          if ((status != 200)) {
             this.warn("Script at [" + scriptURI + "] failed to load; HTTP status: " + status + ".");
             dispatchEvent("error");
+            doc.markJobsFinished(1, false);
             return;
           }
           text = request.getResponseText();
