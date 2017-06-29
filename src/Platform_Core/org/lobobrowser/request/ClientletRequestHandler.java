@@ -97,7 +97,7 @@ public class ClientletRequestHandler extends AbstractRequestHandler {
    * .ClientletResponse)
    */
   @Override
-  public void processResponse(final ClientletResponse response) throws ClientletException, IOException {
+  public void processResponse(final ClientletResponse response, Valid obj) throws ClientletException, IOException {
     if (this.windowCallback != null) {
       this.windowCallback.handleDocumentAccess(this.frame, response);
     }

@@ -142,8 +142,8 @@ public class RedirectRequestHandler implements RequestHandler {
    * net.sourceforge.xamj.http.RequestHandler#processResponse(org.xamjwg.clientlet
    * .ClientletResponse)
    */
-  public void processResponse(final ClientletResponse response) throws ClientletException, IOException {
-    this.origHandler.processResponse(response);
+  public void processResponse(final ClientletResponse response, Valid obj) throws ClientletException, IOException {
+    this.origHandler.processResponse(response, obj);
   }
 
   private volatile boolean cancelled;
