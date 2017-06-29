@@ -543,7 +543,7 @@ public final class RequestEngine {
         }
       }
 
-      public void processResponse(final ClientletResponse response) throws ClientletException, IOException {
+      public void processResponse(final ClientletResponse response, Valid obj) throws ClientletException, IOException {
         final byte[] bytes = org.lobobrowser.util.io.IORoutines.load(response.getInputStream(), 4096);
         boxed.setObject(bytes);
       }
@@ -840,8 +840,18 @@ public final class RequestEngine {
           // Create clientlet response.
           response = new ClientletResponseImpl(rhandler, connection, url, isContentCached, cacheInfo, isCacheable,
               rhandler.getRequestType());
-          rhandler.processResponse(response);
-          updateCache(rhandler, response, connectionUrl, cacheInfo, connection, isCacheable);
+          final ClientletResponseImpl resp = response;
+          final URLConnection con = connection;
+          final boolean isCache = isCacheable;
+          rhandler.processResponse(response, (valid) -> {
+            if(valid)
+              try {
+                updateCache(rhandler, resp, connectionUrl, cacheInfo , con, isCache);
+              } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+              }
+          });
         } finally {
           if (trackRequestInfo) {
             synchronized (this.processingRequests) {

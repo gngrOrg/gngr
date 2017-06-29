@@ -88,7 +88,7 @@ public abstract class AbstractRequestHandler implements RequestHandler {
     return false;
   }
 
-  public abstract void processResponse(ClientletResponse response) throws ClientletException, IOException;
+  public abstract void processResponse(ClientletResponse response, Valid obj) throws ClientletException, IOException;
 
   private class LocalHostnameVerifier implements HostnameVerifier {
     private boolean verified;

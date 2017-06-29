@@ -50,6 +50,7 @@ import org.lobobrowser.clientlet.ClientletResponse;
 import org.lobobrowser.request.RequestEngine;
 import org.lobobrowser.request.RequestHandler;
 import org.lobobrowser.request.SimpleRequestHandler;
+import org.lobobrowser.request.Valid;
 import org.lobobrowser.ua.ImageResponse;
 import org.lobobrowser.ua.ImageResponse.State;
 import org.lobobrowser.ua.NavigatorProgressEvent;
@@ -73,6 +74,7 @@ public class NetworkRequestImpl implements NetworkRequest {
   private volatile int readyState = NetworkRequest.STATE_UNINITIALIZED;
   private volatile LocalResponse localResponse;
   final private UserAgentContext uaContext;
+  private boolean isValid = true;
 
   public NetworkRequestImpl(final UserAgentContext uaContext) {
     this.uaContext = uaContext;
@@ -237,7 +239,7 @@ public class NetworkRequestImpl implements NetworkRequest {
     this.READY_STATE_CHANGE.fireEvent(new NetworkRequestEvent(this, newState));
   }
 
-  private void setResponse(final ClientletResponse response) {
+  private boolean setResponse(final ClientletResponse response) {
 
     final Runnable runnable = () -> {
       if (response.isFromCache()) {
@@ -250,13 +252,18 @@ public class NetworkRequestImpl implements NetworkRequest {
           this.localResponse = cr.newLocalResponse(response);
           this.changeReadyState(NetworkRequest.STATE_LOADED);
           this.changeReadyState(NetworkRequest.STATE_INTERACTIVE);
+          final boolean valid = integrityCheck(cr.getResponseBytes());
+          if (valid==false) {
+            this.localResponse = null;
+            this.isValid = false;
+          }
           this.changeReadyState(NetworkRequest.STATE_COMPLETE);
           return;
         }
       }
       try {
         this.changeReadyState(NetworkRequest.STATE_LOADING);
-        LocalResponse newResponse = new LocalResponse(response); //was final before
+        final LocalResponse newResponse = new LocalResponse(response);
         this.localResponse = newResponse;
         this.changeReadyState(NetworkRequest.STATE_LOADED);
         final int cl = response.getContentLength();
@@ -303,15 +310,16 @@ public class NetworkRequestImpl implements NetworkRequest {
         }
 
         // here goes integrity
-        final boolean valid = AlgorithmDigest.validate(newResponse.getBuffer().toByteArray(), integrity);
+        final boolean valid = integrityCheck(newResponse.getBuffer().toByteArray());
 
         if (valid == false) {
           this.localResponse = null;
+          this.isValid = false;
         }
 
         //TODO: CORS support
 
-        newResponse.setComplete(true);
+        newResponse.setComplete(valid);
 
         // The following should return non-null if the response is complete.
         final CacheableResponse cacheable = newResponse.getCacheableResponse();
@@ -331,6 +339,11 @@ public class NetworkRequestImpl implements NetworkRequest {
     } else {
       runnable.run();
     }
+    return isValid;
+  }
+
+  private boolean integrityCheck(byte[] response) {
+    return AlgorithmDigest.validate(response, integrity);
   }
 
   private class LocalRequestHandler extends SimpleRequestHandler {
@@ -371,15 +384,15 @@ public class NetworkRequestImpl implements NetworkRequest {
      * net.sourceforge.xamj.http.BaseRequestHandler#processResponse(org.xamjwg
      * .clientlet.ClientletResponse)
      */
-    public void processResponse(final ClientletResponse response) throws ClientletException, IOException {
-      NetworkRequestImpl.this.setResponse(response);
+    public void processResponse(final ClientletResponse response, Valid obj) throws ClientletException, IOException {
+      obj.cacheIt(NetworkRequestImpl.this.setResponse(response));
     }
 
     /*
      * (non-Javadoc)
      *
      * @see net.sourceforge.xamj.http.RequestHandler#handleProgress(int,
-     * java.net.URL, int, int)
+     *void java.net.URL, int, int)
      */
     // public void handleProgress(final org.lobobrowser.ua.ProgressType progressType, final URL url, final int value, final int max) {
     // }

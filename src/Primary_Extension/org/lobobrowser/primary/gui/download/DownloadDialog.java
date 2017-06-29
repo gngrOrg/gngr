@@ -60,6 +60,7 @@ import org.lobobrowser.request.AbstractRequestHandler;
 import org.lobobrowser.request.ClientletRequestImpl;
 import org.lobobrowser.request.RequestEngine;
 import org.lobobrowser.request.RequestHandler;
+import org.lobobrowser.request.Valid;
 import org.lobobrowser.ua.ProgressType;
 import org.lobobrowser.ua.RequestType;
 import org.lobobrowser.ua.UserAgentContext;
@@ -481,7 +482,7 @@ public class DownloadDialog extends JFrame {
     }
 
     @Override
-    public void processResponse(final ClientletResponse response) throws ClientletException, IOException {
+    public void processResponse(final ClientletResponse response, Valid obj) throws ClientletException, IOException {
       try (
         final OutputStream out = new FileOutputStream(this.file);
         final InputStream in = response.getInputStream()) {
