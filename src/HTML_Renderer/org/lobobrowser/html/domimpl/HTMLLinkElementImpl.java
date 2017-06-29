@@ -128,8 +128,8 @@ public class HTMLLinkElementImpl extends HTMLAbstractUIElement implements HTMLLi
     this.setAttribute("type", type);
   }
 
-  public String getIntegrity() {
-	  return this.getAttribute("integrity");
+  private String getIntegrity() {
+    return this.getAttribute("integrity");
   }
 
   // TODO can go in Urls util class.

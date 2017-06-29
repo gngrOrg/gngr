@@ -108,8 +108,8 @@ public class HTMLScriptElementImpl extends HTMLElementImpl implements HTMLScript
     this.setAttribute("type", type);
   }
 
-  public String getIntegrity() {
-	  return this.getAttribute("integrity");
+  private String getIntegrity() {
+    return this.getAttribute("integrity");
   }
 
   private static final String[] jsTypes = {

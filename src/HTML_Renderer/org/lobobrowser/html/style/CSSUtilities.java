@@ -26,7 +26,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
@@ -130,12 +129,6 @@ public class CSSUtilities {
     if (status != 200) {
       throw new IOException("Unable to fetch CSS. URI=[" + cssURI + "]. Response status was " + status + ".");
     }
-    /*
-    if ((status != 200) && (status != 0)) {
-      logger.warning("Unable to parse CSS. URI=[" + cssURI + "]. Response status was " + status + ".");
-      return getEmptyStyleSheet();
-    }
-    */
 
     final String text = request.getResponseText();
     if ((text != null) && !"".equals(text)) {
