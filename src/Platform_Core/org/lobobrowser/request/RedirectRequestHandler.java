@@ -145,6 +145,7 @@ public class RedirectRequestHandler implements RequestHandler {
    */
   public void processResponse(final ClientletResponse response, Consumer<Boolean> consumer) throws ClientletException, IOException {
     this.origHandler.processResponse(response, consumer);
+    consumer.accept(true);
   }
 
   private volatile boolean cancelled;

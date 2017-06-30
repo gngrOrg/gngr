@@ -547,6 +547,7 @@ public final class RequestEngine {
       public void processResponse(final ClientletResponse response, Consumer<Boolean> consumer) throws ClientletException, IOException {
         final byte[] bytes = org.lobobrowser.util.io.IORoutines.load(response.getInputStream(), 4096);
         boxed.setObject(bytes);
+        consumer.accept(true);
       }
     });
     return (byte[]) boxed.getObject();

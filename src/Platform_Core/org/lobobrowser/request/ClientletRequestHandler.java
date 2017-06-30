@@ -142,6 +142,7 @@ public class ClientletRequestHandler extends AbstractRequestHandler {
       ClientletAccess.setCurrentClientletContext(prevCtx);
     }
     this.frame.informResponseProcessed(response);
+    consumer.accept(true);
   }
 
   @Override
