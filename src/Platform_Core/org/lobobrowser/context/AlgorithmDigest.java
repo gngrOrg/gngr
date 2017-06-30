@@ -50,8 +50,7 @@ final class AlgorithmDigest implements Comparable<AlgorithmDigest> {
   private static List<AlgorithmDigest> getHashes(final String[] tokens) {
     final List<AlgorithmDigest> hashes = new ArrayList<AlgorithmDigest>();
     for (final String token : tokens) {
-      // TODO: check token syntax against
-      // https://www.w3.org/TR/SRI/#the-integrity-attribute
+      // TODO: check if token is valid metadata. Reference: https://github.com/w3c/webappsec/issues/531
       final int hyphen = token.indexOf("-");
       if (hyphen < 0) {
         continue;
