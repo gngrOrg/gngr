@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import javax.net.ssl.HostnameVerifier;
 
@@ -58,7 +59,7 @@ public interface RequestHandler {
    */
   public HostnameVerifier getHostnameVerifier();
 
-  public void processResponse(ClientletResponse response, Valid obj) throws ClientletException, IOException;
+  public void processResponse(ClientletResponse response, Consumer<Boolean> consumer) throws ClientletException, IOException;
 
   public boolean handleException(ClientletResponse response, Throwable exception, RequestType requestType) throws ClientletException;
 

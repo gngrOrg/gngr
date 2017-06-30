@@ -38,6 +38,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -50,7 +51,6 @@ import org.lobobrowser.clientlet.ClientletResponse;
 import org.lobobrowser.request.RequestEngine;
 import org.lobobrowser.request.RequestHandler;
 import org.lobobrowser.request.SimpleRequestHandler;
-import org.lobobrowser.request.Valid;
 import org.lobobrowser.ua.ImageResponse;
 import org.lobobrowser.ua.ImageResponse.State;
 import org.lobobrowser.ua.NavigatorProgressEvent;
@@ -74,7 +74,6 @@ public class NetworkRequestImpl implements NetworkRequest {
   private volatile int readyState = NetworkRequest.STATE_UNINITIALIZED;
   private volatile LocalResponse localResponse;
   final private UserAgentContext uaContext;
-  private boolean isValid = true;
 
   public NetworkRequestImpl(final UserAgentContext uaContext) {
     this.uaContext = uaContext;
@@ -239,7 +238,7 @@ public class NetworkRequestImpl implements NetworkRequest {
     this.READY_STATE_CHANGE.fireEvent(new NetworkRequestEvent(this, newState));
   }
 
-  private boolean setResponse(final ClientletResponse response) {
+  private void setResponse(final ClientletResponse response, Consumer<Boolean> consumer) {
 
     final Runnable runnable = () -> {
       if (response.isFromCache()) {
@@ -255,8 +254,8 @@ public class NetworkRequestImpl implements NetworkRequest {
           final boolean valid = integrityCheck(cr.getResponseBytes());
           if (valid==false) {
             this.localResponse = null;
-            this.isValid = false;
           }
+          consumer.accept(valid);
           this.changeReadyState(NetworkRequest.STATE_COMPLETE);
           return;
         }
@@ -314,8 +313,8 @@ public class NetworkRequestImpl implements NetworkRequest {
 
         if (valid == false) {
           this.localResponse = null;
-          this.isValid = false;
         }
+        consumer.accept(valid);
 
         //TODO: CORS support
 
@@ -339,7 +338,6 @@ public class NetworkRequestImpl implements NetworkRequest {
     } else {
       runnable.run();
     }
-    return isValid;
   }
 
   private boolean integrityCheck(byte[] response) {
@@ -384,8 +382,8 @@ public class NetworkRequestImpl implements NetworkRequest {
      * net.sourceforge.xamj.http.BaseRequestHandler#processResponse(org.xamjwg
      * .clientlet.ClientletResponse)
      */
-    public void processResponse(final ClientletResponse response, Valid obj) throws ClientletException, IOException {
-      obj.cacheIt(NetworkRequestImpl.this.setResponse(response));
+    public void processResponse(final ClientletResponse response, Consumer<Boolean> consumer) throws ClientletException, IOException {
+      NetworkRequestImpl.this.setResponse(response, consumer);
     }
 
     /*

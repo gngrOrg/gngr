@@ -24,6 +24,7 @@ import java.awt.Component;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
+import java.util.function.Consumer;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSession;
@@ -88,7 +89,7 @@ public abstract class AbstractRequestHandler implements RequestHandler {
     return false;
   }
 
-  public abstract void processResponse(ClientletResponse response, Valid obj) throws ClientletException, IOException;
+  public abstract void processResponse(ClientletResponse response, Consumer<Boolean> consumer) throws ClientletException, IOException;
 
   private class LocalHostnameVerifier implements HostnameVerifier {
     private boolean verified;
