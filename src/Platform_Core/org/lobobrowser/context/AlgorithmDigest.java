@@ -16,7 +16,7 @@ final class AlgorithmDigest implements Comparable<AlgorithmDigest> {
   private final Integer strength;
   private final static Map<String, Integer> str = createMap();
 
-  public AlgorithmDigest(String algorithm, String digest, Integer strength) {
+  public AlgorithmDigest(final String algorithm, final String digest, final Integer strength) {
     super();
     this.algorithm = algorithm;
     this.digest = digest;
@@ -48,7 +48,7 @@ final class AlgorithmDigest implements Comparable<AlgorithmDigest> {
 
   private static List<AlgorithmDigest> getHashes(final String[] tokens) {
     final List<AlgorithmDigest> hashes = new ArrayList<AlgorithmDigest>();
-    for (String token : tokens) {
+    for (final String token : tokens) {
       // TODO: check token syntax against
       // https://www.w3.org/TR/SRI/#the-integrity-attribute
       final int hyphen = token.indexOf("-");
@@ -56,10 +56,10 @@ final class AlgorithmDigest implements Comparable<AlgorithmDigest> {
         continue;
       }
       final String alg = token.substring(0, hyphen);
-        if (str.containsKey(alg)) {
-          final AlgorithmDigest ag = new AlgorithmDigest(alg, token.substring(hyphen + 1), str.get(alg));
-          hashes.add(ag);
-        }
+      if (str.containsKey(alg)) {
+        final AlgorithmDigest ag = new AlgorithmDigest(alg, token.substring(hyphen + 1), str.get(alg));
+        hashes.add(ag);
+      }
     }
     return hashes;
   }
