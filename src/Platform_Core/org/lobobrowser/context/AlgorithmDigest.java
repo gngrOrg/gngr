@@ -57,11 +57,18 @@ final class AlgorithmDigest implements Comparable<AlgorithmDigest> {
       }
       final String alg = token.substring(0, hyphen);
       if (str.containsKey(alg)) {
-        final AlgorithmDigest ag = new AlgorithmDigest(alg, token.substring(hyphen + 1), str.get(alg));
+        final String hashWithOptions = token.substring(hyphen + 1);
+        final String hash = parseHashExpression(hashWithOptions);
+        final AlgorithmDigest ag = new AlgorithmDigest(alg, hash, str.get(alg));
         hashes.add(ag);
       }
     }
     return hashes;
+  }
+
+  private static String parseHashExpression(final String hashWithOptions) {
+    final int question = hashWithOptions.indexOf("?");
+    return (question < 0) ? hashWithOptions : hashWithOptions.substring(0, question);
   }
 
   public static List<AlgorithmDigest> strongestAlgDigests(final List<AlgorithmDigest> hashes) {
