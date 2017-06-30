@@ -41,8 +41,9 @@ final class AlgorithmDigest implements Comparable<AlgorithmDigest> {
     }
     final String[] tokens = integrity.split("\\s+");
     final List<AlgorithmDigest> hashes = getHashes(tokens);
-    if (hashes.isEmpty())
+    if (hashes.isEmpty()) {
       return null;
+    }
     return strongestAlgDigests(hashes);
   }
 
