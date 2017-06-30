@@ -25,6 +25,7 @@ package org.lobobrowser.request;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.function.Consumer;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.clientlet.Clientlet;
@@ -97,7 +98,7 @@ public class ClientletRequestHandler extends AbstractRequestHandler {
    * .ClientletResponse)
    */
   @Override
-  public void processResponse(final ClientletResponse response, Valid obj) throws ClientletException, IOException {
+  public void processResponse(final ClientletResponse response, Consumer<Boolean> consumer) throws ClientletException, IOException {
     if (this.windowCallback != null) {
       this.windowCallback.handleDocumentAccess(this.frame, response);
     }

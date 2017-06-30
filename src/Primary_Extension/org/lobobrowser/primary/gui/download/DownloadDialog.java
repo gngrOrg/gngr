@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -60,7 +61,6 @@ import org.lobobrowser.request.AbstractRequestHandler;
 import org.lobobrowser.request.ClientletRequestImpl;
 import org.lobobrowser.request.RequestEngine;
 import org.lobobrowser.request.RequestHandler;
-import org.lobobrowser.request.Valid;
 import org.lobobrowser.ua.ProgressType;
 import org.lobobrowser.ua.RequestType;
 import org.lobobrowser.ua.UserAgentContext;
@@ -482,7 +482,7 @@ public class DownloadDialog extends JFrame {
     }
 
     @Override
-    public void processResponse(final ClientletResponse response, Valid obj) throws ClientletException, IOException {
+    public void processResponse(final ClientletResponse response, Consumer<Boolean> consumer) throws ClientletException, IOException {
       try (
         final OutputStream out = new FileOutputStream(this.file);
         final InputStream in = response.getInputStream()) {

@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.function.Consumer;
 
 import javax.net.ssl.HostnameVerifier;
 
@@ -142,8 +143,8 @@ public class RedirectRequestHandler implements RequestHandler {
    * net.sourceforge.xamj.http.RequestHandler#processResponse(org.xamjwg.clientlet
    * .ClientletResponse)
    */
-  public void processResponse(final ClientletResponse response, Valid obj) throws ClientletException, IOException {
-    this.origHandler.processResponse(response, obj);
+  public void processResponse(final ClientletResponse response, Consumer<Boolean> consumer) throws ClientletException, IOException {
+    this.origHandler.processResponse(response, consumer);
   }
 
   private volatile boolean cancelled;
