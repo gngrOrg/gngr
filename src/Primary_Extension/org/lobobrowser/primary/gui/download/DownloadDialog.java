@@ -499,6 +499,7 @@ public class DownloadDialog extends JFrame {
         this.downloadDone = true;
         doneWithDownload_Safe(totalRead);
       }
+      consumer.accept(true);
     }
   }
 }

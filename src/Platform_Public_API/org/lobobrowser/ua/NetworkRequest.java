@@ -183,8 +183,8 @@ public interface NetworkRequest {
    *          The destination URL.
    * @param asyncFlag
    *          Whether the request should be asynchronous.
-   * @param integrity
-   *          Integrity value to be checked.
+   * @param userName
+   *          The HTTP authentication user name.
    */
   public void open(String method, @NonNull URL url, boolean asyncFlag, String userName) throws java.io.IOException;
 

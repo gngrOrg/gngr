@@ -244,7 +244,6 @@ public class NetworkRequestImpl implements NetworkRequest {
       if (response.isFromCache()) {
         final Object cachedResponse = response.getTransientCachedObject();
         if (cachedResponse instanceof CacheableResponse) {
-        	System.out.println("Cached response for " + response.getResponseURL());
           // It can be of a different type.
           final CacheableResponse cr = (CacheableResponse) cachedResponse;
           this.changeReadyState(NetworkRequest.STATE_LOADING);
@@ -390,7 +389,7 @@ public class NetworkRequestImpl implements NetworkRequest {
      * (non-Javadoc)
      *
      * @see net.sourceforge.xamj.http.RequestHandler#handleProgress(int,
-     *void java.net.URL, int, int)
+     * java.net.URL, int, int)
      */
     // public void handleProgress(final org.lobobrowser.ua.ProgressType progressType, final URL url, final int value, final int max) {
     // }
