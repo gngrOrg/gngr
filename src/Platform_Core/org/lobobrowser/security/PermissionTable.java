@@ -1,13 +1,17 @@
 package org.lobobrowser.security;
 
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
@@ -22,7 +26,7 @@ import org.lobobrowser.ua.UserAgentContext.RequestKind;
 
 public class PermissionTable {
 
-  public static JComponent makeTable(final PermissionSystem system, final String[] columnNames, final String[][] requestData) {
+  public static JComponent makeTable(final PermissionSystem system, final String[] columnNames, final String[][] requestData, final int[] acceptRejectData) {
     final List<PermissionCellButton> buttons = new LinkedList<>();
     final ChangeListener listener = () -> {
       buttons.stream().forEach(b -> b.update());
@@ -46,7 +50,7 @@ public class PermissionTable {
     });
     tabPane.setFocusable(false);
     system.getBoards().stream().forEachOrdered(board -> {
-      final JPanel grid = makeBoardView(board, columnNames, requestData, buttons, listener);
+      final JPanel grid = makeBoardView(board, columnNames, requestData, acceptRejectData, buttons, listener);
       tabPane.add(board.hostPattern, grid);
     });
     tabPane.setSelectedIndex(tabPane.getTabCount() - 1);
@@ -54,7 +58,7 @@ public class PermissionTable {
   }
 
   private static JPanel makeBoardView(final PermissionBoard board, final String[] columnNames, final String[][] requestData,
-      final List<PermissionCellButton> buttons, final ChangeListener listener) {
+      final int[] acceptRejectData, final List<PermissionCellButton> buttons, final ChangeListener listener) {
     final JPanel grid = new JPanel(new GridBagLayout());
     final GridBagConstraints gbc = new GridBagConstraints();
     gbc.gridx = 0;
@@ -75,8 +79,19 @@ public class PermissionTable {
         addRowToGrid(grid, gbc, row, requestData[i], listener, buttons);
       }
     }
-    final JPanel wrapGrid = new JPanel();
-    wrapGrid.add(grid);
+   
+    final JPanel requestsInformation = new JPanel();
+    final JLabel acceptedRequests = new JLabel();
+    acceptedRequests.setText("Accepted: " + acceptRejectData[0]);
+    final JLabel rejectedRequests = new JLabel();
+    rejectedRequests.setText("Rejected: " + acceptRejectData[1]);
+    
+    requestsInformation.add(acceptedRequests);
+    requestsInformation.add(rejectedRequests);
+    
+    final JPanel wrapGrid = new JPanel(new GridLayout(0, 1));
+    wrapGrid.add(grid, "Center");
+    wrapGrid.add(requestsInformation, "South");
     wrapGrid.setBorder(new EmptyBorder(16, 16, 16, 16));
     return wrapGrid;
   }
@@ -98,5 +113,6 @@ public class PermissionTable {
       grid.add(button, gbc);
       buttons.add(button);
     }
+    
   }
 }
