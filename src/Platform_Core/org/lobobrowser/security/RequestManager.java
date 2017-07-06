@@ -45,7 +45,8 @@ public final class RequestManager {
   /**
    * Constructor for the RequestManager class
    * 
-   * @param frame navigation frame that the user will interact with
+   * @param frame
+   *          navigation frame that the user will interact with
    */
   public RequestManager(final NavigatorFrame frame) {
     this.frame = frame;
@@ -83,7 +84,8 @@ public final class RequestManager {
    * updateCounter: helper function to update the counter for a given request
    * within the hostToCounterMap
    * 
-   * @param request that has been made by the user
+   * @param request
+   *          that has been made by the user
    */
   private synchronized void updateCounter(final Request request) {
     final String host = request.url.getHost().toLowerCase();
@@ -94,8 +96,10 @@ public final class RequestManager {
    * updateCounter: updates the counter for a given host based on the kind of
    * request that was queried
    * 
-   * @param String specified host from URL bar
-   * @param {@link org.lobobrowser.ua.UserAgentContext.RequestKind}
+   * @param String
+   *          specified host from URL bar
+   * @param {@link
+   *          org.lobobrowser.ua.UserAgentContext.RequestKind}
    */
   private synchronized void updateCounter(final String host, final RequestKind kind) {
     ensureHostInCounter(host);
@@ -106,7 +110,8 @@ public final class RequestManager {
    * ensureHostInCounter: ensures that the given URL has been stored with it's
    * given request counters for it's returned types
    * 
-   * @param String host from the URL bar
+   * @param String
+   *          host from the URL bar
    */
   private void ensureHostInCounter(final String host) {
     if (!hostToCounterMap.containsKey(host)) {
@@ -128,7 +133,8 @@ public final class RequestManager {
   /**
    * getFrameHost: returns a specified hostname
    * 
-   * @return String the requested hostname
+   * @return String 
+   *          the requested hostname
    */
   private Optional<String> getFrameHost() {
     return getFrameNavigationEntry().map(e -> {
@@ -149,7 +155,9 @@ public final class RequestManager {
   /**
    * rewriteRequest: will rewrite any request that has been made by a user
    * 
-   * @param request {@link org.lobobrowser.ua.UserAgentContext.Request} Request object that was originally intended to be made
+   * @param request
+   *          {@link org.lobobrowser.ua.UserAgentContext.Request} Request object
+   *          that was originally intended to be made
    * @return newly created request object
    */
   private Request rewriteRequest(final Request request) {
@@ -171,7 +179,8 @@ public final class RequestManager {
    * permitted 2) If request is permitted update associated fields with request
    * parameters 3) Else update request has been rejected
    * 
-   * @param request that has been made by the user
+   * @param request
+   *          that has been made by the user
    * @return boolean request has either been permitted or rejected
    */
   public boolean isRequestPermitted(final Request request) {
@@ -236,7 +245,8 @@ public final class RequestManager {
    * getRequestKindNames: returns a list of the types of requests that can be
    * made {@link org.lobobrowser.ua.UserAgentContext.RequestKind}
    * 
-   * @return Stream<String> stream of shortened name for the given request
+   * @return Stream<String> 
+   *          stream of shortened name for the given request
    */
   private static Stream<String> getRequestKindNames() {
     return Arrays.stream(RequestKind.values()).map(kind -> kind.shortName);
@@ -245,7 +255,8 @@ public final class RequestManager {
   /**
    * reset: Resets all request information each time a new URL name is entered.
    * 
-   * @param URL current URL entered by the user
+   * @param URL
+   *          current URL entered by the user
    */
   public synchronized void reset(final URL frameUrl) {
     hostToCounterMap = new HashMap<>();
@@ -261,7 +272,8 @@ public final class RequestManager {
    * manageRequests: sets up the RequestManager component this is called from
    * {@link org.lobobrowser.gui.FramePanel}
    * 
-   * @param initiatorComponent the top-level swing container
+   * @param initiatorComponent
+   *          the top-level swing container
    */
   public void manageRequests(final JComponent initiatorComponent) {
     // permissionSystemOpt.ifPresent(r -> r.dump());
@@ -274,7 +286,8 @@ public final class RequestManager {
    * getRequestData: called by {@link org.lobobrowser.security.RequestManager}
    * and populates the RequestManager GUI with a requests return counter values.
    * 
-   * @return String[][] a two dimensional array of a requests counter values
+   * @return String[][] 
+   *          a two dimensional array of a requests counter values
    */
   private synchronized String[][] getRequestData() {
     // hostToCounterMap.keySet().stream().forEach(System.out::println);
@@ -294,7 +307,7 @@ public final class RequestManager {
    * 
    * @return int[] an integer array sub two values 0 for accept 1 for reject
    */
-  private synchronized int[] getAcceptRejectData() {
+  public synchronized int[] getAcceptRejectData() {
     int[] temp = new int[2];
     temp[0] = acceptedRequests;
     temp[1] = rejectedRequests;
@@ -306,7 +319,8 @@ public final class RequestManager {
    * types such as: img CSS Cookie JS Frame XHR Referrer Unsecured HTTP
    * {@link org.lobobrowser.ua.UserAgentContext.RequestKind}
    * 
-   * @return String[] list of request type names
+   * @return String[] 
+   *          list of request type names
    */
   private static String[] getColumnNames() {
     final List<String> kindNames = getRequestKindNames().collect(Collectors.toList());

@@ -411,5 +411,8 @@ public interface NavigatorFrame {
 
   public void manageRequests(Object initiator);
 
+  
+  public int[] getAcceptRejectData();
+  
   public void allowAllFirstPartyRequests();
 }

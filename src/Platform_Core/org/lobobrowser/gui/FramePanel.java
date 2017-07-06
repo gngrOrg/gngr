@@ -1332,7 +1332,10 @@ public class FramePanel extends JPanel implements NavigatorFrame {
   public void manageRequests(final Object initiator) {
     requestManager.manageRequests((JComponent) initiator);
   }
-
+  
+  public int[] getAcceptRejectData() {
+    return requestManager.getAcceptRejectData();
+  }
   public void allowAllFirstPartyRequests() {
     requestManager.allowAllFirstPartyRequests();
   }

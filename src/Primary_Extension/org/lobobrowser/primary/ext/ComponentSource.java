@@ -409,6 +409,7 @@ public class ComponentSource implements NavigatorWindowListener {
     if (this.window.getTopFrame() == event.getNavigatorFrame()) {
       this.clearState();
       this.actionPool.updateEnabling();
+      
     }
   }
 
@@ -431,6 +432,8 @@ public class ComponentSource implements NavigatorWindowListener {
     this.statusMessage = null;
     this.defaultStatusMessage = null;
     this.statusMessageComponent.setText("");
+    /** Emplace here until finding a better solution **/
+    processAcceptedRejected();
   }
 
   public void progressUpdated(final NavigatorProgressEvent event) {
@@ -443,8 +446,15 @@ public class ComponentSource implements NavigatorWindowListener {
       }
     }
     this.statusMessageComponent.setText(ClientletRequestHandler.getProgressMessage(event.getProgressType(), event.getUrl()));
+  
   }
 
+  public void processAcceptedRejected() {
+    int[] acceptRejectData = window.getTopFrame().getAcceptRejectData();
+    if (reqManagerButton instanceof JButton) {
+      reqManagerButton.setText("Req Mgr" + " " + "A: " + acceptRejectData[0] +  " D: " + acceptRejectData[1]);
+    }
+  }
   private String statusMessage;
 
   public void statusUpdated(final NavigatorWindowEvent event) {
