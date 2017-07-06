@@ -11,7 +11,6 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -46,8 +45,7 @@ public final class RequestManager {
   /**
    * Constructor for the RequestManager class
    * 
-   * @param frame
-   *          navigation frame that the user will interact with
+   * @param frame navigation frame that the user will interact with
    */
   public RequestManager(final NavigatorFrame frame) {
     this.frame = frame;
@@ -85,8 +83,7 @@ public final class RequestManager {
    * updateCounter: helper function to update the counter for a given request
    * within the hostToCounterMap
    * 
-   * @param request
-   *          that has been made by the user
+   * @param request that has been made by the user
    */
   private synchronized void updateCounter(final Request request) {
     final String host = request.url.getHost().toLowerCase();
@@ -97,10 +94,8 @@ public final class RequestManager {
    * updateCounter: updates the counter for a given host based on the kind of
    * request that was queried
    * 
-   * @param String
-   *          specified host from URL bar
-   * @param {@link
-   *          org.lobobrowser.ua.UserAgentContext.RequestKind}
+   * @param String specified host from URL bar
+   * @param {@link org.lobobrowser.ua.UserAgentContext.RequestKind}
    */
   private synchronized void updateCounter(final String host, final RequestKind kind) {
     ensureHostInCounter(host);
@@ -111,8 +106,7 @@ public final class RequestManager {
    * ensureHostInCounter: ensures that the given URL has been stored with it's
    * given request counters for it's returned types
    * 
-   * @param String
-   *          host from the URL bar
+   * @param String host from the URL bar
    */
   private void ensureHostInCounter(final String host) {
     if (!hostToCounterMap.containsKey(host)) {
@@ -155,8 +149,7 @@ public final class RequestManager {
   /**
    * rewriteRequest: will rewrite any request that has been made by a user
    * 
-   * @param request
-   *          Request object that was originally intended to be made
+   * @param request {@link org.lobobrowser.ua.UserAgentContext.Request} Request object that was originally intended to be made
    * @return newly created request object
    */
   private Request rewriteRequest(final Request request) {
@@ -178,7 +171,7 @@ public final class RequestManager {
    * permitted 2) If request is permitted update associated fields with request
    * parameters 3) Else update request has been rejected
    * 
-   * @param request
+   * @param request that has been made by the user
    * @return boolean request has either been permitted or rejected
    */
   public boolean isRequestPermitted(final Request request) {
@@ -252,8 +245,7 @@ public final class RequestManager {
   /**
    * reset: Resets all request information each time a new URL name is entered.
    * 
-   * @param URL
-   *          the current URL entered by the user
+   * @param URL current URL entered by the user
    */
   public synchronized void reset(final URL frameUrl) {
     hostToCounterMap = new HashMap<>();
@@ -269,9 +261,7 @@ public final class RequestManager {
    * manageRequests: sets up the RequestManager component this is called from
    * {@link org.lobobrowser.gui.FramePanel}
    * 
-   * @param initiatorComponent
-   *          the top-level swing container
-   * @return void
+   * @param initiatorComponent the top-level swing container
    */
   public void manageRequests(final JComponent initiatorComponent) {
     // permissionSystemOpt.ifPresent(r -> r.dump());
