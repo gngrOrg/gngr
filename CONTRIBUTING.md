@@ -37,7 +37,6 @@ before you spend effort on it.
 You can also contribute to our [upstream projects](https://gngr.info/doc/credits.html).
 
 ### Developer Certification of Origin (DCO)
-### Developer Certification of Origin (DCO)
 Licensing is very important to open source projects. It helps ensure the software continues to be available under the terms that the author desired.
 
 Gngr uses GPL and LGPL licenses to strike a balance between open contribution and allowing you to use the software however you would like to.
@@ -88,6 +87,8 @@ Signed-off-by: XXXX <XXXX@xyz.com>
 ```
 
 The DCO text can either be manually added to your commit body, or you can add either **-s** or **--signoff** to your usual git commit commands. If you forget to add the sign-off you can also amend a previous commit with the sign-off by running **git commit --amend -s**. If you've pushed your changes to Github already you'll need to force push your branch after this with **git push -f**.
+
+To ensure that the commit message has not been tampered with, you also need to [GPG sign your commit](https://help.github.com/articles/signing-commits-using-gpg/) with a verified key.
 
 ### Gngr Obvious Fix Policy
 
