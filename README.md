@@ -66,7 +66,9 @@ See [the contributing guide](CONTRIBUTING.md) for more details.
 [GPLv2](https://www.gnu.org/licenses/gpl-2.0.html)
 
  * Copyright 2009 Lobo Project
- * Copyright 2014, 2015 Uproot Labs India Pvt Ltd
+ * Copyright 2014-2018 Uproot Labs India Pvt Ltd
+
+Some parts of the code are provided under the LGPL license. Their directories contain their respective license files.
 
 ### Pre-History
 `gngr` began as a fork of the now-defunct project called the `lobo` browser (see [credits](https://gngr.info/doc/credits.html)).
