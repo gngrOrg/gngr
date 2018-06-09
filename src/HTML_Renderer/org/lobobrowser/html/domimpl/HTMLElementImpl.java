@@ -61,7 +61,7 @@ import cz.vutbr.web.css.MatchCondition;
 import cz.vutbr.web.css.NodeData;
 import cz.vutbr.web.css.RuleSet;
 import cz.vutbr.web.css.Selector;
-import cz.vutbr.web.css.Selector.PseudoDeclaration;
+import cz.vutbr.web.css.Selector.PseudoClassType;
 import cz.vutbr.web.css.StyleSheet;
 import cz.vutbr.web.css.TermList;
 import cz.vutbr.web.csskit.MatchConditionOnElements;
@@ -153,7 +153,7 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
   private GeneratedElement beforeNode;
   private GeneratedElement afterNode;
 
-  private NodeData getNodeData(final Selector.PseudoDeclaration psuedoElement) {
+  private NodeData getNodeData(final Selector.PseudoElementType psuedoElement) {
     // The analyzer needs the tree lock, when traversing the DOM.
     // To break deadlocks, we take the tree lock before taking the element lock (priority based dead-lock break).
     synchronized (this.treeLock) {
@@ -189,8 +189,8 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
           nodeData.concretize();
         }
 
-        this.beforeNode = setupGeneratedNode(doc, nodeData, Selector.PseudoDeclaration.BEFORE, cachedRules, this);
-        this.afterNode = setupGeneratedNode(doc, nodeData, Selector.PseudoDeclaration.AFTER, cachedRules, this);
+        this.beforeNode = setupGeneratedNode(doc, nodeData, Selector.PseudoElementType.BEFORE, cachedRules, this);
+        this.afterNode = setupGeneratedNode(doc, nodeData, Selector.PseudoElementType.AFTER, cachedRules, this);
 
         cachedNodeData = nodeData;
         // System.out.println("In " + this);
@@ -200,7 +200,7 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
     }
   }
 
-  private static GeneratedElement setupGeneratedNode(final HTMLDocumentImpl doc, final NodeData nodeData, final Selector.PseudoDeclaration decl, final OrderedRule[] rules, final HTMLElementImpl elem) {
+  private static GeneratedElement setupGeneratedNode(final HTMLDocumentImpl doc, final NodeData nodeData, final Selector.PseudoElementType decl, final OrderedRule[] rules, final HTMLElementImpl elem) {
     final NodeData genNodeData = AnalyzerUtil.getElementStyle(elem, decl, doc.getMatcher(), elementMatchCondition, rules);
     /*
      * TODO: getValue returns null when `content:inherit` is set. This gives correct behavior per spec,
@@ -232,7 +232,7 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
       final RuleSet r = or.getRule();
       for (final CombinedSelector cs : r.getSelectors()) {
         for (final Selector s : cs) {
-          if (s.hasPseudoDeclaration(PseudoDeclaration.HOVER)) {
+          if (s.hasPseudoClass(PseudoClassType.HOVER)) {
             return true;
           }
         }
@@ -261,7 +261,7 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
     return null;
   }
 
-  static private Selector.PseudoDeclaration getPseudoDeclaration(final String pseudoElement) {
+  static private Selector.PseudoElementType getPseudoDeclaration(final String pseudoElement) {
     if ((pseudoElement != null)) {
       String choppedPseudoElement = pseudoElement;
       if (pseudoElement.startsWith("::")) {
@@ -269,12 +269,10 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
       } else if (pseudoElement.startsWith(":")) {
         choppedPseudoElement = pseudoElement.substring(1, pseudoElement.length());
       }
-      final Selector.PseudoDeclaration[] pseudoDeclarations = Selector.PseudoDeclaration.values();
-      for (final Selector.PseudoDeclaration pd : pseudoDeclarations) {
-        if (pd.isPseudoElement()) {
-          if (pd.value().equals(choppedPseudoElement)) {
-            return pd;
-          }
+      final Selector.PseudoElementType[] pseudoDeclarations = Selector.PseudoElementType.values();
+      for (final Selector.PseudoElementType pd : pseudoDeclarations) {
+        if (pd.getName().equals(choppedPseudoElement)) {
+          return pd;
         }
       }
     }
@@ -373,9 +371,9 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
     // TODO: Synchronize with treeLock here instead of in invalidateDescendtsForHover?
     if (this.isMouseOver != mouseOver) {
       if (mouseOver) {
-        elementMatchCondition.addMatch(this, PseudoDeclaration.HOVER);
+        elementMatchCondition.addMatch(this, PseudoClassType.HOVER);
       } else {
-        elementMatchCondition.removeMatch(this, PseudoDeclaration.HOVER);
+        elementMatchCondition.removeMatch(this, PseudoClassType.HOVER);
       }
       // Change isMouseOver field before checking to invalidate.
       this.isMouseOver = mouseOver;
@@ -396,7 +394,7 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
     synchronized (this.treeLock) {
       if (!mouseOver) {
         final MatchConditionOnElements hoverCondition = (MatchConditionOnElements) elementMatchCondition.clone();
-        hoverCondition.addMatch(this, PseudoDeclaration.HOVER);
+        hoverCondition.addMatch(this, PseudoClassType.HOVER);
         invalidateDescendentsForHoverImpl(this, hoverCondition);
       } else {
         invalidateDescendentsForHoverImpl(this, elementMatchCondition);
@@ -453,7 +451,7 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
     if (rules == null) {
       return false;
     }
-    return AnalyzerUtil.hasPseudoSelector(rules, this, elementMatchCondition, PseudoDeclaration.HOVER);
+    return AnalyzerUtil.hasPseudoSelector(rules, this, elementMatchCondition, PseudoClassType.HOVER);
   }
 
   // TODO: Cache the result of this
@@ -463,7 +461,7 @@ public class HTMLElementImpl extends ElementImpl implements HTMLElement, CSS2Pro
       return false;
     }
     final HTMLDocumentImpl doc = (HTMLDocumentImpl) this.document;
-    return AnalyzerUtil.hasPseudoSelectorForAncestor(rules, this, ancestor, doc.getMatcher(), hoverCondition, PseudoDeclaration.HOVER);
+    return AnalyzerUtil.hasPseudoSelectorForAncestor(rules, this, ancestor, doc.getMatcher(), hoverCondition, PseudoClassType.HOVER);
   }
 
   /**
