@@ -73,7 +73,7 @@
     </target>
     <target name="EntryPoint">
         <java classname="org.lobobrowser.main.EntryPoint" failonerror="true" fork="yes">
-            <jvmarg line="-Dext.dirs=../XAMJ_Build/ext  -Dext.files=../HTML_Renderer/bin,../Primary_Extension/bin  -Djava.security.debugxx=accesss,failure -Djava.security.debugxx=access,domain,stack"/>
+            <jvmarg line="-Dfile.encoding=utf-8 -Dext.dirs=../XAMJ_Build/ext  -Dext.files=../HTML_Renderer/bin,../Primary_Extension/bin  -Djava.security.debugxx=accesss,failure -Djava.security.debugxx=access,domain,stack"/>
             <arg value="-debug"/>
             <arg value="-grinder-key=${gngr.grinder.key}" if:set="gngr.grinder.key"/>
             <classpath refid="Platform_Core.classpath"/>
