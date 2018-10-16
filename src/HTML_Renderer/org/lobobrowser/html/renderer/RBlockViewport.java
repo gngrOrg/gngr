@@ -115,6 +115,10 @@ public class RBlockViewport extends BaseRCollection {
   private int maxY;
   // private int availHeight;
   private int desiredWidth; // includes insets
+  public int getDesiredHeight() {
+	return desiredHeight;
+}
+
   private int desiredHeight; // includes insets
   private int availContentHeight; // does not include insets
   private int availContentWidth; // does not include insets
@@ -199,14 +203,15 @@ public class RBlockViewport extends BaseRCollection {
     return this.availContentWidth;
   }
 
-  private int initCollapsibleMargin() {
-    final Object parent = this.parent;
-    if (!(parent instanceof RBlock)) {
-      return 0;
-    }
-    final RBlock parentBlock = (RBlock) parent;
-    return parentBlock.getCollapsibleMarginTop();
-  }
+//	Might still be useful
+//  private int initCollapsibleMargin() {
+//    final Object parent = this.parent;
+//    if (!(parent instanceof RBlock)) {
+//      return 0;
+//    }
+//    final RBlock parentBlock = (RBlock) parent;
+//    return parentBlock.getCollapsibleMarginTop();
+//  }
 
   /**
    * Builds the layout/renderer tree from scratch. Note: Returned dimension
@@ -349,22 +354,22 @@ public class RBlockViewport extends BaseRCollection {
         final Insets insets = this.paddingInsets;
         // final FloatingBounds floatBounds = this.floatBounds;
         final int numRenderables = renderables.size();
-        final int yoffset = 0; // This may get adjusted due to blocks and floats.
+//        final int yoffset = 0;  This may get adjusted due to blocks and floats.
         for (int i = 0; i < numRenderables; i++) {
           final Object r = renderables.get(i);
           if (r instanceof BoundableRenderable) {
             final BoundableRenderable seqRenderable = (BoundableRenderable) r;
             final int y = seqRenderable.getY();
-            int newY;
-            if (yoffset > 0) {
-              newY = y + yoffset;
-              seqRenderable.setY(newY);
-              if ((newY + seqRenderable.getHeight()) > this.maxY) {
-                this.maxY = newY + seqRenderable.getHeight();
-              }
-            } else {
-              newY = y;
-            }
+//            int newY;
+//            if (yoffset > 0) {
+//              newY = y + yoffset;
+//              seqRenderable.setY(newY);
+//              if ((newY + seqRenderable.getHeight()) > this.maxY) {
+//                this.maxY = newY + seqRenderable.getHeight();
+//              }
+//            } else {
+//              newY = y;
+//            }
             final boolean isVisibleBlock = (seqRenderable instanceof RBlock) && ((RBlock) seqRenderable).isOverflowVisibleX();
             final int leftOffset = isVisibleBlock ? insets.left : this.fetchLeftOffset(y);
             final int rightOffset = isVisibleBlock ? insets.right : this.fetchRightOffset(y);

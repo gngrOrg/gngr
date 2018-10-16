@@ -702,20 +702,21 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
     // drawGrid(g);
   }
 
-  private void drawGrid(final Graphics g) {
-      final int GRID_SIZE = 50;
-      final int OFFSET_X = 0;
-      final int OFFSET_Y = 0;
-      // Draw grid for debug
-      final Rectangle clipBounds = g.getClipBounds();
-      g.setColor(new Color(0, 0, 0, 30));
-      for (int i = 0; i < clipBounds.width; i+= GRID_SIZE) {
-        g.drawLine(i + OFFSET_X, 0, i + OFFSET_X, clipBounds.height);
-      }
-      for (int j = 0; j < clipBounds.height; j+= GRID_SIZE) {
-        g.drawLine(0, j + OFFSET_Y, clipBounds.width, j + OFFSET_Y);
-      }
-  }
+  //For debugging
+//  private void drawGrid(final Graphics g) {
+//      final int GRID_SIZE = 50;
+//      final int OFFSET_X = 0;
+//      final int OFFSET_Y = 0;
+//      // Draw grid for debug
+//      final Rectangle clipBounds = g.getClipBounds();
+//      g.setColor(new Color(0, 0, 0, 30));
+//      for (int i = 0; i < clipBounds.width; i+= GRID_SIZE) {
+//        g.drawLine(i + OFFSET_X, 0, i + OFFSET_X, clipBounds.height);
+//      }
+//      for (int j = 0; j < clipBounds.height; j+= GRID_SIZE) {
+//        g.drawLine(0, j + OFFSET_Y, clipBounds.width, j + OFFSET_Y);
+//      }
+//  }
 
   @Override
   public void doLayout() {

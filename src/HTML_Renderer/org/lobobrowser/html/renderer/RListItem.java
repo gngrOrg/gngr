@@ -36,7 +36,7 @@ class RListItem extends BaseRListElement {
   private static final int BULLET_WIDTH = 5;
   private static final int BULLET_HEIGHT = 5;
   private static final int BULLET_RMARGIN = 5;
-  private static final int BULLET_SPACE_WIDTH = 36;
+  // private static final int BULLET_SPACE_WIDTH = 36;
 
   public RListItem(final NodeImpl modelNode, final int listNesting, final UserAgentContext pcontext, final HtmlRendererContext rcontext,
       final FrameContext frameContext,

@@ -257,7 +257,7 @@ public class HTMLImageElementImpl extends HTMLAbstractUIElement implements HTMLI
   public void removeImageListener(final ImageListener listener) {
     final ArrayList<ImageListener> l = this.listeners;
     synchronized (l) {
-      l.remove(l);
+      l.remove(listener);
     }
   }
 

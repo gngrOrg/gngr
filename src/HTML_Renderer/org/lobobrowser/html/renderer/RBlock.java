@@ -395,16 +395,8 @@ public class RBlock extends BaseBlockyRenderable {
         // this.lastLayoutKey = key;
         // this.lastLayoutValue = value;
       }
-    } else {
-      /*
-      System.out.println("Cached layout for " + this);
-      final FloatingInfo finfo = getExportableFloatingInfo();
-      if (finfo != null) {
-        for ( ExportableFloat fi : finfo.floats) {
-          fi.pendingPlacement = true;
-        }
-      }*/
     }
+    
     this.width = value.width;
     this.height = value.height;
     this.hasHScrollBar = value.hasHScrollBar;

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JComboBox;
@@ -310,8 +311,12 @@ class InputSelectControl extends BaseInputControl {
       final OptionItem item = (OptionItem) this.comboBox.getSelectedItem();
       return item == null ? null : new String[] { item.getValue() };
     } else {
-      final Object[] values = this.list.getSelectedValues();
-      if (values == null) {
+      final List<OptionItem> values = this.list.getSelectedValuesList();
+      if (values == null
+    		  || values.isEmpty()) {
+    	  //TODO the empty validation wasn't here, it was added because the called method
+    	  // returns an empty list instead of null - confirm if this extra verification
+    	  // isn't harmful as the code didn't had it
         return null;
       }
       final ArrayList<String> al = new ArrayList<>();
