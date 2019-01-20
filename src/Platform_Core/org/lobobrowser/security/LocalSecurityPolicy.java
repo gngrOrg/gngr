@@ -443,6 +443,12 @@ public class LocalSecurityPolicy extends Policy {
 
         permissions.add(new RuntimePermission("accessClassInPackage.*"));
         permissions.add(new SecurityPermission("putProviderProperty.*"));
+
+        // For GH-248
+        permissions.add(GenericLocalPermission.EXT_GENERIC);
+        permissions.add(new FilePermission(STORE_DIRECTORY_CANONICAL + recursiveSuffix, "read,write"));
+        permissions.add(new RuntimePermission("setContextClassLoader"));
+
       } else if (path.startsWith("jrt:/jdk")) {
         permissions.add(new RuntimePermission("accessClassInPackage.sun.*"));
       }
