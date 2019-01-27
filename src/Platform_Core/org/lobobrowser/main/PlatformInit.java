@@ -51,7 +51,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.net.ssl.SSLSocketFactory;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
@@ -61,6 +60,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.lobobrowser.gui.ConsoleModel;
 import org.lobobrowser.gui.DefaultWindowFactory;
 import org.lobobrowser.gui.FramePanel;
+import org.lobobrowser.main.TrustManager.SSLInfo;
 import org.lobobrowser.request.AuthenticatorImpl;
 import org.lobobrowser.request.DomainValidation;
 import org.lobobrowser.request.NOPCookieHandlerImpl;
@@ -73,9 +73,10 @@ import org.lobobrowser.util.SimpleThreadPool;
 import org.lobobrowser.util.SimpleThreadPoolTask;
 import org.lobobrowser.util.Urls;
 
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.OkUrlFactory;
-import com.squareup.okhttp.Protocol;
+import okhttp3.OkHttpClient;
+import okhttp3.OkHttpClient.Builder;
+import okhttp3.OkUrlFactory;
+import okhttp3.Protocol;
 
 /**
  * A singleton class that is used to initialize a browser session in the current
@@ -126,23 +127,23 @@ public class PlatformInit {
    * <p>
    * This method is invoked by {@link #init(boolean, boolean)}.
    */
-  public static void initProtocols(final SSLSocketFactory sslSocketFactory) {
+  public static void initProtocols(final SSLInfo sslInfo) {
     // Configure URL protocol handlers
     final PlatformStreamHandlerFactory factory = PlatformStreamHandlerFactory.getInstance();
     URL.setURLStreamHandlerFactory(factory);
-    final OkHttpClient okHttpClient = new OkHttpClient();
 
     final ArrayList<Protocol> protocolList = new ArrayList<>(2);
     protocolList.add(Protocol.HTTP_1_1);
     protocolList.add(Protocol.HTTP_2);
-    okHttpClient.setProtocols(protocolList);
 
-    okHttpClient.setConnectTimeout(100, TimeUnit.SECONDS);
+    final Builder builder = new OkHttpClient.Builder()
+      .connectTimeout(100, TimeUnit.SECONDS)
+      .sslSocketFactory(sslInfo.socketFactory, sslInfo.trustManager)
+      .protocols(protocolList)
+      .followRedirects(false)
+      .followSslRedirects(false);
+    final OkHttpClient okHttpClient = builder.build();
 
-    // HttpsURLConnection.setDefaultSSLSocketFactory(sslSocketFactory);
-    okHttpClient.setSslSocketFactory(sslSocketFactory);
-    okHttpClient.setFollowRedirects(false);
-    okHttpClient.setFollowSslRedirects(false);
     factory.addFactory(new OkUrlFactory(okHttpClient));
     factory.addFactory(new LocalStreamHandlerFactory());
   }
@@ -312,7 +313,7 @@ public class PlatformInit {
    * @see #initProtocols()
    * @see #initExtensions()
    */
-  public void init(final boolean exitWhenAllWindowsAreClosed, final boolean initConsole, final SSLSocketFactory sslSocketFactory)
+  public void init(final boolean exitWhenAllWindowsAreClosed, final boolean initConsole, final SSLInfo sslInfo)
       throws Exception {
     checkReleaseDate();
 
@@ -320,7 +321,7 @@ public class PlatformInit {
 
     initNative(NATIVE_DIR_NAME);
     initSecurity();
-    initProtocols(sslSocketFactory);
+    initProtocols(sslInfo);
     initHTTP();
     initLookAndFeel();
     if (initConsole) {

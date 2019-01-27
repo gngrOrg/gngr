@@ -40,6 +40,7 @@ import java.util.logging.Logger;
 
 import javax.net.ssl.SSLSocketFactory;
 
+import org.lobobrowser.main.TrustManager.SSLInfo;
 import org.lobobrowser.store.StorageManager;
 
 /**
@@ -67,7 +68,7 @@ public class ReuseManager {
   /**
    * May launch in this VM or a second one.
    */
-  public void launch(final String[] args, final SSLSocketFactory sslSocketFactory) throws Exception {
+  public void launch(final String[] args, final SSLInfo sslInfo) throws Exception {
     boolean launched = false;
     // long time1 = System.currentTimeMillis();
     try {
@@ -156,7 +157,7 @@ public class ReuseManager {
         }
       }
       entry.initLogging(debugOn);
-      entry.init(true, !debugOn, sslSocketFactory);
+      entry.init(true, !debugOn, sslInfo);
       entry.start(args);
     }
   }

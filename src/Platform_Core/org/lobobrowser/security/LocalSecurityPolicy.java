@@ -425,15 +425,11 @@ public class LocalSecurityPolicy extends Policy {
         permissions.add(new PropertyPermission("rhino.stack.style", "read"));
         permissions.add(new RuntimePermission("getClassLoader"));
 
-      } else if (path.endsWith("okhttp-urlconnection-2.7.2.jar")) {
-        permissions.add(new NetPermission("getProxySelector"));
-        permissions.add(new NetPermission("getCookieHandler"));
-        permissions.add(new PropertyPermission("http.*", "read"));
+      } else if (path.endsWith("okhttp-urlconnection-3.12.1.jar")) {
         permissions.add(new SocketPermission("*", "connect,resolve,listen,accept"));
-      } else if (path.endsWith("okhttp-2.7.2.jar")) {
+      } else if (path.endsWith("okhttp-3.12.1.jar")) {
         permissions.add(new NetPermission("getProxySelector"));
-        permissions.add(new NetPermission("getCookieHandler"));
-        permissions.add(new PropertyPermission("http.*", "read"));
+        permissions.add(new PropertyPermission("okhttp.*", "read"));
         permissions.add(new SocketPermission("*", "connect,resolve,listen,accept"));
       } else if (path.startsWith(JAVA_HOME_URL)) {
         // This is to allow libraries to be loaded by JDK classes. Required for SSL libraries for example.

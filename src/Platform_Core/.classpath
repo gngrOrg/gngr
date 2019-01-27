@@ -7,10 +7,10 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/Common"/>
 	<classpathentry kind="lib" path="lib/jooq-3.4.2.jar"/>
 	<classpathentry kind="lib" path="lib/public-suffix-list_0.1_28Jun.jar"/>
-	<classpathentry kind="lib" path="lib/okhttp-2.7.2.jar"/>
-	<classpathentry kind="lib" path="lib/okhttp-urlconnection-2.7.2.jar"/>
-	<classpathentry kind="lib" path="lib/okio-1.6.0.jar"/>
 	<classpathentry kind="lib" path="/XAMJ_Build/org.eclipse.jdt.annotation_2.0.100.v20150311-1658.jar"/>
 	<classpathentry kind="lib" path="lib/h2-1.4.196.jar"/>
+	<classpathentry kind="lib" path="lib/okhttp-3.12.1.jar"/>
+	<classpathentry kind="lib" path="lib/okhttp-urlconnection-3.12.1.jar"/>
+	<classpathentry kind="lib" path="lib/okio-1.17.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
