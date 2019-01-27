@@ -431,7 +431,7 @@ public class LocalSecurityPolicy extends Policy {
         permissions.add(new NetPermission("getProxySelector"));
         permissions.add(new PropertyPermission("okhttp.*", "read"));
         permissions.add(new SocketPermission("*", "connect,resolve,listen,accept"));
-      } else if (path.startsWith(JAVA_HOME_URL)) {
+      } else if (path.startsWith(JAVA_HOME_URL) || path.startsWith("jrt:/java")) {
         // This is to allow libraries to be loaded by JDK classes. Required for SSL libraries for example.
         permissions.add(new FilePermission(JAVA_HOME + recursiveSuffix, "read,execute"));
 
@@ -442,6 +442,7 @@ public class LocalSecurityPolicy extends Policy {
 
         // For GH-248
         permissions.add(GenericLocalPermission.EXT_GENERIC);
+        permissions.add(new FilePermission(STORE_DIRECTORY_CANONICAL, "read"));
         permissions.add(new FilePermission(STORE_DIRECTORY_CANONICAL + recursiveSuffix, "read,write"));
         permissions.add(new RuntimePermission("setContextClassLoader"));
 
