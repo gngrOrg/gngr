@@ -75,6 +75,7 @@ public class LocalSecurityPolicy extends Policy {
   private static final String recursiveSuffix = File.separator + "-";
 
   private static final Collection<Permission> CORE_PERMISSIONS = new LinkedList<>();
+  private static final Collection<Permission> CP_READ_PERMISSIONS = new LinkedList<>();
   private static final Collection<Permission> EXTENSION_PERMISSIONS = new LinkedList<>();
 
   private static String JAVA_HOME_URL;
@@ -165,12 +166,13 @@ public class LocalSecurityPolicy extends Policy {
         final String pathElement = strTokenizer.nextToken();
         if (new File(pathElement).isDirectory()) {
           final FilePermission fp = new FilePermission(pathElement + recursiveSuffix, "read");
-          CORE_PERMISSIONS.add(fp);
+          CP_READ_PERMISSIONS.add(fp);
         } else {
           final FilePermission fp = new FilePermission(pathElement, "read");
-          CORE_PERMISSIONS.add(fp);
+          CP_READ_PERMISSIONS.add(fp);
         }
       }
+      CORE_PERMISSIONS.addAll(CP_READ_PERMISSIONS);
 
       // Java 9 early access requires this while loading resources in Swing internal code.
       // TODO: This could be reported upstream. The Swing code should call doPrivileged().
@@ -427,11 +429,13 @@ public class LocalSecurityPolicy extends Policy {
 
       } else if (path.endsWith("okhttp-urlconnection-3.13.1.jar")) {
         permissions.add(new SocketPermission("*", "connect,resolve,listen,accept"));
+        permissions.add(new RuntimePermission("modifyThread"));
       } else if (path.endsWith("okhttp-3.13.1.jar")) {
         permissions.add(new NetPermission("getProxySelector"));
         permissions.add(new PropertyPermission("okhttp.*", "read"));
         permissions.add(new SocketPermission("*", "connect,resolve,listen,accept"));
-      } else if (path.startsWith(JAVA_HOME_URL) || path.startsWith("jrt:/java")) {
+        permissions.add(new RuntimePermission("modifyThread"));
+      } else if (path.startsWith(JAVA_HOME_URL) || path.startsWith("jrt:/java") || path.startsWith("jrt:/jdk")) {
         // This is to allow libraries to be loaded by JDK classes. Required for SSL libraries for example.
         permissions.add(new FilePermission(JAVA_HOME + recursiveSuffix, "read,execute"));
 
@@ -446,6 +450,9 @@ public class LocalSecurityPolicy extends Policy {
         permissions.add(new FilePermission(STORE_DIRECTORY_CANONICAL + recursiveSuffix, "read,write"));
         permissions.add(new RuntimePermission("setContextClassLoader"));
 
+        permissions.add(new PropertyPermission("*", "read"));
+        permissions.add(new RuntimePermission("shutdownHooks"));
+        copyPermissions(CP_READ_PERMISSIONS, permissions);
       } else if (path.startsWith("jrt:/jdk")) {
         permissions.add(new RuntimePermission("accessClassInPackage.sun.*"));
       }
