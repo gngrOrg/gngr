@@ -26,7 +26,11 @@ package org.lobobrowser.html.domimpl;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.lobobrowser.html.js.Event;
 import org.lobobrowser.html.js.Executor;
@@ -205,7 +209,8 @@ public class HTMLScriptElementImpl extends HTMLElementImpl implements HTMLScript
 
       final Window window = doc.getWindow();
       if (text != null) {
-        final String textSub = text.substring(0, Math.min(50, text.length())).replaceAll("\n", "");
+        final String textUnesc = unescapeXML(text);
+        final String textSub = textUnesc.substring(0, Math.min(50, textUnesc.length())).replaceAll("\n", "");
         window.addJSTaskUnchecked(new JSRunnableTask(0, "script: " + textSub, new Runnable() {
           public void run() {
             // final Context ctx = Executor.createContext(HTMLScriptElementImpl.this.getDocumentURL(), bcontext);
@@ -216,7 +221,7 @@ public class HTMLScriptElementImpl extends HTMLElementImpl implements HTMLScript
                 throw new IllegalStateException("Scriptable (scope) instance was null");
               }
               try {
-                ctx.evaluateString(scope, text, scriptURI, baseLineNumber, null);
+                ctx.evaluateString(scope, textUnesc, scriptURI, baseLineNumber, null);
                 // Why catch this?
                 // } catch (final EcmaError ecmaError) {
                 // logger.log(Level.WARNING,
@@ -253,5 +258,52 @@ public class HTMLScriptElementImpl extends HTMLElementImpl implements HTMLScript
       // TODO What does script element do when detached?
     }
     super.handleDocumentAttachmentChanged();
+  }
+
+  // Quick fix adapted from https://stackoverflow.com/a/8577460
+  // For more comprehensive unescaping, see Apache commons text module
+  public static String unescapeXML(final String xml) {
+    final Pattern xmlEntityRegex = Pattern.compile("&(#?)([^;]+);");
+    //Unfortunately, Matcher requires a StringBuffer instead of a StringBuilder
+    final StringBuffer unescapedOutput = new StringBuffer(xml.length());
+
+    final Matcher m = xmlEntityRegex.matcher(xml);
+    Map<String, String> builtinEntities = null;
+    String entity;
+    String hashmark;
+    String ent;
+    int code;
+    while (m.find()) {
+      ent = m.group(2);
+      hashmark = m.group(1);
+      if ((hashmark != null) && (hashmark.length() > 0)) {
+        code = Integer.parseInt(ent);
+        entity = Character.toString((char) code);
+      } else {
+        //must be a non-numerical entity
+        if (builtinEntities == null) {
+          builtinEntities = buildBuiltinXMLEntityMap();
+        }
+        entity = builtinEntities.get(ent);
+        if (entity == null) {
+          //not a known entity - ignore it
+          entity = "&" + ent + ';';
+        }
+      }
+      m.appendReplacement(unescapedOutput, entity);
+    }
+    m.appendTail(unescapedOutput);
+
+    return unescapedOutput.toString();
+  }
+
+  private static Map<String, String> buildBuiltinXMLEntityMap() {
+    final Map<String, String> entities = new HashMap<String, String>(10);
+    entities.put("lt", "<");
+    entities.put("gt", ">");
+    entities.put("amp", "&");
+    entities.put("apos", "'");
+    entities.put("quot", "\"");
+    return entities;
   }
 }
