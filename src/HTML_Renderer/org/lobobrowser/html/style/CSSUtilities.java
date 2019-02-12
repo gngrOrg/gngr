@@ -126,7 +126,7 @@ public class CSSUtilities {
       throw ioException;
     }
     final int status = request.getStatus();
-    if (status != 200) {
+    if (status != 200 && status != 0) {
       throw new IOException("Unable to fetch CSS. URI=[" + cssURI + "]. Response status was " + status + ".");
     }
 
