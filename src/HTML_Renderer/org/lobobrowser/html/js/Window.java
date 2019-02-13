@@ -1598,4 +1598,8 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
   public boolean hasPendingTasks() {
     return (!jobsOver.get()) || jsScheduler.hasPendingTasks();
   }
+
+  public void requestAnimationFrame() {
+    System.out.println("TODO: window.requestAnimationFrame is not yet implemented");
+  }
 }
