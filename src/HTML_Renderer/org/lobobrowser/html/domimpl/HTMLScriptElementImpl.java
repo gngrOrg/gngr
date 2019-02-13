@@ -282,12 +282,10 @@ public class HTMLScriptElementImpl extends HTMLElementImpl implements HTMLScript
           builtinEntities = buildBuiltinXMLEntityMap();
         }
         entity = builtinEntities.get(ent);
-        if (entity == null) {
-          //not a known entity - ignore it
-          entity = "&" + ent + ';';
-        }
       }
-      m.appendReplacement(unescapedOutput, entity);
+      if (entity != null) {
+        m.appendReplacement(unescapedOutput, entity);
+      }
     }
     m.appendTail(unescapedOutput);
 
