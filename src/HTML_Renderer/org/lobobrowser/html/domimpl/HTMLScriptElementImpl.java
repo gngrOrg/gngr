@@ -269,18 +269,15 @@ public class HTMLScriptElementImpl extends HTMLElementImpl implements HTMLScript
 
     final Matcher m = xmlEntityRegex.matcher(xml);
     Map<String, String> builtinEntities = null;
-    String entity;
-    String hashmark;
-    String ent;
-    int code;
     while (m.find()) {
-      ent = m.group(2);
-      hashmark = m.group(1);
+      final String hashmark = m.group(1);
+      final String ent = m.group(2);
+      String entity;
       if ((hashmark != null) && (hashmark.length() > 0)) {
-        code = Integer.parseInt(ent);
+        final int code = Integer.parseInt(ent);
         entity = Character.toString((char) code);
       } else {
-        //must be a non-numerical entity
+        // might be a non-numerical entity
         if (builtinEntities == null) {
           builtinEntities = buildBuiltinXMLEntityMap();
         }
