@@ -71,7 +71,7 @@ public class HtmlPanel extends JComponent implements FrameContext, DefferedLayou
   private final javax.swing.Timer notificationTimer;
   private final DocumentNotificationListener notificationListener;
   private final Runnable notificationImmediateAction;
-  private static final int NOTIF_TIMER_DELAY = 150;
+  private static final int NOTIF_TIMER_DELAY = 10;
 
   private volatile boolean isFrameSet = false;
   private volatile NodeRenderer nodeRenderer = null;
