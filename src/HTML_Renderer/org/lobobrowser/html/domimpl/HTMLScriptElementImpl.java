@@ -268,7 +268,6 @@ public class HTMLScriptElementImpl extends HTMLElementImpl implements HTMLScript
     final StringBuffer unescapedOutput = new StringBuffer(xml.length());
 
     final Matcher m = xmlEntityRegex.matcher(xml);
-    Map<String, String> builtinEntities = null;
     while (m.find()) {
       final String hashmark = m.group(1);
       final String ent = m.group(2);
@@ -278,10 +277,7 @@ public class HTMLScriptElementImpl extends HTMLElementImpl implements HTMLScript
         entity = Character.toString((char) code);
       } else {
         // might be a non-numerical entity
-        if (builtinEntities == null) {
-          builtinEntities = buildBuiltinXMLEntityMap();
-        }
-        entity = builtinEntities.get(ent);
+        entity = builtInXmlEntities.get(ent);
       }
       if (entity != null) {
         m.appendReplacement(unescapedOutput, entity);
@@ -291,6 +287,8 @@ public class HTMLScriptElementImpl extends HTMLElementImpl implements HTMLScript
 
     return unescapedOutput.toString();
   }
+
+  private static Map<String, String> builtInXmlEntities = buildBuiltinXMLEntityMap();
 
   private static Map<String, String> buildBuiltinXMLEntityMap() {
     final Map<String, String> entities = new HashMap<String, String>(10);
