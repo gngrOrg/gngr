@@ -30,7 +30,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.AccessControlContext;
 import java.security.AccessController;
+import java.security.CodeSource;
 import java.security.PrivilegedAction;
+import java.security.cert.Certificate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -160,12 +162,17 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
       final Scriptable s = this.windowScope;
       if (s != null) {
         final Object[] ids = s.getIds();
-        for (final Object id : ids) {
-          if (id instanceof String) {
-            s.delete((String) id);
-          } else if (id instanceof Integer) {
-            s.delete(((Integer) id).intValue());
+        windowContextFactory.enterContext();
+        try {
+          for (final Object id : ids) {
+            if (id instanceof String) {
+              s.delete((String) id);
+            } else if (id instanceof Integer) {
+              s.delete(((Integer) id).intValue());
+            }
           }
+        } finally {
+          Context.exit();
         }
       }
 
@@ -712,9 +719,11 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
     addJSTask(new JSRunnableTask(0, new Runnable() {
       public void run() {
         try {
+          final URL currURL = getCurrURL();
+          final CodeSource cs = new CodeSource(currURL, (Certificate[]) null);
           final String scriptURI = "window.eval";
-          final Context ctx = Executor.createContext(getCurrURL(), Window.this.uaContext, windowContextFactory);
-          ctx.evaluateString(getWindowScope(), javascript, scriptURI, 1, null);
+          final Context ctx = Executor.createContext(currURL, Window.this.uaContext, windowContextFactory);
+          ctx.evaluateString(getWindowScope(), javascript, scriptURI, 1, cs);
         } finally {
           Context.exit();
         }
@@ -836,6 +845,15 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
   private void initWindowScope(final Document doc) {
     // Special Javascript class: XMLHttpRequest
     final Scriptable ws = this.getWindowScope();
+    windowContextFactory.enterContext();
+    try {
+      setupScope(doc, ws);
+    } finally {
+      Context.exit();
+    }
+  }
+
+  private void setupScope(final Document doc, Scriptable ws) {
     final JavaInstantiator xi = new JavaInstantiator() {
       public Object newInstance(final Object[] args) {
         final Document d = doc;

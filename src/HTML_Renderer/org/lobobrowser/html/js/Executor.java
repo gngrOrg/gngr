@@ -38,6 +38,7 @@ import org.w3c.dom.Document;
 
 public class Executor {
   private static final Logger logger = Logger.getLogger(Executor.class.getName());
+  private static final PolicySecurityController policySecurityController = new PolicySecurityController();
 
   /**
    * This method should be invoked instead of <code>Context.enter</code>.
@@ -57,7 +58,9 @@ public class Executor {
         // If there was a previous context, this one must be nested.
         // We still need to create a context because of exit() but
         // we cannot set a new security controller.
-        ctx.setSecurityController(new SecurityControllerImpl(codeSource, ucontext.getSecurityPolicy()));
+
+        // ctx.setSecurityController(new SecurityControllerImpl(codeSource, ucontext.getSecurityPolicy()));
+        ctx.setSecurityController(policySecurityController);
       }
       // Sealing is recommended for untrusted scripts
       ctx.seal(null);

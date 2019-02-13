@@ -25,6 +25,8 @@ package org.lobobrowser.html.domimpl;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.CodeSource;
+import java.security.cert.Certificate;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -221,7 +223,8 @@ public class HTMLScriptElementImpl extends HTMLElementImpl implements HTMLScript
                 throw new IllegalStateException("Scriptable (scope) instance was null");
               }
               try {
-                ctx.evaluateString(scope, textUnesc, scriptURI, baseLineNumber, null);
+                final CodeSource cs = new CodeSource(new URL(scriptURI), (Certificate[]) null);
+                ctx.evaluateString(scope, textUnesc, scriptURI, baseLineNumber, cs);
                 // Why catch this?
                 // } catch (final EcmaError ecmaError) {
                 // logger.log(Level.WARNING,

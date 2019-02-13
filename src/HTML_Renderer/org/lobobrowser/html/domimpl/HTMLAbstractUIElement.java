@@ -1,5 +1,7 @@
 package org.lobobrowser.html.domimpl;
 
+import java.security.CodeSource;
+import java.security.cert.Certificate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -180,7 +182,8 @@ public class HTMLAbstractUIElement extends HTMLElementImpl {
             try {
               // TODO: Get right line number for script. //TODO: Optimize this
               // in case it's called multiple times? Is that done?
-              f = ctx.compileFunction(thisScope, functionCode, this.getTagName() + "[" + this.getId() + "]." + attributeName, 1, null);
+              final CodeSource cs = new CodeSource(this.getDocumentURL(), (Certificate[]) null);
+              f = ctx.compileFunction(thisScope, functionCode, this.getTagName() + "[" + this.getId() + "]." + attributeName, 1, cs);
             } catch (final EcmaError ecmaError) {
               logger.log(Level.WARNING, "Javascript error at " + ecmaError.sourceName() + ":" + ecmaError.lineNumber() + ": "
                   + ecmaError.getMessage(), ecmaError);
