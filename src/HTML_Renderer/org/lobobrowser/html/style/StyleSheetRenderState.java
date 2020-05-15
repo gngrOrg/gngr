@@ -148,7 +148,7 @@ public class StyleSheetRenderState implements RenderState {
     } else {
       displayInt = this.getDefaultDisplay();
     }
-    this.iDisplay = new Integer(displayInt);
+    this.iDisplay = Integer.valueOf(displayInt);
     return displayInt;
   }
 
@@ -234,13 +234,13 @@ public class StyleSheetRenderState implements RenderState {
     }
     if (newFontSize != null) {
       try {
-        fontSize = new Float(HtmlValues.getFontSize(newFontSize, prs));
+        fontSize = Float.valueOf(HtmlValues.getFontSize(newFontSize, prs));
       } catch (final Exception err) {
         fontSize = HtmlValues.DEFAULT_FONT_SIZE_BOX;
       }
     } else {
       if (prs != null) {
-        fontSize = new Float(prs.getFont().getSize());
+        fontSize = Float.valueOf(prs.getFont().getSize());
       } else {
         fontSize = HtmlValues.DEFAULT_FONT_SIZE_BOX;
       }
@@ -265,9 +265,9 @@ public class StyleSheetRenderState implements RenderState {
 
     Integer superscript = null;
     if (isSuper) {
-      superscript = new Integer(1);
+      superscript = Integer.valueOf(1);
     } else if (isSub) {
-      superscript = new Integer(-1);
+      superscript = Integer.valueOf(-1);
     }
     f = FONT_FACTORY.getFont(fontFamily, fontStyle, fontVariant, fontWeight, fontSize.floatValue(), locales, superscript);
     this.iFont = f;
@@ -526,7 +526,7 @@ public class StyleSheetRenderState implements RenderState {
       while (counterArray.size() <= nesting) {
         counterArray.add(null);
       }
-      counterArray.set(nesting, new Integer(value));
+      counterArray.set(nesting, Integer.valueOf(value));
     }
   }
 
@@ -548,7 +548,7 @@ public class StyleSheetRenderState implements RenderState {
     }
     final Integer integer = counterArray.get(nesting);
     final int prevValue = integer == null ? 0 : integer.intValue();
-    counterArray.set(nesting, new Integer(prevValue + 1));
+    counterArray.set(nesting, Integer.valueOf(prevValue + 1));
     return prevValue;
   }
 
@@ -648,7 +648,7 @@ public class StyleSheetRenderState implements RenderState {
         wsValue = WS_NORMAL;
       }
     }
-    this.iWhiteSpace = new Integer(wsValue);
+    this.iWhiteSpace = Integer.valueOf(wsValue);
     return wsValue;
   }
 
@@ -832,7 +832,7 @@ public class StyleSheetRenderState implements RenderState {
         }
       }
     }
-    this.cachedVisibility = new Integer(visibility);
+    this.cachedVisibility = Integer.valueOf(visibility);
     return visibility;
   }
 
@@ -866,7 +866,7 @@ public class StyleSheetRenderState implements RenderState {
         }
       }
     }
-    this.cachedPosition = new Integer(position);
+    this.cachedPosition = Integer.valueOf(position);
     return position;
   }
 
@@ -896,7 +896,7 @@ public class StyleSheetRenderState implements RenderState {
         }
       }
     }
-    this.cachedFloat = new Integer(floatValue);
+    this.cachedFloat = Integer.valueOf(floatValue);
     return floatValue;
   }
 
@@ -906,17 +906,17 @@ public class StyleSheetRenderState implements RenderState {
     if (cachedClear == null) {
       final JStyleProperties props = this.getCssProperties();
       if (props == null) {
-        cachedClear = new Integer(LineBreak.NONE);
+        cachedClear = Integer.valueOf(LineBreak.NONE);
       } else {
         final String clearStr = getCssProperties().getClear();
         if ("both".equals(clearStr)) {
-          cachedClear = new Integer(LineBreak.ALL);
+          cachedClear = Integer.valueOf(LineBreak.ALL);
         } else if ("left".equals(clearStr)) {
-          cachedClear = new Integer(LineBreak.LEFT);
+          cachedClear = Integer.valueOf(LineBreak.LEFT);
         } else if ("right".equals(clearStr)) {
-          cachedClear = new Integer(LineBreak.RIGHT);
+          cachedClear = Integer.valueOf(LineBreak.RIGHT);
         } else {
-          cachedClear = new Integer(LineBreak.NONE);
+          cachedClear = Integer.valueOf(LineBreak.NONE);
         }
       }
     }
