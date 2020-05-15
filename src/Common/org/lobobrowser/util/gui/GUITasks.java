@@ -95,6 +95,7 @@ public class GUITasks {
   }
 
   public static void drawDotted(final Graphics g, final int x1, final int y1, final int x2, final int y2, final float width) {
+    // TODO: creation of `ng` is not required here; can be removed and creation of g2d can be moved outside of try
     final Graphics ng = g.create();
     try {
       final Graphics2D g2d = (Graphics2D) ng.create();
@@ -104,6 +105,7 @@ public class GUITasks {
       final BasicStroke stroke = new BasicStroke(width, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 2.0f, dotPattern, 0.0f);
       g2d.setStroke(stroke);
       g2d.drawLine(x1, y1, x2, y2);
+      g2d.dispose();
     } finally {
       ng.dispose();
     }
