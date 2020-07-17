@@ -57,9 +57,8 @@ before you spend effort on it.
 See [the contributing guide](CONTRIBUTING.md) for more details.
 
 ### Ways to reach us
-  * IRC: `#gngr` and `#gngr-dev` on freenode.
+  * Matrix chat room for gngr: `#gngrBrowser:matrix.org`
   * Reddit: [/r/gngr](https://reddit.com/r/gngr)
-  * [Gitter room for gngr](https://gitter.im/UprootLabs/gngr)
   * [Our blog](https://blog.gngr.info) and its [feed](https://blog.gngr.info/feed.xml)
 
 ### License & Copyright
