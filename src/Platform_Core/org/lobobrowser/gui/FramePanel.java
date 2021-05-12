@@ -739,6 +739,7 @@ public class FramePanel extends JPanel implements NavigatorFrame {
   }
 
   private void navigateLocal(final NavigationEvent event) {
+	// request Manager reset!!!
     requestManager.reset(event.getURL());
     try {
       this.dispatchBeforeLocalNavigate(event);
@@ -878,6 +879,7 @@ public class FramePanel extends JPanel implements NavigatorFrame {
     });
 
     final FramePanel newFrame = wcontext.getFramePanel();
+    // ATTENTION!!! Frame Panel request manager reset!
     newFrame.requestManager.reset(url);
 
     final UserAgentContext uaContext = new SilentUserAgentContextImpl(newFrame);
@@ -1323,6 +1325,7 @@ public class FramePanel extends JPanel implements NavigatorFrame {
     }
   }
 
+  // New request manager.
   private final RequestManager requestManager = new RequestManager(this);
 
   public boolean isRequestPermitted(final Request request) {
