@@ -138,7 +138,6 @@ public final class RequestManager {
         }
       }
       
-      // dumpCounters();
       if (permitted == true) {
     	  // The request is permitted, so we increment accepted.
     	  accepted++;
