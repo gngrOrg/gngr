@@ -1,11 +1,11 @@
-gngr [![open collective badge](https://opencollective.com/gngr/tiers/badge.svg)](https://opencollective.com/gngr)
+gngr [jin-jer] [![open collective badge](https://opencollective.com/gngr/tiers/badge.svg)](https://opencollective.com/gngr)
 ====
 
 This is the source code of [gngr](https://gngr.info), a new cross-platform browser that champions privacy. `gngr`
 is an independent implementation of web standards in pure Java. It is *not* a wrapper around other browser engines.
 
 `gngr` plans to protect privacy by
-* disabling the following by default: Cookies, Javascript, XHR requests and providing [fine granuality of control](https://github.com/UprootLabs/gngr/wiki/RequestManager) over them.
+* disabling the following by default: Cookies, Javascript, and XHR requests. As well as providing [fine granuality of control](https://github.com/UprootLabs/gngr/wiki/RequestManager) over them.
 * by implementing in a high-level language that is easier to audit
 * by using run-time sandboxing
 
