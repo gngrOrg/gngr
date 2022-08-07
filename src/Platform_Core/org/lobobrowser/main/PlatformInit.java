@@ -119,7 +119,12 @@ public class PlatformInit {
   public static void initSecurity() {
     // Set security policy and manager (essential)
     Policy.setPolicy(LocalSecurityPolicy.getInstance());
-    System.setSecurityManager(new LocalSecurityManager());
+    final LocalSecurityManager lsm = new LocalSecurityManager();
+    try {
+      System.setSecurityManager(lsm);
+    } catch (UnsupportedOperationException e) {
+      System.err.println("Security manager couldn't be installed. This is expected from Java version 17+.");
+    }
   }
 
   /**
