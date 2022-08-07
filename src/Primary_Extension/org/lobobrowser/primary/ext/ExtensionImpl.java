@@ -222,7 +222,7 @@ public class ExtensionImpl implements NavigatorExtension {
         return "A URL or URI was not formatted correctly.";
       } else if (cause instanceof javax.net.ssl.SSLHandshakeException) {
         return "<p>This is most likely caused due to a JVM with crippled cipher suites.</p>" +
-               "<p>We are actively working on this. Please see https://github.com/UprootLabs/gngr/wiki/SSL-Handshake-Failures</p>";
+               "<p>We are actively working on this. Please see https://github.com/gngrOrg/gngr/wiki/SSL-Handshake-Failures</p>";
       } else if (cause instanceof java.net.UnknownHostException) {
         return "The host named '" + ((java.net.UnknownHostException) cause).getMessage()
             + "' could not be found by the Domain Name Service (DNS).";

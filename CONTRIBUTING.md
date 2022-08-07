@@ -10,11 +10,11 @@ When an issue is reported by a user, we need help in diagnosing the root cause a
 test-case. This often requires familiarity with the browser stack (HTTP, HTML, CSS, JS, etc), while knowledge of
 `gngr`'s implementation is usually not required.
 
-To help with triaging, [search for issues with the `need-triage` label](https://github.com/UprootLabs/gngr/labels/need-triage).
+To help with triaging, [search for issues with the `need-triage` label](https://github.com/gngrOrg/gngr/labels/need-triage).
 
 ### Advice
 We often need advice / guidance from experts in browser and related technologies.
-Please [search for issues with the `need-advice` label](https://github.com/UprootLabs/gngr/labels/need-advice).
+Please [search for issues with the `need-advice` label](https://github.com/gngrOrg/gngr/labels/need-advice).
 
 ### Code
 
@@ -27,9 +27,9 @@ We have a 3 step process for contributions:
 
 Issues that can be easily picked up are marked with the
 following tags:
-* [need-code](https://github.com/UprootLabs/gngr/labels/need-code) : if you are ready to jump in with code.
-* [need-advice](https://github.com/UprootLabs/gngr/labels/need-advice) : if you have expertise on the topic.
-* [need-triage](https://github.com/UprootLabs/gngr/labels/need-triage) : if you would like to help test or analyse a particular issue.
+* [need-code](https://github.com/gngrOrg/gngr/labels/need-code) : if you are ready to jump in with code.
+* [need-advice](https://github.com/gngrOrg/gngr/labels/need-advice) : if you have expertise on the topic.
+* [need-triage](https://github.com/gngrOrg/gngr/labels/need-triage) : if you would like to help test or analyse a particular issue.
 
 Ofcourse, you are welcome to take up something that is not listed above, but please co-ordinate with us first
 before you spend effort on it.

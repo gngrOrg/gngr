@@ -201,7 +201,7 @@ public class AboutURLConnection extends URLConnection {
         +
         "<p>Other ways of reaching us:</p>" +
         "<ul>" +
-          "<li style='margin:1em 0'><a href='https://github.com/uprootlabs/gngr'>Source code and issues</a> on GitHub</li>" +
+          "<li style='margin:1em 0'><a href='https://github.com/gngrOrg/gngr'>Source code and issues</a> on GitHub</li>" +
           "<li style='margin:1em 0'>#gngr and #gngr-dev on Freenode IRC</li>" +
           "<li style='margin:1em 0'><a href='https://reddit.com/r/gngr'>/r/gngr</a> on Reddit</li>" +
           "<li style='margin:1em 0'><a href='https://twitter.com/gngrInfo'>@gngrInfo</a> on Twitter</li>" +

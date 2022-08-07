@@ -1075,7 +1075,7 @@ public class StyleSheetRenderState implements RenderState {
     final FontMetrics fm = getFontMetrics();
     final Font font = fm.getFont();
     if (font.getFamily().contains("Ahem")) {
-      // This kludge is for https://github.com/UprootLabs/gngr/issues/195
+      // This kludge is for https://github.com/gngrOrg/gngr/issues/195
       return 0.8 * font.getSize2D();
     } else {
       /*

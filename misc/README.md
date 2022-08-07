@@ -1,4 +1,4 @@
-See [Developer Setup](https://github.com/UprootLabs/gngr/wiki/Developer:Setup) for more information about how to use
+See [Developer Setup](https://github.com/gngrOrg/gngr/wiki/Developer:Setup) for more information about how to use
 these files.
 
 File | Description

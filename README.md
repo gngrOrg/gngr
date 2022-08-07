@@ -5,7 +5,7 @@ This is the source code of [gngr](https://gngr.info), a new cross-platform brows
 is an independent implementation of web standards in pure Java. It is *not* a wrapper around other browser engines.
 
 `gngr` plans to protect privacy by
-* disabling the following by default: Cookies, Javascript, XHR requests and providing [fine granuality of control](https://github.com/UprootLabs/gngr/wiki/RequestManager) over them.
+* disabling the following by default: Cookies, Javascript, XHR requests and providing [fine granuality of control](https://github.com/gngrOrg/gngr/wiki/RequestManager) over them.
 * by implementing in a high-level language that is easier to audit
 * by using run-time sandboxing
 
@@ -17,16 +17,16 @@ Read [the introduction](https://gngr.info/doc/introduction.html) to know more.
 This is an early prototype that is usable with simple websites.
 
 Security-wise, the code isn't hardened *at all!* Use the current version:
- * with [app level sandboxing](https://github.com/UprootLabs/gngr/wiki/App-Sandboxing) 
+ * with [app level sandboxing](https://github.com/gngrOrg/gngr/wiki/App-Sandboxing)
  * with simple, trusted web-sites only
- * periodically [clear the browser cache and data](https://github.com/UprootLabs/gngr/wiki/Clearing-cache-and-data).
+ * periodically [clear the browser cache and data](https://github.com/gngrOrg/gngr/wiki/Clearing-cache-and-data).
 
 **Do Not use the current version with critical websites such as banking websites or web-mail.**
 
-### Development Status [![Build Status](https://travis-ci.org/UprootLabs/gngr.svg?branch=master)](https://travis-ci.org/UprootLabs/gngr)
+### Development Status
 
-As of July 2016, our focus is to improve layout and rendering. We have developed
-[grinder](https://github.com/UprootLabs/grinder) to automate layout and rendering tests. Here's a chart showing our progress *(click for more details)*:
+As of July 2022, our focus is to improve layout and rendering. We have developed
+[grinder](https://github.com/gngrOrg/grinder) to automate layout and rendering tests. Here's a chart showing our progress *(click for more details)*:
 
 <a target="_blank" href="https://gngr.info/awty/"><img width="800" src="https://gngr.info/awty/ChartCSS21.PNG"></img></a>
 
@@ -40,16 +40,16 @@ For building and running from the command line:
   1. `git clone` this repo
   2. `ant -f src/build.xml run` to build and run `gngr`
 
-For developing, we recommend [setting up Eclipse](https://github.com/UprootLabs/gngr/wiki/Developer:Setup), although it
+For developing, we recommend [setting up Eclipse](https://github.com/gngrOrg/gngr/wiki/Developer:Setup), although it
 is possible to use other IDEs or command line tools as well, with the help of the `ant` build script.
 
 ### Contributing
 
 Everyone is welcome to contribute. Issues that can be easily picked up are marked with the
 following tags:
-* [need-code](https://github.com/UprootLabs/gngr/labels/need-code) : if you are ready to jump in with code.
-* [need-advice](https://github.com/UprootLabs/gngr/labels/need-advice) : if you have expertise on the topic.
-* [need-triage](https://github.com/UprootLabs/gngr/labels/need-triage) : if you would like to help test or analyse a particular issue.
+* [need-code](https://github.com/gngrOrg/gngr/labels/need-code) : if you are ready to jump in with code.
+* [need-advice](https://github.com/gngrOrg/gngr/labels/need-advice) : if you have expertise on the topic.
+* [need-triage](https://github.com/gngrOrg/gngr/labels/need-triage) : if you would like to help test or analyse a particular issue.
 
 You are welcome to take up something that is not listed above, but please co-ordinate with us first
 before you spend effort on it.
