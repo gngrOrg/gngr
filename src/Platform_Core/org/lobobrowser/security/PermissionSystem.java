@@ -16,6 +16,7 @@ import org.lobobrowser.ua.UserAgentContext.Request;
 import org.lobobrowser.ua.UserAgentContext.RequestKind;
 
 public class PermissionSystem {
+	
   static enum Permission {
     Allow, Deny, Undecided;
 
@@ -315,7 +316,12 @@ public class PermissionSystem {
           myPermission = permission;
           store.storePermissions(hostPattern, requestHost, kindOpt, permission);
         }
-
+        
+        // A method that returns the permission in here.
+        public Permission getMyPermission() {
+        	return myPermission;
+        }
+        
       }
 
     }
