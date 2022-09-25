@@ -439,7 +439,7 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
     public int addUniqueJSTask(final int oldId, final JSTask task, final UserAgentContext uaContext, final URL urlContext) {
       // synchronized (this) {
       if (oldId != -1) {
-        if (jsQueue.contains(oldId)) {
+        if (jsQueue.stream().anyMatch(scheduleTask -> scheduleTask.id==oldId)) {
           return oldId;
         }
         /*

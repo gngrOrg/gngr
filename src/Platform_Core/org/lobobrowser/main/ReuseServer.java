@@ -133,7 +133,6 @@ public class ReuseServer implements Runnable {
               } else if ("GRINDER".equals(command)) {
                 final DataOutputStream dos = new DataOutputStream(s.getOutputStream());
                 if (blankIdx != -1) {
-                  @SuppressWarnings("null")
                   final @NonNull String key = line.substring(blankIdx + 1).trim();
                   if (PlatformInit.getInstance().verifyAuth(ss.getLocalPort(), key)) {
                     final NavigatorFrame frame = PlatformInit.getInstance().launch("about:blank");

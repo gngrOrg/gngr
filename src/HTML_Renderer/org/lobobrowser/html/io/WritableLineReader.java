@@ -28,6 +28,10 @@ import java.io.LineNumberReader;
 import java.io.Reader;
 
 public class WritableLineReader extends LineNumberReader {
+  @SuppressWarnings("unused")
+  // by heritance this object already has a reader with the attribute name "lock"
+  // this shouldn't be needed
+  // TODO delete and refactor code
   private final Reader delegate;
 
   public WritableLineReader(final Reader reader, final int bufferSize) {

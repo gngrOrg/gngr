@@ -369,10 +369,6 @@ public class AboutURLConnection extends URLConnection {
       return historyEntry;
     }
 
-    public int getScore() {
-      return score;
-    }
-
     public int compareTo(final ScoredEntry o) {
       if (this == o) {
         return 0;

@@ -369,7 +369,7 @@ public abstract class HTMLBaseInputElement extends HTMLAbstractUIElement {
   public void removeImageListener(final ImageListener listener) {
     final ArrayList<ImageListener> l = this.imageListeners;
     synchronized (l) {
-      l.remove(l);
+      l.remove(listener);
     }
   }
 

@@ -195,6 +195,8 @@ public class DownloadDialog extends JFrame {
     return box;
   }
 
+  @SuppressWarnings("unused")
+  //Warning surpressed because there is a TODO with this method
   private void selectFile() {
     final String path = this.url.getPath();
     final int lastSlashIdx = path.lastIndexOf('/');

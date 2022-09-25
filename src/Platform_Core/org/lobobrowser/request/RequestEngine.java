@@ -728,13 +728,14 @@ public final class RequestEngine {
     }
   }
 
-  private static void dumpResponseInfo(final URLConnection connection) {
-    if (PlatformInit.getInstance().debugOn) {
-      System.out.println("URL: " + connection.getURL());
-      System.out.println("  Response Headers: ");
-      connection.getHeaderFields().forEach((key, value) -> System.out.println("    " + key + " : " + value));
-    }
-  }
+// It is referenced in this class so the method stays in case it's needed in the future
+//  private static void dumpResponseInfo(final URLConnection connection) {
+//    if (PlatformInit.getInstance().debugOn) {
+//      System.out.println("URL: " + connection.getURL());
+//      System.out.println("  Response Headers: ");
+//      connection.getHeaderFields().forEach((key, value) -> System.out.println("    " + key + " : " + value));
+//    }
+//  }
 
   private void processHandler(final RequestHandler rhandler, final int recursionLevel, final boolean trackRequestInfo) {
     // Method must be private.

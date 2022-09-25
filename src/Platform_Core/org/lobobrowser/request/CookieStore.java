@@ -51,8 +51,6 @@ import info.gngr.db.tables.records.CookiesRecord;
  * @author J. H. S.
  */
 public class CookieStore {
-  private static final String COOKIE_PATH_PREFIX = ".W$Cookies/";
-  private static final String COOKIE_PATH_PATTERN = "\\.W\\$Cookies/.*";
   private static final CookieStore instance = new CookieStore();
 
   private static final Logger logger = Logger.getLogger(CookieStore.class.getName());
@@ -139,17 +137,6 @@ public class CookieStore {
       previousTimeNanos = currentNanos;
       return currentNanos;
     }
-  }
-
-  private static String getPathFromCookieName(final String cookieName) {
-    return COOKIE_PATH_PREFIX + cookieName;
-  }
-
-  private static String getCookieNameFromPath(final String path) {
-    if (!path.startsWith(COOKIE_PATH_PREFIX)) {
-      throw new IllegalArgumentException("Invalid path: " + path);
-    }
-    return path.substring(COOKIE_PATH_PREFIX.length());
   }
 
   /* Path-match algorithm as per section 5.4.1 of RFC 6264. */

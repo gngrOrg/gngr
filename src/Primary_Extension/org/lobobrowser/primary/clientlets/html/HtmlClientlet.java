@@ -247,15 +247,6 @@ public final class HtmlClientlet implements Clientlet {
     return locales;
   }
 
-  private static String getDefaultCharset(final URL url) {
-    if (Urls.isLocalFile(url)) {
-      final String charset = System.getProperty("file.encoding");
-      return charset == null ? "ISO-8859-1" : charset;
-    } else {
-      return "ISO-8859-1";
-    }
-  }
-
   private final static RefreshInfo extractRefresh(final String refresh) {
     String delayText = null;
     String urlText = null;

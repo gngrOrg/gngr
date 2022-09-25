@@ -48,7 +48,11 @@ public class CookieValue implements Comparable<CookieValue> {
     this.creationTime = creationTime;
   }
 
-  public String getName() {
+  public boolean isHttpOnly() {
+	return httpOnly;
+}
+
+public String getName() {
     return this.name;
   }
 

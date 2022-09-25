@@ -2,7 +2,6 @@ package org.lobobrowser.request;
 
 import java.net.URI;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.DateTimeException;
 import java.time.OffsetDateTime;
@@ -19,6 +18,9 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@SuppressWarnings("unused")
+//Surpress the EXPIRES_FORMAT unused warning - attributes seemed
+// important despite being private
 final class CookieParsing {
   private static final Logger logger = Logger.getLogger(CookieParsing.class.getName());
   private static final DateFormat EXPIRES_FORMAT;
@@ -38,31 +40,6 @@ final class CookieParsing {
     EXPIRES_FORMAT = ef1;
     EXPIRES_FORMAT_BAK1 = ef2;
     EXPIRES_FORMAT_BAK2 = ef3;
-  }
-
-  /** @deprecated Use parseExpiresRFC6265 instead */
-  @Deprecated
-  private static Optional<java.util.Date> parseExpires(final String expiresStr) {
-    Optional<java.util.Date> expiresDate = Optional.empty();
-    synchronized (EXPIRES_FORMAT) {
-      try {
-        expiresDate = Optional.of(EXPIRES_FORMAT.parse(expiresStr));
-      } catch (final Exception pe) {
-        if (logger.isLoggable(Level.INFO)) {
-          logger.log(Level.INFO, "parseExpires(): Bad date format: " + expiresStr + ". Will try again.", pe);
-        }
-        try {
-          expiresDate = Optional.of(EXPIRES_FORMAT_BAK1.parse(expiresStr));
-        } catch (final Exception pe2) {
-          try {
-            expiresDate = Optional.of(EXPIRES_FORMAT_BAK2.parse(expiresStr));
-          } catch (final ParseException pe3) {
-            logger.log(Level.SEVERE, "parseExpires(): Giving up on cookie date format: " + expiresStr, pe3);
-          }
-        }
-      }
-    }
-    return expiresDate;
   }
 
   static Optional<CookieDetails> parseCookieSpec(final URI requestURL, final String cookieSpec) {

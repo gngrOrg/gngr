@@ -392,10 +392,12 @@ public class StyleSheetRenderState implements RenderState {
     return tt;
   }
 
+  @SuppressWarnings("deprecation")
   public final FontMetrics getFontMetrics() {
     FontMetrics fm = this.iFontMetrics;
     if (fm == null) {
       // TODO getFontMetrics deprecated. How to get text width?
+      // sugestion: using LineMetrics instead 
       fm = Toolkit.getDefaultToolkit().getFontMetrics(this.getFont());
       this.iFontMetrics = fm;
     }

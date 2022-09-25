@@ -60,7 +60,11 @@ import org.xml.sax.SAXException;
  * may be used directly when a different DOM implementation is preferred.
  */
 public class HtmlParser {
-  private static final Logger logger = Logger.getLogger(HtmlParser.class.getName());
+  public ErrorHandler getErrorHandler() {
+		return errorHandler;
+	}
+
+private static final Logger logger = Logger.getLogger(HtmlParser.class.getName());
   private final Document document;
   private final UserAgentContext ucontext;
   private final ErrorHandler errorHandler;
