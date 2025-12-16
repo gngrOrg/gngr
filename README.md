@@ -1,4 +1,4 @@
-gngr <sub><sup>[jin-jer]</sup></sub> [![open collective badge](https://opencollective.com/gngr/tiers/badge.svg)](https://opencollective.com/gngr)
+gngr <sub><sup>[jin-jer]</sup></sub> [![open collective badge](https://opencollective.com/gngr/tiers/badge.svg)](https://opencollective.com/gngr)  [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/gngrOrg/gngr)
 ====
 
 This is the source code of [gngr](https://gngr.info), a new cross-platform browser that champions privacy. `gngr`
