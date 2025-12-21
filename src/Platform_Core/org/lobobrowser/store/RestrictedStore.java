@@ -380,7 +380,7 @@ public final class RestrictedStore implements QuotaSource, ManagedStore {
     final ManagedFile file = this.getManagedFile(path);
     try (
         final InputStream in = file.openInputStream();
-        final ObjectInputStream oin = new ClassLoaderObjectInputStream(in, classLoader)) {
+        final ObjectInputStream oin = new ClassLoaderObjectInputStream(in, classLoader, Serializable.class)) {
       return oin.readObject();
     } catch (final FileNotFoundException err) {
       return null;

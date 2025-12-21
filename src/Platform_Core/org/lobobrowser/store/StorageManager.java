@@ -243,7 +243,7 @@ public class StorageManager implements Runnable {
     try (
         final InputStream in = new FileInputStream(file);
         final BufferedInputStream bin = new BufferedInputStream(in);
-        final ObjectInputStream ois = new ClassLoaderObjectInputStream(bin, classLoader);) {
+        final ObjectInputStream ois = new ClassLoaderObjectInputStream(bin, classLoader, Serializable.class);) {
       return (Serializable) ois.readObject();
     } catch (final InvalidClassException ice) {
       ice.printStackTrace();

@@ -27,6 +27,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.io.Serializable;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.logging.Level;
@@ -172,7 +173,7 @@ public class CacheInfo {
 
       try (
           final InputStream in = new ByteArrayInputStream(content);
-          final ObjectInputStream oin = new ClassLoaderObjectInputStream(in, classLoader);) {
+          final ObjectInputStream oin = new ClassLoaderObjectInputStream(in, classLoader,Serializable.class);) {
         return oin.readObject();
       }
     } catch (final IOException ioe) {
