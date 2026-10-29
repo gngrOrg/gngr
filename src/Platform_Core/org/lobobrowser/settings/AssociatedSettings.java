@@ -40,8 +40,7 @@ public class AssociatedSettings implements Serializable {
   static {
     AssociatedSettings ins = null;
     try {
-      ins = (AssociatedSettings) StorageManager.getInstance().retrieveSettings(AssociatedSettings.class.getSimpleName(),
-          AssociatedSettings.class.getClassLoader());
+      ins = StorageManager.getInstance().retrieveSettings(AssociatedSettings.class);
     } catch (final Exception err) {
       logger.log(Level.WARNING, "Unable to retrieve settings.", err);
     }

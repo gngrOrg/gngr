@@ -35,8 +35,7 @@ class ManagedStoreSettings implements Serializable {
   static {
     ManagedStoreSettings ins = null;
     try {
-      ins = (ManagedStoreSettings) StorageManager.getInstance().retrieveSettings(ManagedStoreSettings.class.getSimpleName(),
-          ManagedStoreSettings.class.getClassLoader());
+      ins = StorageManager.getInstance().retrieveSettings(ManagedStoreSettings.class);
     } catch (final Exception err) {
       logger.log(Level.WARNING, "getInstance(): Unable to retrieve settings.", err);
     }

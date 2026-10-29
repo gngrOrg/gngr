@@ -39,8 +39,7 @@ public class NavigationHistory extends BaseHistory<Object> implements java.io.Se
   static {
     NavigationHistory ins = null;
     try {
-      ins = (NavigationHistory) StorageManager.getInstance().retrieveSettings(NavigationHistory.class.getSimpleName(),
-          NavigationHistory.class.getClassLoader());
+      ins = StorageManager.getInstance().retrieveSettings(NavigationHistory.class);
     } catch (final Exception err) {
       logger.log(Level.WARNING, "Unable to retrieve settings.", err);
     }

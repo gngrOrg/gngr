@@ -22,19 +22,49 @@ package org.lobobrowser.store;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InvalidClassException;
 import java.io.ObjectInputStream;
 import java.io.ObjectStreamClass;
+import java.io.Serializable;
+import java.util.Objects;
 
 public class ClassLoaderObjectInputStream extends ObjectInputStream {
-  private final ClassLoader classLoader;
 
-  public ClassLoaderObjectInputStream(final InputStream in, final ClassLoader classLoader) throws IOException {
+  private final ClassLoader classLoader;
+  private final Class<?> expectedClass;
+  private boolean rootResolved = false;
+
+  public ClassLoaderObjectInputStream(
+          final InputStream in,
+          final ClassLoader classLoader,
+          final Class<?> expectedClass) throws IOException {
     super(in);
     this.classLoader = classLoader;
+    this.expectedClass = Objects.requireNonNull(expectedClass, "expectedClass cannot be null");
   }
 
   @Override
-  protected Class<?> resolveClass(final ObjectStreamClass desc) throws IOException, ClassNotFoundException {
-    return Class.forName(desc.getName(), false, this.classLoader);
+  protected Class<?> resolveClass(final ObjectStreamClass desc)
+          throws IOException, ClassNotFoundException {
+
+    Class<?> resolved =
+        Class.forName(desc.getName(), false, this.classLoader);
+
+    if (!rootResolved) {
+      rootResolved = true;
+      if (!expectedClass.isAssignableFrom(resolved)) {
+        throw new InvalidClassException(
+            "Unexpected root class during deserialization",
+            desc.getName()
+        );
+      }
+    } else if (!Serializable.class.isAssignableFrom(resolved)) {
+      throw new InvalidClassException(
+          "Unexpected non-serializable field class during deserialization",
+          desc.getName()
+      );
+    }
+
+    return resolved;
   }
 }

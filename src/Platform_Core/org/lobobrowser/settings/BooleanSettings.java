@@ -45,8 +45,7 @@ public class BooleanSettings implements Serializable {
   static {
     BooleanSettings ins = null;
     try {
-      ins = (BooleanSettings) StorageManager.getInstance().retrieveSettings(BooleanSettings.class.getSimpleName(),
-          BooleanSettings.class.getClassLoader());
+      ins = StorageManager.getInstance().retrieveSettings(BooleanSettings.class);
     } catch (final Exception err) {
       logger.log(Level.WARNING, "Unable to retrieve settings.", err);
     }

@@ -157,9 +157,11 @@ public interface ClientletResponse {
    *
    * @param classLoader
    *          A class loader that can load an object of the type expected.
+   * @param expectedClass
+   *          The expected class of the persisted object.
    * @see #setNewPersistentCachedObject(Serializable)
    */
-  public Object getPersistentCachedObject(ClassLoader classLoader);
+  public <T extends java.io.Serializable> T getPersistentCachedObject(ClassLoader classLoader, Class<T> expectedClass);
 
   /**
    * Caches the object provided in persistent memory and associates it with the

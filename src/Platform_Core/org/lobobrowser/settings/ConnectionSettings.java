@@ -54,8 +54,7 @@ public class ConnectionSettings implements java.io.Serializable {
   static {
     ConnectionSettings ins = null;
     try {
-      ins = (ConnectionSettings) StorageManager.getInstance().retrieveSettings(ConnectionSettings.class.getSimpleName(),
-          ConnectionSettings.class.getClassLoader());
+      ins = StorageManager.getInstance().retrieveSettings(ConnectionSettings.class);
     } catch (final Exception err) {
       logger.log(Level.WARNING, "getInstance(): Unable to retrieve settings.", err);
     }

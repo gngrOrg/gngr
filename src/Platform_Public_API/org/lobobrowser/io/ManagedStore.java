@@ -83,15 +83,19 @@ public interface ManagedStore {
    *          Managed path to the object file.
    * @param classLoader
    *          A class loader that can load the expected object type.
+   * @param expectedClass
+   *          The expected class of the retrieved object.
    * @return An object unserialized from managed file data.
    * @throws java.io.IOException
    * @throws ClassNotFoundException
    */
-  public Object retrieveObject(String path, ClassLoader classLoader) throws java.io.IOException, ClassNotFoundException;
+  public <T extends java.io.Serializable> T retrieveObject(String path, ClassLoader classLoader, Class<T> expectedClass)
+      throws java.io.IOException, ClassNotFoundException;
 
   /**
-   * @deprecated Use {@link #retrieveObject(String, ClassLoader)}.
+   * @deprecated Use {@link #retrieveObject(String, ClassLoader, Class)}.
    */
   @Deprecated
-  public Object retrieveObject(String path) throws java.io.IOException, ClassNotFoundException;
+  public <T extends java.io.Serializable> T retrieveObject(String path, Class<T> expectedClass)
+      throws java.io.IOException, ClassNotFoundException;
 }

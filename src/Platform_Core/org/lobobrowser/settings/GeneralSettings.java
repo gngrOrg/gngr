@@ -45,8 +45,7 @@ public class GeneralSettings implements java.io.Serializable {
   static {
     GeneralSettings ins = null;
     try {
-      ins = (GeneralSettings) StorageManager.getInstance().retrieveSettings(GeneralSettings.class.getSimpleName(),
-          GeneralSettings.class.getClassLoader());
+      ins = StorageManager.getInstance().retrieveSettings(GeneralSettings.class);
     } catch (final Exception err) {
       logger.log(Level.WARNING, "getInstance(): Unable to retrieve settings.", err);
     }

@@ -33,8 +33,7 @@ public class BookmarksHistory extends BaseHistory<BookmarkInfo> implements java.
   static {
     BookmarksHistory ins = null;
     try {
-      ins = (BookmarksHistory) StorageManager.getInstance().retrieveSettings(BookmarksHistory.class.getSimpleName(),
-          BookmarksHistory.class.getClassLoader());
+      ins = StorageManager.getInstance().retrieveSettings(BookmarksHistory.class);
     } catch (final Exception err) {
       logger.log(Level.WARNING, "Unable to retrieve settings.", err);
     }
