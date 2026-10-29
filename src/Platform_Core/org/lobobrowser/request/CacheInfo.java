@@ -164,7 +164,7 @@ public class CacheInfo {
     return memEntry != null ? memEntry.altObjectSize : 0;
   }
 
-  public Object getPersistentObject(final ClassLoader classLoader) {
+  public <T extends Serializable> T getPersistentObject(final ClassLoader classLoader, final Class<T> expectedClass) {
     try {
       final byte[] content = CacheManager.getPersistent(this.url, true);
       if (content == null) {
@@ -173,8 +173,8 @@ public class CacheInfo {
 
       try (
           final InputStream in = new ByteArrayInputStream(content);
-          final ObjectInputStream oin = new ClassLoaderObjectInputStream(in, classLoader,Serializable.class);) {
-        return oin.readObject();
+          final ObjectInputStream oin = new ClassLoaderObjectInputStream(in, classLoader, expectedClass);) {
+        return expectedClass.cast(oin.readObject());
       }
     } catch (final IOException ioe) {
       logger.log(Level.WARNING, "getPersistentObject(): Unable to load persistent cached object.", ioe);

@@ -376,9 +376,9 @@ public class ClientletResponseImpl implements ClientletResponse {
         + ",fromCache=" + this.isFromCache() + ",requestType=" + this.requestType + "]";
   }
 
-  public Object getPersistentCachedObject(final ClassLoader classLoader) {
+  public <T extends Serializable> T getPersistentCachedObject(final ClassLoader classLoader, final Class<T> expectedClass) {
     final CacheInfo cacheInfo = this.cacheInfo;
-    return cacheInfo == null ? null : cacheInfo.getPersistentObject(classLoader);
+    return cacheInfo == null ? null : cacheInfo.getPersistentObject(classLoader, expectedClass);
   }
 
   public Object getTransientCachedObject() {

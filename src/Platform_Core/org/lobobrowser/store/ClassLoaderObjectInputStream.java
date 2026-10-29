@@ -25,17 +25,14 @@ import java.io.InputStream;
 import java.io.InvalidClassException;
 import java.io.ObjectInputStream;
 import java.io.ObjectStreamClass;
+import java.io.Serializable;
+import java.util.Objects;
 
 public class ClassLoaderObjectInputStream extends ObjectInputStream {
 
   private final ClassLoader classLoader;
   private final Class<?> expectedClass;
-
-  public ClassLoaderObjectInputStream(
-          final InputStream in,
-          final ClassLoader classLoader) throws IOException {
-    this(in, classLoader, null);
-  }
+  private boolean rootResolved = false;
 
   public ClassLoaderObjectInputStream(
           final InputStream in,
@@ -43,7 +40,7 @@ public class ClassLoaderObjectInputStream extends ObjectInputStream {
           final Class<?> expectedClass) throws IOException {
     super(in);
     this.classLoader = classLoader;
-    this.expectedClass = expectedClass;
+    this.expectedClass = Objects.requireNonNull(expectedClass, "expectedClass cannot be null");
   }
 
   @Override
@@ -53,9 +50,17 @@ public class ClassLoaderObjectInputStream extends ObjectInputStream {
     Class<?> resolved =
         Class.forName(desc.getName(), false, this.classLoader);
 
-    if (expectedClass != null && !expectedClass.isAssignableFrom(resolved)) {
+    if (!rootResolved) {
+      rootResolved = true;
+      if (!expectedClass.isAssignableFrom(resolved)) {
+        throw new InvalidClassException(
+            "Unexpected root class during deserialization",
+            desc.getName()
+        );
+      }
+    } else if (!Serializable.class.isAssignableFrom(resolved)) {
       throw new InvalidClassException(
-          "Unexpected class during deserialization",
+          "Unexpected non-serializable field class during deserialization",
           desc.getName()
       );
     }

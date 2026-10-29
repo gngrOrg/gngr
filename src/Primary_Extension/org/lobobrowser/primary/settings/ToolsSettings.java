@@ -22,8 +22,7 @@ public class ToolsSettings implements Serializable {
   static {
     ToolsSettings ins = null;
     try {
-      ins = (ToolsSettings) StorageManager.getInstance().retrieveSettings(ToolsSettings.class.getSimpleName(),
-          ToolsSettings.class.getClassLoader());
+      ins = StorageManager.getInstance().retrieveSettings(ToolsSettings.class);
     } catch (final Exception err) {
       logger.log(Level.WARNING, "getInstance(): Unable to retrieve settings.", err);
     }

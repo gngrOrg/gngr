@@ -231,7 +231,15 @@ public class StorageManager implements Runnable {
     }
   }
 
-  public Serializable retrieveSettings(final String name, final ClassLoader classLoader) throws IOException, ClassNotFoundException {
+  public <T extends Serializable> T retrieveSettings(final Class<T> settingsClass)
+      throws IOException, ClassNotFoundException {
+    return retrieveSettings(settingsClass.getSimpleName(), settingsClass.getClassLoader(), settingsClass);
+  }
+
+  public <T extends Serializable> T retrieveSettings(
+      final String name,
+      final ClassLoader classLoader,
+      final Class<T> expectedClass) throws IOException, ClassNotFoundException {
     final File dir = this.getSettingsDirectory();
     if (!dir.exists()) {
       return null;
@@ -243,8 +251,8 @@ public class StorageManager implements Runnable {
     try (
         final InputStream in = new FileInputStream(file);
         final BufferedInputStream bin = new BufferedInputStream(in);
-        final ObjectInputStream ois = new ClassLoaderObjectInputStream(bin, classLoader, Serializable.class);) {
-      return (Serializable) ois.readObject();
+        final ObjectInputStream ois = new ClassLoaderObjectInputStream(bin, classLoader, expectedClass);) {
+      return expectedClass.cast(ois.readObject());
     } catch (final InvalidClassException ice) {
       ice.printStackTrace();
       return null;

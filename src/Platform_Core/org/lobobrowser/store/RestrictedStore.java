@@ -372,16 +372,20 @@ public final class RestrictedStore implements QuotaSource, ManagedStore {
     file.delete();
   }
 
-  public Object retrieveObject(final String path) throws IOException, ClassNotFoundException {
-    return this.retrieveObject(path, Thread.currentThread().getContextClassLoader());
+  public <T extends Serializable> T retrieveObject(final String path, final Class<T> expectedClass)
+      throws IOException, ClassNotFoundException {
+    return this.retrieveObject(path, Thread.currentThread().getContextClassLoader(), expectedClass);
   }
 
-  public Object retrieveObject(final String path, final ClassLoader classLoader) throws IOException, ClassNotFoundException {
+  public <T extends Serializable> T retrieveObject(
+      final String path,
+      final ClassLoader classLoader,
+      final Class<T> expectedClass) throws IOException, ClassNotFoundException {
     final ManagedFile file = this.getManagedFile(path);
     try (
         final InputStream in = file.openInputStream();
-        final ObjectInputStream oin = new ClassLoaderObjectInputStream(in, classLoader, Serializable.class)) {
-      return oin.readObject();
+        final ObjectInputStream oin = new ClassLoaderObjectInputStream(in, classLoader, expectedClass)) {
+      return expectedClass.cast(oin.readObject());
     } catch (final FileNotFoundException err) {
       return null;
     }

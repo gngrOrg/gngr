@@ -40,8 +40,7 @@ public class CacheSettings implements Serializable {
   static {
     CacheSettings ins = null;
     try {
-      ins = (CacheSettings) StorageManager.getInstance().retrieveSettings(CacheSettings.class.getSimpleName(),
-          CacheSettings.class.getClassLoader());
+      ins = StorageManager.getInstance().retrieveSettings(CacheSettings.class);
     } catch (final Exception err) {
       logger.log(Level.WARNING, "getInstance(): Unable to retrieve settings.", err);
     }
