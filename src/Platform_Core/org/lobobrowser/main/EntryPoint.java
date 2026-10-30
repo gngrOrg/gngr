@@ -23,6 +23,7 @@
  */
 package org.lobobrowser.main;
 
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.security.AccessController;
@@ -59,8 +60,8 @@ public final class EntryPoint {
   }
 
   private static void launch(final String[] args) {
-    try {
-      final SSLInfo sslInfo = TrustManager.makeSSLSocketFactory(ReuseManager.class.getResourceAsStream("/trustStore.certs"));
+    try (final InputStream extraCertsStream = ReuseManager.class.getResourceAsStream("/trustStore.certs")) {
+      final SSLInfo sslInfo = TrustManager.makeSSLSocketFactory(extraCertsStream);
       ReuseManager.getInstance().launch(args, sslInfo);
     } catch (final Exception err) {
       final StringWriter swriter = new StringWriter();

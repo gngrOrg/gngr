@@ -1,18 +1,17 @@
 package org.lobobrowser.main;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
-import java.security.KeyStore.Entry;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -31,38 +30,94 @@ public final class TrustManager {
     }
   }
 
-  public static SSLInfo makeSSLSocketFactory(final InputStream extraCertsStream) {
-    final String sep = File.separator;
-    final String hardDefaultPath = System.getProperty("java.home") + sep + "lib" + sep + "security" + sep + "cacerts";
-    final String defaultStorePath = System.getProperty("javax.net.ssl.trustStore", hardDefaultPath);
-    try (
-        final FileInputStream defaultIS = new FileInputStream(defaultStorePath)) {
+  private static final class CompositeX509TrustManager implements X509TrustManager {
+    private final X509TrustManager primaryTM;
+    private final X509TrustManager fallbackTM;
 
-      final KeyStore defKeyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-      defKeyStore.load(defaultIS, "changeit".toCharArray());
+    CompositeX509TrustManager(final X509TrustManager primaryTM, final X509TrustManager fallbackTM) {
+      this.primaryTM = primaryTM;
+      this.fallbackTM = fallbackTM;
+    }
 
-      final KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-      keyStore.load(extraCertsStream, null);
-
-      // final KeyStore keyStore =  KeyStore.Builder.newInstance(defKeyStore, null).getKeyStore();
-      final Enumeration<String> aliases = defKeyStore.aliases();
-      while (aliases.hasMoreElements()) {
-        final String alias = aliases.nextElement();
-        if (defKeyStore.isCertificateEntry(alias)) {
-          final Entry entry = defKeyStore.getEntry(alias, null);
-          keyStore.setEntry(alias, entry, null);
+    @Override
+    public void checkClientTrusted(final X509Certificate[] chain, final String authType) throws CertificateException {
+      try {
+        this.primaryTM.checkClientTrusted(chain, authType);
+      } catch (final CertificateException primaryEx) {
+        try {
+          this.fallbackTM.checkClientTrusted(chain, authType);
+        } catch (final CertificateException fallbackEx) {
+          primaryEx.addSuppressed(fallbackEx);
+          throw primaryEx;
         }
+      }
+    }
+
+    @Override
+    public void checkServerTrusted(final X509Certificate[] chain, final String authType) throws CertificateException {
+      try {
+        this.primaryTM.checkServerTrusted(chain, authType);
+      } catch (final CertificateException primaryEx) {
+        try {
+          this.fallbackTM.checkServerTrusted(chain, authType);
+        } catch (final CertificateException fallbackEx) {
+          primaryEx.addSuppressed(fallbackEx);
+          throw primaryEx;
+        }
+      }
+    }
+
+    @Override
+    public X509Certificate[] getAcceptedIssuers() {
+      final Set<X509Certificate> issuers = new LinkedHashSet<>(Arrays.asList(this.primaryTM.getAcceptedIssuers()));
+      issuers.addAll(Arrays.asList(this.fallbackTM.getAcceptedIssuers()));
+      return issuers.toArray(new X509Certificate[0]);
+    }
+  }
+
+  private static KeyStore loadExtraCertsKeyStore(final InputStream extraCertsStream)
+      throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
+    if (extraCertsStream == null) {
+      return null;
+    }
+    final KeyStore rawStore = KeyStore.getInstance(KeyStore.getDefaultType());
+    rawStore.load(extraCertsStream, null);
+
+    KeyStore extraKeyStore = null;
+    final Enumeration<String> aliases = rawStore.aliases();
+    while (aliases.hasMoreElements()) {
+      final String alias = aliases.nextElement();
+      if (rawStore.isCertificateEntry(alias)) {
+        if (extraKeyStore == null) {
+          extraKeyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+          extraKeyStore.load(null, null);
+        }
+        extraKeyStore.setCertificateEntry(alias, rawStore.getCertificate(alias));
+      }
+    }
+    return extraKeyStore;
+  }
+
+  public static SSLInfo makeSSLSocketFactory(final InputStream extraCertsStream) {
+    try {
+      final X509TrustManager systemTM = getX509TM(null);
+      final X509TrustManager effectiveTM;
+
+      final KeyStore extraKeyStore = loadExtraCertsKeyStore(extraCertsStream);
+      if (extraKeyStore != null) {
+        final X509TrustManager extraTM = getX509TM(extraKeyStore);
+        effectiveTM = new CompositeX509TrustManager(systemTM, extraTM);
+      } else {
+        effectiveTM = systemTM;
       }
 
       final SSLContext sc = SSLContext.getInstance("TLS");
-      final X509TrustManager x509TM = getX509TM(keyStore);
-      sc.init(null, new javax.net.ssl.TrustManager[] {x509TM}, null);
-      return new SSLInfo(x509TM, sc.getSocketFactory());
-    } catch (KeyManagementException | KeyStoreException | NoSuchAlgorithmException | IOException | CertificateException
-        | UnrecoverableEntryException e) {
+      sc.init(null, new javax.net.ssl.TrustManager[] {effectiveTM}, null);
+      return new SSLInfo(effectiveTM, sc.getSocketFactory());
+    } catch (KeyManagementException | KeyStoreException | NoSuchAlgorithmException | IOException
+        | CertificateException e) {
       throw new RuntimeException(e);
     }
-
   }
 
   public static X509TrustManager getX509TM(final KeyStore keyStore) {
@@ -71,16 +126,12 @@ public final class TrustManager {
       final TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(defaultAlgorithm);
       trustManagerFactory.init(keyStore);
       final javax.net.ssl.TrustManager[] trustManagers = trustManagerFactory.getTrustManagers();
-      X509TrustManager x509tm = null;
-      for (int i = 0; i < trustManagers.length; i++) {
-        if (trustManagers[i] instanceof X509TrustManager) {
-          x509tm = (X509TrustManager) trustManagers[0];
+      for (final javax.net.ssl.TrustManager tm : trustManagers) {
+        if (tm instanceof X509TrustManager) {
+          return (X509TrustManager) tm;
         }
       }
-      if (x509tm == null) {
-        throw new IllegalStateException("Unexpected default trust managers:" + Arrays.toString(trustManagers));
-      }
-      return x509tm;
+      throw new IllegalStateException("Unexpected default trust managers:" + Arrays.toString(trustManagers));
     } catch (KeyStoreException | NoSuchAlgorithmException e) {
       throw new RuntimeException(e);
     }
