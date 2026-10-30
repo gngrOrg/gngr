@@ -26,7 +26,9 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JLabel;
 import javax.swing.JScrollPane;
+import javax.swing.SwingConstants;
 
 import org.lobobrowser.security.PermissionSystem.Permission;
 import org.lobobrowser.security.PermissionSystem.PermissionBoard.PermissionRow;
@@ -41,7 +43,10 @@ public final class RequestManager {
   private static final Logger logger = Logger.getLogger(RequestManager.class.getName());
 
   private final NavigatorFrame frame;
-
+  
+  // Values that track whether or not a request is accepted or rejected.
+  int accepted;
+  int rejected;
 
   public RequestManager(final NavigatorFrame frame) {
     this.frame = frame;
@@ -110,6 +115,7 @@ public final class RequestManager {
     }
   }
 
+  // A method that determines whether or not a given request is permitted.
   public boolean isRequestPermitted(final Request request) {
 
     final Request finalRequest = rewriteRequest(request);
@@ -125,15 +131,25 @@ public final class RequestManager {
         if (protocolTest.equals("http") && frameProtocol.equals("https")) {
           updateCounter(finalRequest.url.getHost(), RequestKind.UnsecuredHTTP);
           if (!httpPermitted) {
+        	// The request isn't permitted, so it's rejected.
+        	rejected++;
             return false;
           }
         }
       }
-
-      // dumpCounters();
+      
+      if (permitted == true) {
+    	  // The request is permitted, so we increment accepted.
+    	  accepted++;
+      } else {
+    	  // The request is not permitted, so we increment rejected.
+    	  rejected++;
+      }
       return permitted;
     } else {
       logger.severe("Unexpected permission system state. Request without context!");
+      // The request is not permitted, so we increment rejected.
+      rejected++;
       return false;
     }
   }
@@ -141,6 +157,10 @@ public final class RequestManager {
   private void setupPermissionSystem(final String frameHost) {
     final RequestRuleStore permissionStore = RequestRuleStore.getStore();
     final PermissionSystem system = new PermissionSystem(frameHost, permissionStore);
+	
+    // Initialize the accept and reject details.	
+    accepted = 0;
+    rejected = 0;
 
     // Prime the boards with atleast one row
     system.getLastBoard().getRow(frameHost);
@@ -174,14 +194,12 @@ public final class RequestManager {
   }
 
   public void manageRequests(final JComponent initiatorComponent) {
-    // permissionSystemOpt.ifPresent(r -> r.dump());
     final ManageDialog dlg = new ManageDialog(new JFrame(), getFrameURL().map(u -> u.toExternalForm()).orElse("Empty!"),
         initiatorComponent);
     dlg.setVisible(true);
   }
 
   private synchronized String[][] getRequestData() {
-    // hostToCounterMap.keySet().stream().forEach(System.out::println);
 
     return hostToCounterMap.entrySet().stream().map(entry -> {
       final List<String> rowElements = new LinkedList<>();
@@ -219,7 +237,15 @@ public final class RequestManager {
 
       final JPanel buttonPane = new JPanel();
       final JButton button = new JButton("OK");
+
+      JLabel aLabel = new JLabel("Accepted Requests: " + accepted);
+      buttonPane.add(aLabel);
       buttonPane.add(button);
+      
+      // Add relevant statistics to button pane.
+      JLabel oLabel = new JLabel("Total Requests: " + (accepted + rejected));
+      buttonPane.add(oLabel);
+      
       button.addActionListener(this);
       getContentPane().add(buttonPane, BorderLayout.SOUTH);
       setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -296,6 +322,11 @@ public final class RequestManager {
   public void allowAllFirstPartyRequests() {
     permissionSystemOpt.ifPresent(p -> {
       final PermissionRow row = p.getLastBoard().getRow(getFrameHost().get());
+      // Was the request we are changing initially denied?
+      if (row.getHostCell().getMyPermission() == Permission.Deny) {
+    	  rejected--;
+      }
+      accepted++;
       row.getHostCell().setPermission(Permission.Allow);
     });
   }
