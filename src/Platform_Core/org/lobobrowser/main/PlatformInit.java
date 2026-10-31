@@ -350,19 +350,29 @@ public class PlatformInit {
       final Date releaseDatePlusTimeout = new Date(releaseDate.getTime() + (TIMEOUT_DAYS * DAYS_MILLIS));
       final Date currDate = new Date(System.currentTimeMillis());
       if (releaseDatePlusTimeout.before(currDate)) {
-        final String version = relProps.getProperty(RELEASE_VERSION_STRING);
-        final String checkForUpdatesMessage = "<html><h3><center>This version of gngr is old</center></h3><p>gngr "
-            + version
-            + "</p><p>Released on: "
-            + releaseDate
-            + "</p><p>This version is more than " + TIMEOUT_DAYS
-            + " days old and was not intended for long-time use.</p><p>Please check if a newer version is available on https://gngr.info</p></html>";
-        JOptionPane.showMessageDialog(null, checkForUpdatesMessage);
+        showOldVersionMessage(releaseDate);
       }
     } catch (IOException | ParseException e) {
       e.printStackTrace();
       System.exit(1);
+    } finally {
+      try {
+        relStream.close();
+      } catch (final IOException ioe) {
+        ioe.printStackTrace();
+      }
     }
+  }
+
+  private void showOldVersionMessage(final Date releaseDate) {
+    final String version = relProps.getProperty(RELEASE_VERSION_STRING);
+    final String checkForUpdatesMessage = "<html><h3><center>This version of gngr is old</center></h3><p>gngr "
+        + version
+        + "</p><p>Released on: "
+        + releaseDate
+        + "</p><p>This version is more than " + TIMEOUT_DAYS
+        + " days old and was not intended for long-time use.</p><p>Please check if a newer version is available on https://gngr.info</p></html>";
+    JOptionPane.showMessageDialog(null, checkForUpdatesMessage);
   }
 
   /**
