@@ -32,9 +32,6 @@ import cz.vutbr.web.css.CSSProperty;
 import cz.vutbr.web.css.NodeData;
 import cz.vutbr.web.css.Term;
 import cz.vutbr.web.css.TermURI;
-import cz.vutbr.web.css.TermPropertyValue;
-import cz.vutbr.web.csskit.TermListImpl;
-import cz.vutbr.web.csskit.TermURIImpl;
 
 abstract public class JStyleProperties extends AbstractScriptableDelegate implements CSS2Properties {
   private String overlayColor;
