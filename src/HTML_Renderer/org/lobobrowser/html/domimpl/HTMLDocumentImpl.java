@@ -1454,11 +1454,18 @@ public class HTMLDocumentImpl extends NodeImpl implements HTMLDocument, Document
   private void updateStyleRules() {
     synchronized (treeLock) {
       if (classifiedRules == null) {
-        final List<StyleSheet> jSheets = new ArrayList<>();
-        jSheets.add(isXML() ? recommendedStyleXML : recommendedStyle);
-        jSheets.add(isXML() ? userAgentStyleXML : userAgentStyle);
-        jSheets.addAll(styleSheetManager.getEnabledJStyleSheets());
-        classifiedRules = AnalyzerUtil.getClassifiedRules(jSheets, new MediaSpec("screen"));
+        try {
+          final List<StyleSheet> jSheets = new ArrayList<>();
+          jSheets.add(isXML() ? recommendedStyleXML : recommendedStyle);
+          jSheets.add(isXML() ? userAgentStyleXML : userAgentStyle);
+          jSheets.addAll(styleSheetManager.getEnabledJStyleSheets());
+          classifiedRules = AnalyzerUtil.getClassifiedRules(jSheets, new MediaSpec("screen"));
+        } catch (final Exception e) {
+          // Unsupported or rarely used features in CSS might cause exceptions. For example: https://github.com/radkovo/jStyleParser/issues/56
+          System.err.println("Exception while Analysing CSS");
+          e.printStackTrace();
+          classifiedRules = new Holder();
+        }
       }
     }
   }
