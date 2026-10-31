@@ -140,7 +140,7 @@ public class ReuseServer implements Runnable {
                   @SuppressWarnings("null")
                   final @NonNull String key = line.substring(blankIdx + 1).trim();
                   if (PlatformInit.getInstance().verifyAuth(ss.getLocalPort(), key)) {
-                    logger.info("Grinder authentication succeeded.");
+                    logger.warning("Grinder authentication succeeded.");
                     final NavigatorFrame frame = PlatformInit.getInstance().launch("about:blank");
                     final GrinderServer gs = new GrinderServer(frame);
                     final int gsPort = gs.getPort();
