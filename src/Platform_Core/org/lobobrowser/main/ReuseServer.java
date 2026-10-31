@@ -33,6 +33,8 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.ua.NavigatorFrame;
@@ -41,6 +43,7 @@ import org.lobobrowser.ua.NavigatorFrame;
  * The local-bound server that allows the browser JVM to be reused.
  */
 public class ReuseServer implements Runnable {
+  private static final Logger logger = Logger.getLogger(ReuseServer.class.getName());
   /**
    *
    */
@@ -131,23 +134,28 @@ public class ReuseServer implements Runnable {
               } else if ("LAUNCH_BLANK".equals(command)) {
                 PlatformInit.getInstance().launch();
               } else if ("GRINDER".equals(command)) {
+                logger.warning("Received Grinder connection request from " + s.getRemoteSocketAddress() + ".");
                 final DataOutputStream dos = new DataOutputStream(s.getOutputStream());
                 if (blankIdx != -1) {
                   @SuppressWarnings("null")
                   final @NonNull String key = line.substring(blankIdx + 1).trim();
                   if (PlatformInit.getInstance().verifyAuth(ss.getLocalPort(), key)) {
+                    logger.info("Grinder authentication succeeded.");
                     final NavigatorFrame frame = PlatformInit.getInstance().launch("about:blank");
                     final GrinderServer gs = new GrinderServer(frame);
                     final int gsPort = gs.getPort();
                     dos.writeInt(gsPort);
                     dos.flush();
+                    logger.info("Started Grinder control server on 127.0.0.1:" + gsPort + ".");
                   } else {
                     dos.writeInt(-1);
                     dos.flush();
+                    logger.info("Grinder request rejected.");
                   }
                 } else {
                   dos.writeInt(-1);
                   dos.flush();
+                  logger.info("Grinder request rejected: no authentication key was supplied.");
                 }
                 // Wait for ACK
                 br.readLine();
@@ -156,7 +164,7 @@ public class ReuseServer implements Runnable {
           }
         }
       } catch (final Exception t) {
-        t.printStackTrace(System.err);
+        logger.log(Level.SEVERE, "Error while handling a reuse-server request.", t);
       }
     }
   }

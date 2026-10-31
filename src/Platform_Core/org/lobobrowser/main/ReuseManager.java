@@ -70,6 +70,7 @@ public class ReuseManager {
    */
   public void launch(final String[] args, final SSLInfo sslInfo) throws Exception {
     boolean launched = false;
+    int reusePort = -1;
     // long time1 = System.currentTimeMillis();
     try {
       // Bind host for reuse server is 127.0.0.1, and it can
@@ -142,6 +143,7 @@ public class ReuseManager {
           dout.writeInt(port);
           dout.flush();
         }
+        reusePort = port;
         break OUTER;
       }
     } finally {
@@ -149,16 +151,21 @@ public class ReuseManager {
       // System.out.println("launch(): Took " + (time2 - time1) + " ms.");
     }
     if (!launched) {
-      final PlatformInit entry = PlatformInit.getInstance();
+      final PlatformInit platformInit = PlatformInit.getInstance();
       boolean debugOn = false;
-      for (final String url : args) {
-        if (url.equals("-debug")) {
+      for (final String arg : args) {
+        if (arg.equals("-debug")) {
           debugOn = true;
         }
       }
-      entry.initLogging(debugOn);
-      entry.init(true, !debugOn, sslInfo);
-      entry.start(args);
+      platformInit.initLogging(debugOn);
+      if (reusePort != -1) {
+        Logger.getLogger(ReuseManager.class.getName()).info(
+            "Reuse server listening on 127.0.0.1:" + reusePort + " for profile "
+                + StorageManager.getInstance().getAppHome().getAbsolutePath() + ".");
+      }
+      platformInit.init(true, !debugOn, sslInfo);
+      platformInit.start(args);
     }
   }
 }

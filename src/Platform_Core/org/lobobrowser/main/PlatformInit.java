@@ -560,11 +560,19 @@ public class PlatformInit {
         final MessageDigest digest = MessageDigest.getInstance("SHA-256");
         final byte[] hash = digest.digest((grinderKey+port).getBytes("UTF-8"));
         final String hashB64 = Base64.getEncoder().encodeToString(hash);
-        return hashB64.equals(passkey);
+        final boolean authenticated = hashB64.equals(passkey);
+        if (!authenticated) {
+          Logger.getLogger(PlatformInit.class.getName())
+              .warning("Grinder authentication rejected: the supplied key did not match.");
+        }
+        return authenticated;
       } catch (final NoSuchAlgorithmException | UnsupportedEncodingException nsa) {
+        Logger.getLogger(PlatformInit.class.getName()).log(Level.SEVERE, "Unable to verify Grinder authentication.", nsa);
         return false;
       }
     } else {
+      Logger.getLogger(PlatformInit.class.getName())
+          .info("Grinder authentication rejected: the test interface is not enabled.");
       return false;
     }
   }

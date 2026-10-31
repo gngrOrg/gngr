@@ -36,6 +36,8 @@ import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 import javax.swing.SwingUtilities;
@@ -46,6 +48,7 @@ import org.lobobrowser.ua.NavigatorProgressEvent;
 import org.lobobrowser.ua.ProgressType;
 
 class GrinderServer implements Runnable {
+  private static final Logger logger = Logger.getLogger(GrinderServer.class.getName());
   private final NavigatorFrame frame;
   private final ServerSocket socket;
 
@@ -76,7 +79,7 @@ class GrinderServer implements Runnable {
             if (commandLine != null) {
               final int blankIdx = commandLine.indexOf(' ');
               final String command = blankIdx == -1 ? commandLine : commandLine.substring(0, blankIdx).trim();
-              // System.out.println("Command: " + command);
+              logger.info("Received Grinder command: " + command + ".");
               if ("TO".equals(command)) {
                 if (blankIdx != -1) {
                   final String path = commandLine.substring(blankIdx + 1).trim();
@@ -101,7 +104,7 @@ class GrinderServer implements Runnable {
           }
         }
       } catch (final Exception t) {
-        t.printStackTrace(System.err);
+        logger.log(Level.SEVERE, "Error while handling a Grinder command.", t);
       }
     }
 
