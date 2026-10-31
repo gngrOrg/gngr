@@ -3,12 +3,17 @@ name: Build
 on:
   push:
   pull_request:
+  issue_comment:
+    types:
+      - created
 
 permissions:
   contents: read
+  pull-requests: read
 
 jobs:
   compile:
+    if: github.event_name != 'issue_comment'
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -25,3 +30,26 @@ jobs:
 
       - name: Compile project
         run: ant -f src/build.xml build
+
+  test:
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/master') || (github.event_name == 'issue_comment' && github.event.issue.pull_request && github.event.comment.body == '!run-test')
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'issue_comment' && format('refs/pull/{0}/head', github.event.issue.number) || github.sha }}
+          persist-credentials: false
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '11'
+
+      - name: Install test dependencies
+        run: sudo apt-get update && sudo apt-get install --yes ant xvfb xauth
+
+      - name: Run tests
+        run: bash misc/runTest.sh
