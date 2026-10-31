@@ -31,7 +31,7 @@ import org.w3c.dom.css.CSS2Properties;
 import cz.vutbr.web.css.CSSProperty;
 import cz.vutbr.web.css.NodeData;
 import cz.vutbr.web.css.Term;
-import cz.vutbr.web.csskit.TermURIImpl;
+import cz.vutbr.web.css.TermURI;
 
 abstract public class JStyleProperties extends AbstractScriptableDelegate implements CSS2Properties {
   private String overlayColor;
@@ -70,15 +70,19 @@ abstract public class JStyleProperties extends AbstractScriptableDelegate implem
     // need to check if upstream can provide the absolute url of
     //  the image so that it can directly be passed.
     String quotedUri = null;
-    final TermURIImpl t = (TermURIImpl) getNodeData().getValue("background-image", false);
-    if (t != null) {
+
+    final Term term = getNodeData().getValue("background-image", 0, false);
+    if (term instanceof TermURI) {
+      final TermURI tURI = (TermURI) term;
       URL finalUrl = null;
       try {
-        finalUrl = Urls.createURL(t.getBase(), t.getValue());
+        finalUrl = Urls.createURL(tURI.getBase(), tURI.getValue());
       } catch (final MalformedURLException e) {
         e.printStackTrace();
       }
       quotedUri = finalUrl == null ? null : finalUrl.toString();
+    } else if (term != null) {
+      System.out.println("Unhandled background image value: " + term);
     }
     return quotedUri == null ? null : "url(" + quotedUri + ")";
   }

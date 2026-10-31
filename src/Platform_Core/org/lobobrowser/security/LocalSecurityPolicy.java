@@ -359,7 +359,7 @@ public class LocalSecurityPolicy extends Policy {
       if (path.endsWith("slf4j-api-1.7.25.jar")) {
         permissions.add(new PropertyPermission("slf4j.*", "read"));
         permissions.add(new PropertyPermission("java.vendor.url", "read"));
-      } else if (path.endsWith("jstyleparser-3.3-SNAPSHOT.jar")) {
+      } else if (path.endsWith("jstyleparser-4.0.1.jar")) {
         permissions.add(new PropertyPermission("slf4j.*", "read"));
         permissions.add(new PropertyPermission("java.vendor.url", "read"));
       } else if (path.endsWith("h2-1.4.196.jar")) {
