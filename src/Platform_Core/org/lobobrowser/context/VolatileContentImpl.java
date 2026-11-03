@@ -24,6 +24,8 @@
 package org.lobobrowser.context;
 
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Map;
 
@@ -60,8 +62,8 @@ public class VolatileContentImpl implements ContentBuffer {
    */
   public URL getURL() {
     try {
-      return new URL("vc:" + this.id);
-    } catch (final MalformedURLException mfu) {
+      return new URI("vc:" + this.id).toURL();
+    } catch (final MalformedURLException | URISyntaxException mfu) {
       throw new IllegalStateException(mfu);
     }
   }
