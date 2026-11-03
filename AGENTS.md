@@ -1,3 +1,8 @@
+# Guidelines
+* Don't attempt to access any files or processes outside this repository unless explicitly commanded to do so
+* Don't try to disassemble binaries or jar files, unless explicitly commanded to do so
+
+
 # One-off GUI tests
 
 ## Running gngr without a physical display
