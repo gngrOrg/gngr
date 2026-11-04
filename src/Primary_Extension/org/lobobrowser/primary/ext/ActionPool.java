@@ -22,6 +22,8 @@ package org.lobobrowser.primary.ext;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Collection;
@@ -108,8 +110,8 @@ public class ActionPool {
 
   public Action createNavigateAction(final String fullURL) {
     try {
-      return new NavigateAction(new URL(fullURL));
-    } catch (final java.net.MalformedURLException mfu) {
+      return new NavigateAction(new URI(fullURL).toURL());
+    } catch (final java.net.MalformedURLException | URISyntaxException | IllegalArgumentException mfu) {
       logger.log(Level.WARNING, "createNavigateAction()", mfu);
       throw new IllegalStateException(mfu);
     }

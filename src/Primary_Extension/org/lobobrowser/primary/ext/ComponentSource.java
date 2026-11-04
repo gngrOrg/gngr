@@ -27,6 +27,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
@@ -650,14 +652,14 @@ public class ComponentSource implements NavigatorWindowListener {
     for (final HostEntry entry : hostEntries) {
       final String urlText = "http://" + entry.host;
       try {
-        final java.net.URL url = new java.net.URL(urlText);
+        final java.net.URL url = new java.net.URI(urlText).toURL();
         final long elapsed = System.currentTimeMillis() - entry.timestamp;
         final String menuText = entry.host + " (" + Timing.getElapsedText(elapsed) + " ago)";
         final Action action = this.actionPool.createNavigateAction(url);
         final JMenuItem menuItem = menuItem(menuText, action);
         menuItem.setToolTipText(url.toExternalForm());
         recentHostsMenu.add(menuItem);
-      } catch (final java.net.MalformedURLException mfu) {
+      } catch (final java.net.MalformedURLException | java.net.URISyntaxException | IllegalArgumentException mfu) {
         logger.log(Level.WARNING, "populateRecentHosts(): Bad URL=" + urlText, mfu);
       }
     }
