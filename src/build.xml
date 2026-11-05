@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Optional top level build file. You can also use the Platform_Core/build.xml directly -->
-<project basedir="." default="build" name="gngr">
+<project basedir="." default="build" name="gngr" xmlns:if="ant:if" xmlns:unless="ant:unless">
   <target name="build">
     <subant target="">
       <fileset dir="." includes="*/build.xml"/>
@@ -16,6 +16,14 @@
   <target name="run" depends="build">
     <subant target="EntryPoint">
       <fileset dir="." includes="Platform_Core/build.xml"/>
+    </subant>
+  </target>
+
+  <target name="run-harness" depends="build">
+    <subant target="run">
+      <fileset dir="." includes="Render_Harness/build.xml"/>
+      <property name="gngr.grinder.key" value="${gngr.grinder.key}" if:set="gngr.grinder.key"/>
+      <property name="gngr.profile" value="${gngr.profile}" if:set="gngr.profile"/>
     </subant>
   </target>
 </project>
