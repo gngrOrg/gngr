@@ -186,4 +186,8 @@ public class RecordedInputStream extends InputStream {
   public boolean hasReachedEOF() {
     return this.hasReachedEOF;
   }
+
+  public boolean hasReachedMaxBufferSize() {
+    return this.hasReachedMaxBufferSize;
+  }
 }

@@ -26,6 +26,7 @@ package org.lobobrowser.primary.clientlets.html;
 import java.awt.event.ActionEvent;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -69,7 +70,7 @@ public final class HtmlClientlet implements Clientlet {
 
   // Maximum buffer size required to determine if a reload due
   // to Http-Equiv is necessary.
-  private static final int MAX_IS_BUFFER_SIZE = 1024 * 100;
+  private static final int MAX_IS_BUFFER_SIZE = 10 * 1024 * 1024;
 
   public HtmlClientlet() {
     super();
@@ -128,7 +129,7 @@ public final class HtmlClientlet implements Clientlet {
       if (rin == null) {
         final InputStream in = response.getInputStream();
         rin = in instanceof RecordedInputStream ? (RecordedInputStream) in : new RecordedInputStream(in, MAX_IS_BUFFER_SIZE);
-        rin.mark(Short.MAX_VALUE);
+        rin.mark(MAX_IS_BUFFER_SIZE);
       } else {
         rin.reset();
       }
@@ -158,7 +159,7 @@ public final class HtmlClientlet implements Clientlet {
       // Create a listener that will switch to rendering when appropriate.
       final HtmlContent content = new HtmlContent(document, panel, rin, charset);
       final LocalDocumentNotificationListener listener = new LocalDocumentNotificationListener(document, panel, rcontext, cc, content,
-          httpEquivData == null);
+          (httpEquivData == null) && !charsetProvided, charset, charsetProvided, responseURL, rin);
       document.addDocumentNotificationListener(listener);
       // Set resulting content before parsing
       // to enable incremental rendering.
@@ -169,14 +170,48 @@ public final class HtmlClientlet implements Clientlet {
         if (logger.isLoggable(Level.INFO)) {
           logger.info("processImpl(): Resetting due to META http-equiv: " + uri);
         }
-        // This is a recursive call, but it doesn't go further
-        // than one level deep.
-        this.processImpl(cc, retry.getHttpEquivData(), rin);
-        return;
+        if ((rin != null) && rin.hasReachedMaxBufferSize()) {
+          if (logger.isLoggable(Level.WARNING)) {
+            logger.warning("processImpl(): Cannot reset due to META http-equiv because buffer size was exceeded: " + uri);
+          }
+          listener.ensureSwitchedToRendering();
+          return;
+        }
+        try {
+          // This is a recursive call, but it doesn't go further
+          // than one level deep.
+          this.processImpl(cc, retry.getHttpEquivData(), rin);
+          return;
+        } catch (final Exception err) {
+          if (logger.isLoggable(Level.WARNING)) {
+            logger.log(Level.WARNING, "processImpl(): Failed to reload for META http-equiv: " + uri, err);
+          }
+          listener.ensureSwitchedToRendering();
+          return;
+        }
       }
       // We're done parsing, but let's make sure
       // the listener actually renderered the document.
       listener.ensureSwitchedToRendering();
+
+      // If refresh or locales were not in headers or httpEquivData, check the listener's collected meta elements
+      if ((refresh == null) || (locales == null)) {
+        final Map<String, String> equiv = listener.getHttpEquivData();
+        if (equiv != null) {
+          for (final Map.Entry<String, String> entry : equiv.entrySet()) {
+            final String httpEquiv = entry.getKey();
+            final String contentVal = entry.getValue();
+            if (contentVal != null) {
+              if ("refresh".equalsIgnoreCase(httpEquiv) && (refresh == null)) {
+                refresh = HtmlClientlet.extractRefresh(contentVal);
+              } else if ("content-language".equalsIgnoreCase(httpEquiv) && (locales == null)) {
+                locales = HtmlClientlet.extractLocales(contentVal);
+                document.setLocales(locales);
+              }
+            }
+          }
+        }
+      }
 
       // Scroll to see anchor.
       /* This is now disabled, because we now layout lazily. There is no point in scrolling until the layout is done.
@@ -286,6 +321,20 @@ public final class HtmlClientlet implements Clientlet {
     return new RefreshInfo(delay, urlText);
   }
 
+  static boolean isSameCharset(final String c1, final String c2) {
+    if ((c1 == null) || (c2 == null)) {
+      return false;
+    }
+    if (c1.equalsIgnoreCase(c2)) {
+      return true;
+    }
+    try {
+      return Charset.forName(c1).equals(Charset.forName(c2));
+    } catch (final Exception e) {
+      return false;
+    }
+  }
+
   private static class LocalDocumentNotificationListener implements DocumentNotificationListener {
     private static final int MAX_WAIT = 7000;
     private final HTMLDocumentImpl document;
@@ -294,14 +343,19 @@ public final class HtmlClientlet implements Clientlet {
     private final HtmlRendererContext rcontext;
     private final ClientletContext ccontext;
     private final HtmlContent content;
-    private final boolean detectHttpEquiv;
+    private final String currentCharset;
+    private final boolean charsetProvided;
+    private final URL responseURL;
+    private final RecordedInputStream rin;
+    private boolean detectHttpEquiv;
     private boolean hasVisibleElements = false;
     private boolean hasSwitchedToRendering = false;
     private Collection<HTMLElement> httpEquivElements;
 
     public LocalDocumentNotificationListener(final HTMLDocumentImpl doc, final HtmlPanel panel, final HtmlRendererContext rcontext,
         final ClientletContext cc,
-        final HtmlContent content, final boolean detectHttpEquiv) {
+        final HtmlContent content, final boolean detectHttpEquiv, final String currentCharset, final boolean charsetProvided,
+        final URL responseURL, final RecordedInputStream rin) {
       this.document = doc;
       this.startTimestamp = System.currentTimeMillis();
       this.htmlPanel = panel;
@@ -309,6 +363,10 @@ public final class HtmlClientlet implements Clientlet {
       this.ccontext = cc;
       this.content = content;
       this.detectHttpEquiv = detectHttpEquiv;
+      this.currentCharset = currentCharset;
+      this.charsetProvided = charsetProvided;
+      this.responseURL = responseURL;
+      this.rin = rin;
     }
 
     public void allInvalidated() {
@@ -338,16 +396,16 @@ public final class HtmlClientlet implements Clientlet {
 
     public void nodeLoaded(final NodeImpl node) {
       // We can expect this to occur only in the parser thread.
-      if (this.detectHttpEquiv) {
-        if (node instanceof HTMLElement) {
-          final HTMLElement element = (HTMLElement) node;
-          final String tagName = element.getTagName();
-          if ("meta".equalsIgnoreCase(tagName)) {
-            final String httpEquiv = element.getAttribute("http-equiv");
-            if (httpEquiv != null) {
-              this.addHttpEquivElement(element);
-            }
+      if (node instanceof HTMLElement) {
+        final HTMLElement element = (HTMLElement) node;
+        final String tagName = element.getTagName();
+        if ("meta".equalsIgnoreCase(tagName)) {
+          final String httpEquiv = element.getAttribute("http-equiv");
+          if (httpEquiv != null) {
+            this.addHttpEquivElement(element);
           }
+        }
+        if (this.detectHttpEquiv && !this.charsetProvided) {
           if ("head".equalsIgnoreCase(tagName) || "script".equalsIgnoreCase(tagName) || "html".equalsIgnoreCase(tagName)) {
             // Note: SCRIPT is checked as an optimization. We do not want
             // scripts to be processed twice. HTML is checked because
@@ -355,7 +413,26 @@ public final class HtmlClientlet implements Clientlet {
             // http://baidu.com.
             final Map<String, String> httpEquiv = this.getHttpEquivData();
             if ((httpEquiv != null) && (httpEquiv.size() > 0)) {
-              throw new HttpEquivRetryException(httpEquiv);
+              String newCharset = null;
+              for (final Map.Entry<String, String> entry : httpEquiv.entrySet()) {
+                if ("content-type".equalsIgnoreCase(entry.getKey())) {
+                  newCharset = HtmlClientlet.extractCharset(this.responseURL, entry.getValue());
+                  break;
+                }
+              }
+              if ((newCharset != null) && !HtmlClientlet.isSameCharset(newCharset, this.currentCharset)) {
+                if ((this.rin != null) && this.rin.hasReachedMaxBufferSize()) {
+                  if (logger.isLoggable(Level.WARNING)) {
+                    logger.warning("nodeLoaded(): Cannot reload for META http-equiv charset (" + newCharset
+                        + ") because buffer size (" + MAX_IS_BUFFER_SIZE + ") was exceeded.");
+                  }
+                  this.detectHttpEquiv = false;
+                } else {
+                  throw new HttpEquivRetryException(httpEquiv);
+                }
+              } else if ("head".equalsIgnoreCase(tagName) || "html".equalsIgnoreCase(tagName)) {
+                this.detectHttpEquiv = false;
+              }
             }
           }
         }
