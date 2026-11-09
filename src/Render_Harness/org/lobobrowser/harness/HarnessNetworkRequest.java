@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -50,6 +51,11 @@ import org.w3c.dom.Document;
  */
 public class HarnessNetworkRequest implements NetworkRequest {
   private static final Logger logger = Logger.getLogger(HarnessNetworkRequest.class.getName());
+  private static final AtomicInteger ACTIVE_REQUESTS = new AtomicInteger(0);
+
+  public static int getActiveRequestCount() {
+    return ACTIVE_REQUESTS.get();
+  }
 
   private volatile int readyState = STATE_UNINITIALIZED;
   private volatile int status = 0;
@@ -212,12 +218,13 @@ public class HarnessNetworkRequest implements NetworkRequest {
 
   @Override
   public void send(final String content, final Request requestType) throws IOException {
-    if (async) {
-      final Thread t = new Thread(this::executeRequest, "HarnessNetReq-" + requestURL);
-      t.setDaemon(true);
-      t.start();
-    } else {
+    // Execute synchronously in the headless render harness so resources (such as
+    // CSS background images and <img> elements) are immediately available during layout/paint.
+    ACTIVE_REQUESTS.incrementAndGet();
+    try {
       executeRequest();
+    } finally {
+      ACTIVE_REQUESTS.decrementAndGet();
     }
   }
 

@@ -84,14 +84,21 @@ public class HarnessServer implements Runnable {
 
   private void loadBlankDocument() {
     try {
+      rcontext.setCurrentURL("http://localhost/blank");
       final DocumentBuilderImpl builder = new DocumentBuilderImpl(ucontext, rcontext);
       final InputSourceImpl is = new InputSourceImpl(new StringReader("<!DOCTYPE html><html><body></body></html>"), "http://localhost/blank");
       final HTMLDocumentImpl doc = (HTMLDocumentImpl) builder.parse(is);
-      doc.finishModifications();
       SwingUtilities.invokeAndWait(() -> {
         panel.setSize(currentWidth, currentHeight);
         panel.setBounds(0, 0, currentWidth, currentHeight);
         panel.setDocument(doc, rcontext);
+      });
+      doc.finishModifications();
+      final long blockStart = System.currentTimeMillis();
+      while (doc.layoutBlocked.get() && (System.currentTimeMillis() - blockStart < 2000)) {
+        Thread.sleep(5);
+      }
+      SwingUtilities.invokeAndWait(() -> {
         panel.validate();
         panel.doLayout();
         for (java.awt.Component c : panel.getComponents()) {
@@ -236,31 +243,60 @@ public class HarnessServer implements Runnable {
     }
 
     try {
+      rcontext.setCurrentURL(url.toExternalForm());
+
       final URLConnection conn = url.openConnection();
       conn.setConnectTimeout(10000);
       conn.setReadTimeout(15000);
       conn.setRequestProperty("User-Agent", "Mozilla/5.0 (compatible; gngr/1.0; RenderHarness)");
 
-      final String contentType = conn.getContentType();
-      String charset = extractCharset(contentType);
+      final String rawContentType = conn.getContentType();
+      String charset = extractCharset(rawContentType);
       if (charset == null) {
         charset = "UTF-8";
+      }
+      String mimeType = extractMimeType(rawContentType);
+      final String lowerPath = url.getPath().toLowerCase();
+      if (mimeType == null || "content/unknown".equalsIgnoreCase(mimeType) || "application/octet-stream".equalsIgnoreCase(mimeType)) {
+        if (lowerPath.endsWith(".xht") || lowerPath.endsWith(".xhtml") || lowerPath.endsWith(".xml")) {
+          mimeType = "application/xhtml+xml";
+        } else {
+          mimeType = "text/html";
+        }
       }
 
       final HTMLDocumentImpl doc;
       try (InputStream in = conn.getInputStream()) {
         final InputSourceImpl is = new InputSourceImpl(in, url.toExternalForm(), charset);
         final DocumentBuilderImpl builder = new DocumentBuilderImpl(ucontext, rcontext);
-        doc = (HTMLDocumentImpl) builder.createDocument(is, contentType != null ? contentType : "text/html");
+        doc = (HTMLDocumentImpl) builder.createDocument(is, mimeType);
         doc.load(false);
       }
-
-      doc.finishModifications();
 
       SwingUtilities.invokeAndWait(() -> {
         panel.setSize(currentWidth, currentHeight);
         panel.setBounds(0, 0, currentWidth, currentHeight);
         panel.setDocument(doc, rcontext);
+      });
+
+      doc.finishModifications();
+
+      // Wait for layout-blocking jobs (e.g. external <link> stylesheets) and in-flight requests to finish
+      final long blockStart = System.currentTimeMillis();
+      while ((doc.layoutBlocked.get() || HarnessNetworkRequest.getActiveRequestCount() > 0)
+          && (System.currentTimeMillis() - blockStart < 10000)) {
+        try {
+          Thread.sleep(10);
+        } catch (InterruptedException ie) {
+          Thread.currentThread().interrupt();
+          break;
+        }
+      }
+
+      // Trigger layout on EDT now that layout is unblocked and external stylesheets are loaded
+      SwingUtilities.invokeAndWait(() -> {
+        panel.setSize(currentWidth, currentHeight);
+        panel.setBounds(0, 0, currentWidth, currentHeight);
         panel.validate();
         panel.doLayout();
         for (java.awt.Component c : panel.getComponents()) {
@@ -268,8 +304,6 @@ public class HarnessServer implements Runnable {
           c.doLayout();
         }
       });
-
-      rcontext.setCurrentURL(url.toExternalForm());
 
       // Wait for layout completion
       final Future<Boolean> layoutFuture = panel.layoutCompletion();
@@ -281,9 +315,10 @@ public class HarnessServer implements Runnable {
         }
       }
 
-      // Wait until ready to paint
+      // Wait until ready to paint and no active network requests remain
       final long start = System.currentTimeMillis();
-      while (!isReadyToPaint() && (System.currentTimeMillis() - start < 5000)) {
+      while ((!isReadyToPaint() || HarnessNetworkRequest.getActiveRequestCount() > 0)
+          && (System.currentTimeMillis() - start < 5000)) {
         try {
           Thread.sleep(20);
         } catch (InterruptedException ie) {
@@ -301,7 +336,8 @@ public class HarnessServer implements Runnable {
 
   private void handleScreenShot(final Socket s, final BufferedReader br) throws IOException {
     final long start = System.currentTimeMillis();
-    while (!isReadyToPaint() && (System.currentTimeMillis() - start < 5000)) {
+    while ((!isReadyToPaint() || HarnessNetworkRequest.getActiveRequestCount() > 0)
+        && (System.currentTimeMillis() - start < 5000)) {
       try {
         Thread.sleep(20);
       } catch (InterruptedException ie) {
@@ -318,6 +354,12 @@ public class HarnessServer implements Runnable {
     final Graphics2D g = img.createGraphics();
     try {
       SwingUtilities.invokeAndWait(() -> {
+        panel.setSize(width, height);
+        panel.setBounds(0, 0, width, height);
+        panel.doLayout();
+        for (java.awt.Component c : panel.getComponents()) {
+          c.doLayout();
+        }
         panel.paint(g);
       });
     } catch (Exception e) {
@@ -382,6 +424,15 @@ public class HarnessServer implements Runnable {
     dos.writeInt(status);
     dos.flush();
     br.readLine();
+  }
+
+  private static String extractMimeType(final String contentType) {
+    if (contentType == null) {
+      return null;
+    }
+    final int semi = contentType.indexOf(';');
+    final String mime = (semi == -1 ? contentType : contentType.substring(0, semi)).trim();
+    return mime.isEmpty() ? null : mime.toLowerCase();
   }
 
   private static String extractCharset(final String contentType) {

@@ -38,7 +38,10 @@ import java.util.logging.Logger;
 
 import javax.swing.SwingUtilities;
 
+import org.lobobrowser.html.HtmlRendererContext;
+import org.lobobrowser.html.gui.HtmlBlockPanel;
 import org.lobobrowser.html.gui.HtmlPanel;
+import org.lobobrowser.ua.UserAgentContext;
 
 /**
  * Standalone entry point for the headless Render Harness.
@@ -126,7 +129,7 @@ public final class RenderHarnessMain {
     final HtmlPanel[] panelHolder = new HtmlPanel[1];
     try {
       SwingUtilities.invokeAndWait(() -> {
-        final HtmlPanel panel = new HtmlPanel();
+        final HtmlPanel panel = createOffscreenHtmlPanel();
         panel.setSize(initW, initH);
         panel.setBounds(0, 0, initW, initH);
         panelHolder[0] = panel;
@@ -206,6 +209,43 @@ public final class RenderHarnessMain {
       logger.log(Level.SEVERE, "SHA-256 not available", e);
       return false;
     }
+  }
+
+  public static HtmlPanel createOffscreenHtmlPanel() {
+    return new HtmlPanel() {
+      private static final long serialVersionUID = 1L;
+
+      @Override
+      protected HtmlBlockPanel createHtmlBlockPanel(final UserAgentContext ucontext, final HtmlRendererContext rcontext) {
+        return new HtmlBlockPanel(java.awt.Color.WHITE, true, ucontext, rcontext, this) {
+          private static final long serialVersionUID = 1L;
+
+          @Override
+          protected void validateAll() {
+            super.validateAll();
+            if (!this.isDisplayable()) {
+              doLayoutOffscreen();
+            }
+          }
+
+          @Override
+          protected void revalidatePanel() {
+            super.revalidatePanel();
+            if (!this.isDisplayable()) {
+              doLayoutOffscreen();
+            }
+          }
+
+          private void doLayoutOffscreen() {
+            final java.awt.Container parent = this.getParent();
+            if (parent != null) {
+              parent.doLayout();
+            }
+            this.doLayout();
+          }
+        };
+      }
+    };
   }
 
   public static void shutdown() {
