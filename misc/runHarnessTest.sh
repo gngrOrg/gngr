@@ -1,15 +1,52 @@
 #!/bin/bash
-set -e
+set -ex
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_DIR"
 
-PROFILE_DIR="$REPO_DIR/.test-harness/profile"
-SCREENSHOT_PATH="$REPO_DIR/.test-harness/screenshot.png"
-TEST_HTML="file://$REPO_DIR/misc/test.html"
+TMP_DIR="$REPO_DIR/tmp-test-harness/"
+PROFILE_DIR="$TMP_DIR/tmp-test-harness/profile"
+SCREENSHOT_PATH="$TMP_DIR/test_screenshot.png"
+TEST_HTML_FILE="$TMP_DIR/test.html"
+TEST_HTML="localhost:8000/test.html"
 
 mkdir -p "$PROFILE_DIR"
 rm -f "$PROFILE_DIR/port.dat" "$SCREENSHOT_PATH"
+
+if [ ! -f "$TEST_HTML_FILE" ]; then
+  cat << 'EOF' > "$TEST_HTML_FILE"
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Render Harness Test</title>
+  <style>
+    body {
+      background-color: #f0f0f0;
+      font-family: sans-serif;
+      margin: 20px;
+    }
+    h1 {
+      color: #003366;
+    }
+    .box {
+      width: 200px;
+      height: 100px;
+      background-color: #4CAF50;
+      color: white;
+      text-align: center;
+      line-height: 100px;
+      font-size: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Render Harness Test</h1>
+  <div class="box">Green Box</div>
+</body>
+</html>
+EOF
+fi
 
 GRINDER_KEY="$(python3 -c 'import secrets; print(secrets.token_hex(32))')"
 
@@ -21,9 +58,17 @@ cleanup() {
     echo "Stopping render harness (PID $HARNESS_PID)..."
     kill "$HARNESS_PID" 2>/dev/null || true
   fi
-  rm -rf "$REPO_DIR/.test-harness"
+  if [ -n "$HTTP_PID" ] && kill -0 "$HTTP_PID" 2>/dev/null; then
+    kill "$HTTP_PID" 2>/dev/null || true
+  fi
+  rm -rf "$TMP_DIR/" "$SCREENSHOT_PATH"
 }
 trap cleanup EXIT INT TERM
+
+echo "Starting local HTTP test server on port 8000..."
+python3 -m http.server 8000 --directory "$TMP_DIR" &> /dev/null &
+HTTP_PID=$!
+sleep 1
 
 echo "Starting Render Harness under Xvfb..."
 xvfb-run -a -s "-dpi 96 -screen 0 900x900x24" \
@@ -56,7 +101,9 @@ unset HARNESS_PID
 
 if [ -s "$SCREENSHOT_PATH" ]; then
   SCREENSHOT_SIZE="$(wc -c < "$SCREENSHOT_PATH")"
-  echo "SUCCESS: Screenshot generated successfully ($SCREENSHOT_SIZE bytes)!"
+  echo "Screenshot generated ($SCREENSHOT_SIZE bytes)."
+  echo "Verifying image pixel content..."
+  java misc/VerifyScreenshot.java "$SCREENSHOT_PATH"
 else
   echo "FAILURE: Screenshot file is missing or empty."
   exit 1

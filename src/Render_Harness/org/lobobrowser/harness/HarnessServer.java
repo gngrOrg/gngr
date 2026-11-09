@@ -28,6 +28,7 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
@@ -194,15 +195,40 @@ public class HarnessServer implements Runnable {
     markDoneAndWaitForAck(s, br, 0);
   }
 
+  public static URL resolveURL(final String path) throws MalformedURLException {
+    if (path == null || path.isEmpty()) {
+      throw new MalformedURLException("Empty path");
+    }
+
+    // 1. If it already has a protocol scheme, parse directly
+    if (path.contains("://") || path.startsWith("file:") || path.startsWith("jar:") || path.startsWith("data:")) {
+      return new URL(path);
+    }
+
+    // 2. Absolute filesystem paths (/... or C:\...)
+    if (path.startsWith("/") || (path.length() > 2 && Character.isLetter(path.charAt(0)) && path.charAt(1) == ':' && (path.charAt(2) == '/' || path.charAt(2) == '\\'))) {
+      return new File(path).toURI().toURL();
+    }
+
+    // 3. Explicit relative filesystem paths (./... or ../...)
+    if (path.startsWith("./") || path.startsWith("../")) {
+      return new File(path).toURI().toURL();
+    }
+
+    // 4. Existing file or directory on local filesystem
+    final File localFile = new File(path);
+    if (localFile.exists()) {
+      return localFile.toURI().toURL();
+    }
+
+    // 5. Hostname or host:port (e.g. localhost:8000/..., 127.0.0.1:8000/..., example.com/...)
+    return new URL("http://" + path);
+  }
+
   private void handleTo(final Socket s, final BufferedReader br, final String path) throws IOException {
-    URL url;
+    final URL url;
     try {
-      if (path.startsWith("http://") || path.startsWith("https://") || path.startsWith("file:") || path.startsWith("jar:")) {
-        url = new URL(path);
-      } else {
-        final File file = new File(path);
-        url = file.toURI().toURL();
-      }
+      url = resolveURL(path);
     } catch (Exception e) {
       logger.warning("Invalid URL or path: " + path);
       markDoneAndWaitForAck(s, br, 1);
