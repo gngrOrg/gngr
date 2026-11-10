@@ -33,9 +33,7 @@ mkdir -p $TEST_DIR
 cd $TEST_DIR
 GRINDER_VERSION="1.4.1"
 GRINDER_JAR="grinder-assembly-$GRINDER_VERSION.jar"
-#wget -nc "https://github.com/gngrOrg/grinder/releases/download/v${GRINDER_VERSION}/grinder-assembly-${GRINDER_VERSION}.jar"
-cp ~/grinder/target/scala-2.12/grinder-assembly-1.4.1.jar ./
-
+wget -nc "https://github.com/gngrOrg/grinder/releases/download/v${GRINDER_VERSION}/grinder-assembly-${GRINDER_VERSION}.jar"
 
 rm -rf grinderBaselines
 git clone --depth=1 https://github.com/UprootStaging/grinderBaselines.git grinderBaselines
