@@ -87,7 +87,23 @@ public class LocalSecurityPolicy extends Policy {
       throw new RuntimeException("Couldn't parse Java Home path: " + JAVA_HOME);
     }
     final File homeDir = new File(System.getProperty("user.home"));
-    final File settingsDir = Files.joinPaths(homeDir, STORE_DIR_NAME, DEFAULT_PROFILE);
+    final String profileProp = System.getProperty("gngr.profile");
+    final File settingsDir;
+    if (profileProp != null && !profileProp.trim().isEmpty()) {
+      final String trimmedProfile = profileProp.trim();
+      final File profileFile = new File(trimmedProfile);
+      if (trimmedProfile.equals("~")) {
+        settingsDir = homeDir;
+      } else if (trimmedProfile.startsWith("~" + File.separator) || trimmedProfile.startsWith("~/")) {
+        settingsDir = new File(homeDir, trimmedProfile.substring(2));
+      } else if (profileFile.isAbsolute() || trimmedProfile.contains("/") || trimmedProfile.contains("\\")) {
+        settingsDir = profileFile;
+      } else {
+        settingsDir = Files.joinPaths(homeDir, STORE_DIR_NAME, trimmedProfile);
+      }
+    } else {
+      settingsDir = Files.joinPaths(homeDir, STORE_DIR_NAME, DEFAULT_PROFILE);
+    }
     STORE_DIRECTORY = settingsDir;
     String settingsCanonical = "";
     try {
