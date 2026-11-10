@@ -17,26 +17,30 @@ fc-cache -f
 cd $INIT_DIR
 
 GRINDER_KEY="$$$(rnd)"
+TEST_DIR="$HOME/grinderTest"
+PROFILE_DIR="$TEST_DIR/testProfile"
 
 mkdir -p ~/.gngr
 
 ant -f src/build.xml build
 
-xvfb-run -s "-dpi 96 -screen 0 900x900x24+32" ant -f src/build.xml -Dgngr.grinder.key="$GRINDER_KEY" run-harness &> /dev/null  &
+xvfb-run -s "-dpi 96 -screen 0 900x900x24+32" ant -f src/build.xml -Dgngr.profile="$PROFILE_DIR" -Dgngr.grinder.key="$GRINDER_KEY" run-harness &> /dev/null  &
 
-mkdir -p ~/grinderTest
-cd ~/grinderTest
-wget -O grinder.jar "https://github.com/gngrOrg/grinder/releases/download/v1.4.0/grinder-assembly-1.4.0.jar"
+mkdir -p $TEST_DIR
+cd $TEST_DIR
+GRINDER_VERSION="1.4.1"
+GRINDER_JAR="grinder-assembly-$GRINDER_VERSION.jar"
+#wget -nc "https://github.com/gngrOrg/grinder/releases/download/v${GRINDER_VERSION}/grinder-assembly-${GRINDER_VERSION}.jar"
+cp ~/grinder/target/scala-2.12/grinder-assembly-1.4.1.jar ./
 
+
+rm -rf grinderBaselines
 git clone --depth=1 https://github.com/UprootStaging/grinderBaselines.git grinderBaselines
 
-# TODO: Use soft link instead of copying?
-#cp -r ~/grinderBaselines/nightly-unstable ~/grinderTest
-ln -s grinderBaselines/nightly-unstable ./
+ln -s -f grinderBaselines/nightly-unstable ./
 
-cd ~/grinderTest
 python3 -m http.server 8000 &> /dev/null &
 
-java -jar grinder.jar prepare
-java -jar grinder.jar compare gngr $GRINDER_KEY --baseLine=$HOME/grinderTest/grinderBaselines/gngr --uploadImg=y
-java -jar grinder.jar checkBase data ../grinderBaselines/gngr
+java -jar ${GRINDER_JAR} prepare
+java -jar ${GRINDER_JAR} compare gngr $GRINDER_KEY --baseLine=$TEST_DIR/grinderBaselines/gngr --profileDir="$PROFILE_DIR" --uploadImg=y
+java -jar ${GRINDER_JAR} checkBase data ../grinderBaselines/gngr

@@ -280,6 +280,7 @@ public class HarnessServer implements Runnable {
       });
 
       doc.finishModifications();
+      panel.flushNotifications();
 
       // Wait for layout-blocking jobs (e.g. external <link> stylesheets) and in-flight requests to finish
       final long blockStart = System.currentTimeMillis();
@@ -292,6 +293,8 @@ public class HarnessServer implements Runnable {
           break;
         }
       }
+
+      panel.flushNotifications();
 
       // Trigger layout on EDT now that layout is unblocked and external stylesheets are loaded
       SwingUtilities.invokeAndWait(() -> {
@@ -335,6 +338,7 @@ public class HarnessServer implements Runnable {
   }
 
   private void handleScreenShot(final Socket s, final BufferedReader br) throws IOException {
+    panel.flushNotifications();
     final long start = System.currentTimeMillis();
     while ((!isReadyToPaint() || HarnessNetworkRequest.getActiveRequestCount() > 0)
         && (System.currentTimeMillis() - start < 5000)) {
