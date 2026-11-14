@@ -31,7 +31,7 @@ xvfb-run -s "-dpi 96 -screen 0 900x900x24+32" ant -f src/build.xml -Dgngr.profil
 
 mkdir -p $TEST_DIR
 cd $TEST_DIR
-GRINDER_VERSION="1.4.1"
+GRINDER_VERSION="1.4.2"
 GRINDER_JAR="grinder-assembly-$GRINDER_VERSION.jar"
 wget -nc "https://github.com/gngrOrg/grinder/releases/download/v${GRINDER_VERSION}/grinder-assembly-${GRINDER_VERSION}.jar"
 
