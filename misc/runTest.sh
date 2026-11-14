@@ -23,8 +23,6 @@ PROFILE_DIR="$TEST_DIR/testProfile"
 #TARGET="run"
 TARGET="run-harness"
 
-mkdir -p ~/.gngr
-
 ant -f src/build.xml build
 
 xvfb-run -s "-dpi 96 -screen 0 900x900x24+32" ant -f src/build.xml -Dgngr.profile="$PROFILE_DIR" -Dgngr.grinder.key="$GRINDER_KEY" $TARGET &> /dev/null  &
