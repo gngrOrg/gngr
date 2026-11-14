@@ -33,8 +33,11 @@ GRINDER_VERSION="1.4.2"
 GRINDER_JAR="grinder-assembly-$GRINDER_VERSION.jar"
 wget -nc "https://github.com/gngrOrg/grinder/releases/download/v${GRINDER_VERSION}/grinder-assembly-${GRINDER_VERSION}.jar"
 
-rm -rf grinderBaselines
-git clone --depth=1 https://github.com/UprootStaging/grinderBaselines.git grinderBaselines
+if [ -d grinderBaselines ]; then
+  git -C grinderBaselines pull
+else
+  git clone --depth=1 https://github.com/UprootStaging/grinderBaselines.git grinderBaselines
+fi
 
 ln -s -f grinderBaselines/nightly-unstable ./
 
