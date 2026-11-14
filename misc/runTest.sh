@@ -42,4 +42,4 @@ python3 -m http.server 8000 &> /dev/null &
 
 java -jar ${GRINDER_JAR} prepare
 java -jar ${GRINDER_JAR} compare gngr $GRINDER_KEY --baseLine=$TEST_DIR/grinderBaselines/gngr --profileDir="$PROFILE_DIR" --uploadImg=y
-java -jar ${GRINDER_JAR} checkBase data ../grinderBaselines/gngr
+java -jar ${GRINDER_JAR} checkBase data $TEST_DIR/grinderBaselines/gngr
