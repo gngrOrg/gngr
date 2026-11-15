@@ -1,5 +1,5 @@
 # Guidelines
-* Don't attempt to access any files or processes outside this repository unless explicitly commanded to do so
+* Don't attempt to access any files or processes outside this repository. If necessary, explain the reason and plan, and ask before going ahead.
 * Don't try to disassemble binaries or jar files, unless explicitly commanded to do so
 
 
