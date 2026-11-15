@@ -23,7 +23,7 @@ jobs:
         uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: '11'
+          java-version: '25'
 
       - name: Install Ant
         run: sudo apt-get update && sudo apt-get install --yes ant
@@ -46,10 +46,18 @@ jobs:
         uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: '11'
+          java-version: '25'
 
       - name: Install test dependencies
         run: sudo apt-get update && sudo apt-get install --yes ant xvfb xauth
 
       - name: Run tests
         run: bash misc/runTest.sh
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: grinder-report
+          path: ~/grinderTest/grinder-report/
+          retention-days: 30
