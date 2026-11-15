@@ -20,8 +20,19 @@ GRINDER_KEY="$$$(rnd)"
 TEST_DIR="$HOME/grinderTest"
 PROFILE_DIR="$TEST_DIR/testProfile"
 
-#TARGET="run"
-TARGET="run-harness"
+MODE="${1:-harness}"
+case "$MODE" in
+  harness)
+    TARGET="run-harness"
+    ;;
+  browser)
+    TARGET="run"
+    ;;
+  *)
+    echo "Usage: $0 [harness|browser]" >&2
+    exit 1
+    ;;
+esac
 
 ant -f src/build.xml build
 
