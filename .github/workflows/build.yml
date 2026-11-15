@@ -23,7 +23,7 @@ jobs:
         uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: '11'
+          java-version: '25'
 
       - name: Install Ant
         run: sudo apt-get update && sudo apt-get install --yes ant
@@ -46,7 +46,7 @@ jobs:
         uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: '11'
+          java-version: '25'
 
       - name: Install test dependencies
         run: sudo apt-get update && sudo apt-get install --yes ant xvfb xauth
