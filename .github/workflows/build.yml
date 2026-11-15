@@ -53,3 +53,11 @@ jobs:
 
       - name: Run tests
         run: bash misc/runTest.sh
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: grinder-report
+          path: ~/grinderTest/grinder-report/
+          retention-days: 30
