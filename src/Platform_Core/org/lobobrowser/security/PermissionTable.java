@@ -55,6 +55,7 @@ public class PermissionTable {
 
   private static JPanel makeBoardView(final PermissionBoard board, final String[] columnNames, final String[][] requestData,
       final List<PermissionCellButton> buttons, final ChangeListener listener) {
+	
     final JPanel grid = new JPanel(new GridBagLayout());
     final GridBagConstraints gbc = new GridBagConstraints();
     gbc.gridx = 0;
@@ -72,6 +73,9 @@ public class PermissionTable {
       for (int i = 0, numRows = board.getRowCount(); i < numRows; i++) {
         gbc.gridy = i + 1;
         final PermissionRow row = rows.get(i).getValue();
+        
+        // calculate the values 
+        
         addRowToGrid(grid, gbc, row, requestData[i], listener, buttons);
       }
     }
@@ -88,6 +92,7 @@ public class PermissionTable {
       if (j == 0) {
         gbc.weightx = 1d;
         cell = row.getHostCell();
+        
       } else {
         gbc.weightx = 0d;
         cell = row.getRequestCell(j - 1);
