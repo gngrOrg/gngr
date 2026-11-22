@@ -58,7 +58,7 @@ abstract public class JStyleProperties extends AbstractScriptableDelegate implem
   }
 
   public String getBackgroundAttachment() {
-    return helperGetProperty("background-attachment");
+    return helperTryBoth("background-attachment");
   }
 
   public String getBackgroundColor() {
@@ -88,11 +88,11 @@ abstract public class JStyleProperties extends AbstractScriptableDelegate implem
   }
 
   public String getBackgroundPosition() {
-    return helperGetValue("background-position");
+    return helperTryBoth("background-position");
   }
 
   public String getBackgroundRepeat() {
-    return helperGetProperty("background-repeat");
+    return helperTryBoth("background-repeat");
   }
 
   public String getBorder() {
