@@ -703,21 +703,6 @@ public class HtmlPanel extends JComponent implements FrameContext, DefferedLayou
     this.notificationTimer.restart();
   }
 
-  public void flushNotifications() {
-    if (SwingUtilities.isEventDispatchThread()) {
-      this.notificationTimer.stop();
-      this.processNotifications();
-    } else {
-      try {
-        SwingUtilities.invokeAndWait(() -> {
-          HtmlPanel.this.notificationTimer.stop();
-          HtmlPanel.this.processNotifications();
-        });
-      } catch (Exception ignored) {
-      }
-    }
-  }
-
   private void processNotifications() {
     // This is called in the GUI thread.
     final ArrayList<DocumentNotification> notifs = this.notifications;
