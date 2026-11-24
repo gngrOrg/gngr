@@ -123,7 +123,7 @@ public class PlatformInit {
       final LocalSecurityManager lsm = new LocalSecurityManager();
       System.setSecurityManager(lsm);
     } catch (UnsupportedOperationException e) {
-      System.err.println("Security manager couldn't be installed. This is expected from Java version 17+.");
+      System.err.println("Security manager couldn't be installed. This is expected from Java version 17+.\nSee https://github.com/gngrOrg/gngr/issues/285 for details.");
     }
   }
 
