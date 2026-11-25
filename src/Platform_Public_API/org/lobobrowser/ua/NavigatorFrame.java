@@ -412,4 +412,10 @@ public interface NavigatorFrame {
   public void manageRequests(Object initiator);
 
   public void allowAllFirstPartyRequests();
+
+  public RequestStats getRequestStats();
+
+  public void addRequestStatsListener(RequestStatsListener listener);
+
+  public void removeRequestStatsListener(RequestStatsListener listener);
 }

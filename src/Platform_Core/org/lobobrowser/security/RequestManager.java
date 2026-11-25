@@ -17,6 +17,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -32,6 +33,8 @@ import org.lobobrowser.security.PermissionSystem.Permission;
 import org.lobobrowser.security.PermissionSystem.PermissionBoard.PermissionRow;
 import org.lobobrowser.ua.NavigationEntry;
 import org.lobobrowser.ua.NavigatorFrame;
+import org.lobobrowser.ua.RequestStats;
+import org.lobobrowser.ua.RequestStatsListener;
 import org.lobobrowser.ua.UserAgentContext;
 import org.lobobrowser.ua.UserAgentContext.Request;
 import org.lobobrowser.ua.UserAgentContext.RequestKind;
@@ -64,6 +67,40 @@ public final class RequestManager {
 
   private Map<String, RequestCounters> hostToCounterMap = new HashMap<>();
   private Optional<PermissionSystem> permissionSystemOpt = Optional.empty();
+  private int allowedCount = 0;
+  private int blockedCount = 0;
+  private final CopyOnWriteArrayList<RequestStatsListener> statsListeners = new CopyOnWriteArrayList<>();
+
+  public synchronized RequestStats getRequestStats() {
+    return new RequestStats(blockedCount, allowedCount);
+  }
+
+  public void addStatsListener(final RequestStatsListener listener) {
+    if (listener != null) {
+      statsListeners.add(listener);
+    }
+  }
+
+  public void removeStatsListener(final RequestStatsListener listener) {
+    if (listener != null) {
+      statsListeners.remove(listener);
+    }
+  }
+
+  private synchronized RequestStats recordDecision(final boolean permitted) {
+    if (permitted) {
+      allowedCount++;
+    } else {
+      blockedCount++;
+    }
+    return new RequestStats(blockedCount, allowedCount);
+  }
+
+  private void notifyStatsListeners(final RequestStats stats) {
+    for (final RequestStatsListener listener : statsListeners) {
+      listener.requestStatsUpdated(stats);
+    }
+  }
 
   private synchronized void updateCounter(final Request request) {
     final String host = request.url.getHost().toLowerCase();
@@ -115,21 +152,23 @@ public final class RequestManager {
     final Request finalRequest = rewriteRequest(request);
 
     if (permissionSystemOpt.isPresent()) {
-      final Boolean permitted = permissionSystemOpt.map(p -> p.isRequestPermitted(finalRequest)).orElse(false);
+      boolean permitted = permissionSystemOpt.map(p -> p.isRequestPermitted(finalRequest)).orElse(false);
       updateCounter(finalRequest);
       if (permitted) {
         final boolean httpPermitted = permissionSystemOpt.get().isUnsecuredHTTPPermitted(finalRequest);
-        String protocolTest = request.url.getProtocol();
-        String frameProtocol = getFrameURL().get().getProtocol();
+        final String protocolTest = request.url.getProtocol();
+        final String frameProtocol = getFrameURL().map(URL::getProtocol).orElse("");
 
-        if (protocolTest.equals("http") && frameProtocol.equals("https")) {
+        if ("http".equals(protocolTest) && "https".equals(frameProtocol)) {
           updateCounter(finalRequest.url.getHost(), RequestKind.UnsecuredHTTP);
           if (!httpPermitted) {
-            return false;
+            permitted = false;
           }
         }
       }
 
+      final RequestStats snapshot = recordDecision(permitted);
+      notifyStatsListeners(snapshot);
       // dumpCounters();
       return permitted;
     } else {
@@ -165,12 +204,17 @@ public final class RequestManager {
     return Arrays.stream(RequestKind.values()).map(kind -> kind.shortName);
   }
 
-  public synchronized void reset(final URL frameUrl) {
-    hostToCounterMap = new HashMap<>();
-    final String frameHostOrig = frameUrl.getHost();
-    final String frameHost = frameHostOrig == null ? "" : frameHostOrig.toLowerCase();
-    ensureHostInCounter(frameHost);
-    setupPermissionSystem(frameHost);
+  public void reset(final URL frameUrl) {
+    synchronized (this) {
+      hostToCounterMap = new HashMap<>();
+      allowedCount = 0;
+      blockedCount = 0;
+      final String frameHostOrig = frameUrl.getHost();
+      final String frameHost = frameHostOrig == null ? "" : frameHostOrig.toLowerCase();
+      ensureHostInCounter(frameHost);
+      setupPermissionSystem(frameHost);
+    }
+    notifyStatsListeners(RequestStats.EMPTY);
   }
 
   public void manageRequests(final JComponent initiatorComponent) {
