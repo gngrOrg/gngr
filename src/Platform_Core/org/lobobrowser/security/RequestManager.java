@@ -324,7 +324,7 @@ public final class RequestManager {
       getContentPane().add(scrollTablePane);
 
       final JPanel buttonPane = new JPanel();
-      final JButton button = new JButton("OK");
+      final JButton button = new JButton("Close");
       buttonPane.add(button);
       button.addActionListener(this);
       getContentPane().add(buttonPane, BorderLayout.SOUTH);
