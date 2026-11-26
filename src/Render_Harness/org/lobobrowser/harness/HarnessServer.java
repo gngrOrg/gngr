@@ -28,6 +28,7 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
+import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -69,7 +70,7 @@ public class HarnessServer implements Runnable {
     this.panel = panel;
     this.ucontext = ucontext;
     this.rcontext = rcontext;
-    this.socket = new ServerSocket(0);
+    this.socket = new ServerSocket(0, 50, InetAddress.getByAddress(new byte[] { 127, 0, 0, 1 }));
 
     loadBlankDocument();
 

@@ -30,7 +30,7 @@ RenderHarnessMain.main(args)
        receives "GRINDER <passkey>"
        verifies Base64(SHA-256(grinderKey + reusePort)) == passkey
          ├─ Fail ─► writes int -1
-         └─ Pass ─► spawns HarnessServer(panel, ucontext, rcontext) on ephemeral port
+         └─ Pass ─► spawns HarnessServer(panel, ucontext, rcontext) on 127.0.0.1 ephemeral port
                     writes 4-byte int gsPort ─► reads client ACK line
 
 HarnessServer (daemon thread "HarnessGrinderServer", 120s socket timeout, 1 command per TCP connection):
@@ -82,14 +82,13 @@ HarnessServer (daemon thread "HarnessGrinderServer", 120s socket timeout, 1 comm
 - **Threads:** main runs the reuse accept loop; each accepted GRINDER session spawns daemon thread HarnessGrinderServer; HTMLDocumentImpl.finishModifications() spawns its job thread; all Swing sizing/layout/painting/isReadyToPaint() calls are marshaled synchronously to EDT via SwingUtilities.invokeAndWait().
 - **Known Quirks & Bugs:**
   1. **Single shared HtmlPanel:** RenderHarnessMain creates one HtmlPanel and passes it to every HarnessServer instance; concurrent Grinder sessions will contend on the panel and static HarnessNetworkRequest.ACTIVE_REQUESTS.
-  2. **Command socket binds all interfaces:** HarnessServer creates new ServerSocket(0) (HarnessServer.java:72) binding 0.0.0.0 rather than 127.0.0.1, despite RenderHarnessMain.java:173 logging 127.0.0.1:<port>.
-  3. **-width/-height CLI flags are immediately overwritten:** RenderHarnessMain sizes the initial panel from -width=/-height=, but HarnessServer initializes currentWidth = 900; currentHeight = 900; (HarnessServer.java:64-65) and resets the panel in loadBlankDocument() until SET_SIZE is received.
-  4. **No data: or about: URL handlers:** Because PlatformInit and Primary_Extension are not loaded, data: URLs (despite being matched by resolveURL()) fail with MalformedURLException: unknown protocol: data, and about: URLs are unsupported.
-  5. **CLOSE / QUIT protocol asymmetry:** Unlike TO/SET_SIZE, handleClose() and handleQuit() do not write a status int or read an ACK line before closing the socket.
-  6. **HarnessNetworkRequest limitations:** Ignores asyncFlag, POST content body, userName/password, SRI integrity, and Request kind; getResponseXML() always returns null; executeRequest() attempts ImageIO.read() on every response (including CSS), swallowing decode errors.
-  7. **Subframe (<iframe>) limitations:** HarnessHtmlRendererContext.createBrowserFrame() constructs a plain new HtmlPanel() (not createOffscreenHtmlPanel()), hardcodes UTF-8, never calls doc.finishModifications(), shares the parent HarnessHtmlRendererContext, and getFrames() always returns an empty HTMLCollection.
-  8. **Silent timeout fallthrough:** Wait loops in handleTo() (10s layoutBlocked/layoutCompletion, 5s isReadyToPaint) and handleScreenShot() (5s) log or exit silently on timeout and proceed to return 0 / paint partial output.
-  9. **JS flag mismatch:** HarnessUserAgentContext.isScriptingEnabled() is false, while isRequestPermitted() returns true for all RequestKinds (including JavaScript).
+  2. **-width/-height CLI flags are immediately overwritten:** RenderHarnessMain sizes the initial panel from -width=/-height=, but HarnessServer initializes currentWidth = 900; currentHeight = 900; (HarnessServer.java:64-65) and resets the panel in loadBlankDocument() until SET_SIZE is received.
+  3. **No data: or about: URL handlers:** Because PlatformInit and Primary_Extension are not loaded, data: URLs (despite being matched by resolveURL()) fail with MalformedURLException: unknown protocol: data, and about: URLs are unsupported.
+  4. **CLOSE / QUIT protocol asymmetry:** Unlike TO/SET_SIZE, handleClose() and handleQuit() do not write a status int or read an ACK line before closing the socket.
+  5. **HarnessNetworkRequest limitations:** Ignores asyncFlag, POST content body, userName/password, SRI integrity, and Request kind; getResponseXML() always returns null; executeRequest() attempts ImageIO.read() on every response (including CSS), swallowing decode errors.
+  6. **Subframe (<iframe>) limitations:** HarnessHtmlRendererContext.createBrowserFrame() constructs a plain new HtmlPanel() (not createOffscreenHtmlPanel()), hardcodes UTF-8, never calls doc.finishModifications(), shares the parent HarnessHtmlRendererContext, and getFrames() always returns an empty HTMLCollection.
+  7. **Silent timeout fallthrough:** Wait loops in handleTo() (10s layoutBlocked/layoutCompletion, 5s isReadyToPaint) and handleScreenShot() (5s) log or exit silently on timeout and proceed to return 0 / paint partial output.
+  8. **JS flag mismatch:** HarnessUserAgentContext.isScriptingEnabled() is false, while isRequestPermitted() returns true for all RequestKinds (including JavaScript).
 
 ## 5. Task-to-File Quick Index
 

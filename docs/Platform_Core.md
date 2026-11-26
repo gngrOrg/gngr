@@ -89,7 +89,7 @@ FramePanel.navigate(url, method, paramInfo, targetType, requestType)
 - ReuseServer listens on 127.0.0.1:<random> (port persisted to <appHome>/port.dat).
 - Handles LAUNCH <url>, LAUNCH_BLANK, and GRINDER <passkey>:
   - PlatformInit.verifyAuth(reusePort, passkey) checks Base64(SHA-256(grinderKey + reusePort)) against -grinder-key=....
-  - On success, opens about:blank frame and spawns GrinderServer on an ephemeral port, returning the port int.
+  - On success, opens about:blank frame and spawns GrinderServer on a 127.0.0.1 ephemeral port, returning the port int.
 - GrinderServer handles TO <url> (navigates, waits for ProgressType.DONE + DefferedLayoutSupport.layoutCompletion(), then calls frame.allowAllFirstPartyRequests()), SET_SIZE <w> <h>, SCREENSHOT (waits isReadyToPaint(), disables render hints, paints component to PNG), CLOSE, and QUIT.
 
 ### 3.3 Security & Privacy Firewall (o.l.security)

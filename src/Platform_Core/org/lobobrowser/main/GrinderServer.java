@@ -32,6 +32,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
+import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -54,7 +55,7 @@ class GrinderServer implements Runnable {
 
   public GrinderServer(final NavigatorFrame frame) throws IOException {
     this.frame = frame;
-    socket = new ServerSocket(0);
+    socket = new ServerSocket(0, 50, InetAddress.getByAddress(new byte[] { 127, 0, 0, 1 }));
     final Thread t = new Thread(this, "GrinderServer");
     t.setDaemon(true);
     t.start();
