@@ -209,7 +209,11 @@ public class HarnessServer implements Runnable {
     }
 
     // 1. If it already has a protocol scheme, parse directly
-    if (path.contains("://") || path.startsWith("file:") || path.startsWith("jar:") || path.startsWith("data:")) {
+    if (path.regionMatches(true, 0, "data:", 0, 5)) {
+      RenderHarnessMain.registerProtocolHandlers();
+      return new URL(path);
+    }
+    if (path.contains("://") || path.startsWith("file:") || path.startsWith("jar:")) {
       return new URL(path);
     }
 

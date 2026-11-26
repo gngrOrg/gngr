@@ -1,6 +1,6 @@
 # Common Design Overview
 
-Scope: src/Common/ (51 Java files, ~5.4k LOC; shared foundational utility library for concurrency, caches, events, URLs, strings, DOM/HTML helpers, AWT/Swing rendering/layouts, classloading, and stream/network I/O).
+Scope: src/Common/ (53 Java files, ~5.6k LOC; shared foundational utility library for concurrency, caches, events, URLs, strings, DOM/HTML helpers, AWT/Swing rendering/layouts, classloading, stream/network I/O, and RFC 2397 data: URL protocol).
 Prefix shorthand: o.l.u. = org.lobobrowser.util..
 Build dependencies: JDK 1.8 (java.*, javax.swing.*, org.w3c.dom.*) + org.eclipse.jdt.annotation (@NonNull/@Nullable). **Zero internal module dependencies.**
 
@@ -11,6 +11,7 @@ Build dependencies: JDK 1.8 (java.*, javax.swing.*, org.w3c.dom.*) + org.eclipse
 | o.l.util | 40 | ~3.9k | Concurrency (SimpleThreadPool, SimpleThreadPoolTask, JoinableTask, Threads), caching/maps (LRUCache, WeakValueHashMap, Items, History), event dispatch (EventDispatch, EventDispatch2, GenericEventListener, GenericPropertyChangeListener, RemovalEvent, RemovalListener, InputProgressEvent), URLs/strings/HTML/DOM (Urls, Strings, Html, Nodes, DOMExceptions, Domains [stub]), classloading/security/reflection (BaseClassLoader, MultiplexClassLoader, SecurityUtil, Bean, Objects), streams/wrappers/misc (MonitoredInputStream, EmptyInputStream, GenericURLConnection, ArrayUtilities, CollectionUtilities, ID, OS, Timing, Diagnostics, BoxedObject, NameValuePair, ObjectFilter, WrapperException, NotImplementedYetException) |
 | o.l.util.gui | 5 | ~1.0k | AWT/Swing colors, fonts, drawing & layouts: ColorFactory, FontFactory, GUITasks, CenterLayout, WrapperLayout |
 | o.l.util.io | 6 | ~0.6k | Stream/file/network helpers: IORoutines, RecordedInputStream, BufferExceededException, EmptyReader, Files, NetRoutines |
+| o.l.protocol.data | 2 | ~0.2k | RFC 2397 data: URL handler (Handler, DataURLConnection) |
 
 ## 2. Cross-Module Consumers
 
@@ -22,10 +23,11 @@ Common (0 internal deps)
   ├──► HTML_Renderer      uses ColorFactory, FontFactory, GUITasks, Urls, Strings, Nodes,
   │                       DOMExceptions, WeakValueHashMap, Bean, Objects, ArrayUtilities,
   │                       CollectionUtilities, IORoutines, RecordedInputStream
-  └──► Primary_Extension  uses Strings, Html, Urls, IORoutines, Files, OS, GUITasks,
-                          CenterLayout, WrapperLayout, Items
+  ├──► Primary_Extension  uses Strings, Html, Urls, IORoutines, Files, OS, GUITasks,
+  │                       CenterLayout, WrapperLayout, Items, org.lobobrowser.protocol.data
+  └──► Render_Harness     uses org.lobobrowser.protocol.data.Handler
 ```
-*(Neither Platform_Public_API nor Render_Harness depends on Common.)*
+*(Platform_Public_API does not depend on Common.)*
 
 ## 3. Subsystem Details
 
@@ -77,6 +79,7 @@ Common (0 internal deps)
 - **MonitoredInputStream (o.l.util):** Emits throttled InputProgressEvents on evtProgress (EventDispatch) every minProgressEventGap ms during reads.
 - **EmptyInputStream, EmptyReader, GenericURLConnection** (wraps an InputStream + URL; getHeaderField* returns null).
 - **Files (getContentType handles .txt/.html/.htm with file.encoding fallback application/octet-stream, joinPaths) & NetRoutines.isLocalAddress(host)** (checks InetAddress anyLocal/linkLocal/loopback/siteLocal).
+- **Data URL protocol (`o.l.protocol.data`):** `Handler` (uses port `-1` and `toExternalForm()`) and `DataURLConnection` (parses `data:[mediatype][;param=val][;base64],data`, defaults to `text/plain`, percent-decodes parameters and non-base64 payloads while preserving whitespace and `+`, strips whitespace only for Base64 payloads with a percent-decoded fallback for GH #15, and implements bounds-checked `getHeaderField(int)`, `getHeaderFieldKey(int)`, and `getHeaderFields()`).
 
 ## 4. Threading, Invariants & Known Quirks
 
@@ -104,3 +107,4 @@ Common (0 internal deps)
 | String/version helpers, hashing & ID generation | Strings.java, ID.java, Timing.java, NameValuePair.java |
 | Multi-parent classloading, reflection & privileges | BaseClassLoader.java, MultiplexClassLoader.java, Bean.java, Objects.java, SecurityUtil.java |
 | Array/collection helpers, files & OS utilities | ArrayUtilities.java, CollectionUtilities.java, io/Files.java, OS.java, Diagnostics.java |
+| RFC 2397 data: URL scheme | ../protocol/data/DataURLConnection.java, ../protocol/data/Handler.java |

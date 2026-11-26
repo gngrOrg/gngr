@@ -28,6 +28,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -53,8 +54,26 @@ public final class RenderHarnessMain {
 
   private static volatile File activePortFile = null;
   private static volatile ServerSocket activeReuseServer = null;
+  private static volatile boolean protocolHandlersRegistered = false;
+
+  /**
+   * Registers the {@code data:} URL stream handler for standalone Render Harness execution.
+   */
+  public static synchronized void registerProtocolHandlers() {
+    if (protocolHandlersRegistered) {
+      return;
+    }
+    try {
+      URL.setURLStreamHandlerFactory(protocol ->
+          "data".equalsIgnoreCase(protocol) ? new org.lobobrowser.protocol.data.Handler() : null);
+    } catch (final Error e) {
+      logger.log(Level.FINE, "URLStreamHandlerFactory already registered", e);
+    }
+    protocolHandlersRegistered = true;
+  }
 
   public static void main(final String[] args) {
+    registerProtocolHandlers();
     String grinderKey = System.getProperty("gngr.grinder.key");
     String profilePath = System.getProperty("gngr.profile");
     int width = 900;

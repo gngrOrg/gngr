@@ -4,14 +4,14 @@ Scope: src/Render_Harness/ (5 Java files, ~1.5k LOC; standalone offscreen Grinde
 Prefix shorthand: o.l. = org.lobobrowser., o.l.h. = org.lobobrowser.harness..
 Entrypoint & launch: o.l.h.RenderHarnessMain, invoked via ant -f src/build.xml run-harness (or ant -f src/Render_Harness/build.xml run); default target of misc/runTest.sh and misc/runHarnessTest.sh.
 Dependencies:
-- Direct imports: HTML_Renderer (HtmlPanel, HtmlBlockPanel, HtmlRendererContext, BrowserFrame, FormInput, HtmlObject, HTMLDocumentImpl, DocumentBuilderImpl, InputSourceImpl), Platform_Public_API (UserAgentContext, NetworkRequest, NetworkRequestEvent, NetworkRequestListener, ImageResponse), JDK 1.8 (java.awt.*, javax.swing.*, javax.imageio.ImageIO, java.net.*, org.w3c.dom.*), org.eclipse.jdt.annotation (@NonNull).
-- Transitive build/runtime classpath (build.xml): Common, Platform_Core + Platform_Core/lib/*, and all 8 JARs in XAMJ_Build/ (needed by HTML_Renderer at runtime; Render_Harness itself imports nothing from Common, Platform_Core, or Primary_Extension).
+- Direct imports: HTML_Renderer (HtmlPanel, HtmlBlockPanel, HtmlRendererContext, BrowserFrame, FormInput, HtmlObject, HTMLDocumentImpl, DocumentBuilderImpl, InputSourceImpl), Platform_Public_API (UserAgentContext, NetworkRequest, NetworkRequestEvent, NetworkRequestListener, ImageResponse), Common (org.lobobrowser.protocol.data.Handler), JDK 1.8 (java.awt.*, javax.swing.*, javax.imageio.ImageIO, java.net.*, org.w3c.dom.*), org.eclipse.jdt.annotation (@NonNull).
+- Transitive build/runtime classpath (build.xml): Common, Platform_Core + Platform_Core/lib/*, and all 8 JARs in XAMJ_Build/ (needed by HTML_Renderer at runtime; Render_Harness itself imports nothing from Platform_Core or Primary_Extension).
 
 ## 1. File & Resource Map
 
 | File (src/Render_Harness/) | LOC | Role |
 |---|---:|---|
-| org/lobobrowser/harness/RenderHarnessMain.java | 271 | CLI/sysprop entrypoint, port.dat creation & shutdown cleanup, 127.0.0.1 Grinder auth/discovery server, offscreen HtmlPanel factory (createOffscreenHtmlPanel) |
+| org/lobobrowser/harness/RenderHarnessMain.java | 288 | CLI/sysprop entrypoint, `data:` URL handler registration (`registerProtocolHandlers`), port.dat creation & shutdown cleanup, 127.0.0.1 Grinder auth/discovery server, offscreen HtmlPanel factory (createOffscreenHtmlPanel) |
 | org/lobobrowser/harness/HarnessServer.java | 450 | Grinder TCP command server (TO, SET_SIZE, SCREENSHOT, CLOSE, QUIT), URL/file path resolver (resolveURL), load/layout/paint synchronization, PNG capture |
 | org/lobobrowser/harness/HarnessHtmlRendererContext.java | 366 | Minimal HtmlRendererContext: tracks currentURL, supports resizeTo/resizeBy, jobsFinished callback, and simple inline BrowserFrame (<iframe>) loading; no-ops navigation, dialogs, history, and mouse hooks |
 | org/lobobrowser/harness/HarnessNetworkRequest.java | 325 | Synchronous NetworkRequest over java.net.URLConnection; tracks static ACTIVE_REQUESTS counter, pre-decodes images via ImageIO.read(); no caching, cookies, SRI, or security checks |
@@ -22,6 +22,7 @@ Dependencies:
 
 ```
 RenderHarnessMain.main(args)
+  ├─ Calls registerProtocolHandlers() (registers Common's data: URLStreamHandlerFactory)
   ├─ Reads -grinder-key= / -profile= / -width= / -height= (fallback sysprops gngr.grinder.key, gngr.profile;
   │  defaults: 900×900, ~/.gngr/default, random 64-hex key if unset)
   ├─ Binds reuse ServerSocket on 127.0.0.1:0 ─► writes 4-byte int port to <profile>/port.dat
@@ -61,7 +62,7 @@ HarnessServer (daemon thread "HarnessGrinderServer", 120s socket timeout, 1 comm
 
 ### 3.2 URL, MIME & Charset Resolution (HarnessServer)
 - resolveURL(path) checks in order:
-  1. Explicit scheme (contains("://") or prefix file:, jar:, data:) → new URL(path)
+  1. Explicit scheme (contains("://") or prefix file:, jar:, data:) → new URL(path) (ensuring the data: handler is registered via RenderHarnessMain.registerProtocolHandlers())
   2. Absolute path (/... or Windows X:\... / X:/...) → File.toURI().toURL()
   3. Relative prefix (./ or ../) → File.toURI().toURL()
   4. Existing local file/directory (new File(path).exists()) → File.toURI().toURL()
@@ -83,7 +84,7 @@ HarnessServer (daemon thread "HarnessGrinderServer", 120s socket timeout, 1 comm
 - **Known Quirks & Bugs:**
   1. **Single shared HtmlPanel:** RenderHarnessMain creates one HtmlPanel and passes it to every HarnessServer instance; concurrent Grinder sessions will contend on the panel and static HarnessNetworkRequest.ACTIVE_REQUESTS.
   2. **-width/-height CLI flags are immediately overwritten:** RenderHarnessMain sizes the initial panel from -width=/-height=, but HarnessServer initializes currentWidth = 900; currentHeight = 900; (HarnessServer.java:64-65) and resets the panel in loadBlankDocument() until SET_SIZE is received.
-  3. **No data: or about: URL handlers:** Because PlatformInit and Primary_Extension are not loaded, data: URLs (despite being matched by resolveURL()) fail with MalformedURLException: unknown protocol: data, and about: URLs are unsupported.
+  3. **No about: URL handler:** Because PlatformInit and Primary_Extension are not loaded, about: URLs are unsupported (data: URLs are supported via Common's org.lobobrowser.protocol.data.Handler).
   4. **CLOSE / QUIT protocol asymmetry:** Unlike TO/SET_SIZE, handleClose() and handleQuit() do not write a status int or read an ACK line before closing the socket.
   5. **HarnessNetworkRequest limitations:** Ignores asyncFlag, POST content body, userName/password, SRI integrity, and Request kind; getResponseXML() always returns null; executeRequest() attempts ImageIO.read() on every response (including CSS), swallowing decode errors.
   6. **Subframe (<iframe>) limitations:** HarnessHtmlRendererContext.createBrowserFrame() constructs a plain new HtmlPanel() (not createOffscreenHtmlPanel()), hardcodes UTF-8, never calls doc.finishModifications(), shares the parent HarnessHtmlRendererContext, and getFrames() always returns an empty HTMLCollection.

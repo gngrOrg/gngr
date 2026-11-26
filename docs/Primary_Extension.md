@@ -1,6 +1,6 @@
 # Primary_Extension Design Overview
 
-Scope: src/Primary_Extension/ (61 Java files, ~9.3k LOC; default browser extension providing window chrome/menus/address bar, HTML/image/text/download clientlets, about:/data: URL protocols, history/bookmarks, search engines, and preferences UI).
+Scope: src/Primary_Extension/ (59 Java files, ~9.1k LOC; default browser extension providing window chrome/menus/address bar, HTML/image/text/download clientlets, about: URL protocol, history/bookmarks, search engines, and preferences UI).
 Prefix shorthand: o.l. = org.lobobrowser., o.l.p. = org.lobobrowser.primary..
 Extension manifest (gngr-extension.properties): extension.class=org.lobobrowser.primary.ext.ExtensionImpl, extension.priority=10 (highest/exclusive primary priority; discovered by Platform_Core's ExtensionManager via ext.files / ext.dirs / /flat-extensions).
 Build dependencies:
@@ -22,7 +22,6 @@ Build dependencies:
 | o.l.p.gui.download | 1 | ~0.5k | DownloadDialog (download progress UI + DownloadRequestHandler; save currently disabled) |
 | o.l.p.settings | 2 | ~0.2k | ToolsSettings (search engines + chooser dirs via StorageManager), SearchEngine |
 | o.l.protocol.about | 2 | ~0.5k | about: URL handler (Handler, AboutURLConnection) |
-| o.l.protocol.data | 2 | ~0.2k | RFC 2397 data: URL handler (Handler, DataURLConnection) |
 | Resources | — | — | gngr-extension.properties, README.txt (GPL), images/*.{gif,png} (11 icons: back, forward, go, go_disabled, refresh, refresh_disabled, stop, stop_disabled, info, warning, internet_search) |
 
 ## 2. Lifecycles & Processing Pipelines
@@ -114,11 +113,10 @@ HtmlClientlet.process(ClientletContext)  [runs on RequestEngineThreadPool]
 - **TextClientlet:** Loads stream into non-editable JTextArea inside JScrollPane, sets SimpleDocument on HtmlPanel, calls jobsFinished() in navigatedNotify().
 - **DownloadClientlet & DownloadDialog:** Rejects local file:// and non-GET; reads response for up to 1 s to estimate transfer speed; opens DownloadDialog (JFrame) and throws CancelClientletException so the current frame is preserved. DownloadDialog includes DownloadRequestHandler (RequestEngine.inlineRequest() on a daemon thread, 1 s throttled progress updates, OS.launchPath() open/folder buttons), but SaveAction currently blocks execution with a security dialog.
 
-### 3.4 Custom URL Protocols (o.l.protocol.{about,data})
-- **PrimaryStreamHandlerFactory:** Maps "about" → o.l.protocol.about.Handler and "data" → o.l.protocol.data.Handler.
+### 3.4 Custom URL Protocols (o.l.protocol.about + Common's o.l.protocol.data)
+- **PrimaryStreamHandlerFactory:** Maps "about" → o.l.protocol.about.Handler and "data" → Common's o.l.protocol.data.Handler.
 - **AboutURLConnection (text/html, UTF-8):**
   - about:blank (empty), about:welcome (release version/date from PlatformInit.relProps + Request Manager tip), about:bookmarks, about:bookmark-search?<q> (all space-separated keywords must match; scores title/tag +8/+6, URL/description +3/+2, ordered by score then recency), about:java-properties (System.getProperties()), about:confirmSearch?<q> (direct https:// link + ToolsSettings search engines), and fallback list for unknown paths.
-- **DataURLConnection & data.Handler:** Parses data:[mediatype][;param=val][;base64],data (defaults to text/plain). Decodes Base64 (retrying after URLDecoder.decode(..., UTF-8) on IllegalArgumentException for GH #15) or custom decodeUrl() (%xx and + → space).
 
 ### 3.5 Settings, Preferences & Reusable GUI (o.l.p.settings, o.l.p.gui.*)
 - **ToolsSettings (Serializable singleton via StorageManager):** Persists searchEngines (defaults: DuckDuckGo [selected], Wikipedia, Google, Yahoo!), selectedSearchEngine, downloadDirectory, openFileDirectory. SearchEngine.getURL(query) appends ?/& + queryParameter=URLEncoder.encode(query, UTF-8).
@@ -139,12 +137,11 @@ HtmlClientlet.process(ClientletContext)  [runs on RequestEngineThreadPool]
   2. **HtmlClientlet.NON_VISIBLE_ELEMENTS is never populated:** Empty HashSet (HtmlClientlet.java:69), so mayBeVisibleElement() returns true for every HTMLElement (including <head>/<meta>). getDefaultCharset() is dead code; missing charset defaults to "utf-8".
   3. **HtmlContent.getDescription() wrong attribute:** Reads element.getAttribute("description") instead of "content" on <meta name="description"> (HtmlContent.java:109).
   4. **TextClientlet hardcodes ISO-8859-1:** Ignores response.getCharset() (TextClientlet.java:48).
-  5. **DataURLConnection parsing bugs:** removeSpaceCharacters() strips whitespace *before* checking base64 (DataURLConnection.java:79), removing spaces/tabs/newlines from non-base64 data: payloads; decodeUrl() maps + to ' '; getHeaderField(int n) has no bounds check (throws ArrayIndexOutOfBoundsException) and getHeaderFieldKey(int) is not overridden; data.Handler.parseURL() hardcodes port 80.
-  6. **AboutURLConnection quirks:** welcome and confirmSearch use case-sensitive equals() (unlike blank/bookmarks/bookmark-search); ScoredEntry.compareTo() narrows timestamp subtraction to int (AboutURLConnection.java:385).
-  7. **IconFactory never populates its cache:** getIcon() checks iconMap but never calls iconMap.put(...) (IconFactory.java:49-65), reloading icon bytes from classpath on every call.
-  8. **Unregistered EnableableActions & unused legacy classes:** ActionPool.clonedWindowAction and copyAction are never added to enableableActions (ActionPool.java:94-103, and Edit menu uses DefaultEditorKit.CopyAction). Unused classes: ArchiveClassLoader, ArchiveCollection, ArchiveInfo, DomViewerWindow, CheckBoxPanel, plus unmounted ComponentSource.getExtensionsMenu() / empty ActionPool.ListExtensionsAction.
-  9. **BaseHistory issues:** getExistingInfo() is unsynchronized (BaseHistory.java:188); getRecentHostEntries(max) adds to hosts before checking hosts.size() >= max, returning at most max - 1 items (BaseHistory.java:93-97); HistoryEntry.getTimetstamp() has an extra t.
-  10. **Grinder paint readiness:** HtmlContent delegates isReadyToPaint() and disableRenderHints() to HtmlPanel; ImageContent and TextClientlet's SimpleComponentContent inherit default isReadyToPaint() == true (does not wait for async Toolkit.createImage() decode).
+  5. **AboutURLConnection quirks:** welcome and confirmSearch use case-sensitive equals() (unlike blank/bookmarks/bookmark-search); ScoredEntry.compareTo() narrows timestamp subtraction to int (AboutURLConnection.java:385).
+  6. **IconFactory never populates its cache:** getIcon() checks iconMap but never calls iconMap.put(...) (IconFactory.java:49-65), reloading icon bytes from classpath on every call.
+  7. **Unregistered EnableableActions & unused legacy classes:** ActionPool.clonedWindowAction and copyAction are never added to enableableActions (ActionPool.java:94-103, and Edit menu uses DefaultEditorKit.CopyAction). Unused classes: ArchiveClassLoader, ArchiveCollection, ArchiveInfo, DomViewerWindow, CheckBoxPanel, plus unmounted ComponentSource.getExtensionsMenu() / empty ActionPool.ListExtensionsAction.
+  8. **BaseHistory issues:** getExistingInfo() is unsynchronized (BaseHistory.java:188); getRecentHostEntries(max) adds to hosts before checking hosts.size() >= max, returning at most max - 1 items (BaseHistory.java:93-97); HistoryEntry.getTimetstamp() has an extra t.
+  9. **Grinder paint readiness:** HtmlContent delegates isReadyToPaint() and disableRenderHints() to HtmlPanel; ImageContent and TextClientlet's SimpleComponentContent inherit default isReadyToPaint() == true (does not wait for async Toolkit.createImage() decode).
 
 ## 5. Task-to-File Quick Index
 
@@ -158,7 +155,7 @@ HtmlClientlet.process(ClientletContext)  [runs on RequestEngineThreadPool]
 | Menus, toolbar, address bar, status/progress bar | primary/ext/ComponentSource.java, ActionPool.java, AddressField.java, ProgressBar.java, DirectorySource.java, IconFactory.java |
 | Page source & console viewer windows | primary/ext/TextViewerWindow.java |
 | Navigation history & bookmarks storage/UI | primary/ext/BaseHistory.java, NavigationHistory.java, BookmarksHistory.java, BookmarkInfo.java, AddBookmarkDialog.java |
-| about: and data: URL schemes | primary/ext/PrimaryStreamHandlerFactory.java, protocol/about/AboutURLConnection.java, protocol/data/DataURLConnection.java, protocol/data/Handler.java |
+| about: and data: URL schemes | primary/ext/PrimaryStreamHandlerFactory.java, protocol/about/AboutURLConnection.java (data: lives in Common) |
 | Search engines & ToolsSettings persistence | primary/settings/ToolsSettings.java, SearchEngine.java |
 | Preferences dialog & settings panels | primary/gui/prefs/PreferencesDialog.java, PreferencesTree.java, GeneralSettingsUI.java, ConnectionSettingsUI.java, ToolsSettingsUI.java, SearchEngineEditor.java |
 | Reusable Swing forms, lists & dialogs | primary/gui/FormPanel.java, FormField.java, ItemListControl.java, ItemEditorDialog.java, StringListControl.java, SwingTasks.java |
