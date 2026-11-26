@@ -57,6 +57,7 @@ import org.lobobrowser.primary.settings.SearchEngine;
 import org.lobobrowser.primary.settings.ToolsSettings;
 import org.lobobrowser.request.ClientletRequestHandler;
 import org.lobobrowser.ua.NavigationEntry;
+import org.lobobrowser.ua.NavigatorFrame;
 import org.lobobrowser.ua.NavigatorProgressEvent;
 import org.lobobrowser.ua.NavigatorWindow;
 import org.lobobrowser.ua.NavigatorWindowEvent;
@@ -80,7 +81,7 @@ public class ComponentSource implements NavigatorWindowListener {
   private final JMenu recentHostsMenu;
   private final JMenu searchersMenu;
   private final JButton searchButton;
-  private final JButton reqManagerButton;
+  private final RequestManagerButton reqManagerButton;
   private final ActionPool actionPool;
   private final DirectorySource directorySource;  
   
@@ -335,12 +336,13 @@ public class ComponentSource implements NavigatorWindowListener {
     return button;
   }
 
-  private JButton getRequestManagerButton() {
-    final JButton button = new JButton();
+  private RequestManagerButton getRequestManagerButton() {
     final Action requestManagerAction = this.actionPool.requestManagerAction;
     requestManagerAction.setEnabled(false);
-    button.setAction(requestManagerAction);
-    button.setToolTipText("Manage requests");
+    final RequestManagerButton button = new RequestManagerButton(requestManagerAction);
+    final NavigatorFrame topFrame = this.window.getTopFrame();
+    topFrame.addRequestStatsListener(button::setRequestStats);
+    button.setRequestStats(topFrame.getRequestStats());
     return button;
   }
 
@@ -392,12 +394,21 @@ public class ComponentSource implements NavigatorWindowListener {
     return ((requestType == RequestType.ADDRESS_BAR) || (requestType == RequestType.CLICK));
   }
 
+  private static boolean isManageableUrl(final URL url) {
+    if (url == null) {
+      return false;
+    }
+    final String protocol = url.getProtocol();
+    return "http".equals(protocol) || "https".equals(protocol);
+  }
+
   public void documentAccessed(final NavigatorWindowEvent event) {
     final java.net.URL url = event.getUrl();
 
     // TODO: Have a better condition for isManageable, or change requestManager to deal with other protocols as well
-    final boolean isManageable = "http".equals(url.getProtocol()) || "https".equals(url.getProtocol());
-    reqManagerButton.getAction().setEnabled(isManageable);
+    if (this.window.getTopFrame() == event.getNavigatorFrame()) {
+      reqManagerButton.getAction().setEnabled(isManageableUrl(url));
+    }
 
     if ("GET".equals(event.getMethod()) && isHistoryRequest(event.getRequestType())) {
       NavigationHistory.getInstance().addAsRecent(url, null);
@@ -419,12 +430,14 @@ public class ComponentSource implements NavigatorWindowListener {
       if (this.window.getTopFrame() == entry.getNavigatorFrame()) {
         final java.net.URL url = entry.getUrl();
         this.addressField.setUrl(url);
+        this.reqManagerButton.getAction().setEnabled(isManageableUrl(url));
         this.clearState();
         this.actionPool.updateEnabling();
       }
     } else {
       this.clearState();
       this.addressField.setUrl(null);
+      this.reqManagerButton.getAction().setEnabled(false);
       this.actionPool.updateEnabling();
     }
   }

@@ -70,6 +70,8 @@ import org.lobobrowser.ua.NavigatorFrame;
 import org.lobobrowser.ua.NavigatorProgressEvent;
 import org.lobobrowser.ua.NetworkRequest;
 import org.lobobrowser.ua.ParameterInfo;
+import org.lobobrowser.ua.RequestStats;
+import org.lobobrowser.ua.RequestStatsListener;
 import org.lobobrowser.ua.RequestType;
 import org.lobobrowser.ua.TargetType;
 import org.lobobrowser.ua.UserAgentContext;
@@ -1335,5 +1337,17 @@ public class FramePanel extends JPanel implements NavigatorFrame {
 
   public void allowAllFirstPartyRequests() {
     requestManager.allowAllFirstPartyRequests();
+  }
+
+  public RequestStats getRequestStats() {
+    return requestManager.getRequestStats();
+  }
+
+  public void addRequestStatsListener(final RequestStatsListener listener) {
+    requestManager.addStatsListener(listener);
+  }
+
+  public void removeRequestStatsListener(final RequestStatsListener listener) {
+    requestManager.removeStatsListener(listener);
   }
 }
