@@ -20,6 +20,8 @@
  */
 package org.lobobrowser.primary.gui;
 
+import java.util.Arrays;
+
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPasswordField;
@@ -30,7 +32,7 @@ public class FormField {
   public final FieldType type;
 
   public FormField(final FieldType type) {
-    this(FieldType.TEXT, "");
+    this(type, "");
   }
 
   public FormField(final FieldType type, final String caption) {
@@ -67,7 +69,17 @@ public class FormField {
 
   public String getValue() {
     final JComponent fe = this.getFieldEditor();
-    if (fe instanceof JTextComponent) {
+    if (fe instanceof JPasswordField) {
+      final char[] password = ((JPasswordField) fe).getPassword();
+      if (password == null) {
+        return null;
+      }
+      try {
+        return new String(password);
+      } finally {
+        Arrays.fill(password, '\0');
+      }
+    } else if (fe instanceof JTextComponent) {
       return ((JTextComponent) fe).getText();
     } else {
       return null;

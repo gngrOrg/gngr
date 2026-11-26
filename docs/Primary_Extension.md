@@ -145,8 +145,7 @@ HtmlClientlet.process(ClientletContext)  [runs on RequestEngineThreadPool]
   8. **Empty-input crash in ComponentSource:** navigateOrSearch() and search() call addressText.charAt(0) without checking for empty string (ComponentSource.java:695,720).
   9. **Unregistered EnableableActions & unused legacy classes:** ActionPool.clonedWindowAction and copyAction are never added to enableableActions (ActionPool.java:94-103, and Edit menu uses DefaultEditorKit.CopyAction). Unused classes: ArchiveClassLoader, ArchiveCollection, ArchiveInfo, DomViewerWindow, CheckBoxPanel, plus unmounted ComponentSource.getExtensionsMenu() / empty ActionPool.ListExtensionsAction.
   10. **BaseHistory issues:** getExistingInfo() is unsynchronized (BaseHistory.java:188); getRecentHostEntries(max) adds to hosts before checking hosts.size() >= max, returning at most max - 1 items (BaseHistory.java:93-97); HistoryEntry.getTimetstamp() has an extra t.
-  11. **FormField(FieldType) constructor ignores type:** Calls this(FieldType.TEXT, "") (FormField.java:32-34), so ConnectionSettingsUI.passwordField (new FormField(FieldType.PASSWORD)) renders as a plain JTextField instead of JPasswordField.
-  12. **Grinder paint readiness:** HtmlContent delegates isReadyToPaint() and disableRenderHints() to HtmlPanel; ImageContent and TextClientlet's SimpleComponentContent inherit default isReadyToPaint() == true (does not wait for async Toolkit.createImage() decode).
+  11. **Grinder paint readiness:** HtmlContent delegates isReadyToPaint() and disableRenderHints() to HtmlPanel; ImageContent and TextClientlet's SimpleComponentContent inherit default isReadyToPaint() == true (does not wait for async Toolkit.createImage() decode).
 
 ## 5. Task-to-File Quick Index
 
