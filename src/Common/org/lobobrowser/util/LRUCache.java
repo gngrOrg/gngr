@@ -23,112 +23,149 @@ package org.lobobrowser.util;
 import java.util.ArrayList;
 import java.util.EventListener;
 import java.util.EventObject;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeSet;
 
 /**
- * A cache with least-recently-used policy. Note that this class is not thread
- * safe by itself.
+ * A thread-safe cache with least-recently-used eviction policy bounded by an
+ * approximate byte budget. Removal notifications are dispatched outside the
+ * internal cache lock.
  */
 public class LRUCache implements java.io.Serializable {
-  private static final long serialVersionUID = 940427225784212823L;
+  private static final long serialVersionUID = 2L;
   private int approxMaxSize;
 
-  private final Map<Object, OrderedValue> cacheMap = new HashMap<>();
+  private final LinkedHashMap<Object, CacheEntry> cacheMap = new LinkedHashMap<>(16, 0.75f, true);
+  private long currentSize = 0;
+
+  private transient Object lock;
   private volatile transient EventDispatch2 removalEvent;
 
-  /**
-   * Ascending timestamp order. First is least recently used.
-   */
-  private final TreeSet<OrderedValue> timedSet = new TreeSet<>();
-  private int currentSize = 0;
-
   public LRUCache(final int approxMaxSize) {
+    if (approxMaxSize < 0) {
+      throw new IllegalArgumentException("approxMaxSize must be non-negative: " + approxMaxSize);
+    }
     this.approxMaxSize = approxMaxSize;
+    this.lock = new Object();
     this.removalEvent = new RemovalDispatch();
+  }
+
+  private void writeObject(final java.io.ObjectOutputStream out) throws java.io.IOException {
+    synchronized (this.lock) {
+      out.defaultWriteObject();
+    }
   }
 
   private void readObject(final java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
     in.defaultReadObject();
     // Need to initialize transient fields here.
+    this.lock = new Object();
     this.removalEvent = new RemovalDispatch();
   }
 
   public int getApproxMaxSize() {
-    return approxMaxSize;
+    synchronized (this.lock) {
+      return this.approxMaxSize;
+    }
   }
 
   public void setApproxMaxSize(final int approxMaxSize) {
-    this.approxMaxSize = approxMaxSize;
+    if (approxMaxSize < 0) {
+      throw new IllegalArgumentException("approxMaxSize must be non-negative: " + approxMaxSize);
+    }
+    final List<Object> removedValues;
+    synchronized (this.lock) {
+      this.approxMaxSize = approxMaxSize;
+      removedValues = this.evictOverflowLocked(null);
+    }
+    this.fireRemovalEvents(removedValues);
   }
 
   public void put(final Object key, final Object value, final int approxSize) {
-    if (approxSize > this.approxMaxSize) {
-      // Can't be inserted.
-      return;
+    if (approxSize < 0) {
+      throw new IllegalArgumentException("approxSize must be non-negative: " + approxSize);
     }
-    OrderedValue ordVal = this.cacheMap.get(key);
-    if (ordVal != null) {
-      if (ordVal.value != value) {
-        this.removalEvent.fireEvent(new RemovalEvent(this, ordVal.value));
+    List<Object> removedValues = null;
+    synchronized (this.lock) {
+      if (approxSize > this.approxMaxSize) {
+        // Evict any stale entry for this key; oversized entry cannot be inserted.
+        final CacheEntry existing = this.cacheMap.remove(key);
+        if (existing != null) {
+          this.currentSize -= existing.approximateSize;
+          removedValues = appendRemovedValue(removedValues, existing.value);
+        }
+      } else {
+        final CacheEntry existing = this.cacheMap.get(key);
+        if (existing != null) {
+          if (existing.value != value) {
+            removedValues = appendRemovedValue(removedValues, existing.value);
+          }
+          this.currentSize += ((long) approxSize - existing.approximateSize);
+          existing.approximateSize = approxSize;
+          existing.value = value;
+        } else {
+          this.cacheMap.put(key, new CacheEntry(value, approxSize));
+          this.currentSize += approxSize;
+        }
+        removedValues = this.evictOverflowLocked(removedValues);
       }
-      this.currentSize += (approxSize - ordVal.approximateSize);
-      this.timedSet.remove(ordVal);
-      ordVal.approximateSize = approxSize;
-      ordVal.value = value;
-      ordVal.touch();
-      this.timedSet.add(ordVal);
-    } else {
-      ordVal = new OrderedValue(key, value, approxSize);
-      this.cacheMap.put(key, ordVal);
-      this.timedSet.add(ordVal);
-      this.currentSize += approxSize;
     }
-    while (this.currentSize > this.approxMaxSize) {
-      this.removeLRU();
-    }
+    this.fireRemovalEvents(removedValues);
   }
 
-  private void removeLRU() {
-    final OrderedValue ordVal = this.timedSet.first();
-    if (ordVal != null) {
-      this.removalEvent.fireEvent(new RemovalEvent(this, ordVal.value));
-      if (this.timedSet.remove(ordVal)) {
-        this.cacheMap.remove(ordVal.key);
-        this.currentSize -= ordVal.approximateSize;
-      } else {
-        throw new IllegalStateException("Could not remove existing tree node.");
-      }
-    } else {
-      throw new IllegalStateException("Cannot remove LRU since the cache is empty.");
+  private List<Object> evictOverflowLocked(List<Object> removedValues) {
+    if (this.currentSize <= this.approxMaxSize || this.cacheMap.isEmpty()) {
+      return removedValues;
+    }
+    final Iterator<Map.Entry<Object, CacheEntry>> it = this.cacheMap.entrySet().iterator();
+    while (this.currentSize > this.approxMaxSize && it.hasNext()) {
+      final CacheEntry eldest = it.next().getValue();
+      it.remove();
+      this.currentSize -= eldest.approximateSize;
+      removedValues = appendRemovedValue(removedValues, eldest.value);
+    }
+    return removedValues;
+  }
+
+  private static List<Object> appendRemovedValue(List<Object> removedValues, final Object value) {
+    if (removedValues == null) {
+      removedValues = new ArrayList<>(1);
+    }
+    removedValues.add(value);
+    return removedValues;
+  }
+
+  private void fireRemovalEvents(final List<Object> removedValues) {
+    if (removedValues == null) {
+      return;
+    }
+    for (final Object value : removedValues) {
+      this.removalEvent.fireEvent(new RemovalEvent(this, value));
     }
   }
 
   public Object get(final Object key) {
-    final OrderedValue ordVal = this.cacheMap.get(key);
-    if (ordVal != null) {
-      this.timedSet.remove(ordVal);
-      ordVal.touch();
-      this.timedSet.add(ordVal);
-      return ordVal.value;
-    } else {
-      return null;
+    synchronized (this.lock) {
+      final CacheEntry entry = this.cacheMap.get(key);
+      return entry != null ? entry.value : null;
     }
   }
 
   public Object remove(final Object key) {
-    final OrderedValue ordVal = this.cacheMap.get(key);
-    if (ordVal != null) {
-      this.removalEvent.fireEvent(new RemovalEvent(this, ordVal.value));
-      this.currentSize -= ordVal.approximateSize;
-      this.timedSet.remove(ordVal);
-      return ordVal.value;
-    } else {
-      return null;
+    final CacheEntry entry;
+    synchronized (this.lock) {
+      entry = this.cacheMap.remove(key);
+      if (entry != null) {
+        this.currentSize -= entry.approximateSize;
+      }
     }
+    if (entry != null) {
+      this.removalEvent.fireEvent(new RemovalEvent(this, entry.value));
+      return entry.value;
+    }
+    return null;
   }
 
   public void addRemovalListener(final RemovalListener listener) {
@@ -140,23 +177,27 @@ public class LRUCache implements java.io.Serializable {
   }
 
   public int getApproxSize() {
-    return this.currentSize;
+    synchronized (this.lock) {
+      return (int) this.currentSize;
+    }
   }
 
   public int getNumEntries() {
-    return this.cacheMap.size();
+    synchronized (this.lock) {
+      return this.cacheMap.size();
+    }
   }
 
   public List<EntryInfo> getEntryInfoList() {
-    final List<EntryInfo> list = new ArrayList<>();
-    final Iterator<OrderedValue> i = this.cacheMap.values().iterator();
-    while (i.hasNext()) {
-      final OrderedValue ov = i.next();
-      final Object value = ov.value;
-      final Class<? extends Object> vc = value == null ? null : value.getClass();
-      list.add(new EntryInfo(vc, ov.approximateSize));
+    synchronized (this.lock) {
+      final List<EntryInfo> list = new ArrayList<>(this.cacheMap.size());
+      for (final CacheEntry entry : this.cacheMap.values()) {
+        final Object value = entry.value;
+        final Class<? extends Object> vc = value == null ? null : value.getClass();
+        list.add(new EntryInfo(vc, entry.approximateSize));
+      }
+      return list;
     }
-    return list;
   }
 
   public static class EntryInfo {
@@ -177,42 +218,14 @@ public class LRUCache implements java.io.Serializable {
     }
   }
 
-  private class OrderedValue implements Comparable<OrderedValue>, java.io.Serializable {
-    private static final long serialVersionUID = 340227625744215821L;
-    private long timestamp;
-    private int approximateSize;
+  private static final class CacheEntry implements java.io.Serializable {
+    private static final long serialVersionUID = 1L;
     private Object value;
-    private final Object key;
+    private int approximateSize;
 
-    private OrderedValue(final Object key, final Object value, final int approxSize) {
-      this.key = key;
+    private CacheEntry(final Object value, final int approxSize) {
       this.value = value;
       this.approximateSize = approxSize;
-      this.touch();
-    }
-
-    private final void touch() {
-      this.timestamp = System.currentTimeMillis();
-    }
-
-    public int compareTo(final OrderedValue arg0) {
-      if (this == arg0) {
-        return 0;
-      }
-      final OrderedValue other = arg0;
-      final long diff = this.timestamp - other.timestamp;
-      if (diff > 0) {
-        return +1;
-      } else if (diff < 0) {
-        return -1;
-      }
-      int hc1 = System.identityHashCode(this);
-      int hc2 = System.identityHashCode(other);
-      if (hc1 == hc2) {
-        hc1 = System.identityHashCode(this.value);
-        hc2 = System.identityHashCode(other.value);
-      }
-      return hc1 - hc2;
     }
   }
 

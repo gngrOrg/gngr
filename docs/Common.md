@@ -35,7 +35,7 @@ Common (0 internal deps)
 - **Threads:** dumpStack(maxStacks) logging helper and sleep(ms).
 
 ### 3.2 Caches, Maps & History (o.l.util)
-- **LRUCache (Serializable):** Approximate-byte-budget LRU cache backed by HashMap<Object, OrderedValue> + TreeSet<OrderedValue> ordered by System.currentTimeMillis() (with identityHashCode tiebreaker). Entries larger than approxMaxSize are silently dropped on put(). Evictions and overwrites fire RemovalEvent to RemovalListeners through a transient EventDispatch2 (restored in readObject()). Not thread-safe.
+- **LRUCache (Serializable):** Thread-safe approximate-byte-budget LRU cache backed by an access-ordered LinkedHashMap<Object, CacheEntry> guarded by an internal lock. Putting an entry larger than approxMaxSize removes any existing stale entry for that key and drops the oversized value; shrinking approxMaxSize via setApproxMaxSize() immediately evicts excess LRU entries. Evictions, removals, and value-changing overwrites fire RemovalEvent to RemovalListeners outside the internal lock through a transient EventDispatch2 (restored along with the lock in readObject()).
 - **WeakValueHashMap<K, V> (Map):** Wraps HashMap<K, LocalWeakReference> + ReferenceQueue<V>. checkQueue() polls GC'd references and removes their keys during get, put, putAll, remove, clear, and values. Rejects null values; not thread-safe.
 - **Items:** Static synchronized WeakHashMap<Object, Map<String, Object>> associating arbitrary named metadata with host objects without retaining the host object.
 - **History (Serializable, marked TODO: Looks like it is not used):** Transient navigation sequence list (back()/forward()) paired with serialized recency (TreeSet<TimedEntry>) and lexicographic (TreeSet<String>) sets for prefix search (getHeadMatchItems).
@@ -80,15 +80,14 @@ Common (0 internal deps)
 
 ## 4. Threading, Invariants & Known Quirks
 
-1. **LRUCache.remove(key) leak bug:** remove() fires RemovalEvent, decrements currentSize, and removes from timedSet, but **never removes key from cacheMap** (LRUCache.java:122-132). Also non-thread-safe, and OrderedValue.compareTo() uses System.currentTimeMillis() + unguarded hc1 - hc2 subtraction.
-2. **WeakValueHashMap stale metadata & unsupported ops:** size(), isEmpty(), containsKey(), and keySet() do not call checkQueue(), so GC'd keys stay counted/visible until a mutating method or get()/values() drains ReferenceQueue. Rejects null values; containsValue() and entrySet() throw UnsupportedOperationException. Not thread-safe.
-3. **ColorFactory edge cases:** isColor() ignores rgba( (checks #, rgb(, colorMap only); unknown specs in getColor() return Color.RED; malformed rgba(...) stores null in colorMap; colorMap grows unbounded.
-4. **FontFactory edge cases:** Static initializer queries GraphicsEnvironment (requires Xvfb/display when not headless); the "monospace" branch in createFont_Impl() has no break so trailing font-family tokens overwrite it; only "bold"/"bolder" weights are handled (numeric weights ignored); fontVariant is unused; fontMap grows unbounded.
-5. **Urls.getExpiration() return contract:** Always returns Long (0 when no Cache-Control/Expires/Etag, or baseTime + 60_000 when Etag is present), never null despite Javadoc. Urls.encodeIllegalCharacters() only escapes spaces (%20).
-6. **ID randomness & hex formatting:** Uses three seeded java.util.Random instances (not cryptographically secure); ID.getHexString() strips leading zero bytes via BigInteger.toString(16) (commented as frozen for cache-key compatibility).
-7. **Legacy/unused classes:** Domains.java is empty (use Platform_Core's DomainValidation); History.java is marked unused; o.l.util.OS is separate from Platform_Core's o.l.main.OS (BrowserPanel/DefaultWindowFactory).
-8. **SimpleThreadPool lock scope:** cancelAll() calls task.cancel() while holding taskMonitor; threadGroup is hardcoded null (SimpleThreadPool.java:38).
-9. **Lock-free event dispatch:** EventDispatch and EventDispatch2 copy listener collections inside synchronized (this) before invoking listeners outside the lock.
+1. **WeakValueHashMap stale metadata & unsupported ops:** size(), isEmpty(), containsKey(), and keySet() do not call checkQueue(), so GC'd keys stay counted/visible until a mutating method or get()/values() drains ReferenceQueue. Rejects null values; containsValue() and entrySet() throw UnsupportedOperationException. Not thread-safe.
+2. **ColorFactory edge cases:** isColor() ignores rgba( (checks #, rgb(, colorMap only); unknown specs in getColor() return Color.RED; malformed rgba(...) stores null in colorMap; colorMap grows unbounded.
+3. **FontFactory edge cases:** Static initializer queries GraphicsEnvironment (requires Xvfb/display when not headless); the "monospace" branch in createFont_Impl() has no break so trailing font-family tokens overwrite it; only "bold"/"bolder" weights are handled (numeric weights ignored); fontVariant is unused; fontMap grows unbounded.
+4. **Urls.getExpiration() return contract:** Always returns Long (0 when no Cache-Control/Expires/Etag, or baseTime + 60_000 when Etag is present), never null despite Javadoc. Urls.encodeIllegalCharacters() only escapes spaces (%20).
+5. **ID randomness & hex formatting:** Uses three seeded java.util.Random instances (not cryptographically secure); ID.getHexString() strips leading zero bytes via BigInteger.toString(16) (commented as frozen for cache-key compatibility).
+6. **Legacy/unused classes:** Domains.java is empty (use Platform_Core's DomainValidation); History.java is marked unused; o.l.util.OS is separate from Platform_Core's o.l.main.OS (BrowserPanel/DefaultWindowFactory).
+7. **SimpleThreadPool lock scope:** cancelAll() calls task.cancel() while holding taskMonitor; threadGroup is hardcoded null (SimpleThreadPool.java:38).
+8. **Lock-free event dispatch:** EventDispatch and EventDispatch2 copy listener collections inside synchronized (this) before invoking listeners outside the lock.
 
 ## 5. Task-to-File Quick Index
 
