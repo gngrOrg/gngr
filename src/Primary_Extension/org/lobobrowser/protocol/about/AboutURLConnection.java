@@ -41,6 +41,7 @@ import org.lobobrowser.primary.ext.BookmarksHistory;
 import org.lobobrowser.primary.ext.HistoryEntry;
 import org.lobobrowser.primary.settings.SearchEngine;
 import org.lobobrowser.primary.settings.ToolsSettings;
+import org.lobobrowser.util.Html;
 import org.lobobrowser.util.Strings;
 import org.lobobrowser.util.Timing;
 
@@ -98,33 +99,15 @@ public class AboutURLConnection extends URLConnection {
     } else if ("bookmarks".equalsIgnoreCase(path)) {
       return getBookmarks();
     } else if ("bookmark-search".equalsIgnoreCase(path)) {
-      String query = url.getQuery();
-      if (query == null) {
-        query = "";
-      }
-      try {
-        final String searchQuery = java.net.URLDecoder.decode(query, "UTF-8");
-        return this.getBookmarks(searchQuery);
-      } catch (final java.io.UnsupportedEncodingException uee) {
-        throw new IllegalStateException("not expected", uee);
-      }
+      return this.getBookmarks(decodeQuery(url.getQuery()));
     } else if ("java-properties".equals(path)) {
       return getSystemProperties();
     } else if ("welcome".equals(path)) {
       return getWelcomeMessage();
     } else if ("confirmSearch".equals(path)) {
-      String query = url.getQuery();
-      if (query == null) {
-        query = "";
-      }
-      try {
-        final String searchQuery = java.net.URLDecoder.decode(query, "UTF-8");
-        return AboutURLConnection.getSearchConfirmation(searchQuery);
-      } catch (final java.io.UnsupportedEncodingException uee) {
-        throw new IllegalStateException("not expected", uee);
-      }
+      return AboutURLConnection.getSearchConfirmation(decodeQuery(url.getQuery()));
     } else {
-      return "<p>Unknown about path: " + path + "</p>" +
+      return "<p>Unknown about path: " + Html.escapeHtml(path) + "</p>" +
           "<h3>Known paths are:</h3>" +
           "<ul>" +
           "<li><a href='about:blank'>about:blank</a></li>" +
@@ -135,17 +118,31 @@ public class AboutURLConnection extends URLConnection {
     }
   }
 
+  private static String decodeQuery(final String query) {
+    if (query == null) {
+      return "";
+    }
+    try {
+      return java.net.URLDecoder.decode(query, "UTF-8");
+    } catch (final IllegalArgumentException iae) {
+      return query;
+    } catch (final java.io.UnsupportedEncodingException uee) {
+      throw new IllegalStateException("not expected", uee);
+    }
+  }
+
   private static String getSearchConfirmation(final String searchQuery) {
     final ToolsSettings settings = ToolsSettings.getInstance();
     final Collection<SearchEngine> searchEngines = settings.getSearchEngines();
     final StringWriter swriter = new StringWriter();
     final PrintWriter writer = new PrintWriter(swriter);
     writer.println("<html>");
-    writer.println("<head><title>Confirm Search<title></head>");
+    writer.println("<head><title>Confirm Search</title></head>");
     writer.println("<body>");
     writer.println("<h3>The address bar text was ambiguous.</h3>");
     final String directURL = "https://" + searchQuery;
-    writer.println("<p>Click <a href='" + directURL + "'>here</a> to continue to <span style='font-family:mono'>"+directURL+"</span></p>");
+    final String escapedDirectURL = Html.escapeHtml(directURL);
+    writer.println("<p>Click <a href=\"" + escapedDirectURL + "\">here</a> to continue to <span style=\"font-family:mono\">" + escapedDirectURL + "</span></p>");
     if (searchEngines.size() == 0) {
       writer.println("No search engines were found.");
     } else {
@@ -170,10 +167,14 @@ public class AboutURLConnection extends URLConnection {
     } catch (final java.net.MalformedURLException mfu) {
       mfu.printStackTrace();
     }
-    final String urlText = "Search with " + searchEngine.getName();
+    final String escapedLabel = Html.escapeHtml("Search with " + searchEngine.getName());
     writer.println("<LI>");
     writer.println("<DIV>");
-    writer.println("<A href='" + url + "'>" + urlText + "</A>");
+    if (url != null) {
+      writer.println("<A href=\"" + Html.escapeHtml(url.toExternalForm()) + "\">" + escapedLabel + "</A>");
+    } else {
+      writer.println(escapedLabel);
+    }
     if (searchEngine.equals(settings.getSelectedSearchEngine())) {
       writer.print("(Default)");
     }
@@ -231,7 +232,9 @@ public class AboutURLConnection extends URLConnection {
     writer.println("<body>");
     writer.println("<pre>");
     final Properties properties = System.getProperties();
-    properties.list(writer);
+    final StringWriter propsWriter = new StringWriter();
+    properties.list(new PrintWriter(propsWriter, true));
+    writer.print(Html.escapeHtml(propsWriter.toString()));
     writer.println("</pre>");
     writer.println("</body>");
     writer.println("</html>");
@@ -314,7 +317,7 @@ public class AboutURLConnection extends URLConnection {
     final StringWriter swriter = new StringWriter();
     final PrintWriter writer = new PrintWriter(swriter);
     writer.println("<html>");
-    writer.println("<head>Bookmarks</head>");
+    writer.println("<head><title>Bookmarks</title></head>");
     writer.println("<body>");
     if (entries.size() == 0) {
       writer.println("No bookmarks were found.");
@@ -347,10 +350,10 @@ public class AboutURLConnection extends URLConnection {
     }
     writer.println("<LI>");
     writer.println("<DIV>");
-    writer.println("<A href='" + urlText + "'>" + text + "</A> (" + Timing.getElapsedText(elapsed) + " ago)");
+    writer.println("<A href=\"" + Html.escapeHtml(urlText) + "\">" + Html.escapeHtml(text) + "</A> (" + Html.escapeHtml(Timing.getElapsedText(elapsed)) + " ago)");
     writer.println("</DIV>");
     writer.println("<DIV>");
-    writer.println(description);
+    writer.println(Html.escapeHtml(description));
     writer.println("</DIV>");
     writer.println("</LI>");
   }

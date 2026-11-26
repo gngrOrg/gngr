@@ -80,4 +80,41 @@ public class Html {
     }
     return out.toString();
   }
+
+  /**
+   * Escapes HTML special characters for safe interpolation in text nodes and
+   * quoted attributes. Uses {@code &#39;} for single quotes because gngr's
+   * {@code HtmlParser} does not define the {@code &apos;} named entity.
+   */
+  public static String escapeHtml(final String text) {
+    if (text == null) {
+      return "";
+    }
+    final int length = text.length();
+    final StringBuilder out = new StringBuilder(length);
+    for (int i = 0; i < length; i++) {
+      final char ch = text.charAt(i);
+      switch (ch) {
+      case '&':
+        out.append("&amp;");
+        break;
+      case '<':
+        out.append("&lt;");
+        break;
+      case '>':
+        out.append("&gt;");
+        break;
+      case '"':
+        out.append("&quot;");
+        break;
+      case '\'':
+        out.append("&#39;");
+        break;
+      default:
+        out.append(ch);
+        break;
+      }
+    }
+    return out.toString();
+  }
 }

@@ -26,10 +26,12 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -713,9 +715,9 @@ public class ComponentSource implements NavigatorWindowListener {
       final boolean hasProtocol = addressText.matches("^[a-z]+:.*");
       if ((!hasProtocol) && ((!hasPeriod) || hasSpace)) {
         try {
-          final URL url = new URL("about:confirmSearch?" + addressText);
+          final URL url = new URL("about:confirmSearch?" + URLEncoder.encode(addressText, "UTF-8"));
           this.navigate(url);
-        } catch (MalformedURLException e) {
+        } catch (final MalformedURLException | UnsupportedEncodingException e) {
           window.getTopFrame().alert("Malformed search URL.");
         }
       } else {
