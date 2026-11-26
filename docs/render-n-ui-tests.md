@@ -43,15 +43,15 @@ gngr logs Grinder startup, authentication decisions, server ports, and
 commands at INFO level; capture the launch process's console output when
 diagnosing a failed connection. Authentication keys are not logged.
 
-Compile and run the sample client with the same profile used by gngr. Its
-port.dat is in ~/.gngr/default by default, and the key must match the one
-passed to Ant. Keep gngr running in the first terminal; set GRINDER_KEY to
-the printed value in the test-client terminal:
+Run the sample client directly with `java` (no separate `javac` step is needed
+on modern JDKs) using the same profile used by gngr. Its port.dat is in
+~/.gngr/default by default, and the key must match the one passed to Ant. Keep
+gngr running in the first terminal; set GRINDER_KEY to the printed value in the
+test-client terminal:
 
 ```sh
 export GRINDER_KEY="<same key passed to Ant>"
-javac -d /tmp/gngr-grinder-client misc/GrinderTestClient.java
-GRINDER_KEY="$GRINDER_KEY" java -cp /tmp/gngr-grinder-client GrinderTestClient \
+GRINDER_KEY="$GRINDER_KEY" java misc/GrinderTestClient.java \
   "$HOME/.gngr/default" http://example.test/ /tmp/gngr-page.png 900 900
 ```
 

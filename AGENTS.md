@@ -1,6 +1,7 @@
 # Guidelines
 * Don't attempt to access any files or processes outside this repository. If necessary, explain the reason and plan, and ask before going ahead.
 * Don't try to disassemble binaries or jar files, unless explicitly commanded to do so
+* Prefer running standalone or one-off Java source files directly with `java <file.java>` (supported in modern JDKs) instead of compiling them separately with `javac`.
 
 
 # Documentation
