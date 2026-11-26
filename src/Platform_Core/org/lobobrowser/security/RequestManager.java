@@ -3,6 +3,7 @@ package org.lobobrowser.security;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.HierarchyBoundsListener;
@@ -25,9 +26,9 @@ import java.util.stream.Stream;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 
 import org.lobobrowser.security.PermissionSystem.Permission;
 import org.lobobrowser.security.PermissionSystem.PermissionBoard.PermissionRow;
@@ -67,6 +68,7 @@ public final class RequestManager {
 
   private Map<String, RequestCounters> hostToCounterMap = new HashMap<>();
   private Optional<PermissionSystem> permissionSystemOpt = Optional.empty();
+  private ManageDialog activeDialog;
   private int allowedCount = 0;
   private int blockedCount = 0;
   private final CopyOnWriteArrayList<RequestStatsListener> statsListeners = new CopyOnWriteArrayList<>();
@@ -205,7 +207,10 @@ public final class RequestManager {
   }
 
   public void reset(final URL frameUrl) {
+    final ManageDialog dialogToClose;
     synchronized (this) {
+      dialogToClose = activeDialog;
+      activeDialog = null;
       hostToCounterMap = new HashMap<>();
       allowedCount = 0;
       blockedCount = 0;
@@ -214,14 +219,56 @@ public final class RequestManager {
       ensureHostInCounter(frameHost);
       setupPermissionSystem(frameHost);
     }
+    if (dialogToClose != null) {
+      if (SwingUtilities.isEventDispatchThread()) {
+        dialogToClose.closeDialog(false);
+      } else {
+        SwingUtilities.invokeLater(() -> dialogToClose.closeDialog(false));
+      }
+    }
     notifyStatsListeners(RequestStats.EMPTY);
   }
 
   public void manageRequests(final JComponent initiatorComponent) {
-    // permissionSystemOpt.ifPresent(r -> r.dump());
-    final ManageDialog dlg = new ManageDialog(new JFrame(), getFrameURL().map(u -> u.toExternalForm()).orElse("Empty!"),
-        initiatorComponent);
-    dlg.setVisible(true);
+    final ManageDialog existing;
+    synchronized (this) {
+      existing = activeDialog;
+      activeDialog = null;
+    }
+    if (existing != null) {
+      if (existing.isVisible()) {
+        existing.closeDialog(true);
+        return;
+      } else if (existing.isDisplayable()) {
+        existing.closeDialog(false);
+      }
+    }
+
+    final PermissionSystem permissionSystem;
+    final String[][] requestData;
+    synchronized (this) {
+      permissionSystem = permissionSystemOpt.orElse(null);
+      if (permissionSystem == null) {
+        return;
+      }
+      requestData = getRequestData();
+    }
+
+    final Window owner = initiatorComponent != null ? SwingUtilities.getWindowAncestor(initiatorComponent) : null;
+    final ManageDialog dlg = new ManageDialog(owner, getFrameURL().map(URL::toExternalForm).orElse("Empty!"),
+        initiatorComponent, permissionSystem, requestData);
+    final boolean shouldShow;
+    synchronized (this) {
+      shouldShow = permissionSystemOpt.orElse(null) == permissionSystem;
+      if (shouldShow) {
+        activeDialog = dlg;
+      }
+    }
+    if (shouldShow) {
+      dlg.setVisible(true);
+    } else {
+      dlg.closeDialog(false);
+    }
   }
 
   private synchronized String[][] getRequestData() {
@@ -245,10 +292,17 @@ public final class RequestManager {
   public final class ManageDialog extends JDialog implements ActionListener {
     private static final long serialVersionUID = -2284357432219717106L;
     private final JComponent initiator;
+    private final PermissionSystem dialogPermissionSystem;
+    private final String initialPermissionStates;
+    private final HierarchyBoundsListener hierarchyBoundsListener;
+    private boolean reloadOnClose = true;
 
-    public ManageDialog(final JFrame parent, final String title, final JComponent initiator) {
-      super(parent, title, true);
+    public ManageDialog(final Window parent, final String title, final JComponent initiator,
+        final PermissionSystem permissionSystem, final String[][] requestData) {
+      super(parent, title, ModalityType.MODELESS);
       this.initiator = initiator;
+      this.dialogPermissionSystem = permissionSystem;
+      this.initialPermissionStates = permissionSystem.getPermissionsAsString();
       setUndecorated(true);
       if (parent != null) {
         final Dimension parentSize = parent.getSize();
@@ -256,7 +310,7 @@ public final class RequestManager {
         setLocation(p.x + (parentSize.width / 4), p.y + (parentSize.height / 4));
       }
 
-      final JComponent table = PermissionTable.makeTable(permissionSystemOpt.get(), getColumnNames(), getRequestData());
+      final JComponent table = PermissionTable.makeTable(permissionSystem, getColumnNames(), requestData);
       final JScrollPane scrollTablePane = new JScrollPane(table);
 
       getContentPane().add(scrollTablePane);
@@ -271,39 +325,65 @@ public final class RequestManager {
 
       pack();
       updateLocation();
-      initiator.addHierarchyBoundsListener(new HierarchyBoundsListener() {
+      if (initiator != null) {
+        this.hierarchyBoundsListener = new HierarchyBoundsListener() {
 
-        @Override
-        public void ancestorResized(final HierarchyEvent e) {
-          updateLocation();
-        }
+          @Override
+          public void ancestorResized(final HierarchyEvent e) {
+            updateLocation();
+          }
 
-        @Override
-        public void ancestorMoved(final HierarchyEvent e) {
-          updateLocation();
-        }
-      });
+          @Override
+          public void ancestorMoved(final HierarchyEvent e) {
+            updateLocation();
+          }
+        };
+        initiator.addHierarchyBoundsListener(hierarchyBoundsListener);
+      } else {
+        this.hierarchyBoundsListener = null;
+      }
 
       GUITasks.addEscapeListener(this);
     }
 
-    public void actionPerformed(final ActionEvent e) {
+    void closeDialog(final boolean allowReload) {
+      if (!allowReload) {
+        reloadOnClose = false;
+      }
       setVisible(false);
       dispose();
     }
 
+    public void actionPerformed(final ActionEvent e) {
+      closeDialog(true);
+    }
+
+    @Override
+    public void dispose() {
+      if ((initiator != null) && (hierarchyBoundsListener != null)) {
+        initiator.removeHierarchyBoundsListener(hierarchyBoundsListener);
+      }
+      synchronized (RequestManager.this) {
+        if (activeDialog == this) {
+          activeDialog = null;
+        }
+      }
+      super.dispose();
+    }
+
     private void updateLocation() {
-      final Point locationOnScreen = initiator.getLocationOnScreen();
-      locationOnScreen.translate(initiator.getWidth() - getWidth(), initiator.getHeight());
-      setLocation(locationOnScreen);
+      if ((initiator != null) && initiator.isShowing()) {
+        final Point locationOnScreen = initiator.getLocationOnScreen();
+        locationOnScreen.translate(initiator.getWidth() - getWidth(), initiator.getHeight());
+        setLocation(locationOnScreen);
+      }
     }
 
     private final class WindowListenerImpl implements WindowListener {
-      private String initialPermissionStates;
+      private boolean closeHandled = false;
 
       @Override
       public void windowOpened(final WindowEvent e) {
-        initialPermissionStates = permissionSystemOpt.get().getPermissionsAsString();
       }
 
       @Override
@@ -324,9 +404,19 @@ public final class RequestManager {
 
       @Override
       public void windowClosed(final WindowEvent e) {
-        final String finalPermissionStates = permissionSystemOpt.get().getPermissionsAsString();
-        if (!finalPermissionStates.equals(initialPermissionStates)) {
-          frame.reload();
+        if (closeHandled || !reloadOnClose) {
+          return;
+        }
+        closeHandled = true;
+        final boolean matchesCurrentSystem;
+        synchronized (RequestManager.this) {
+          matchesCurrentSystem = permissionSystemOpt.orElse(null) == dialogPermissionSystem;
+        }
+        if (matchesCurrentSystem) {
+          final String finalPermissionStates = dialogPermissionSystem.getPermissionsAsString();
+          if (!finalPermissionStates.equals(initialPermissionStates)) {
+            frame.reload();
+          }
         }
       }
 
