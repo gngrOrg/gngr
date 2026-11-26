@@ -84,12 +84,11 @@ Common (0 internal deps)
 2. **WeakValueHashMap stale metadata & unsupported ops:** size(), isEmpty(), containsKey(), and keySet() do not call checkQueue(), so GC'd keys stay counted/visible until a mutating method or get()/values() drains ReferenceQueue. Rejects null values; containsValue() and entrySet() throw UnsupportedOperationException. Not thread-safe.
 3. **ColorFactory edge cases:** isColor() ignores rgba( (checks #, rgb(, colorMap only); unknown specs in getColor() return Color.RED; malformed rgba(...) stores null in colorMap; colorMap grows unbounded.
 4. **FontFactory edge cases:** Static initializer queries GraphicsEnvironment (requires Xvfb/display when not headless); the "monospace" branch in createFont_Impl() has no break so trailing font-family tokens overwrite it; only "bold"/"bolder" weights are handled (numeric weights ignored); fontVariant is unused; fontMap grows unbounded.
-5. **RecordedInputStream.read() replay sign-extension bug:** read() returns this.resetBuffer[this.readPosition] without & 0xFF (RecordedInputStream.java:66), causing byte 0xFF after reset() to return -1 (spurious EOF).
-6. **Urls.getExpiration() return contract:** Always returns Long (0 when no Cache-Control/Expires/Etag, or baseTime + 60_000 when Etag is present), never null despite Javadoc. Urls.encodeIllegalCharacters() only escapes spaces (%20).
-7. **ID randomness & hex formatting:** Uses three seeded java.util.Random instances (not cryptographically secure); ID.getHexString() strips leading zero bytes via BigInteger.toString(16) (commented as frozen for cache-key compatibility).
-8. **Legacy/unused classes:** Domains.java is empty (use Platform_Core's DomainValidation); History.java is marked unused; o.l.util.OS is separate from Platform_Core's o.l.main.OS (BrowserPanel/DefaultWindowFactory).
-9. **SimpleThreadPool lock scope:** cancelAll() calls task.cancel() while holding taskMonitor; threadGroup is hardcoded null (SimpleThreadPool.java:38).
-10. **Lock-free event dispatch:** EventDispatch and EventDispatch2 copy listener collections inside synchronized (this) before invoking listeners outside the lock.
+5. **Urls.getExpiration() return contract:** Always returns Long (0 when no Cache-Control/Expires/Etag, or baseTime + 60_000 when Etag is present), never null despite Javadoc. Urls.encodeIllegalCharacters() only escapes spaces (%20).
+6. **ID randomness & hex formatting:** Uses three seeded java.util.Random instances (not cryptographically secure); ID.getHexString() strips leading zero bytes via BigInteger.toString(16) (commented as frozen for cache-key compatibility).
+7. **Legacy/unused classes:** Domains.java is empty (use Platform_Core's DomainValidation); History.java is marked unused; o.l.util.OS is separate from Platform_Core's o.l.main.OS (BrowserPanel/DefaultWindowFactory).
+8. **SimpleThreadPool lock scope:** cancelAll() calls task.cancel() while holding taskMonitor; threadGroup is hardcoded null (SimpleThreadPool.java:38).
+9. **Lock-free event dispatch:** EventDispatch and EventDispatch2 copy listener collections inside synchronized (this) before invoking listeners outside the lock.
 
 ## 5. Task-to-File Quick Index
 

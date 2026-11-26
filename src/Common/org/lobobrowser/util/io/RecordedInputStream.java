@@ -63,7 +63,7 @@ public class RecordedInputStream extends InputStream {
   @Override
   public int read() throws IOException {
     if ((this.readPosition != -1) && (this.readPosition < this.resetBuffer.length)) {
-      final int b = this.resetBuffer[this.readPosition];
+      final int b = this.resetBuffer[this.readPosition] & 0xFF;
       this.readPosition++;
       return b;
     } else {
