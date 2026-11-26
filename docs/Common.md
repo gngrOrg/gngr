@@ -68,8 +68,8 @@ Common (0 internal deps)
 - **Misc:** ID (generateLong/generateInt, getMD5Bytes, getHexString, random), OS (isWindows, launchPath, launchBrowser), Timing (round1, getElapsedText), Diagnostics.Assert, BoxedObject, NameValuePair, ObjectFilter, WrapperException, NotImplementedYetException.
 
 ### 3.6 GUI Rendering & Layout Helpers (o.l.util.gui)
-- **ColorFactory (singleton):** Parses 148 CSS named colors + transparent, #rgb/#rrggbb/#rrggbbaa hex, rgb(r,g,b), and rgba(r,g,b,a); memoizes parsed Colors in a synchronized HashMap<String, Color>.
-- **FontFactory (singleton):** Snapshots GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames() at initialization; supports runtime font loading (registerFont(name, format, stream)/unregisterFont). Resolves comma-separated font-family (registeredFonts → system fontFamilies checked via canDisplayUpTo() against target Locales → "monospace" → fallback defaultFontName = "SansSerif"), applies bold/italic/size/TextAttribute.SUPERSCRIPT, and caches in fontMap keyed by FontKey (interned strings + identity comparison).
+- **ColorFactory (lazy `InstanceHolder` singleton):** Resolves 148 CSS named colors (`rebeccapurple` included) + `transparent` via an immutable `NAMED_COLORS` map; strictly parses `#rgb`, `#rgba`, `#rrggbb`, `#rrggbbaa` hex, `rgb(r,g,b)` (int or `%`, clamped), and `rgba(r,g,b,a)` (int/`%` RGB, float/`%` alpha, clamped); returns `null` on unknown or malformed specs (`isColor()` validates without caching/logging); memoizes parsed non-named colors in a synchronized bounded LRU `LinkedHashMap` (`DEFAULT_MAX_CACHE_SIZE = 1024`).
+- **FontFactory (lazy `InstanceHolder` singleton):** Snapshots `GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames()` lowercased (`Locale.ROOT`) at initialization; supports runtime font loading (`registerFont`/`unregisterFont`, clearing `fontMap`) and `setDefaultFontName()` (synchronized, clears `fontMap` on change). Resolves comma-separated quoted/unquoted `font-family` tokens (`registeredFonts` → system `fontFamilies` checked via `canDisplayUpTo()` against target `Locales` → `"monospace"`/`"sans-serif"` with `break` → fallback `defaultFontName = "SansSerif"`), applies `"italic"`/`"oblique"`, `"bold"`/`"bolder"` and numeric `font-weight` (`600..1000`), size, and `TextAttribute.SUPERSCRIPT`, and caches in a bounded LRU `LinkedHashMap` (`DEFAULT_MAX_CACHE_SIZE = 512`) keyed by `FontKey` (`Objects.equals`/defensive `locales`, no `String.intern()`, `fontVariant` omitted).
 - **GUITasks:** getTopFrame(), drawDashed() (axis-aligned only), drawDotted() (BasicStroke round/butt dot pattern), addEscapeListener(JDialog).
 - **CenterLayout & WrapperLayout:** Singleton LayoutManagers that center or stretch a single child component within container insets.
 
@@ -84,13 +84,12 @@ Common (0 internal deps)
 ## 4. Threading, Invariants & Known Quirks
 
 1. **WeakValueHashMap stale metadata & unsupported ops:** size(), isEmpty(), containsKey(), and keySet() do not call checkQueue(), so GC'd keys stay counted/visible until a mutating method or get()/values() drains ReferenceQueue. Rejects null values; containsValue() and entrySet() throw UnsupportedOperationException. Not thread-safe.
-2. **ColorFactory edge cases:** isColor() ignores rgba( (checks #, rgb(, colorMap only); unknown specs in getColor() return Color.RED; malformed rgba(...) stores null in colorMap; colorMap grows unbounded.
-3. **FontFactory edge cases:** Static initializer queries GraphicsEnvironment (requires Xvfb/display when not headless); the "monospace" branch in createFont_Impl() has no break so trailing font-family tokens overwrite it; only "bold"/"bolder" weights are handled (numeric weights ignored); fontVariant is unused; fontMap grows unbounded.
-4. **Urls.getExpiration() return contract:** Always returns Long (0 when no Cache-Control/Expires/Etag, or baseTime + 60_000 when Etag is present), never null despite Javadoc. Urls.encodeIllegalCharacters() only escapes spaces (%20).
-5. **ID randomness & hex formatting:** Uses three seeded java.util.Random instances (not cryptographically secure); ID.getHexString() strips leading zero bytes via BigInteger.toString(16) (commented as frozen for cache-key compatibility).
-6. **Legacy/unused classes:** Domains.java is empty (use Platform_Core's DomainValidation); History.java is marked unused; o.l.util.OS is separate from Platform_Core's o.l.main.OS (BrowserPanel/DefaultWindowFactory).
-7. **SimpleThreadPool lock scope:** cancelAll() calls task.cancel() while holding taskMonitor; threadGroup is hardcoded null (SimpleThreadPool.java:38).
-8. **Lock-free event dispatch:** EventDispatch and EventDispatch2 copy listener collections inside synchronized (this) before invoking listeners outside the lock.
+2. **FontFactory AWT display & font-variant limitations:** `FontFactory.getInstance()` lazily queries `GraphicsEnvironment` on first instantiation (requiring Xvfb/display when not headless); `fontVariant` is accepted by `getFont()` for API compatibility because `java.awt.Font` / `TextAttribute` has no small-caps attribute.
+3. **Urls.getExpiration() return contract:** Always returns Long (0 when no Cache-Control/Expires/Etag, or baseTime + 60_000 when Etag is present), never null despite Javadoc. Urls.encodeIllegalCharacters() only escapes spaces (%20).
+4. **ID randomness & hex formatting:** Uses three seeded java.util.Random instances (not cryptographically secure); ID.getHexString() strips leading zero bytes via BigInteger.toString(16) (commented as frozen for cache-key compatibility).
+5. **Legacy/unused classes:** Domains.java is empty (use Platform_Core's DomainValidation); History.java is marked unused; o.l.util.OS is separate from Platform_Core's o.l.main.OS (BrowserPanel/DefaultWindowFactory).
+6. **SimpleThreadPool lock scope:** cancelAll() calls task.cancel() while holding taskMonitor; threadGroup is hardcoded null (SimpleThreadPool.java:38).
+7. **Lock-free event dispatch:** EventDispatch and EventDispatch2 copy listener collections inside synchronized (this) before invoking listeners outside the lock.
 
 ## 5. Task-to-File Quick Index
 

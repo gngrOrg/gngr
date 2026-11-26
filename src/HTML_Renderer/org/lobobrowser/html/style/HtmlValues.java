@@ -892,7 +892,8 @@ public class HtmlValues {
       if ("currentColor".equalsIgnoreCase(colorSpec)) {
         return renderState.getColor();
       } else {
-        return cf.getColor(colorSpec);
+        final java.awt.Color c = cf.getColor(colorSpec);
+        return c != null ? c : renderState.getColor();
       }
     } else {
       return renderState.getColor();

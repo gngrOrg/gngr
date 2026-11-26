@@ -341,7 +341,10 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
     // TODO: Check if polymorphism can be handled in JavaObjectWrapper
     public void setFillStyle(final Object style) {
       if (style instanceof String) {
-        currDrawingState.paintFill = parseColor((String) style);
+        final Color parsed = parseColor((String) style);
+        if (parsed != null) {
+          currDrawingState.paintFill = parsed;
+        }
       } else if (style instanceof CanvasGradient) {
         currDrawingState.paintFill = ((CanvasGradient) style).toPaint();
       } else {
@@ -382,7 +385,10 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
     // TODO: Check if polymorphism can be handled in JavaObjectWrapper
     public void setStrokeStyle(final Object style) {
       if (style instanceof String) {
-        currDrawingState.paintStroke = parseColor((String) style);
+        final Color parsed = parseColor((String) style);
+        if (parsed != null) {
+          currDrawingState.paintStroke = parsed;
+        }
       } else if (style instanceof CanvasGradient) {
         currDrawingState.paintStroke = ((CanvasGradient) style).toPaint();
       } else {
@@ -672,8 +678,11 @@ public class HTMLCanvasElementImpl extends HTMLAbstractUIElement implements HTML
     final protected ArrayList<Color> colors = new ArrayList<>();
 
     public void addColorStop(final float offset, final String color) {
-      this.offsets.add(offset);
-      this.colors.add(parseColor(color));
+      final Color parsed = parseColor(color);
+      if (parsed != null) {
+        this.offsets.add(offset);
+        this.colors.add(parsed);
+      }
     }
 
     public abstract Paint toPaint();

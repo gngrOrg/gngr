@@ -285,6 +285,9 @@ public class StyleSheetRenderState implements RenderState {
       colorValue = "black";
     }
     c = ColorFactory.getInstance().getColor(colorValue);
+    if (c == null) {
+      c = this.prevRenderState != null ? this.prevRenderState.getColor() : Color.BLACK;
+    }
     this.iColor = c;
     return c;
   }
