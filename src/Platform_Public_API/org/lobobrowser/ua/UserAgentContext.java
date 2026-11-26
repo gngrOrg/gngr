@@ -1,6 +1,8 @@
 package org.lobobrowser.ua;
 
 import java.net.URL;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Provides information about the user agent (browser) driving the parser and/or
@@ -14,23 +16,55 @@ import java.net.URL;
  */
 public interface UserAgentContext {
   public enum RequestKind {
-    Image("Img"), CSS("CSS"), Cookie("Cookie"), JavaScript("JS"), Frame("Frame"), XHR("XHR"), Referrer(
-        "Referrer"), UnsecuredHTTP("Unsecured HTTP");
+    /*
+     * persistenceId values are persisted as 2-bit slot indices in H2 PERMISSIONS
+     * (slot 0 is reserved for the host default; kind slots are 1..15).
+     * Never change or reuse an existing persistenceId; if a constant is
+     * removed, retire its persistenceId permanently.
+     */
+    Image("Img", 1),
+    CSS("CSS", 2),
+    Cookie("Cookie", 3),
+    JavaScript("JS", 4),
+    Frame("Frame", 5),
+    XHR("XHR", 6),
+    Referrer("Referrer", 7),
+    UnsecuredHTTP("Unsecured HTTP", 8);
 
     public final String shortName;
+    public final int persistenceId;
 
-    RequestKind(final String shortName) {
+    RequestKind(final String shortName, final int persistenceId) {
       this.shortName = shortName;
+      this.persistenceId = persistenceId;
     }
 
     private static final RequestKind[] VALUES = RequestKind.values();
 
+    static {
+      final Set<Integer> seenIds = new HashSet<>();
+      for (final RequestKind kind : VALUES) {
+        if (kind.persistenceId < 1) {
+          throw new IllegalStateException("RequestKind.persistenceId must be >= 1: " + kind + " (" + kind.persistenceId + ")");
+        }
+        if (!seenIds.add(kind.persistenceId)) {
+          throw new IllegalStateException("Duplicate RequestKind.persistenceId: " + kind.persistenceId + " on " + kind);
+        }
+      }
+    }
+
+    /**
+     * Returns the {@link RequestKind} for a runtime enum ordinal.
+     * <p>
+     * For transient in-memory indexing only; never use ordinals for persistence
+     * (use {@link #persistenceId} instead).
+     */
     public static RequestKind forOrdinal(final int o) {
       return VALUES[o];
     }
 
     public static int numKinds() {
-      return values().length;
+      return VALUES.length;
     }
   }
 

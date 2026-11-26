@@ -2,7 +2,9 @@ package org.lobobrowser.security;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 import org.javatuples.Pair;
 import org.jooq.Condition;
@@ -17,6 +19,20 @@ import info.gngr.db.tables.Permissions;
 import info.gngr.db.tables.records.PermissionsRecord;
 
 public class DBRequestRuleStore implements RequestRuleStore {
+  private static final int BITS_PER_KIND = 2;
+  private static final int HOST_SLOT = 0;
+  private static final int MIN_KIND_SLOT = 1;
+  static final int MAX_KIND_SLOT = (Integer.SIZE / BITS_PER_KIND) - 1;
+
+  static {
+    final RequestKind[] kinds = RequestKind.values();
+    final int[] slots = new int[kinds.length];
+    for (int i = 0; i < kinds.length; i++) {
+      slots[i] = kinds[i].persistenceId;
+    }
+    validateSlots(slots);
+  }
+
   private final DSLContext userDB;
   private static final Permission[] defaultPermissions = new Permission[RequestKind.numKinds()];
   static {
@@ -26,19 +42,46 @@ public class DBRequestRuleStore implements RequestRuleStore {
   }
   private static final Pair<Permission, Permission[]> defaultPermissionPair = Pair.with(Permission.Undecided, defaultPermissions);
 
-  static private DBRequestRuleStore instance = new DBRequestRuleStore();
+  private static class InstanceHolder {
+    private static final DBRequestRuleStore INSTANCE = new DBRequestRuleStore();
+  }
 
   public static DBRequestRuleStore getInstance() {
-    return instance;
+    return InstanceHolder.INSTANCE;
   }
 
   public DBRequestRuleStore() {
-    final StorageManager storageManager = StorageManager.getInstance();
-    userDB = storageManager.getDB();
+    this(StorageManager.getInstance().getDB());
+  }
+
+  DBRequestRuleStore(final DSLContext userDB) {
+    this.userDB = userDB;
     if (!userDB.fetchOne(Globals.GLOBALS).getPermissionsinitialized()) {
       HelperPrivate.initStore(this);
       userDB.fetchOne(Globals.GLOBALS).setPermissionsinitialized(true);
     }
+  }
+
+  static int validateKindSlot(final int slot) {
+    if ((slot < MIN_KIND_SLOT) || (slot > MAX_KIND_SLOT)) {
+      throw new IllegalStateException(
+          "RequestKind persistenceId out of 32-bit bitmask bounds [" + MIN_KIND_SLOT + ".." + MAX_KIND_SLOT + "]: " + slot);
+    }
+    return slot;
+  }
+
+  static void validateSlots(final int... slots) {
+    final Set<Integer> seen = new HashSet<>();
+    for (final int slot : slots) {
+      validateKindSlot(slot);
+      if (!seen.add(slot)) {
+        throw new IllegalStateException("Duplicate RequestKind persistenceId slot: " + slot);
+      }
+    }
+  }
+
+  private static int bitPosition(final Optional<RequestKind> kindOpt) {
+    return kindOpt.map(k -> validateKindSlot(k.persistenceId)).orElse(HOST_SLOT) * BITS_PER_KIND;
   }
 
   private static Condition matchHostsCondition(final String frameHost, final String requestHost) {
@@ -60,19 +103,18 @@ public class DBRequestRuleStore implements RequestRuleStore {
     }
   }
 
-  private static Pair<Permission, Permission[]> decodeBitMask(final Integer existingPermissions) {
+  static Pair<Permission, Permission[]> decodeBitMask(final Integer existingPermissions) {
+    final int mask = existingPermissions != null ? existingPermissions : 0;
     final Permission[] resultPermissions = new Permission[RequestKind.numKinds()];
-    for (int i = 0; i < resultPermissions.length; i++) {
-      resultPermissions[i] = decodeBits(existingPermissions, i + 1);
+    for (final RequestKind kind : RequestKind.values()) {
+      resultPermissions[kind.ordinal()] = decodeBits(mask, validateKindSlot(kind.persistenceId));
     }
-    final Pair<Permission, Permission[]> resultPair = Pair.with(decodeBits(existingPermissions, 0), resultPermissions);
+    final Pair<Permission, Permission[]> resultPair = Pair.with(decodeBits(mask, HOST_SLOT), resultPermissions);
     return resultPair;
   }
 
-  private static final int BITS_PER_KIND = 2;
-
-  private static Permission decodeBits(final Integer existingPermissions, final int i) {
-    final int permissionBits = (existingPermissions >> (i * BITS_PER_KIND)) & 0x3;
+  static Permission decodeBits(final int existingPermissions, final int slot) {
+    final int permissionBits = (existingPermissions >>> (slot * BITS_PER_KIND)) & 0x3;
     if (permissionBits < 2) {
       return Permission.Undecided;
     } else {
@@ -86,7 +128,7 @@ public class DBRequestRuleStore implements RequestRuleStore {
       return userDB.fetch(Permissions.PERMISSIONS, matchHostsCondition(frameHost, requestHost));
     });
 
-    final Integer permissionMask = makeBitSetMask(kindOpt, permission);
+    final int permissionMask = makeBitSetMask(kindOpt, permission);
 
     if (permissionRecords.isEmpty()) {
       final PermissionsRecord newPermissionRecord = new PermissionsRecord(frameHost, requestHost, permissionMask);
@@ -94,16 +136,16 @@ public class DBRequestRuleStore implements RequestRuleStore {
       newPermissionRecord.store();
     } else {
       final PermissionsRecord existingRecord = permissionRecords.get(0);
-      final Integer existingPermissions = existingRecord.getPermissions();
+      final int existingPermissions = existingRecord.getPermissions() != null ? existingRecord.getPermissions() : 0;
       final int newPermissions = (existingPermissions & makeBitBlockMask(kindOpt)) | permissionMask;
       existingRecord.setPermissions(newPermissions);
       existingRecord.store();
     }
   }
 
-  private static Integer makeBitSetMask(final Optional<RequestKind> kindOpt, final Permission permission) {
+  static int makeBitSetMask(final Optional<RequestKind> kindOpt, final Permission permission) {
     if (permission.isDecided()) {
-      final Integer bitPos = kindOpt.map(k -> k.ordinal() + 1).orElse(0) * BITS_PER_KIND;
+      final int bitPos = bitPosition(kindOpt);
       final int bitset = permission == Permission.Allow ? 0x3 : 0x2;
       return bitset << bitPos;
     } else {
@@ -111,8 +153,8 @@ public class DBRequestRuleStore implements RequestRuleStore {
     }
   }
 
-  private static Integer makeBitBlockMask(final Optional<RequestKind> kindOpt) {
-    final Integer bitPos = kindOpt.map(k -> k.ordinal() + 1).orElse(0) * BITS_PER_KIND;
+  static int makeBitBlockMask(final Optional<RequestKind> kindOpt) {
+    final int bitPos = bitPosition(kindOpt);
     return ~(0x3 << bitPos);
   }
 }

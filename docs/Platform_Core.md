@@ -100,7 +100,7 @@ Two distinct layers:
    - Default rules initialized once in RequestRuleStore.HelperPrivate.initStore() (GLOBALS.permissionsInitialized): global default Deny, except Image and CSS = Allow.
    - Protocol gate: PermissionSystem.isRequestPermitted() permits only http, https, data (rewritten to frame host by RequestManager), and about:blank; blocks file:// and all other schemes.
    - Mixed-content check: https frame requesting http requires RequestKind.UnsecuredHTTP.
-   - Persistence: DBRequestRuleStore stores 2-bit-per-kind bitmasks (0x3=Allow, 0x2=Deny, <2=Undecided) in H2 PERMISSIONS(frameHost, requestHost, permissions).
+   - Persistence: DBRequestRuleStore stores 2-bit-per-kind bitmasks (0x3=Allow, 0x2=Deny, <2=Undecided) in H2 PERMISSIONS(frameHost, requestHost, permissions), indexing slots 1..15 by `RequestKind.persistenceId` (slot 0 = host default) rather than enum `ordinal()`.
    - UI: RequestManager.manageRequests() opens ManageDialog containing PermissionTable/PermissionCellButton; closing after any change triggers frame.reload().
 2. **JVM Sandbox (LocalSecurityPolicy + LocalSecurityManager):**
    - LocalSecurityPolicy defines STORE_DIRECTORY (~/.gngr/default or -Dgngr.profile=...). Files under STORE_DIRECTORY are treated as untrusted (isLocal() == false).

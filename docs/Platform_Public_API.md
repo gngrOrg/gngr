@@ -74,7 +74,7 @@ UserAgentContext.createHttpRequest() ─► NetworkRequest
 - **Event hierarchy:** EventObject → NavigatorEvent (getNavigatorFrame, getEventType) → NavigatorProgressEvent (getMethod, getProgressType, getUrl, getCurrentValue, getMaxValue) | NavigatorResponseEvent (getResponse, getUrl, getMethod, getRequestType) → NavigatorWindowEvent (getMessage) | NavigatorExceptionEvent (getException). Separate: NavigationEvent (vetoable) and NetworkRequestEvent (getState).
 
 ### 3.2 UserAgentContext, Permissions & NetworkRequest (o.l.ua)
-- **UserAgentContext.RequestKind:** Image("Img"), CSS("CSS"), Cookie("Cookie"), JavaScript("JS"), Frame("Frame"), XHR("XHR"), Referrer("Referrer"), UnsecuredHTTP("Unsecured HTTP"); exposes shortName, forOrdinal(int), and numKinds().
+- **UserAgentContext.RequestKind:** Image("Img", 1), CSS("CSS", 2), Cookie("Cookie", 3), JavaScript("JS", 4), Frame("Frame", 5), XHR("XHR", 6), Referrer("Referrer", 7), UnsecuredHTTP("Unsecured HTTP", 8); exposes shortName, persistenceId (1..15, stable H2 bitmask slot), forOrdinal(int), and numKinds().
 - **UserAgentContext.Request:** Immutable (URL url, RequestKind kind) checked via isRequestPermitted(Request) and passed to NetworkRequest.send(content, requestType).
 - **UserAgentContext:** Browser identity (getAppCodeName/getAppName/getAppVersion/getAppMinorVersion, getUserAgent, getPlatform, getVendor, getProduct, getBrowserLanguage), cookies (getCookie/setCookie), security/scripting (getSecurityPolicy, getScriptingOptimizationLevel, isMedia), plus legacy feature flags marked TODO: Remove (isCookieEnabled, isScriptingEnabled, isExternalCSSEnabled, isInternalCSSEnabled).
 - **NetworkRequest:** XHR-like contract supporting SRI integrity on open(...) overloads, custom headers (addRequestedHeader), header filtering (getAllResponseHeaders(excludedHeadersLowerCase)), and typed response getters.
@@ -95,7 +95,7 @@ UserAgentContext.createHttpRequest() ─► NetworkRequest
 
 ## 4. Invariants & Known Quirks
 
-1. **RequestKind ordinal stability:** RequestKind.forOrdinal() and numKinds() index directly into Platform_Core's 2-bit-per-kind bitmask persisted in H2 PERMISSIONS; reordering or deleting enum constants corrupts stored rules.
+1. **RequestKind persistence IDs vs. ordinals:** RequestKind.persistenceId (1..15, never changed or reused) indexes into Platform_Core's 2-bit-per-kind bitmask persisted in H2 PERMISSIONS; forOrdinal() and numKinds() are for transient in-memory indexing only.
 2. **Legacy API spellings (do not rename without cross-module updates):**
    - NetworkRequest.isAsnyc() (transposed letters)
    - NavigatorErrorListener.errorOcurred(...) (single r)
