@@ -706,8 +706,12 @@ public class ComponentSource implements NavigatorWindowListener {
   }
 
   public void navigateOrSearch() {
-    final String addressText = this.addressField.getText().trim();
-    if (addressText.charAt(0) == '?') {
+    final String rawAddressText = this.addressField.getText();
+    final String addressText = rawAddressText == null ? "" : rawAddressText.trim();
+    if (addressText.isEmpty()) {
+      return;
+    }
+    if (addressText.startsWith("?")) {
       this.search();
     } else {
       final boolean hasPeriod = addressText.indexOf('.') != -1;
@@ -730,14 +734,14 @@ public class ComponentSource implements NavigatorWindowListener {
     final ToolsSettings settings = ToolsSettings.getInstance();
     final SearchEngine searchEngine = settings.getSelectedSearchEngine();
     if (searchEngine != null) {
-      final String addressText = this.addressField.getText();
+      final String rawAddressText = this.addressField.getText();
+      final String addressText = rawAddressText == null ? "" : rawAddressText.trim();
+      final String query = addressText.startsWith("?") ? addressText.substring(1).trim() : addressText;
+      if (query.isEmpty()) {
+        return;
+      }
       try {
-        if (addressText.charAt(0) == '?') {
-          assert (addressText.charAt(0) == '?');
-          this.navigate(searchEngine.getURL(addressText.substring(1)));
-        } else {
-        this.navigate(searchEngine.getURL(addressText));
-        }
+        this.navigate(searchEngine.getURL(query));
       } catch (final java.net.MalformedURLException mfu) {
         window.getTopFrame().alert("Malformed search URL.");
       }
