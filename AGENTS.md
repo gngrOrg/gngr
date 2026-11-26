@@ -3,74 +3,15 @@
 * Don't try to disassemble binaries or jar files, unless explicitly commanded to do so
 
 
-# One-off GUI tests
+# Documentation
 
-## Running gngr without a physical display
+Consult the relevant doc in docs/ before exploring a module or running UI/rendering tests:
 
-Run GUI tests under Xvfb. Do not set `java.awt.headless=true`: gngr uses Swing
-and needs a display server even when no monitor is attached.
-
-```sh
-GRINDER_KEY="$(python3 -c 'import secrets; print(secrets.token_hex(32))')"
-printf 'Use this key in the test-client terminal: %s\n' "$GRINDER_KEY"
-xvfb-run -a -s "-dpi 96 -screen 0 900x900x24" \
-  ant -f src/build.xml -Dgngr.grinder.key="$GRINDER_KEY" run
-```
-
-Keep gngr running while the test client connects. The client does not need its
-own X display unless it is capturing the virtual desktop. Stop the browser
-after the test with Grinder's `CLOSE` or `QUIT` command, or stop the process
-group started for the test. Avoid sharing a gngr process or profile between
-parallel tests.
-
-## Controlling and inspecting the browser
-
-Passing `gngr.grinder.key` enables the Grinder test interface. Use the
-standalone [`misc/GrinderTestClient.java`](misc/GrinderTestClient.java) as a
-starting point for one-off browser tests; it uses only the Java standard
-library and speaks the local Grinder protocol. See
-[`misc/runTest.sh`](misc/runTest.sh) for the project's rendering-test setup.
-The interface supports:
-
-- `TO <url>` to navigate and wait for navigation/layout completion.
-- `SET_SIZE <width> <height>` to set the browser viewport.
-- `SCREENSHOT` to return a PNG of the page's content component after it is
-  ready to paint.
-- `CLOSE` to close the test window, or `QUIT` to shut down gngr.
-
-It does not provide commands for querying DOM elements or retrieving logs.
-Collect process output separately where useful, but note that gngr redirects
-standard output/error to its in-app console during startup. The Grinder
-screenshot is page content, not a capture of browser chrome, dialogs, or the
-whole desktop. For those, use an X11 screenshot tool against the same Xvfb
-`DISPLAY` (for example `xwd` or ImageMagick `import`).
-gngr logs Grinder startup, authentication decisions, server ports, and
-commands at INFO level; capture the launch process's console output when
-diagnosing a failed connection. Authentication keys are not logged.
-
-Compile and run the sample client with the same profile used by gngr. Its
-`port.dat` is in `~/.gngr/default` by default, and the key must match the one
-passed to Ant. Keep gngr running in the first terminal; set `GRINDER_KEY` to
-the printed value in the test-client terminal:
-
-```sh
-export GRINDER_KEY="<same key passed to Ant>"
-javac -d /tmp/gngr-grinder-client misc/GrinderTestClient.java
-GRINDER_KEY="$GRINDER_KEY" java -cp /tmp/gngr-grinder-client GrinderTestClient \
-  "$HOME/.gngr/default" http://example.test/ /tmp/gngr-page.png 900 900
-```
-
-The client sets the viewport when dimensions are supplied, navigates, saves a
-page-content PNG, then sends `QUIT` to stop its one-off gngr session. Adapt it
-when tests need different cleanup or assertions.
-
-## Repeatability and isolation
-
-Use the same Xvfb screen size, DPI, fonts, and gngr build when comparing
-screenshots. The rendering harness in `misc/runTest.sh` is a reference for
-font setup and the existing Grinder workflow.
-
-Keep the test environment isolated: use a fresh, unpredictable Grinder key and
-a disposable browser profile. Grinder uses a dynamic test-control port; block
-external access and do not expose it to untrusted networks. The interface is
-a test-control mechanism, not a general-purpose or production automation API.
+- [docs/Common.md](docs/Common.md) — src/Common/: thread pools, caches, event dispatch, URL/string/DOM helpers, Swing color/font/layout utilities, I/O streams.
+- [docs/Platform_Public_API.md](docs/Platform_Public_API.md) — src/Platform_Public_API/: zero-dependency public contracts (ua, clientlet, io) shared across runtime, extensions, renderer, and harness.
+- [docs/Platform_Core.md](docs/Platform_Core.md) — src/Platform_Core/: startup/reuse/Grinder server, OkHttp networking/caching/cookies, extension loader, per-origin request firewall & JVM security policy, H2/jOOQ storage, Swing frame/window shell.
+- [docs/HTML_Renderer.md](docs/HTML_Renderer.md) — src/HTML_Renderer/: HTML/XHTML parser, DOM, jStyleParser CSS cascade & RenderState, box/inline/float/table layout & Swing painting, Rhino JS runtime & bridge.
+- [docs/Primary_Extension.md](docs/Primary_Extension.md) — src/Primary_Extension/: browser chrome/menus/address bar, HTML/image/text/download clientlets, about:/data: protocols, history/bookmarks, search engines, preferences UI.
+- [docs/Render_Harness.md](docs/Render_Harness.md) — src/Render_Harness/: standalone offscreen Grinder rendering harness (run-harness) for fast CSS/layout tests without chrome, firewall, or JS.
+- [docs/XAMJ_Build.md](docs/XAMJ_Build.md) — src/XAMJ_Build/: shared third-party JARs (JDT annotations, ext/*.jar), -Dext.dirs classloading, LocalSecurityPolicy version-sync notes, legacy Lobo packaging.
+- [docs/render-n-ui-tests.md](docs/render-n-ui-tests.md) — Running one-off GUI and rendering tests under Xvfb with Grinder (misc/GrinderTestClient.java, misc/runTest.sh).
