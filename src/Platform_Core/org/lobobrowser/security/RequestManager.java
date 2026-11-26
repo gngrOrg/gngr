@@ -1,13 +1,20 @@
 package org.lobobrowser.security;
 
+import java.awt.AWTEvent;
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.MouseInfo;
 import java.awt.Point;
+import java.awt.PointerInfo;
+import java.awt.Toolkit;
 import java.awt.Window;
+import java.awt.event.AWTEventListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.HierarchyBoundsListener;
 import java.awt.event.HierarchyEvent;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.net.MalformedURLException;
@@ -295,6 +302,7 @@ public final class RequestManager {
     private final PermissionSystem dialogPermissionSystem;
     private final String initialPermissionStates;
     private final HierarchyBoundsListener hierarchyBoundsListener;
+    private final AWTEventListener outsideClickListener;
     private boolean reloadOnClose = true;
 
     public ManageDialog(final Window parent, final String title, final JComponent initiator,
@@ -344,6 +352,28 @@ public final class RequestManager {
       }
 
       GUITasks.addEscapeListener(this);
+
+      this.outsideClickListener = event -> {
+        if (!isVisible() || !(event instanceof MouseEvent)) {
+          return;
+        }
+        final MouseEvent mouseEvent = (MouseEvent) event;
+        if (mouseEvent.getID() != MouseEvent.MOUSE_PRESSED) {
+          return;
+        }
+        final Object source = mouseEvent.getSource();
+        if (source instanceof Component) {
+          final Component comp = (Component) source;
+          if (SwingUtilities.isDescendingFrom(comp, ManageDialog.this)) {
+            return;
+          }
+          if ((initiator != null) && SwingUtilities.isDescendingFrom(comp, initiator)) {
+            return;
+          }
+        }
+        closeDialog(true);
+      };
+      Toolkit.getDefaultToolkit().addAWTEventListener(this.outsideClickListener, AWTEvent.MOUSE_EVENT_MASK);
     }
 
     void closeDialog(final boolean allowReload) {
@@ -360,6 +390,7 @@ public final class RequestManager {
 
     @Override
     public void dispose() {
+      Toolkit.getDefaultToolkit().removeAWTEventListener(outsideClickListener);
       if ((initiator != null) && (hierarchyBoundsListener != null)) {
         initiator.removeHierarchyBoundsListener(hierarchyBoundsListener);
       }
@@ -379,6 +410,22 @@ public final class RequestManager {
       }
     }
 
+    private boolean isPointerInsideComponent(final Component component) {
+      if ((component == null) || !component.isShowing()) {
+        return false;
+      }
+      final PointerInfo pointerInfo = MouseInfo.getPointerInfo();
+      if (pointerInfo == null) {
+        return false;
+      }
+      final Point pointerLoc = pointerInfo.getLocation();
+      final Point compLoc = component.getLocationOnScreen();
+      return (pointerLoc.x >= compLoc.x)
+          && (pointerLoc.x < (compLoc.x + component.getWidth()))
+          && (pointerLoc.y >= compLoc.y)
+          && (pointerLoc.y < (compLoc.y + component.getHeight()));
+    }
+
     private final class WindowListenerImpl implements WindowListener {
       private boolean closeHandled = false;
 
@@ -396,6 +443,17 @@ public final class RequestManager {
 
       @Override
       public void windowDeactivated(final WindowEvent e) {
+        if (!isVisible()) {
+          return;
+        }
+        final Window opposite = e.getOppositeWindow();
+        if ((opposite == ManageDialog.this) || (opposite == getOwner())) {
+          return;
+        }
+        if ((opposite == null) && isPointerInsideComponent(initiator)) {
+          return;
+        }
+        closeDialog(true);
       }
 
       @Override
