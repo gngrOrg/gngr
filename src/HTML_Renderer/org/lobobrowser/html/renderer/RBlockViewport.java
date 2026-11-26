@@ -916,9 +916,9 @@ public class RBlockViewport extends BaseRCollection {
   // return null;
   // }
   //
-  private static int getPosition(final HTMLElementImpl element) {
-    final RenderState rs = element.getRenderState();
-    return rs.getPosition();
+  private static int getPosition(final ModelNode node) {
+    final RenderState rs = node.getRenderState();
+    return rs == null ? RenderState.POSITION_STATIC : rs.getPosition();
   }
 
   /**
@@ -2790,7 +2790,7 @@ public class RBlockViewport extends BaseRCollection {
     final boolean isFloatLimit = this.isFloatLimit();
 
     boolean placementPending = true;
-    if (getPosition((HTMLElementImpl)modelNode) != RenderState.POSITION_STATIC) {
+    if (getPosition(modelNode) != RenderState.POSITION_STATIC) {
       addFloat(element, boxX, boxY);
       placementPending = false;
     }
@@ -2913,7 +2913,7 @@ public class RBlockViewport extends BaseRCollection {
     }
     this.floatBounds = new FloatingViewportBounds(prevBounds, leftFloat, newY, offsetFromBorder, renderable.getHeight());
 
-    if (ef.pendingPlacement && getPosition((HTMLElementImpl)modelNode) != RenderState.POSITION_STATIC) {
+    if (ef.pendingPlacement && getPosition(modelNode) != RenderState.POSITION_STATIC) {
       // System.out.println("Adding float as renderable to " + this);
       addFloat(renderable, newX, newY);
       ef.pendingPlacement = false;
