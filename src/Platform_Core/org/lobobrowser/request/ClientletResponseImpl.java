@@ -93,7 +93,10 @@ public class ClientletResponseImpl implements ClientletResponse {
   }
 
   public boolean isNewNavigationAction() {
-    final RequestType rt = this.requestType;
+    return isNewNavigationAction(this.requestType);
+  }
+
+  static boolean isNewNavigationAction(final RequestType rt) {
     return (rt != RequestType.HISTORY) && (rt != RequestType.SOFT_RELOAD) && (rt != RequestType.HARD_RELOAD);
   }
 

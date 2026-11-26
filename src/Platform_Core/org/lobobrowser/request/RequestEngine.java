@@ -738,7 +738,8 @@ public final class RequestEngine {
 
   private void processHandler(final RequestHandler rhandler, final int recursionLevel, final boolean trackRequestInfo) {
     // Method must be private.
-    final URL baseURL = rhandler.getLatestRequestURL();
+    final @NonNull URL baseURL = rhandler.getLatestRequestURL();
+    @NonNull URL requestURL = baseURL;
     RequestInfo rinfo = null;
     ClientletResponseImpl response = null;
     final String method = rhandler.getLatestRequestMethod().toUpperCase();
@@ -747,7 +748,8 @@ public final class RequestEngine {
       // TODO: Hack: instanceof below
       final ParameterInfo pinfo = rhandler instanceof RedirectRequestHandler ? null : request.getParameterInfo();
       final boolean isGet = "GET".equals(method);
-      final URL url = makeCompleteURL(baseURL, pinfo, isGet);
+      final @NonNull URL url = makeCompleteURL(baseURL, pinfo, isGet);
+      requestURL = url;
       final String protocol = url.getProtocol();
       final URL connectionUrl = makeConnectionURL(url, protocol);
       final CacheInfo cacheInfo = getCacheInfo(rhandler, connectionUrl, isGet);
@@ -888,7 +890,9 @@ public final class RequestEngine {
         logInfo("run(): Exception ignored because request aborted.", exception);
       } else {
         try {
-          if (!rhandler.handleException(response, exception, rhandler.getRequestType())) {
+          final ClientletResponse errorResponse = response != null ? response
+              : new ErrorClientletResponse(requestURL, method, rhandler.getRequestType(), exception);
+          if (!rhandler.handleException(errorResponse, exception, rhandler.getRequestType())) {
             logger.log(Level.WARNING, "Was unable to handle exception.", exception);
           }
         } catch (final Exception err) {
@@ -1000,7 +1004,7 @@ public final class RequestEngine {
     }
   }
 
-  private static URL makeCompleteURL(final URL baseURL, final ParameterInfo pinfo, final boolean isGet) throws Exception,
+  private static @NonNull URL makeCompleteURL(final @NonNull URL baseURL, final ParameterInfo pinfo, final boolean isGet) throws Exception,
       MalformedURLException {
     if (isGet && (pinfo != null)) {
       final String ref = baseURL.getRef();

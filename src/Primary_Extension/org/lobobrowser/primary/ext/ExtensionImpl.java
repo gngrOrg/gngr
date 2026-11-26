@@ -186,10 +186,11 @@ public class ExtensionImpl implements NavigatorExtension {
   private static String getErrorUrlText(final java.net.URL url, final String method) {
     final StringBuffer buf = new StringBuffer();
     final boolean isGet = "GET".equals(method);
+    final String externalForm = url.toExternalForm();
     if (isGet) {
-      buf.append("<a href=\"" + url.toExternalForm() + "\">");
+      buf.append("<a href=\"" + Html.escapeHtml(externalForm) + "\">");
     }
-    buf.append(Strings.truncate(url.toExternalForm(), 80));
+    buf.append(Html.escapeHtml(Strings.truncate(externalForm, 80)));
     if (isGet) {
       buf.append("</a>");
     }

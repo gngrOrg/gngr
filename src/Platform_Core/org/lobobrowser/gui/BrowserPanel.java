@@ -463,8 +463,9 @@ public class BrowserPanel extends JPanel implements NavigatorWindow, BrowserWind
       this.setDocumentTitle(title);
     }
 
+    final RequestType requestType = response == null ? null : response.getRequestType();
     final NavigatorWindowEvent event = new NavigatorWindowEvent(this, NavigatorEventType.DOCUMENT_RENDERING, frame, response,
-        response.getRequestType());
+        requestType);
     this.latestAccessedFrame = event.getNavigatorFrame();
     if (!EVENT.fireEvent(event)) {
       logger.warning("handleDocumentRendering(): Did not deliver event to any window: " + event);
