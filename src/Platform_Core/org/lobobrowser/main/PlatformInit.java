@@ -51,7 +51,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 
@@ -88,7 +87,7 @@ import okhttp3.Protocol;
 public class PlatformInit {
   private static final String NATIVE_DIR_NAME = "native";
   private static final long DAYS_MILLIS = 24 * 60 * 60 * 1000L;
-  private static final long TIMEOUT_DAYS = 120;
+  public static final long RELEASE_TIMEOUT_DAYS = 120;
   private static final String osName = System.getProperty("os.name").toLowerCase();
   public static final OS OS_NAME = osName.indexOf("win") > -1 ? OS.WINDOWS
       : (osName.indexOf("mac") > -1 ? OS.MAC
@@ -339,22 +338,50 @@ public class PlatformInit {
   public final Properties relProps = new Properties();
   public static final String RELEASE_VERSION_RELEASE_DATE = "version.releaseDate";
   public static final String RELEASE_VERSION_STRING = "version.string";
+  private volatile @Nullable Date releaseDate = null;
+
+  public boolean isReleaseOld() {
+    return isReleaseOld(System.currentTimeMillis());
+  }
+
+  public boolean isReleaseOld(final long currentTimeMillis) {
+    final Date relDate = this.releaseDate;
+    if (relDate == null) {
+      return false;
+    }
+    final Date releaseDatePlusTimeout = new Date(relDate.getTime() + (RELEASE_TIMEOUT_DAYS * DAYS_MILLIS));
+    return releaseDatePlusTimeout.before(new Date(currentTimeMillis));
+  }
 
   private void checkReleaseDate() {
+    checkReleaseDate(System.currentTimeMillis());
+  }
+
+  boolean checkReleaseDate(final long currentTimeMillis) {
     final InputStream relStream = getClass().getResourceAsStream("/properties/release.properties");
+    if (relStream == null) {
+      System.err.println("Unable to locate /properties/release.properties.");
+      System.exit(1);
+      return false;
+    }
     try {
       relProps.load(relStream);
       final String dateStr = relProps.getProperty(RELEASE_VERSION_RELEASE_DATE);
       final SimpleDateFormat yyyyMMDDFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
-      final Date releaseDate = yyyyMMDDFormat.parse(dateStr);
-      final Date releaseDatePlusTimeout = new Date(releaseDate.getTime() + (TIMEOUT_DAYS * DAYS_MILLIS));
-      final Date currDate = new Date(System.currentTimeMillis());
-      if (releaseDatePlusTimeout.before(currDate)) {
-        showOldVersionMessage(releaseDate);
+      final Date parsedReleaseDate = yyyyMMDDFormat.parse(dateStr);
+      this.releaseDate = parsedReleaseDate;
+      final boolean isOld = isReleaseOld(currentTimeMillis);
+      if (isOld) {
+        final String version = relProps.getProperty(RELEASE_VERSION_STRING);
+        Logger.getLogger(PlatformInit.class.getName()).warning(
+            "gngr " + version + " (released on " + dateStr + ") is more than " + RELEASE_TIMEOUT_DAYS
+                + " days old.");
       }
+      return isOld;
     } catch (IOException | ParseException e) {
       e.printStackTrace();
       System.exit(1);
+      return false;
     } finally {
       try {
         relStream.close();
@@ -362,17 +389,6 @@ public class PlatformInit {
         ioe.printStackTrace();
       }
     }
-  }
-
-  private void showOldVersionMessage(final Date releaseDate) {
-    final String version = relProps.getProperty(RELEASE_VERSION_STRING);
-    final String checkForUpdatesMessage = "<html><h3><center>This version of gngr is old</center></h3><p>gngr "
-        + version
-        + "</p><p>Released on: "
-        + releaseDate
-        + "</p><p>This version is more than " + TIMEOUT_DAYS
-        + " days old and was not intended for long-time use.</p><p>Please check if a newer version is available on https://gngr.info</p></html>";
-    JOptionPane.showMessageDialog(null, checkForUpdatesMessage);
   }
 
   /**

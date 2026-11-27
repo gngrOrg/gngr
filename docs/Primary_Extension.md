@@ -116,7 +116,7 @@ HtmlClientlet.process(ClientletContext)  [runs on RequestEngineThreadPool]
 ### 3.4 Custom URL Protocols (o.l.protocol.about + Common's o.l.protocol.data)
 - **PrimaryStreamHandlerFactory:** Maps "about" → o.l.protocol.about.Handler and "data" → Common's o.l.protocol.data.Handler.
 - **AboutURLConnection (text/html, UTF-8):**
-  - about:blank (empty), about:welcome (release version/date from PlatformInit.relProps + Request Manager tip), about:bookmarks, about:bookmark-search?<q> (all space-separated keywords must match; scores title/tag +8/+6, URL/description +3/+2, ordered by score then recency), about:java-properties (System.getProperties()), about:confirmSearch?<q> (direct https:// link + ToolsSettings search engines), and fallback list for unknown paths.
+  - about:blank (empty), about:welcome (release version/date from PlatformInit.relProps, old-version warning banner when PlatformInit.isReleaseOld() is true, and Request Manager tip), about:bookmarks, about:bookmark-search?<q> (all space-separated keywords must match; scores title/tag +8/+6, URL/description +3/+2, ordered by score then recency), about:java-properties (System.getProperties()), about:confirmSearch?<q> (direct https:// link + ToolsSettings search engines), and fallback list for unknown paths.
 
 ### 3.5 Settings, Preferences & Reusable GUI (o.l.p.settings, o.l.p.gui.*)
 - **ToolsSettings (Serializable singleton via StorageManager):** Persists searchEngines (defaults: DuckDuckGo [selected], Wikipedia, Google, Yahoo!), selectedSearchEngine, downloadDirectory, openFileDirectory. SearchEngine.getURL(query) appends ?/& + queryParameter=URLEncoder.encode(query, UTF-8).

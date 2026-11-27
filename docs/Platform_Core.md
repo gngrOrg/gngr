@@ -33,7 +33,7 @@ EntryPoint.main(args)  [checks stackDepth <= 11, enters doPrivileged]
        │    None found             ─► starts ReuseServer (random port 55000..64999), writes port.dat
        └─ PlatformInit:
             initLogging(debugOn)
-            init(): checkReleaseDate (120d popup) → initOtherProperties → initNative
+            init(): checkReleaseDate (loads relProps, logs warning if >120d old) → initOtherProperties → initNative
                     → initSecurity (LocalSecurityPolicy + LocalSecurityManager)
                     → initProtocols (OkHttp HTTP/1.1+HTTP/2 + res:/vc:)
                     → initHTTP (AuthenticatorImpl + NOPCookieHandlerImpl)
@@ -143,7 +143,7 @@ Two distinct layers:
   - Swing EDT: FramePanel.replaceContent(), UI dialogs (AuthenticationDialog, ManageDialog), window chrome updates.
 - **Security context propagation:** RequestEngine.scheduleRequest() captures AccessController.getContext() when a SecurityManager is active; ClientletRequestHandler temporarily sets ClientletAccess.setCurrentClientletContext() and thread context ClassLoader to the clientlet's classloader during clientlet.process().
 - **Gotchas:**
-  1. PlatformInit.checkReleaseDate() pops a blocking JOptionPane dialog if release.properties version.releaseDate is >120 days old.
+  1. PlatformInit.checkReleaseDate() loads release.properties and logs a non-blocking warning if version.releaseDate is >120 days old; about:welcome displays the old-version warning banner.
   2. CookieHandler.setDefault() is intentionally NOPCookieHandlerImpl; cookies flow through RequestEngine + RequestKind.Cookie permission checks instead.
   3. UserAgentContextImpl.isRequestPermitted() hardcodes false; real frame-backed requests use SilentUserAgentContextImpl (which delegates to FramePanel → RequestManager).
   4. CookieStore.saveCookie() currently persists secure=true, httpOnly=true literals when merging into H2 COOKIES (see CookieStore.java:119).

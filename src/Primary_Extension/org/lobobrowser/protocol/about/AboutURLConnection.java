@@ -184,14 +184,33 @@ public class AboutURLConnection extends URLConnection {
   }
 
   private static String getWelcomeMessage() {
-    final Properties relProps = PlatformInit.getInstance().relProps;
+    final PlatformInit platformInit = PlatformInit.getInstance();
+    return getWelcomeMessage(platformInit.relProps, platformInit.isReleaseOld());
+  }
+
+  static String getWelcomeMessage(final Properties relProps, final boolean releaseOld) {
+    final String rawVersion = relProps.getProperty(PlatformInit.RELEASE_VERSION_STRING);
+    final String rawReleaseDate = relProps.getProperty(PlatformInit.RELEASE_VERSION_RELEASE_DATE);
+    final String version = Html.escapeHtml(rawVersion == null ? "" : rawVersion);
+    final String releaseDate = Html.escapeHtml(rawReleaseDate == null ? "" : rawReleaseDate);
+
+    final String oldVersionBanner = releaseOld
+        ? "<div style='padding:1em;margin:1em auto;width:50em;background:#fdd;border:1px solid #c66;color:#600'>"
+            + "<h3 style='margin-top:0'>This version of gngr is old</h3>"
+            + "<p>This version (" + version + ", released on " + releaseDate + ") is more than "
+            + PlatformInit.RELEASE_TIMEOUT_DAYS + " days old and was not intended for long-time use.</p>"
+            + "<p style='margin-bottom:0'>Please check if a newer version is available at "
+            + "<a href='https://gngr.info'>https://gngr.info</a>.</p>"
+            + "</div>"
+        : "";
 
     return
         "<div style='max-width:900px;margin:0 auto;text-align:center;'>"
         +
         "<h1>Welcome to gngr</h1>" +
-        "<p>Version: " + relProps.getProperty(PlatformInit.RELEASE_VERSION_STRING) + "<br/>" +
-        "Published on: " + relProps.getProperty(PlatformInit.RELEASE_VERSION_RELEASE_DATE) + "</p>" +
+        "<p>Version: " + version + "<br/>" +
+        "Published on: " + releaseDate + "</p>" +
+        oldVersionBanner +
         "<p><b><a href='https://gngr.info'>gngr</a></b> is a browser that cares deeply about privacy.</p>"
         +
         "<p>It is currently a proof-of-concept, and not very stable or secure.</p>"
