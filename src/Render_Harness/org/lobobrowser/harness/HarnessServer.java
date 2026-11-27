@@ -37,6 +37,8 @@ import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -57,19 +59,41 @@ import org.w3c.dom.Document;
 public class HarnessServer implements Runnable {
   private static final Logger logger = Logger.getLogger(HarnessServer.class.getName());
 
+  static final long DEFAULT_LAYOUT_BLOCK_TIMEOUT_MS = 10_000L;
+  static final long DEFAULT_LAYOUT_COMPLETION_TIMEOUT_MS = 10_000L;
+  static final long DEFAULT_READY_TO_PAINT_TIMEOUT_MS = 5_000L;
+  private static final long BLANK_DOC_TIMEOUT_MS = 2_000L;
+  private static final long BLANK_DOC_POLL_INTERVAL_MS = 5L;
+  private static final long LAYOUT_BLOCK_POLL_INTERVAL_MS = 10L;
+  private static final long READY_POLL_INTERVAL_MS = 20L;
+
   private final HtmlPanel panel;
   private final UserAgentContext ucontext;
   private final HarnessHtmlRendererContext rcontext;
   private final ServerSocket socket;
+  private final long layoutBlockTimeoutMs;
+  private final long layoutCompletionTimeoutMs;
+  private final long readyToPaintTimeoutMs;
 
   private volatile int currentWidth = 900;
   private volatile int currentHeight = 900;
   private volatile boolean done = false;
 
   public HarnessServer(final HtmlPanel panel, final UserAgentContext ucontext, final HarnessHtmlRendererContext rcontext) throws IOException {
+    this(panel, ucontext, rcontext,
+        DEFAULT_LAYOUT_BLOCK_TIMEOUT_MS,
+        DEFAULT_LAYOUT_COMPLETION_TIMEOUT_MS,
+        DEFAULT_READY_TO_PAINT_TIMEOUT_MS);
+  }
+
+  HarnessServer(final HtmlPanel panel, final UserAgentContext ucontext, final HarnessHtmlRendererContext rcontext,
+      final long layoutBlockTimeoutMs, final long layoutCompletionTimeoutMs, final long readyToPaintTimeoutMs) throws IOException {
     this.panel = panel;
     this.ucontext = ucontext;
     this.rcontext = rcontext;
+    this.layoutBlockTimeoutMs = Math.max(0L, layoutBlockTimeoutMs);
+    this.layoutCompletionTimeoutMs = Math.max(0L, layoutCompletionTimeoutMs);
+    this.readyToPaintTimeoutMs = Math.max(0L, readyToPaintTimeoutMs);
     this.socket = new ServerSocket(0, 50, InetAddress.getByAddress(new byte[] { 127, 0, 0, 1 }));
 
     loadBlankDocument();
@@ -95,10 +119,8 @@ public class HarnessServer implements Runnable {
         panel.setDocument(doc, rcontext);
       });
       doc.finishModifications();
-      final long blockStart = System.currentTimeMillis();
-      while (doc.layoutBlocked.get() && (System.currentTimeMillis() - blockStart < 2000)) {
-        Thread.sleep(5);
-      }
+      waitUntil(() -> !doc.layoutBlocked.get(), BLANK_DOC_TIMEOUT_MS, BLANK_DOC_POLL_INTERVAL_MS,
+          () -> "Timed out after " + BLANK_DOC_TIMEOUT_MS + "ms waiting for blank document layout unblock");
       SwingUtilities.invokeAndWait(() -> {
         panel.validate();
         panel.doLayout();
@@ -107,6 +129,9 @@ public class HarnessServer implements Runnable {
           c.doLayout();
         }
       });
+    } catch (InterruptedException ie) {
+      Thread.currentThread().interrupt();
+      logger.log(Level.WARNING, "Interrupted initializing blank document", ie);
     } catch (Exception e) {
       logger.log(Level.WARNING, "Error initializing blank document", e);
     }
@@ -287,16 +312,11 @@ public class HarnessServer implements Runnable {
       doc.finishModifications();
 
       // Wait for layout-blocking jobs (e.g. external <link> stylesheets) and in-flight requests to finish
-      final long blockStart = System.currentTimeMillis();
-      while ((doc.layoutBlocked.get() || HarnessNetworkRequest.getActiveRequestCount() > 0)
-          && (System.currentTimeMillis() - blockStart < 10000)) {
-        try {
-          Thread.sleep(10);
-        } catch (InterruptedException ie) {
-          Thread.currentThread().interrupt();
-          break;
-        }
-      }
+      waitUntil(() -> !doc.layoutBlocked.get() && HarnessNetworkRequest.getActiveRequestCount() == 0,
+          layoutBlockTimeoutMs, LAYOUT_BLOCK_POLL_INTERVAL_MS, () ->
+              "Timed out after " + layoutBlockTimeoutMs + "ms waiting for layout unblock/network requests for " + url
+                  + " (layoutBlocked=" + doc.layoutBlocked.get()
+                  + ", activeRequests=" + HarnessNetworkRequest.getActiveRequestCount() + ")");
 
       // Trigger layout on EDT now that layout is unblocked and external stylesheets are loaded
       SwingUtilities.invokeAndWait(() -> {
@@ -314,25 +334,27 @@ public class HarnessServer implements Runnable {
       final Future<Boolean> layoutFuture = panel.layoutCompletion();
       if (layoutFuture != null) {
         try {
-          layoutFuture.get(10, TimeUnit.SECONDS);
-        } catch (Exception te) {
-          logger.log(Level.WARNING, "Layout completion timeout for " + url, te);
+          final Boolean completed = layoutFuture.get(layoutCompletionTimeoutMs, TimeUnit.MILLISECONDS);
+          if (Boolean.FALSE.equals(completed)) {
+            throw new IOException("Layout failed for " + url);
+          }
+        } catch (TimeoutException te) {
+          throw new TimeoutException(
+              "Timed out after " + layoutCompletionTimeoutMs + "ms waiting for layout completion for " + url);
         }
       }
 
       // Wait until ready to paint and no active network requests remain
-      final long start = System.currentTimeMillis();
-      while ((!isReadyToPaint() || HarnessNetworkRequest.getActiveRequestCount() > 0)
-          && (System.currentTimeMillis() - start < 5000)) {
-        try {
-          Thread.sleep(20);
-        } catch (InterruptedException ie) {
-          Thread.currentThread().interrupt();
-          break;
-        }
-      }
+      waitUntilReadyToPaint("ready-to-paint after navigation to " + url);
 
       markDoneAndWaitForAck(s, br, 0);
+    } catch (InterruptedException ie) {
+      Thread.currentThread().interrupt();
+      logger.log(Level.WARNING, "Interrupted while navigating to: " + path, ie);
+      markDoneAndWaitForAck(s, br, 1);
+    } catch (TimeoutException te) {
+      logger.log(Level.WARNING, "Timed out while navigating to: " + path + " - " + te.getMessage(), te);
+      markDoneAndWaitForAck(s, br, 1);
     } catch (Exception e) {
       logger.log(Level.WARNING, "Failed to navigate to: " + path, e);
       markDoneAndWaitForAck(s, br, 1);
@@ -340,15 +362,21 @@ public class HarnessServer implements Runnable {
   }
 
   private void handleScreenShot(final Socket s, final BufferedReader br) throws IOException {
-    final long start = System.currentTimeMillis();
-    while ((!isReadyToPaint() || HarnessNetworkRequest.getActiveRequestCount() > 0)
-        && (System.currentTimeMillis() - start < 5000)) {
-      try {
-        Thread.sleep(20);
-      } catch (InterruptedException ie) {
-        Thread.currentThread().interrupt();
-        break;
-      }
+    try {
+      waitUntilReadyToPaint("screenshot capture");
+    } catch (InterruptedException ie) {
+      Thread.currentThread().interrupt();
+      logger.log(Level.WARNING, "Interrupted while waiting for screenshot readiness", ie);
+      writeScreenshotError(s);
+      return;
+    } catch (TimeoutException te) {
+      logger.log(Level.WARNING, "Screenshot readiness timeout: " + te.getMessage(), te);
+      writeScreenshotError(s);
+      return;
+    } catch (InvocationTargetException ite) {
+      logger.log(Level.SEVERE, "Error checking screenshot readiness", ite);
+      writeScreenshotError(s);
+      return;
     }
 
     panel.disableRenderHints();
@@ -367,8 +395,15 @@ public class HarnessServer implements Runnable {
         }
         panel.paint(g);
       });
+    } catch (InterruptedException ie) {
+      Thread.currentThread().interrupt();
+      logger.log(Level.SEVERE, "Interrupted while painting component for screenshot", ie);
+      writeScreenshotError(s);
+      return;
     } catch (Exception e) {
       logger.log(Level.SEVERE, "Error painting component", e);
+      writeScreenshotError(s);
+      return;
     } finally {
       g.dispose();
     }
@@ -385,6 +420,12 @@ public class HarnessServer implements Runnable {
 
     // Wait for ACK
     br.readLine();
+  }
+
+  private static void writeScreenshotError(final Socket s) throws IOException {
+    final DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+    dos.writeInt(-1);
+    dos.flush();
   }
 
   private void handleClose(final Socket s, final BufferedReader br) throws IOException {
@@ -405,6 +446,40 @@ public class HarnessServer implements Runnable {
     RenderHarnessMain.shutdown();
   }
 
+  @FunctionalInterface
+  private interface ReadyCondition {
+    boolean isSatisfied() throws InterruptedException, InvocationTargetException;
+  }
+
+  private static void waitUntil(final ReadyCondition condition, final long timeoutMs, final long pollIntervalMs,
+      final Supplier<String> timeoutMessageSupplier)
+      throws TimeoutException, InterruptedException, InvocationTargetException {
+    final long timeoutNanos = TimeUnit.MILLISECONDS.toNanos(Math.max(0L, timeoutMs));
+    final long deadlineNanos = System.nanoTime() + timeoutNanos;
+    while (!condition.isSatisfied()) {
+      final long remainingNanos = deadlineNanos - System.nanoTime();
+      if (remainingNanos <= 0L) {
+        throw new TimeoutException(timeoutMessageSupplier.get());
+      }
+      final long remainingMs = TimeUnit.NANOSECONDS.toMillis(remainingNanos);
+      final long sleepMs = Math.max(1L, Math.min(pollIntervalMs, remainingMs));
+      Thread.sleep(sleepMs);
+    }
+  }
+
+  private void waitUntilReadyToPaint(final String context)
+      throws TimeoutException, InterruptedException, InvocationTargetException {
+    final boolean[] lastReady = { false };
+    waitUntil(() -> {
+      final boolean ready = isReadyToPaint();
+      lastReady[0] = ready;
+      return ready && HarnessNetworkRequest.getActiveRequestCount() == 0;
+    }, readyToPaintTimeoutMs, READY_POLL_INTERVAL_MS, () ->
+        "Timed out after " + readyToPaintTimeoutMs + "ms waiting for " + context
+            + " (readyToPaint=" + lastReady[0]
+            + ", activeRequests=" + HarnessNetworkRequest.getActiveRequestCount() + ")");
+  }
+
   private class ReadyChecker implements Runnable {
     boolean isReady = false;
 
@@ -414,14 +489,10 @@ public class HarnessServer implements Runnable {
     }
   }
 
-  private boolean isReadyToPaint() {
-    try {
-      final ReadyChecker checker = new ReadyChecker();
-      SwingUtilities.invokeAndWait(checker);
-      return checker.isReady;
-    } catch (Exception e) {
-      return true;
-    }
+  private boolean isReadyToPaint() throws InterruptedException, InvocationTargetException {
+    final ReadyChecker checker = new ReadyChecker();
+    SwingUtilities.invokeAndWait(checker);
+    return checker.isReady;
   }
 
   private static void markDoneAndWaitForAck(final Socket s, final BufferedReader br, final int status) throws IOException {

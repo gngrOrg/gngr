@@ -40,15 +40,15 @@ HarnessServer (daemon thread "HarnessGrinderServer", 120s socket timeout, 1 comm
   │    2. DocumentBuilderImpl.createDocument(is, mimeType) ─► doc.load(false)
   │    3. EDT: panel.setSize/setBounds + panel.setDocument(doc, rcontext)
   │    4. doc.finishModifications()
-  │    5. Poll (≤10s, 10ms) until !doc.layoutBlocked && activeRequests == 0
+  │    5. Poll (≤10s, 10ms) until !doc.layoutBlocked && activeRequests == 0 (timeout → status 1)
   │    6. EDT: panel + child components validate() & doLayout()
-  │    7. panel.layoutCompletion().get(10s)
-  │    8. Poll (≤5s, 20ms) until panel.isReadyToPaint() && activeRequests == 0
-  │    9. Write int 0 (or 1 on error) ─► read ACK line
+  │    7. panel.layoutCompletion().get(10s) (timeout/failure → status 1)
+  │    8. Poll (≤5s, 20ms) until panel.isReadyToPaint() && activeRequests == 0 (timeout/failure → status 1)
+  │    9. Write int 0 (or 1 on timeout/error) ─► read ACK line
   ├─ SET_SIZE <w> <h>   ─► update currentWidth/Height ─► EDT resize + validate/doLayout ─► write 0 + ACK
-  ├─ SCREENSHOT         ─► poll (≤5s) ready & activeRequests==0 ─► panel.disableRenderHints()
-  │                       ─► EDT doLayout + panel.paint(BufferedImage TYPE_INT_ARGB)
-  │                       ─► ImageIO PNG ─► write int len + bytes ─► read ACK line
+  ├─ SCREENSHOT         ─► poll (≤5s, 20ms) ready & activeRequests==0 (timeout/failure → write int -1, skip paint)
+  │                       ─► panel.disableRenderHints() ─► EDT doLayout + panel.paint(BufferedImage TYPE_INT_ARGB)
+  │                       ─► (paint error → write int -1) ─► ImageIO PNG ─► write int len + bytes ─► read ACK line
   ├─ CLOSE              ─► reload blank doc, set done=true, close command socket
   └─ QUIT               ─► close command socket ─► RenderHarnessMain.shutdown() (delete port.dat, System.exit(0))
 ```
@@ -88,8 +88,7 @@ HarnessServer (daemon thread "HarnessGrinderServer", 120s socket timeout, 1 comm
   4. **CLOSE / QUIT protocol asymmetry:** Unlike TO/SET_SIZE, handleClose() and handleQuit() do not write a status int or read an ACK line before closing the socket.
   5. **HarnessNetworkRequest limitations:** Ignores asyncFlag, POST content body, userName/password, SRI integrity, and Request kind; getResponseXML() always returns null; executeRequest() attempts ImageIO.read() on every response (including CSS), swallowing decode errors.
   6. **Subframe (<iframe>) limitations:** HarnessHtmlRendererContext.createBrowserFrame() constructs a plain new HtmlPanel() (not createOffscreenHtmlPanel()), hardcodes UTF-8, never calls doc.finishModifications(), shares the parent HarnessHtmlRendererContext, and getFrames() always returns an empty HTMLCollection.
-  7. **Silent timeout fallthrough:** Wait loops in handleTo() (10s layoutBlocked/layoutCompletion, 5s isReadyToPaint) and handleScreenShot() (5s) log or exit silently on timeout and proceed to return 0 / paint partial output.
-  8. **JS flag mismatch:** HarnessUserAgentContext.isScriptingEnabled() is false, while isRequestPermitted() returns true for all RequestKinds (including JavaScript).
+  7. **JS flag mismatch:** HarnessUserAgentContext.isScriptingEnabled() is false, while isRequestPermitted() returns true for all RequestKinds (including JavaScript).
 
 ## 5. Task-to-File Quick Index
 
