@@ -1,6 +1,6 @@
 # HTML_Renderer Design Overview
 
-Scope: src/HTML_Renderer/org/ (~231 Java files, ~50k LOC; Cobra/Lobo-derived HTML/CSS/DOM/JS/Swing engine used by Primary_Extension and Render_Harness).
+Scope: src/HTML_Renderer/org/ (~233 Java files, ~50k LOC; Cobra/Lobo-derived HTML/CSS/DOM/JS/Swing engine used by Primary_Extension and Render_Harness).
 Prefix shorthand: o.l. = org.lobobrowser., o.l.h. = org.lobobrowser.html.. (org/w3c/COPYRIGHT.html is license notice only.)
 
 ## 1. Package Map
@@ -14,7 +14,7 @@ Prefix shorthand: o.l. = org.lobobrowser., o.l.h. = org.lobobrowser.html.. (org/
 | o.l.h.style | 26 | CSS cascade bridge (jStyleParser), computed/local JStyleProperties, RenderState chain, unit/value parsers |
 | o.l.h.renderer | 75 | Box/line/float/positioned/table layout, painting, Swing form/img/frame UIControls, HtmlController input dispatch |
 | o.l.h.gui | 6 | Swing host components: HtmlPanel, HtmlBlockPanel, FrameSetPanel, DocumentNotification, selection events |
-| o.l.h.js | 16 | Browser JS runtime: Window (+ JSScheduler), Executor, EventTargetManager, Event, XMLHttpRequest, Location, History, Navigator, Screen, Storage, Rhino security controllers |
+| o.l.h.js | 18 | Browser JS runtime: Window (+ JSScheduler), Executor, EventTargetManager, Event, XMLHttpRequest, JSURL (URL), URLSearchParams, Location, History, Navigator, Screen, Storage, Rhino security controllers |
 | o.l.js | 11 | Generic Java↔Rhino reflection bridge: JavaScript, JavaObjectWrapper, JavaClassWrapper, JavaFunctionObject, JavaConstructorObject, ScriptableDelegate, @HideFromJS |
 
 **External dependencies:**
@@ -161,19 +161,19 @@ Renderable
 
 ### 3.7 JavaScript Engine & Bridge (o.l.js, o.l.h.js)
 - **Java↔Rhino Bridge (o.l.js):**
-  - JavaScript.getJavascriptObject(raw, scope): passes through primitives/Strings/arrays/Scriptables; caches JavaObjectWrapper directly on ScriptableDelegate instances (most DOM/BOM objects extend AbstractScriptableDelegate), or uses a weak-key/weak-value map otherwise.
+  - JavaScript.getJavascriptObject(raw, scope): passes through primitives/Strings/arrays/Scriptables; caches JavaObjectWrapper directly on ScriptableDelegate instances (most DOM/BOM objects extend AbstractScriptableDelegate), or uses a weak-key/weak-value map otherwise. Note: raw Java arrays (`T[]`) pass through as Java arrays rather than JS `Array`s, so methods returning JS arrays should construct them via `Context.newArray(scope, ...)`.
   - JavaClassWrapper (cached by JavaClassWrapperFactory): reflects public methods/fields once per class:
-    - Blocks methods declared in java.* and methods annotated @HideFromJS.
+    - Blocks methods declared in java.* (so host classes needing `.toString()` in JS must override `public String toString()` directly) and methods annotated @HideFromJS.
     - getX/isX (0 args) and setX (1 arg, void) become JS properties unless annotated @NotGetterSetter; @PropertyName overrides JS name.
     - item(i)/setItem → integer indexer; namedItem(s)/setNamedItem → name indexer.
-    - Overloaded methods group into JavaFunctionObject; constructors use JavaConstructorObject + JavaInstantiator; public static final fields expose as constants.
+    - Overloaded methods group into JavaFunctionObject; constructors use JavaConstructorObject + JavaInstantiator; public static final fields expose as constants. Note: `JavaConstructorObject` passes raw Rhino `Object[]` args to `JavaInstantiator` without calling `setScriptable()` on the delegate; wrapped host objects arrive as `JavaObjectWrapper` (whose Java `.toString()` returns `"JavaObjectWrapper[...]"`) so instantiators must convert string args via `ScriptRuntime.toString(arg)` and capture the window `Scriptable` scope explicitly when needed.
   - JavaScript.init() installs a throwing global ContextFactory so all execution must use a Window's ContextFactory.
 - **Browser Runtime (o.l.h.js):**
-  - Window: weakly cached per HtmlRendererContext (CONTEXT_WINDOWS). setDocument() runs onunload, calls clearState() (stops doc jobs, winds up JSScheduler, resets EventTargetManager, cancels timers, clears windowScope), initializes scope (initSafeStandardObjects, console, XMLHttpRequest, Path2D, Event, localStorage/sessionStorage dummy Storage, element constructors Image/Script/IFrame/Option/Select/HTMLDivElement/Comment/Text), and starts JSScheduler.
+  - Window: weakly cached per HtmlRendererContext (CONTEXT_WINDOWS). setDocument() runs onunload, calls clearState() (stops doc jobs, winds up JSScheduler, resets EventTargetManager, cancels timers, clears windowScope), initializes scope (initSafeStandardObjects, console, XMLHttpRequest, Path2D, Event, URL, URLSearchParams, localStorage/sessionStorage dummy Storage, element constructors Image/Script/IFrame/Option/Select/HTMLDivElement/Comment/Text), and starts JSScheduler.
   - Window.JSScheduler: dedicated thread draining a PriorityBlockingQueue<ScheduledTask> (checks UserAgentContext.isRequestPermitted(..., JavaScript) and runs under captured AccessControlContext). Timers (setTimeout/setInterval) use Swing javax.swing.Timer whose ActionListener enqueues onto JSScheduler.
   - Window.MyContextFactory: Rhino VERSION_1_8, interpreter mode (optimizationLevel = -1), V8 extensions enabled, ClassShutter blocking java.* (except java.lang.Object and java.lang.*Exception), instruction observer every 100k ops throwing WindowClosingError on unload.
   - Executor: enters Window's ContextFactory, attaches PolicySecurityController (enforces non-null CodeSource per script), seals Context, invokes JS functions with event bound.
-  - EventTargetManager: stores per-NodeImpl (IdentityHashMap) EventListener and Rhino Function lists; dispatchEvent() builds target→ancestors propagation path and enqueues a JSEventTask on Window.JSScheduler (AT_TARGET + BUBBLING only; capture phase & Window in path are TODO).
+  - EventTargetManager: stores per-NodeImpl (IdentityHashMap) EventListener and Rhino Function lists; dispatchEvent() builds target→ancestors propagation path and enqueues a JSEventTask on Window.JSScheduler that scans listeners per node along the path (AT_TARGET + BUBBLING_PHASE), sets `Event.currentTarget`, and honors `stopPropagation()` and `stopImmediatePropagation()` (capture phase & Window in path are TODO).
   - XMLHttpRequest: wraps UserAgentContext.createHttpRequest() (NetworkRequest), dispatches onreadystatechange onto JSScheduler.
 
 ## 4. Concurrency, Invariants & Known Quirks
@@ -191,6 +191,8 @@ Renderable
   4. HTMLLinkElementImpl is shared by <link> and <a> (ElementFactory).
   5. Window instances are reused across documents in the same HtmlRendererContext (reset via clearState()).
   6. HtmlBlockPanel.doLayout() is a no-op while doc.layoutBlocked is true (until finishModifications() and all layoutBlocker jobs finish).
+  7. HtmlController.onMouseClick() invokes HTMLLinkElementImpl.navigate() before target.dispatchEvent(jsEvent) (and dispatchEvent() is async on JSScheduler), so event.preventDefault() cannot cancel navigation on normal <a href="..."> links; only href="javascript:..." and href="#..." (where navigate() returns false) continue to delegated DOM click listeners.
+  8. HTMLDocumentImpl sets `this.document = this`, so `document.getOwnerDocument()` returns `this` rather than `null` (non-standard W3C DOM, relied on by `NodeImpl.addEventListener()` and `Executor.executeFunction()` when dispatching events on `document`).
 
 ## 5. Task-to-File Quick Index
 
@@ -206,5 +208,5 @@ Renderable
 | Form controls, images, iframes, <hr> | html/renderer/RUIControl.java, BaseInputControl.java, Input*Control.java, ImgControl.java, BrowserFrameUIControl.java |
 | Swing integration, scrolling, selection, repainting | html/gui/HtmlPanel.java, HtmlBlockPanel.java, FrameSetPanel.java |
 | Click/hover/form events | html/renderer/HtmlController.java, html/js/EventTargetManager.java, Event.java |
-| JS runtime, timers, XHR, Rhino sandbox | html/js/Window.java, Executor.java, PolicySecurityController.java, XMLHttpRequest.java |
+| JS runtime, timers, XHR, Rhino sandbox | html/js/Window.java, Executor.java, PolicySecurityController.java, XMLHttpRequest.java, JSURL.java, URLSearchParams.java |
 | Exposing/hiding Java methods to JS | js/JavaClassWrapper.java, JavaObjectWrapper.java, JavaScript.java, HideFromJS.java |

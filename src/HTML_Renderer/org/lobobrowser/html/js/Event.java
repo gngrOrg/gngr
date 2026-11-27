@@ -39,6 +39,9 @@ public class Event extends AbstractScriptableDelegate implements org.w3c.dom.eve
   private String type;
   private final java.awt.event.InputEvent inputEvent;
   private boolean propagationStopped = false;
+  private boolean immediatePropagationStopped = false;
+  private boolean defaultPrevented = false;
+  private EventTarget currentTarget = null;
   private final boolean bubbles;
 
   public Event(final String type, final Node srcElement, final boolean bubbles) {
@@ -212,8 +215,12 @@ public class Event extends AbstractScriptableDelegate implements org.w3c.dom.eve
 
   @Override
   public EventTarget getCurrentTarget() {
-    System.out.println("TODO: Event.getCurrentTarget()");
-    return null;
+    return this.currentTarget;
+  }
+
+  @HideFromJS
+  public void setCurrentTarget(final EventTarget currentTarget) {
+    this.currentTarget = currentTarget;
   }
 
   private short currentPhase = 0;
@@ -252,14 +259,28 @@ public class Event extends AbstractScriptableDelegate implements org.w3c.dom.eve
     System.out.println("Event.stopPropagation()");
   }
 
+  public void stopImmediatePropagation() {
+    this.immediatePropagationStopped = true;
+    this.propagationStopped = true;
+  }
+
   // TODO: Hide from JS
   public boolean isPropagationStopped() {
     return propagationStopped;
   }
 
+  @HideFromJS
+  public boolean isImmediatePropagationStopped() {
+    return this.immediatePropagationStopped;
+  }
+
   @Override
   public void preventDefault() {
-    System.out.println("TODO: Event.preventDefault()");
+    this.defaultPrevented = true;
+  }
+
+  public boolean getDefaultPrevented() {
+    return this.defaultPrevented;
   }
 
   @Override

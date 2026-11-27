@@ -106,6 +106,12 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
   private static final JavaClassWrapper EVENT_WRAPPER = JavaClassWrapperFactory.getInstance()
       .getClassWrapper(Event.class);
 
+  private static final JavaClassWrapper URL_WRAPPER = JavaClassWrapperFactory.getInstance()
+      .getClassWrapper(JSURL.class);
+
+  private static final JavaClassWrapper URLSEARCHPARAMS_WRAPPER = JavaClassWrapperFactory.getInstance()
+      .getClassWrapper(URLSearchParams.class);
+
   // Timer ids should begin counting from 1 or more.
   // jQuery's ajax polling handler relies on a non-zero value (uses it as a boolean condition)
   // Chromium 37 starts counting from 1 while Firefox 32 starts counting from 2 (from developer consoles and plugins installed)
@@ -887,6 +893,34 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
       }
     };
     defineInstantiator(ws, "Event", EVENT_WRAPPER, ei);
+
+    defineInstantiator(ws, "URL", URL_WRAPPER, new JavaInstantiator() {
+      public Object newInstance(final Object[] args) {
+        if (args == null || args.length == 0 || args[0] == null || args[0] == Context.getUndefinedValue()) {
+          throw ScriptRuntime.constructError("TypeError", "Failed to construct 'URL': 1 argument required");
+        }
+        final String urlStr = ScriptRuntime.toString(args[0]);
+        final String baseStr = (args.length > 1 && args[1] != null && args[1] != Context.getUndefinedValue())
+            ? ScriptRuntime.toString(args[1])
+            : null;
+        return new JSURL(urlStr, baseStr, ws);
+      }
+    });
+
+    defineInstantiator(ws, "URLSearchParams", URLSEARCHPARAMS_WRAPPER, new JavaInstantiator() {
+      public Object newInstance(final Object[] args) {
+        if (args == null || args.length == 0 || args[0] == null || args[0] == Context.getUndefinedValue()) {
+          return new URLSearchParams("", ws, null);
+        }
+        if (args[0] instanceof JavaObjectWrapper) {
+          final Object raw = ((JavaObjectWrapper) args[0]).getJavaObject();
+          if (raw instanceof URLSearchParams) {
+            return new URLSearchParams((URLSearchParams) raw, ws);
+          }
+        }
+        return new URLSearchParams(ScriptRuntime.toString(args[0]), ws, null);
+      }
+    });
 
     // We can use a single shared instance since it is dummy for now
     ScriptableObject.putProperty(ws, "localStorage", STORAGE);

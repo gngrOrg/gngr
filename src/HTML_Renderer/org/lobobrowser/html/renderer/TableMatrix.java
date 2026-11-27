@@ -484,6 +484,9 @@ final class TableMatrix {
         if (cn instanceof HTMLElementImpl) {
           final HTMLElementImpl ce = (HTMLElementImpl) cn;
           final int display = ce.getRenderState().getDisplay();
+          if (display == RenderState.DISPLAY_NONE) {
+            continue;
+          }
           if (display == RenderState.DISPLAY_TABLE_ROW_GROUP || display == RenderState.DISPLAY_TABLE_HEADER_GROUP
               || display == RenderState.DISPLAY_TABLE_FOOTER_GROUP) {
             processRowGroup(ce, rowRelation);
@@ -539,6 +542,9 @@ final class TableMatrix {
         if (cn instanceof HTMLElementImpl) {
           final HTMLElementImpl ce = (HTMLElementImpl) cn;
           final int display = ce.getRenderState().getDisplay();
+          if (display == RenderState.DISPLAY_NONE) {
+            continue;
+          }
           if (display == RenderState.DISPLAY_TABLE_CELL) {
             processCell(ce, rowGroupElem, rowE, rowRelation);
           } else {
@@ -558,6 +564,9 @@ final class TableMatrix {
         if (cn instanceof HTMLElementImpl) {
           final HTMLElementImpl ce = (HTMLElementImpl) cn;
           final int display = ce.getRenderState().getDisplay();
+          if (display == RenderState.DISPLAY_NONE) {
+            continue;
+          }
           if (display == RenderState.DISPLAY_TABLE_ROW) {
             processRow(ce, rowGroupElem, rowRelation);
           } else {

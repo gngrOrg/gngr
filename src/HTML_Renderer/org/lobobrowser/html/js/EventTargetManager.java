@@ -14,35 +14,51 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.events.EventException;
 import org.w3c.dom.events.EventListener;
+import org.w3c.dom.events.EventTarget;
 
 public final class EventTargetManager {
 
   private final class JSEventTask extends JSRunnableTask {
-    private final NodeImpl node;
     private final Event evt;
     private final List<NodeImpl> propagationPath;
-    private List<EventListener> handlers;
-    private List<Function> functions;
 
-    private JSEventTask(final int priority, final String description, final List<NodeImpl> propagationPath, final NodeImpl node, final Event evt) {
+    private JSEventTask(final int priority, final String description, final List<NodeImpl> propagationPath, final Event evt) {
       super(priority, description, () -> { });
-      this.node = node;
       this.evt = evt;
       this.propagationPath = propagationPath;
     }
 
+    @Override
     public boolean shouldExecute() {
-      handlers = getListenerList(evt.getType(), node, false);
-      functions = getFunctionList(evt.getType(), node, false);
-      return (handlers != null && handlers.size() > 0) || (functions != null && functions.size() > 0);
+      final String type = evt.getType();
+      for (final NodeImpl currNode : propagationPath) {
+        final List<EventListener> nodeHandlers = getListenerList(type, currNode, false);
+        final List<Function> nodeFunctions = getFunctionList(type, currNode, false);
+        if ((nodeHandlers != null && !nodeHandlers.isEmpty())
+            || (nodeFunctions != null && !nodeFunctions.isEmpty())) {
+          return true;
+        }
+      }
+      return false;
     }
 
+    @Override
     public void run() {
-      for (int i = 0; (i < propagationPath.size()) && !evt.isPropagationStopped(); i++) {
-        final NodeImpl currNode = propagationPath.get(i);
-        dispatchEventToHandlers(currNode, evt, handlers);
-        dispatchEventToJSHandlers(currNode, evt, functions);
-        evt.setPhase(org.w3c.dom.events.Event.BUBBLING_PHASE);
+      final String type = evt.getType();
+      try {
+        for (int i = 0; (i < propagationPath.size()) && !evt.isPropagationStopped(); i++) {
+          final NodeImpl currNode = propagationPath.get(i);
+          evt.setPhase(i == 0 ? org.w3c.dom.events.Event.AT_TARGET : org.w3c.dom.events.Event.BUBBLING_PHASE);
+          evt.setCurrentTarget(currNode instanceof EventTarget ? (EventTarget) currNode : null);
+          final List<EventListener> nodeHandlers = getListenerList(type, currNode, false);
+          dispatchEventToHandlers(currNode, evt, nodeHandlers);
+          if (!evt.isImmediatePropagationStopped()) {
+            final List<Function> nodeFunctions = getFunctionList(type, currNode, false);
+            dispatchEventToJSHandlers(currNode, evt, nodeFunctions);
+          }
+        }
+      } finally {
+        evt.setCurrentTarget(null);
       }
     }
   }
@@ -143,7 +159,7 @@ public final class EventTargetManager {
     // TODO: Capture phase, and distinction between target phase and bubbling phase
     evt.setPhase(org.w3c.dom.events.Event.AT_TARGET);
     // TODO: The JS Task should be added with the correct base URL
-    window.addJSTask(new JSEventTask(0, "Event dispatch for " + evt, propagationPath, node, evt));
+    window.addJSTask(new JSEventTask(0, "Event dispatch for " + evt, propagationPath, evt));
 
     // dispatchEventToHandlers(node, evt);
     // dispatchEventToJSHandlers(node, evt);
@@ -177,10 +193,9 @@ public final class EventTargetManager {
       // This is to avoid ConcurrentModificationException during dispatch
       final ArrayList<EventListener> handlersCopy = new ArrayList<>(handlers);
       for (final EventListener h : handlersCopy) {
-        // TODO: Not sure if we should stop calling handlers after propagation is stopped
-        // if (event.isPropagationStopped()) {
-        // return;
-        // }
+        if (event.isImmediatePropagationStopped()) {
+          break;
+        }
 
         if (handlers.contains(h)) {
           // window.addJSTask(new JSRunnableTask(0, "Event dispatch for: " + event, new Runnable(){
@@ -204,10 +219,9 @@ public final class EventTargetManager {
       // This is to avoid ConcurrentModificationException during dispatch
       final ArrayList<Function> handlersCopy = new ArrayList<>(handlers);
       for (final Function h : handlersCopy) {
-        // TODO: Not sure if we should stop calling handlers after propagation is stopped
-        // if (event.isPropagationStopped()) {
-        // return;
-        // }
+        if (event.isImmediatePropagationStopped()) {
+          break;
+        }
 
         if (handlers.contains(h)) {
           // window.addJSTask(new JSRunnableTask(0, "Event dispatch for " + event, new Runnable(){
