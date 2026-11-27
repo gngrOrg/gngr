@@ -15,6 +15,8 @@
 
 package org.lobobrowser.harness;
 
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
@@ -34,7 +36,12 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.Charset;
+import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -43,14 +50,23 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
+import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 
+import org.lobobrowser.html.BrowserFrame;
+import org.lobobrowser.html.domimpl.FrameNode;
 import org.lobobrowser.html.domimpl.HTMLDocumentImpl;
+import org.lobobrowser.html.domimpl.NodeImpl;
+import org.lobobrowser.html.gui.FrameSetPanel;
+import org.lobobrowser.html.gui.HtmlBlockPanel;
 import org.lobobrowser.html.gui.HtmlPanel;
 import org.lobobrowser.html.parser.DocumentBuilderImpl;
 import org.lobobrowser.html.parser.InputSourceImpl;
 import org.lobobrowser.ua.UserAgentContext;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.html.HTMLCollection;
 
 /**
  * Grinder command server for the Render Harness.
@@ -121,14 +137,7 @@ public class HarnessServer implements Runnable {
       doc.finishModifications();
       waitUntil(() -> !doc.layoutBlocked.get(), BLANK_DOC_TIMEOUT_MS, BLANK_DOC_POLL_INTERVAL_MS,
           () -> "Timed out after " + BLANK_DOC_TIMEOUT_MS + "ms waiting for blank document layout unblock");
-      SwingUtilities.invokeAndWait(() -> {
-        panel.validate();
-        panel.doLayout();
-        for (java.awt.Component c : panel.getComponents()) {
-          c.validate();
-          c.doLayout();
-        }
-      });
+      SwingUtilities.invokeAndWait(() -> layoutFrameTree(panel));
     } catch (InterruptedException ie) {
       Thread.currentThread().interrupt();
       logger.log(Level.WARNING, "Interrupted initializing blank document", ie);
@@ -214,12 +223,7 @@ public class HarnessServer implements Runnable {
       SwingUtilities.invokeAndWait(() -> {
         panel.setSize(w, h);
         panel.setBounds(0, 0, w, h);
-        panel.validate();
-        panel.doLayout();
-        for (java.awt.Component c : panel.getComponents()) {
-          c.validate();
-          c.doLayout();
-        }
+        layoutFrameTree(panel);
       });
     } catch (InvocationTargetException | InterruptedException e) {
       logger.log(Level.WARNING, "Error resizing viewport", e);
@@ -281,19 +285,8 @@ public class HarnessServer implements Runnable {
       conn.setRequestProperty("User-Agent", "Mozilla/5.0 (compatible; gngr/1.0; RenderHarness)");
 
       final String rawContentType = conn.getContentType();
-      String charset = extractCharset(rawContentType);
-      if (charset == null) {
-        charset = "UTF-8";
-      }
-      String mimeType = extractMimeType(rawContentType);
-      final String lowerPath = url.getPath().toLowerCase();
-      if (mimeType == null || "content/unknown".equalsIgnoreCase(mimeType) || "application/octet-stream".equalsIgnoreCase(mimeType)) {
-        if (lowerPath.endsWith(".xht") || lowerPath.endsWith(".xhtml") || lowerPath.endsWith(".xml")) {
-          mimeType = "application/xhtml+xml";
-        } else {
-          mimeType = "text/html";
-        }
-      }
+      final String charset = resolveCharset(rawContentType);
+      final String mimeType = resolveMimeType(rawContentType, url);
 
       final HTMLDocumentImpl doc;
       try (InputStream in = conn.getInputStream()) {
@@ -319,19 +312,19 @@ public class HarnessServer implements Runnable {
                   + ", activeRequests=" + HarnessNetworkRequest.getActiveRequestCount() + ")");
 
       // Trigger layout on EDT now that layout is unblocked and external stylesheets are loaded
+      @SuppressWarnings("unchecked")
+      final Future<Boolean>[] layoutFutureHolder = new Future[1];
       SwingUtilities.invokeAndWait(() -> {
         panel.setSize(currentWidth, currentHeight);
         panel.setBounds(0, 0, currentWidth, currentHeight);
-        panel.validate();
-        panel.doLayout();
-        for (java.awt.Component c : panel.getComponents()) {
-          c.validate();
-          c.doLayout();
+        layoutFrameTree(panel);
+        if (panel.getFrameSetPanel() == null) {
+          layoutFutureHolder[0] = panel.layoutCompletion();
         }
       });
 
       // Wait for layout completion
-      final Future<Boolean> layoutFuture = panel.layoutCompletion();
+      final Future<Boolean> layoutFuture = layoutFutureHolder[0];
       if (layoutFuture != null) {
         try {
           final Boolean completed = layoutFuture.get(layoutCompletionTimeoutMs, TimeUnit.MILLISECONDS);
@@ -379,8 +372,6 @@ public class HarnessServer implements Runnable {
       return;
     }
 
-    panel.disableRenderHints();
-
     final int width = Math.max(1, currentWidth);
     final int height = Math.max(1, currentHeight);
     final BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
@@ -389,10 +380,8 @@ public class HarnessServer implements Runnable {
       SwingUtilities.invokeAndWait(() -> {
         panel.setSize(width, height);
         panel.setBounds(0, 0, width, height);
-        panel.doLayout();
-        for (java.awt.Component c : panel.getComponents()) {
-          c.doLayout();
-        }
+        disableRenderHintsTree(panel);
+        layoutFrameTree(panel);
         panel.paint(g);
       });
     } catch (InterruptedException ie) {
@@ -485,7 +474,118 @@ public class HarnessServer implements Runnable {
 
     @Override
     public void run() {
-      isReady = panel.isReadyToPaint();
+      isReady = isPanelTreeReadyToPaint(panel, new HashSet<>());
+    }
+  }
+
+  private boolean isPanelTreeReadyToPaint(final HtmlPanel targetPanel, final Set<HtmlPanel> visited) {
+    if (targetPanel == null || !visited.add(targetPanel)) {
+      return true;
+    }
+    final NodeImpl rootNode = targetPanel.getRootNode();
+    if (!(rootNode instanceof HTMLDocumentImpl)) {
+      return targetPanel.isReadyToPaint();
+    }
+    final HTMLDocumentImpl doc = (HTMLDocumentImpl) rootNode;
+    if (doc.layoutBlocked.get()) {
+      return false;
+    }
+    if (targetPanel.getFrameSetPanel() == null) {
+      final Future<Boolean> layoutFuture = targetPanel.layoutCompletion();
+      if (layoutFuture != null && !layoutFuture.isDone()) {
+        layoutFrameTree(targetPanel);
+        if (!layoutFuture.isDone()) {
+          return false;
+        }
+      }
+      if (!targetPanel.isReadyToPaint()) {
+        return false;
+      }
+    }
+    final HTMLCollection frames = doc.getFrames();
+    if (frames != null) {
+      final int len = frames.getLength();
+      for (int i = 0; i < len; i++) {
+        final Node node = frames.item(i);
+        if (!(node instanceof FrameNode)) {
+          continue;
+        }
+        final BrowserFrame bf = ((FrameNode) node).getBrowserFrame();
+        if (bf == null) {
+          continue;
+        }
+        if (bf instanceof HarnessHtmlRendererContext.HarnessBrowserFrame) {
+          final HarnessHtmlRendererContext.HarnessBrowserFrame hbf =
+              (HarnessHtmlRendererContext.HarnessBrowserFrame) bf;
+          if (hbf.isLoading()) {
+            return false;
+          }
+          boolean expectsLoad = false;
+          if (node instanceof Element) {
+            final String src = ((Element) node).getAttribute("src");
+            if (src != null) {
+              try {
+                final URL fullUrl = doc.getFullURL(src);
+                expectsLoad = fullUrl != null && ucontext.isRequestPermitted(
+                    new UserAgentContext.Request(fullUrl, UserAgentContext.RequestKind.Frame));
+              } catch (final MalformedURLException ignored) {
+              }
+            }
+          }
+          if (expectsLoad && !hbf.isLoadAttempted()) {
+            return false;
+          }
+        }
+        final Component comp = bf.getComponent();
+        if (comp instanceof HtmlPanel) {
+          final HtmlPanel subPanel = (HtmlPanel) comp;
+          if (subPanel.getRootNode() != null && !isPanelTreeReadyToPaint(subPanel, visited)) {
+            return false;
+          }
+        }
+      }
+    }
+    return true;
+  }
+
+  private static boolean isFrameContainer(final Component comp) {
+    return (comp instanceof HtmlPanel)
+        || (comp instanceof HtmlBlockPanel)
+        || (comp instanceof FrameSetPanel)
+        || (comp instanceof JSplitPane);
+  }
+
+  private static void layoutFrameTree(final Component comp) {
+    if (!isFrameContainer(comp)) {
+      return;
+    }
+    comp.validate();
+    comp.doLayout();
+    if (comp instanceof Container) {
+      for (final Component child : ((Container) comp).getComponents()) {
+        if (isFrameContainer(child)) {
+          layoutFrameTree(child);
+        }
+      }
+    }
+  }
+
+  private static void disableRenderHintsTree(final Component comp) {
+    if (!isFrameContainer(comp)) {
+      return;
+    }
+    if (comp instanceof HtmlPanel) {
+      final HtmlPanel hp = (HtmlPanel) comp;
+      if (hp.getFrameSetPanel() == null && hp.getComponentCount() > 0 && hp.getComponent(0) instanceof HtmlBlockPanel) {
+        hp.disableRenderHints();
+      }
+    }
+    if (comp instanceof Container) {
+      for (final Component child : ((Container) comp).getComponents()) {
+        if (isFrameContainer(child)) {
+          disableRenderHintsTree(child);
+        }
+      }
     }
   }
 
@@ -502,13 +602,41 @@ public class HarnessServer implements Runnable {
     br.readLine();
   }
 
+  static String resolveMimeType(final String contentType, final URL url) {
+    String mimeType = extractMimeType(contentType);
+    if (mimeType == null || "content/unknown".equalsIgnoreCase(mimeType) || "application/octet-stream".equalsIgnoreCase(mimeType)) {
+      final String lowerPath = url.getPath().toLowerCase(Locale.ROOT);
+      if (lowerPath.endsWith(".xht") || lowerPath.endsWith(".xhtml") || lowerPath.endsWith(".xml")) {
+        mimeType = "application/xhtml+xml";
+      } else {
+        mimeType = "text/html";
+      }
+    }
+    return mimeType;
+  }
+
+  static String resolveCharset(final String contentType) {
+    final String candidate = extractCharset(contentType);
+    if (candidate != null && !candidate.isEmpty()) {
+      try {
+        if (Charset.isSupported(candidate)) {
+          return candidate;
+        }
+        logger.warning("Unsupported charset '" + candidate + "', falling back to UTF-8");
+      } catch (final IllegalCharsetNameException e) {
+        logger.warning("Illegal charset name '" + candidate + "', falling back to UTF-8");
+      }
+    }
+    return "UTF-8";
+  }
+
   private static String extractMimeType(final String contentType) {
     if (contentType == null) {
       return null;
     }
     final int semi = contentType.indexOf(';');
     final String mime = (semi == -1 ? contentType : contentType.substring(0, semi)).trim();
-    return mime.isEmpty() ? null : mime.toLowerCase();
+    return mime.isEmpty() ? null : mime.toLowerCase(Locale.ROOT);
   }
 
   private static String extractCharset(final String contentType) {
@@ -517,8 +645,13 @@ public class HarnessServer implements Runnable {
     }
     for (String param : contentType.split(";")) {
       param = param.trim();
-      if (param.toLowerCase().startsWith("charset=")) {
-        return param.substring(8).trim().replace("\"", "");
+      final int eqIdx = param.indexOf('=');
+      if (eqIdx > 0 && "charset".equalsIgnoreCase(param.substring(0, eqIdx).trim())) {
+        String val = param.substring(eqIdx + 1).trim();
+        if (val.length() >= 2 && ((val.startsWith("\"") && val.endsWith("\"")) || (val.startsWith("'") && val.endsWith("'")))) {
+          val = val.substring(1, val.length() - 1).trim();
+        }
+        return val.isEmpty() ? null : val;
       }
     }
     return null;

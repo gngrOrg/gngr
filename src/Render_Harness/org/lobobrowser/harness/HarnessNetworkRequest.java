@@ -57,6 +57,14 @@ public class HarnessNetworkRequest implements NetworkRequest {
     return ACTIVE_REQUESTS.get();
   }
 
+  static void incrementActiveRequests() {
+    ACTIVE_REQUESTS.incrementAndGet();
+  }
+
+  static void decrementActiveRequests() {
+    ACTIVE_REQUESTS.decrementAndGet();
+  }
+
   private volatile int readyState = STATE_UNINITIALIZED;
   private volatile int status = 0;
   private volatile String statusText = "";
