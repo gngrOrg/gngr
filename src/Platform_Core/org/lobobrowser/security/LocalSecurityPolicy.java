@@ -180,11 +180,13 @@ public class LocalSecurityPolicy extends Policy {
       final StringTokenizer strTokenizer = new StringTokenizer(JAVA_CLASS_PATH, PATH_SEPARATOR);
       while (strTokenizer.hasMoreTokens()) {
         final String pathElement = strTokenizer.nextToken();
-        if (new File(pathElement).isDirectory()) {
-          final FilePermission fp = new FilePermission(pathElement + recursiveSuffix, "read");
+        final File pathFile = new File(pathElement);
+        final String resolvedPath = toCanonicalOrAbsolutePath(pathFile);
+        if (pathFile.isDirectory()) {
+          final FilePermission fp = new FilePermission(resolvedPath + recursiveSuffix, "read");
           CP_READ_PERMISSIONS.add(fp);
         } else {
-          final FilePermission fp = new FilePermission(pathElement, "read");
+          final FilePermission fp = new FilePermission(resolvedPath, "read");
           CP_READ_PERMISSIONS.add(fp);
         }
       }
@@ -198,16 +200,27 @@ public class LocalSecurityPolicy extends Policy {
 
   }
 
+  private static String toCanonicalOrAbsolutePath(final File file) {
+    try {
+      return file.getCanonicalPath();
+    } catch (final IOException ioe) {
+      return file.getAbsolutePath();
+    }
+  }
+
   private static void addStoreDirectoryPermissions(final Collection<Permission> permissions) {
+    permissions.add(new FilePermission(STORE_DIRECTORY_CANONICAL, "read, write"));
     permissions.add(new FilePermission(STORE_DIRECTORY_CANONICAL + recursiveSuffix, "read, write, delete"));
   }
 
   private static void addExtensionPermissions(final Collection<Permission> extensionPermissions) {
     Arrays.stream(ExtensionManager.getExtDirs()).forEach(f -> {
-      extensionPermissions.add(new FilePermission(f.getAbsolutePath() + recursiveSuffix, "read"));
+      extensionPermissions.add(new FilePermission(toCanonicalOrAbsolutePath(f) + recursiveSuffix, "read"));
     });
     Arrays.stream(ExtensionManager.getExtFiles()).forEach(f -> {
-      extensionPermissions.add(new FilePermission(f.getAbsolutePath() + recursiveSuffix, "read"));
+      final String resolved = toCanonicalOrAbsolutePath(f);
+      final String target = f.isDirectory() ? resolved + recursiveSuffix : resolved;
+      extensionPermissions.add(new FilePermission(target, "read"));
     });
   }
 
@@ -464,8 +477,6 @@ public class LocalSecurityPolicy extends Policy {
         permissions.add(new PropertyPermission("*", "read"));
         permissions.add(new RuntimePermission("shutdownHooks"));
         copyPermissions(CP_READ_PERMISSIONS, permissions);
-      } else if (path.startsWith("jrt:/jdk")) {
-        permissions.add(new RuntimePermission("accessClassInPackage.sun.*"));
       }
     } else {
       // TODO: Check why the following are required and add comments for each
