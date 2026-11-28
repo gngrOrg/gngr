@@ -49,7 +49,7 @@ DocumentNotificationListener ──► HtmlPanel (coalesces on EDT: 10ms Timer /
        │              → rblock.layout(...) → updateWidgetBounds() → updateGUIComponents()
        │              → layoutCompleted.complete(true)
        ├─ paint():    paints root RBlock + selection (paintChildren is NOP)
-       └─ Mouse/Key ─► RBlock hit-test ─► HtmlController ─► JS handlers / rcontext / nav
+       └─ Mouse/Key ─► HtmlBlockPanel.hitTest() (RBlock.hitTest) ─► HtmlController ─► EventTargetManager / nav
 ```
 
 ## 3. Subsystem Details
@@ -120,7 +120,7 @@ Renderable
  └─ BoundableRenderable (BaseBoundableRenderable: bounds, origin, parent, hit-test, selection)
      ├─ Leaves: RWord (─► RTab), RBlank, RSpacing
      ├─ TranslatedRenderable (delegator for position:relative offset)
-     └─ RCollection (BaseRCollection: child iteration, deep invalidation, mouse dispatch)
+     └─ RCollection (BaseRCollection: child iteration, deep invalidation, hitTest)
          ├─ RBlockViewport (block formatting context & scrollable canvas)
          ├─ RLine (single inline line box; baseline/vertical-align; throws OverflowException)
          └─ RElement (+ UINode) ─► BaseElementRenderable (+ RenderableContainer, ImageObserver)
@@ -145,7 +145,7 @@ Renderable
 - **Positioning (DelayedPair):** position: absolute|fixed|relative elements bubble up as DelayedPairs via RenderableContainer.addDelayedPair() to their containingBlock (RBlock or RTable), which positions them in positionDelayed()/importDelayedPair(). Relative elements wrap in TranslatedRenderable and mark the original isDelegated() so it paints only in its z-ordered slot.
 - **Tables (RTable + TableMatrix):** TableMatrix builds RowGroup/Row/VirtualCell grid (handling colspan/rowspan and anonymous cells RAnonTableCell), measures column/row sizes, positions RTableCells, and paints backgrounds/borders.
 - **Swing Widgets (UIControl):** RUIControl bridges UIControl (BaseControl → ImgControl, HrControl, BaseInputControl → InputText/Password/Button/Checkbox/Radio/File/Image/Select/TextAreaControl; BrowserFrameUIControl; UIControlWrapper). Components register up to HtmlBlockPanel via addComponent() and are synced via updateGUIComponents() (avoids focus loss on relayout).
-- **Input (HtmlController):** singleton invoked by renderables on mouse/key events; updates immediate EDT UI state (`setMouseOver()` for CSS `:hover`, cursor, link press `overlayColor`) and delegates DOM events (inline `on*`, `addEventListener`, and post-dispatch default actions such as `HtmlRendererContext` hooks, `HTMLLinkElementImpl.navigate()`, and form submit/reset) to `EventTargetManager`.
+- **Input (HtmlController):** singleton invoked once per event from `HtmlBlockPanel` (after `BoundableRenderable.hitTest(int, int)` resolves the deepest target `RenderableSpot`) or form/key `UIControl`s; updates immediate EDT UI state (`setMouseOver()` for CSS `:hover`, cursor, link press `overlayColor`) and delegates DOM events (inline `on*`, `addEventListener`, and post-dispatch default actions such as `HtmlRendererContext` hooks, `HTMLLinkElementImpl.navigate()`, and form submit/reset) to `EventTargetManager`.
 
 ### 3.6 Swing GUI Bridge (o.l.h.gui)
 - HtmlPanel (JComponent, FrameContext, DefferedLayoutSupport):
@@ -156,6 +156,7 @@ Renderable
   - Owns root RBlock; handles DocumentNotification (GENERIC/SIZE → invalidate up+deep + revalidatePanel(); POSITION → parent invalidate up; LOOK → invalidateRenderStyle() + repaint()).
   - doLayout(): skips if doc.layoutBlocked.get(), primes all element styles (doc.primeNodeData()), runs rblock.layout(...), updates widget bounds & Swing children, scrolls to URL #ref once, completes layoutCompleted CompletableFuture.
   - Overrides paint() (not paintComponent(), for scrollbar repainting) and makes paintChildren() a NOP (renderables paint child controls directly).
+  - Performs pure top-down `hitTest(x, y)` through `BoundableRenderable.hitTest(int, int)` (respecting z-index, table cells/row-groups, `TranslatedRenderable`, and `overflow` clipping), tracks `hoveredNode` (computing common ancestor limit on hover transitions) and `mousePressNode` (for disarm on mismatch/exit), and dispatches once into `HtmlController`.
   - Manages text selection (startSelection/endSelection RenderableSpots), clipboard copy, and nested scrollable RBlock mouse-wheel dispatch.
   - isReadyToPaint(): !window.hasPendingTasks() && rblock.isReadyToPaint().
 

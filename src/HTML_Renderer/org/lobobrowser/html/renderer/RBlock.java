@@ -32,7 +32,6 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
-import java.awt.event.MouseEvent;
 import java.util.Iterator;
 
 import javax.swing.JScrollBar;
@@ -1300,132 +1299,24 @@ public class RBlock extends BaseBlockyRenderable {
     this.overflowY = this.defaultOverflowY;
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see
-   * org.xamjwg.html.renderer.BoundableRenderable#onMouseClick(java.awt.event
-   * .MouseEvent, int, int)
-   */
-  /*
-  public boolean onMouseClick(final MouseEvent event, final int x, final int y) {
+  @Override
+  public RenderableSpot hitTest(final int x, final int y) {
     final RBlockViewport bodyLayout = this.bodyLayout;
     if (bodyLayout != null) {
-      if (!bodyLayout.onMouseClick(event, x - bodyLayout.x, y - bodyLayout.y)) {
-        return false;
+      final Insets insets = this.getInsetsMarginBorder(this.hasHScrollBar, this.hasVScrollBar);
+      final boolean isHtmlElem = (this.getModelNode() instanceof HTMLHtmlElement);
+      final boolean xVisible = (this.overflowX == RenderState.OVERFLOW_NONE) || (this.overflowX == RenderState.OVERFLOW_VISIBLE);
+      final boolean yVisible = (this.overflowY == RenderState.OVERFLOW_NONE) || (this.overflowY == RenderState.OVERFLOW_VISIBLE);
+      final boolean noScrolls = !(this.hasHScrollBar || this.hasVScrollBar);
+      final boolean allowClippedContent = isHtmlElem || (xVisible && yVisible && noScrolls)
+          || ((x >= insets.left) && (x < (this.width - insets.right)) && (y >= insets.top) && (y < (this.height - insets.bottom)));
+      final RenderableSpot spot = bodyLayout.hitTestInViewport(x - bodyLayout.getVisualX(), y - bodyLayout.getVisualY(),
+          allowClippedContent, x, y);
+      if (spot != null) {
+        return spot;
       }
     }
-
-    // changed for issue #106
-    // the following was joined above with else, but it is now separated, so that the RBlock can continue processing even if bodyLayout didn't capture the click
-    // this happens with, for example, a div which has large width and height, but tiny or empty contents.
-    if (!HtmlController.getInstance().onMouseClick(this.modelNode, event, x, y)) {
-      return false;
-    }
-
-    if (this.backgroundColor != null) {
-      return false;
-    }
-    return true;
-  }
-  */
-
-  public boolean onDoubleClick(final MouseEvent event, final int x, final int y) {
-    final RBlockViewport bodyLayout = this.bodyLayout;
-    if (!bodyLayout.onDoubleClick(event, x - bodyLayout.x, y - bodyLayout.y)) {
-      return false;
-    }
-    if (this.backgroundColor != null) {
-      return false;
-    }
-    return true;
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see
-   * org.xamjwg.html.renderer.BoundableRenderable#onMouseDisarmed(java.awt.event
-   * .MouseEvent)
-   */
-  public boolean onMouseDisarmed(final MouseEvent event) {
-    final BoundableRenderable br = this.armedRenderable;
-    if (br != null) {
-      try {
-        return br.onMouseDisarmed(event);
-      } finally {
-        this.armedRenderable = null;
-      }
-    } else {
-      return true;
-    }
-  }
-
-  private BoundableRenderable armedRenderable;
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see
-   * org.xamjwg.html.renderer.BoundableRenderable#onMousePressed(java.awt.event
-   * .MouseEvent, int, int)
-   */
-  /*
-  public boolean onMousePressed(final MouseEvent event, final int x, final int y) {
-    final RBlockViewport bodyLayout = this.bodyLayout;
-    if (bodyLayout != null) {
-      final int newX = x - bodyLayout.x;
-      final int newY = y - bodyLayout.y;
-      if (bodyLayout.contains(newX, newY)) {
-        this.armedRenderable = bodyLayout;
-        if (!bodyLayout.onMousePressed(event, newX, newY)) {
-          return false;
-        }
-      } else {
-        this.armedRenderable = null;
-      }
-    } else {
-      this.armedRenderable = null;
-    }
-    if (!HtmlController.getInstance().onMouseDown(this.modelNode, event, x, y)) {
-      return false;
-    }
-    if (this.backgroundColor != null) {
-      return false;
-    }
-    return true;
-  }
-  */
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see
-   * org.xamjwg.html.renderer.BoundableRenderable#onMouseReleased(java.awt.event
-   * .MouseEvent, int, int)
-   */
-  public boolean onMouseReleased(final MouseEvent event, final int x, final int y) {
-    final RBlockViewport bodyLayout = this.bodyLayout;
-    final int newX = x - bodyLayout.x;
-    final int newY = y - bodyLayout.y;
-    if (bodyLayout.contains(newX, newY)) {
-      this.armedRenderable = null;
-      if (!bodyLayout.onMouseReleased(event, newX, newY)) {
-        return false;
-      }
-    } else {
-      final BoundableRenderable br = this.armedRenderable;
-      if (br != null) {
-        br.onMouseDisarmed(event);
-      }
-    }
-    if (!HtmlController.getInstance().onMouseUp(this.modelNode, event, x, y)) {
-      return false;
-    }
-    if (this.backgroundColor != null) {
-      return false;
-    }
-    return true;
+    return new RenderableSpot(this, x, y);
   }
 
   public Color getPaintedBackgroundColor() {

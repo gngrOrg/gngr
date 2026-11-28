@@ -3,7 +3,6 @@ package org.lobobrowser.html.renderer;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.MouseEvent;
 import java.util.Iterator;
 
 import org.eclipse.jdt.annotation.NonNull;
@@ -243,82 +242,35 @@ abstract class BaseRCollection extends BaseBoundableRenderable implements RColle
     }
   }
 
-  private BoundableRenderable renderableWithMouse = null;
-
   @Override
-  public void onMouseMoved(final MouseEvent event, final int x, final int y, final boolean triggerEvent, final ModelNode limit) {
-    super.onMouseMoved(event, x, y, triggerEvent, limit);
-    final BoundableRenderable oldRenderable = this.renderableWithMouse;
-    final Renderable r = this.getRenderable(x, y);
-    final BoundableRenderable newRenderable = r instanceof BoundableRenderable ? (BoundableRenderable) r : null;
-    ModelNode newLimit;
-    if (this.isContainedByNode()) {
-      newLimit = this.modelNode;
-    } else {
-      newLimit = limit;
-    }
-    final boolean changed = oldRenderable != newRenderable;
-    if (changed) {
-      if (oldRenderable != null) {
-        oldRenderable.onMouseOut(event, x - oldRenderable.getVisualX(), y - oldRenderable.getVisualY(), newLimit);
-      }
-      this.renderableWithMouse = newRenderable;
-    }
-    // Must recurse always
-    if (newRenderable != null) {
-      // newRenderable.onMouseMoved(event, x - newRenderable.getVisualX(), y - newRenderable.getVisualY(), changed, newLimit);
-      final Point or = newRenderable.getOriginRelativeTo(this);
-      newRenderable.onMouseMoved(event, x - or.x, y - or.y, changed, newLimit);
-    }
-  }
-
-  @Override
-  public boolean onMousePressed(MouseEvent event, int x, int y) {
-    final Renderable r = this.getRenderable(x, y);
-    final RCollection newRenderable = r instanceof RCollection ? (RCollection) r : null;
-    if (newRenderable != null) {
-      final Point or = newRenderable.getOriginRelativeTo(this);
-      if(!newRenderable.onMousePressed(event, x - or.x, y - or.y)) {
-        return false;
+  public RenderableSpot hitTest(final int x, final int y) {
+    final Iterator<? extends Renderable> i = this.getRenderables(true);
+    if (i != null) {
+      while (i.hasNext()) {
+        final Renderable rn = i.next();
+        if (rn instanceof BoundableRenderable) {
+          final BoundableRenderable br = (BoundableRenderable) rn;
+          if ((!br.isDelegated()) && br.contains(x, y)) {
+            final RenderableSpot spot = br.hitTest(x - br.getVisualX(), y - br.getVisualY());
+            if (spot != null) {
+              return spot;
+            }
+          }
+        } else if (rn instanceof PositionedRenderable) {
+          final PositionedRenderable pr = (PositionedRenderable) rn;
+          if (!pr.isDelegated()) {
+            final Rectangle vb = pr.getVisualBounds();
+            if (vb.contains(x, y)) {
+              final RenderableSpot spot = pr.renderable.hitTest(x - vb.x, y - vb.y);
+              if (spot != null) {
+                return spot;
+              }
+            }
+          }
+        }
       }
     }
-    if (!HtmlController.getInstance().onMouseDown(this.modelNode, event, x, y)) {
-      return false;
-    }
-    return true;
-  }
-
-  @Override
-  public boolean onMouseClick(MouseEvent event, int x, int y) {
-    final Renderable r = this.getRenderable(x, y);
-    final RCollection newRenderable = r instanceof RCollection ? (RCollection) r : null;
-    if (newRenderable != null) {
-      final Point or = newRenderable.getOriginRelativeTo(this);
-      if(!newRenderable.onMouseClick(event, x - or.x, y - or.y)) {
-        return false;
-      }
-    }
-    if (!HtmlController.getInstance().onMouseClick(this.modelNode, event, x, y)) {
-      return false;
-    }
-    return true;
-  }
-
-  @Override
-  public void onMouseOut(final MouseEvent event, final int x, final int y, final ModelNode limit) {
-    super.onMouseOut(event, x, y, limit);
-    final BoundableRenderable oldRenderable = this.renderableWithMouse;
-    if (oldRenderable != null) {
-      this.renderableWithMouse = null;
-      ModelNode newLimit;
-      if (this.isContainedByNode()) {
-        newLimit = this.modelNode;
-      } else {
-        newLimit = limit;
-      }
-      final Point or = oldRenderable.getOriginRelativeTo(this);
-      oldRenderable.onMouseOut(event, x - or.x, y - or.y, newLimit);
-    }
+    return new RenderableSpot(this, x, y);
   }
 
   public BoundableRenderable getRenderable(final int x, final int y) {
@@ -345,26 +297,6 @@ abstract class BaseRCollection extends BaseBoundableRenderable implements RColle
       }
     }
     return null;
-  }
-
-  public boolean onMiddleClick(final MouseEvent event, final int x, final int y) {
-    final BoundableRenderable br = this.getRenderable(x, y);
-    if (br == null) {
-      return HtmlController.getInstance().onMiddleClick(this.modelNode, event, x, y);
-    } else {
-      final Point or = br.getOriginRelativeTo(this);
-      return br.onMiddleClick(event, x - or.x, y - or.y);
-    }
-  }
-
-  public boolean onRightClick(final MouseEvent event, final int x, final int y) {
-    final BoundableRenderable br = this.getRenderable(x, y);
-    if (br == null) {
-      return HtmlController.getInstance().onContextMenu(this.modelNode, event, x, y);
-    } else {
-      final Point or = br.getOriginRelativeTo(this);
-      return br.onRightClick(event, x - or.x, y - or.y);
-    }
   }
 
   @Override

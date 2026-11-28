@@ -27,7 +27,6 @@ import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -1850,133 +1849,74 @@ public class RBlockViewport extends BaseRCollection {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see
-   * org.xamjwg.html.renderer.BoundableRenderable#onMouseClick(java.awt.event
-   * .MouseEvent, int, int)
-   */
-  /*
-  public boolean onMouseClick(final MouseEvent event, final int x, final int y) {
-    final Iterator<? extends Renderable> i = this.getRenderables(new Point(x, y));
-    if (i != null) {
-      while (i.hasNext()) {
-        final BoundableRenderable br = (BoundableRenderable) i.next();
-        if (br != null) {
-          // final Rectangle bounds = br.getVisualBounds();
-          // if (!br.onMouseClick(event, x - bounds.x, y - bounds.y)) {
-          final Point or = br.getOriginRelativeTo(this);
-          if (!br.onMouseClick(event, x - or.x, y - or.y)) {
-            return false;
-          }
+  @Override
+  public RenderableSpot hitTest(final int x, final int y) {
+    return this.hitTestInViewport(x, y, true, x + this.getVisualX(), y + this.getVisualY());
+  }
+
+  RenderableSpot hitTestInViewport(final int vpX, final int vpY, final boolean allowClippedContent,
+      final int blockX, final int blockY) {
+    final SortedSet<PositionedRenderable> others = this.positionedRenderables;
+    final int size = others == null ? 0 : others.size();
+    final PositionedRenderable[] otherArray = size == 0 ? null : others.toArray(PositionedRenderable.EMPTY_ARRAY);
+    int index = size - 1;
+
+    // 1. Positioned renderables with z-index >= 0 (top-first: reverse order).
+    if (otherArray != null) {
+      for (; index >= 0; index--) {
+        final PositionedRenderable pr = otherArray[index];
+        if (pr.renderable.getZIndex() < 0) {
+          break;
+        }
+        final RenderableSpot spot = hitTestPositioned(pr, vpX, vpY, allowClippedContent, blockX, blockY);
+        if (spot != null) {
+          return spot;
         }
       }
     }
-    return true;
-  }*/
 
-  public boolean onDoubleClick(final MouseEvent event, final int x, final int y) {
-    final Iterator<? extends Renderable> i = this.getRenderables(new Point(x, y));
-    if (i != null) {
-      while (i.hasNext()) {
-        final BoundableRenderable br = (BoundableRenderable) i.next();
-        if (br != null) {
-          // final Rectangle bounds = br.getVisualBounds();
-          // if (!br.onDoubleClick(event, x - bounds.x, y - bounds.y)) {
-          final Point or = br.getOriginRelativeTo(this);
-          if (!br.onMouseClick(event, x - or.x, y - or.y)) {
-            return false;
-          }
-        }
-      }
-    }
-    return true;
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see
-   * org.xamjwg.html.renderer.BoundableRenderable#onMouseDisarmed(java.awt.event
-   * .MouseEvent)
-   */
-  public boolean onMouseDisarmed(final MouseEvent event) {
-    final BoundableRenderable br = this.armedRenderable;
-    if (br != null) {
-      try {
-        return br.onMouseDisarmed(event);
-      } finally {
-        this.armedRenderable = null;
-      }
-    } else {
-      return true;
-    }
-  }
-
-  private BoundableRenderable armedRenderable;
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see
-   * org.xamjwg.html.renderer.BoundableRenderable#onMousePressed(java.awt.event
-   * .MouseEvent, int, int)
-   */
-  /*
-  public boolean onMousePressed(final MouseEvent event, final int x, final int y) {
-    final Iterator<? extends Renderable> i = this.getRenderables(new Point(x, y));
-    if (i != null) {
-      while (i.hasNext()) {
-        final BoundableRenderable br = (BoundableRenderable) i.next();
-        if (br != null) {
-          // final Rectangle bounds = br.getVisualBounds();
-          // if (!br.onMousePressed(event, x - bounds.x, y - bounds.y)) {
-          final Point or = br.getOriginRelativeTo(this);
-          if (!br.onMousePressed(event, x - or.x, y - or.y)) {
-            this.armedRenderable = br;
-            return false;
-          }
-        }
-      }
-    }
-    return true;
-  }
-  */
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see
-   * org.xamjwg.html.renderer.BoundableRenderable#onMouseReleased(java.awt.event
-   * .MouseEvent, int, int)
-   */
-  public boolean onMouseReleased(final MouseEvent event, final int x, final int y) {
-    final Iterator<? extends Renderable> i = this.getRenderables(new Point(x, y));
-    if (i != null) {
-      while (i.hasNext()) {
-        final BoundableRenderable br = (BoundableRenderable) i.next();
-        if (br != null) {
-          // final Rectangle bounds = br.getVisualBounds();
-          // if (!br.onMouseReleased(event, x - bounds.x, y - bounds.y)) {
-          final Point or = br.getOriginRelativeTo(this);
-          if (!br.onMouseReleased(event, x - or.x, y - or.y)) {
-            final BoundableRenderable oldArmedRenderable = this.armedRenderable;
-            if ((oldArmedRenderable != null) && (br != oldArmedRenderable)) {
-              oldArmedRenderable.onMouseDisarmed(event);
-              this.armedRenderable = null;
+    // 2. Sequential renderables (top-first: reverse order).
+    if (allowClippedContent) {
+      final ArrayList<BoundableRenderable> sr = this.seqRenderables;
+      if (sr != null) {
+        for (int i = sr.size() - 1; i >= 0; i--) {
+          final BoundableRenderable br = sr.get(i);
+          if ((!br.isDelegated()) && br.contains(vpX, vpY)) {
+            final RenderableSpot spot = br.hitTest(vpX - br.getVisualX(), vpY - br.getVisualY());
+            if (spot != null) {
+              return spot;
             }
-            return false;
           }
         }
       }
     }
-    final BoundableRenderable oldArmedRenderable = this.armedRenderable;
-    if (oldArmedRenderable != null) {
-      oldArmedRenderable.onMouseDisarmed(event);
-      this.armedRenderable = null;
+
+    // 3. Positioned renderables with z-index < 0 (top-first: reverse order).
+    if (otherArray != null) {
+      for (; index >= 0; index--) {
+        final PositionedRenderable pr = otherArray[index];
+        final RenderableSpot spot = hitTestPositioned(pr, vpX, vpY, allowClippedContent, blockX, blockY);
+        if (spot != null) {
+          return spot;
+        }
+      }
     }
-    return true;
+
+    return null;
+  }
+
+  private static RenderableSpot hitTestPositioned(final PositionedRenderable pr, final int vpX, final int vpY,
+      final boolean allowClippedContent, final int blockX, final int blockY) {
+    if (pr.isDelegated() || (!allowClippedContent && pr.isReplacedElement())) {
+      return null;
+    }
+    final int px = pr.isFixed() ? blockX : vpX;
+    final int py = pr.isFixed() ? blockY : vpY;
+    final Rectangle vb = pr.getVisualBounds();
+    if (vb.contains(px, py)) {
+      return pr.renderable.hitTest(px - vb.x, py - vb.y);
+    }
+    return null;
   }
 
   public void paint(final Graphics gIn) {

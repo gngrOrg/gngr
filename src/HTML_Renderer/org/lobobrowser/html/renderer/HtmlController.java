@@ -25,27 +25,21 @@ import org.lobobrowser.html.style.RenderState;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-class HtmlController {
+public class HtmlController {
   private static final Logger logger = Logger.getLogger(HtmlController.class.getName());
   private static final HtmlController instance = new HtmlController();
 
-  static HtmlController getInstance() {
+  public static HtmlController getInstance() {
     return instance;
   }
 
-  /**
-   * @return True to propagate further and false if the event was consumed.
-   */
-  public boolean onEnterPressed(final ModelNode node, final InputEvent event) {
+  public void onEnterPressed(final ModelNode node, final InputEvent event) {
     if (node instanceof HTMLInputElementImpl) {
       final HTMLInputElementImpl hie = (HTMLInputElementImpl) node;
       if (hie.isSubmittableWithEnterKey()) {
         hie.submitForm(null);
-        return false;
       }
     }
-    // No propagation
-    return false;
   }
 
   private static NodeImpl findEventTarget(final ModelNode node) {
@@ -77,16 +71,16 @@ class HtmlController {
     return true;
   }
 
-  /**
-   * @return True to propagate further and false if the event was consumed.
-   */
-  public boolean onMouseClick(final ModelNode node, final MouseEvent event, final int x, final int y) {
+  public void onMouseClick(final ModelNode node, final MouseEvent event, final int x, final int y) {
+    if (node == null) {
+      return;
+    }
     if (logger.isLoggable(Level.INFO)) {
       logger.info("onMouseClick(): node=" + node + ",class=" + node.getClass().getName());
     }
     final NodeImpl target = findEventTarget(node);
     if (target == null) {
-      return true;
+      return;
     }
     final Runnable defaultAction = () -> {
       for (ModelNode curr = target; curr != null; curr = curr.getParentModelNode()) {
@@ -124,35 +118,34 @@ class HtmlController {
       }
     };
     target.dispatchEvent(new Event("click", target, event, x, y), defaultAction);
-    return false;
   }
 
-  public boolean onMiddleClick(final ModelNode node, final MouseEvent event, final int x, final int y) {
-    if (node instanceof HTMLAbstractUIElement) {
-      final HTMLAbstractUIElement uiElement = (HTMLAbstractUIElement) node;
-      final HtmlRendererContext rcontext = uiElement.getHtmlRendererContext();
-      if (rcontext != null) {
-        // Needs to be done after Javascript, so the script
-        // is able to prevent it.
-        if (!rcontext.onMiddleClick(uiElement, event)) {
-          return false;
+  public void onMiddleClick(final ModelNode node, final MouseEvent event, final int x, final int y) {
+    for (ModelNode curr = node; curr != null; curr = curr.getParentModelNode()) {
+      if (curr instanceof HTMLAbstractUIElement) {
+        final HTMLAbstractUIElement uiElement = (HTMLAbstractUIElement) curr;
+        final HtmlRendererContext rcontext = uiElement.getHtmlRendererContext();
+        if (rcontext != null) {
+          // Needs to be done after Javascript, so the script
+          // is able to prevent it.
+          if (!rcontext.onMiddleClick(uiElement, event)) {
+            return;
+          }
         }
       }
     }
-    final ModelNode parent = node.getParentModelNode();
-    if (parent == null) {
-      return true;
-    }
-    return this.onMiddleClick(parent, event, x, y);
   }
 
-  public boolean onContextMenu(final ModelNode node, final MouseEvent event, final int x, final int y) {
+  public void onContextMenu(final ModelNode node, final MouseEvent event, final int x, final int y) {
+    if (node == null) {
+      return;
+    }
     if (logger.isLoggable(Level.INFO)) {
       logger.info("onContextMenu(): node=" + node + ",class=" + node.getClass().getName());
     }
     final NodeImpl target = findEventTarget(node);
     if (target == null) {
-      return true;
+      return;
     }
     final Runnable defaultAction = () -> runOnEDT(() -> {
       if (!isSameDocument(target)) {
@@ -169,11 +162,13 @@ class HtmlController {
       }
     });
     target.dispatchEvent(new Event("contextmenu", target, event, x, y), defaultAction);
-    return false;
   }
 
-  public void onMouseOver(final BaseBoundableRenderable renderable, final ModelNode nodeStart, final MouseEvent event, final int x,
+  public void onMouseOver(final BoundableRenderable renderable, final ModelNode nodeStart, final MouseEvent event, final int x,
       final int y, final ModelNode limit) {
+    if (nodeStart == null) {
+      return;
+    }
     {
       ModelNode node = nodeStart;
       while (node != null) {
@@ -200,7 +195,7 @@ class HtmlController {
     }
   }
 
-  private static void setMouseOnMouseOver(final BaseBoundableRenderable renderable, final ModelNode nodeStart, final ModelNode limit) {
+  private static void setMouseOnMouseOver(final BoundableRenderable renderable, final ModelNode nodeStart, final ModelNode limit) {
     ModelNode node = nodeStart;
     while (node != null) {
       if (node == limit) {
@@ -229,6 +224,9 @@ class HtmlController {
   }
 
   public void onMouseOut(final ModelNode nodeStart, final MouseEvent event, final int x, final int y, final ModelNode limit) {
+    if (nodeStart == null) {
+      return;
+    }
     {
       ModelNode node = nodeStart;
       while (node != null) {
@@ -284,16 +282,16 @@ class HtmlController {
     }
   }
 
-  /**
-   * @return True to propagate further, false if consumed.
-   */
-  public boolean onDoubleClick(final ModelNode node, final MouseEvent event, final int x, final int y) {
+  public void onDoubleClick(final ModelNode node, final MouseEvent event, final int x, final int y) {
+    if (node == null) {
+      return;
+    }
     if (logger.isLoggable(Level.INFO)) {
       logger.info("onDoubleClick(): node=" + node + ",class=" + node.getClass().getName());
     }
     final NodeImpl target = findEventTarget(node);
     if (target == null) {
-      return true;
+      return;
     }
     final Runnable defaultAction = () -> {
       for (ModelNode curr = target; curr != null; curr = curr.getParentModelNode()) {
@@ -307,28 +305,21 @@ class HtmlController {
       }
     };
     target.dispatchEvent(new Event("dblclick", target, event, x, y), defaultAction);
-    return false;
   }
 
-  /**
-   * @return True to propagate further, false if consumed.
-   */
-  public boolean onMouseDisarmed(final ModelNode node, final MouseEvent event) {
-    if (node instanceof HTMLLinkElementImpl) {
-      ((HTMLLinkElementImpl) node).getCurrentStyle().setOverlayColor(null);
-      return false;
+  public void onMouseDisarmed(final ModelNode node, final MouseEvent event) {
+    for (ModelNode curr = node; curr != null; curr = curr.getParentModelNode()) {
+      if (curr instanceof HTMLLinkElementImpl) {
+        ((HTMLLinkElementImpl) curr).getCurrentStyle().setOverlayColor(null);
+        return;
+      }
     }
-    final ModelNode parent = node.getParentModelNode();
-    if (parent == null) {
-      return true;
-    }
-    return this.onMouseDisarmed(parent, event);
   }
 
-  /**
-   * @return True to propagate further, false if consumed.
-   */
-  public boolean onMouseDown(final ModelNode node, final MouseEvent event, final int x, final int y) {
+  public void onMouseDown(final ModelNode node, final MouseEvent event, final int x, final int y) {
+    if (node == null) {
+      return;
+    }
     for (ModelNode curr = node; curr != null; curr = curr.getParentModelNode()) {
       if (curr instanceof HTMLLinkElementImpl) {
         ((HTMLLinkElementImpl) curr).getCurrentStyle().setOverlayColor("#9090FF80");
@@ -337,16 +328,15 @@ class HtmlController {
     }
     final NodeImpl target = findEventTarget(node);
     if (target == null) {
-      return true;
+      return;
     }
     target.dispatchEvent(new Event("mousedown", target, event, x, y), null);
-    return false;
   }
 
-  /**
-   * @return True to propagate further, false if consumed.
-   */
-  public boolean onMouseUp(final ModelNode node, final MouseEvent event, final int x, final int y) {
+  public void onMouseUp(final ModelNode node, final MouseEvent event, final int x, final int y) {
+    if (node == null) {
+      return;
+    }
     for (ModelNode curr = node; curr != null; curr = curr.getParentModelNode()) {
       if (curr instanceof HTMLLinkElementImpl) {
         ((HTMLLinkElementImpl) curr).getCurrentStyle().setOverlayColor(null);
@@ -355,10 +345,9 @@ class HtmlController {
     }
     final NodeImpl target = findEventTarget(node);
     if (target == null) {
-      return true;
+      return;
     }
     target.dispatchEvent(new Event("mouseup", target, event, x, y), null);
-    return false;
   }
 
   /**
@@ -368,9 +357,8 @@ class HtmlController {
    *          For images only, x coordinate of mouse click.
    * @param y
    *          For images only, y coordinate of mouse click.
-   * @return True to propagate further, false if consumed.
    */
-  public boolean onPressed(final ModelNode node, final InputEvent event, final int x, final int y) {
+  public void onPressed(final ModelNode node, final InputEvent event, final int x, final int y) {
     final NodeImpl target = findEventTarget(node);
     final Runnable defaultAction;
     if (node instanceof HTMLInputElementImpl) {
@@ -403,17 +391,13 @@ class HtmlController {
     } else if (defaultAction != null) {
       defaultAction.run();
     }
-    // No propagate
-    return false;
   }
 
-  public boolean onChange(final ModelNode node) {
+  public void onChange(final ModelNode node) {
     if (node instanceof HTMLSelectElementImpl) {
       final HTMLSelectElementImpl selectElement = (HTMLSelectElementImpl) node;
       selectElement.dispatchEvent(new Event("change", selectElement), null);
     }
-    // No propagate
-    return false;
   }
 
   public boolean onKeyUp(final ModelNode node, final KeyEvent ke) {

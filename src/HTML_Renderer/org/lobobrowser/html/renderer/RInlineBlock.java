@@ -22,7 +22,6 @@ package org.lobobrowser.html.renderer;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
-import java.awt.event.MouseEvent;
 import java.util.Iterator;
 
 import org.eclipse.jdt.annotation.NonNull;
@@ -61,24 +60,10 @@ public class RInlineBlock extends BaseElementRenderable {
     return this.child.getLowestRenderableSpot(x, y);
   }
 
-  public boolean onDoubleClick(final MouseEvent event, final int x, final int y) {
-    return this.child.onDoubleClick(event, x, y);
-  }
-
-  public boolean onMouseClick(final MouseEvent event, final int x, final int y) {
-    return this.child.onMouseClick(event, x, y);
-  }
-
-  public boolean onMouseDisarmed(final MouseEvent event) {
-    return this.child.onMouseDisarmed(event);
-  }
-
-  public boolean onMousePressed(final MouseEvent event, final int x, final int y) {
-    return this.child.onMousePressed(event, x, y);
-  }
-
-  public boolean onMouseReleased(final MouseEvent event, final int x, final int y) {
-    return this.child.onMouseReleased(event, x, y);
+  @Override
+  public RenderableSpot hitTest(final int x, final int y) {
+    final RenderableSpot spot = this.child.hitTest(x - this.child.getVisualX(), y - this.child.getVisualY());
+    return spot != null ? spot : new RenderableSpot(this, x, y);
   }
 
   @Override

@@ -104,49 +104,9 @@ class RUIControl extends BaseElementRenderable {
     }
   }
 
-  public boolean onMouseClick(final java.awt.event.MouseEvent event, final int x, final int y) {
-    final ModelNode me = this.modelNode;
-    if (me != null) {
-      return HtmlController.getInstance().onMouseClick(me, event, x, y);
-    } else {
-      return true;
-    }
-  }
-
-  public boolean onDoubleClick(final java.awt.event.MouseEvent event, final int x, final int y) {
-    final ModelNode me = this.modelNode;
-    if (me != null) {
-      return HtmlController.getInstance().onDoubleClick(me, event, x, y);
-    } else {
-      return true;
-    }
-  }
-
-  public boolean onMousePressed(final java.awt.event.MouseEvent event, final int x, final int y) {
-    final ModelNode me = this.modelNode;
-    if (me != null) {
-      return HtmlController.getInstance().onMouseDown(me, event, x, y);
-    } else {
-      return true;
-    }
-  }
-
-  public boolean onMouseReleased(final java.awt.event.MouseEvent event, final int x, final int y) {
-    final ModelNode me = this.modelNode;
-    if (me != null) {
-      return HtmlController.getInstance().onMouseUp(me, event, x, y);
-    } else {
-      return true;
-    }
-  }
-
-  public boolean onMouseDisarmed(final java.awt.event.MouseEvent event) {
-    final ModelNode me = this.modelNode;
-    if (me != null) {
-      return HtmlController.getInstance().onMouseDisarmed(me, event);
-    } else {
-      return true;
-    }
+  @Override
+  public RenderableSpot hitTest(final int x, final int y) {
+    return new RenderableSpot(this, x, y);
   }
 
   /*

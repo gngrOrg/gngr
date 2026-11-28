@@ -28,7 +28,6 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.MouseEvent;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -329,18 +328,9 @@ abstract class BaseBoundableRenderable extends BaseRenderable implements Boundab
     }
   }
 
-  public void onMouseOut(final MouseEvent event, final int x, final int y, final ModelNode limit) {
-    if (this.isContainedByNode()) {
-      HtmlController.getInstance().onMouseOut(this.modelNode, event, x, y, limit);
-    }
-  }
-
-  public void onMouseMoved(final MouseEvent event, final int x, final int y, final boolean triggerEvent, final ModelNode limit) {
-    if (triggerEvent) {
-      if (this.isContainedByNode()) {
-        HtmlController.getInstance().onMouseOver(this, this.modelNode, event, x, y, limit);
-      }
-    }
+  @Override
+  public RenderableSpot hitTest(final int x, final int y) {
+    return new RenderableSpot(this, x, y);
   }
 
   public Point getOrigin() {
@@ -457,14 +447,5 @@ abstract class BaseBoundableRenderable extends BaseRenderable implements Boundab
 
   public boolean isDelegated() {
     return delegator != null;
-  }
-
-  public boolean onMiddleClick(final MouseEvent event, final int x, final int y) {
-    final ModelNode me = this.modelNode;
-    if (me != null) {
-      return HtmlController.getInstance().onMiddleClick(me, event, x, y);
-    } else {
-      return true;
-    }
   }
 }

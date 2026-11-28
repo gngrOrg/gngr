@@ -564,42 +564,23 @@ class RLine extends BaseRCollection {
     // TODO: Could throw OverflowException when we add floating widgets
   }
 
-  public boolean onMouseClick(final java.awt.event.MouseEvent event, final int x, final int y) {
-    final Renderable[] rarray = this.renderables.toArray(Renderable.EMPTY_ARRAY);
-    final BoundableRenderable r = MarkupUtilities.findRenderable(rarray, x, y, false);
-    if (r != null) {
-      final Rectangle rbounds = r.getVisualBounds();
-      return r.onMouseClick(event, x - rbounds.x, y - rbounds.y);
-    } else {
-      return true;
+  @Override
+  public RenderableSpot hitTest(final int x, final int y) {
+    final ArrayList<Renderable> rs = this.renderables;
+    for (int i = rs.size() - 1; i >= 0; i--) {
+      final Renderable r = rs.get(i);
+      if (r instanceof BoundableRenderable) {
+        final BoundableRenderable br = (BoundableRenderable) r;
+        if ((!br.isDelegated()) && br.contains(x, y)) {
+          final RenderableSpot spot = br.hitTest(x - br.getVisualX(), y - br.getVisualY());
+          if (spot != null) {
+            return spot;
+          }
+        }
+      }
     }
+    return null;
   }
-
-  public boolean onDoubleClick(final java.awt.event.MouseEvent event, final int x, final int y) {
-    final Renderable[] rarray = this.renderables.toArray(Renderable.EMPTY_ARRAY);
-    final BoundableRenderable r = MarkupUtilities.findRenderable(rarray, x, y, false);
-    if (r != null) {
-      final Rectangle rbounds = r.getVisualBounds();
-      return r.onDoubleClick(event, x - rbounds.x, y - rbounds.y);
-    } else {
-      return true;
-    }
-  }
-
-  private BoundableRenderable mousePressTarget;
-
-  /*
-  public boolean onMousePressed(final java.awt.event.MouseEvent event, final int x, final int y) {
-    final Renderable[] rarray = this.renderables.toArray(Renderable.EMPTY_ARRAY);
-    final BoundableRenderable r = MarkupUtilities.findRenderable(rarray, x, y, false);
-    if (r != null) {
-      this.mousePressTarget = r;
-      final Rectangle rbounds = r.getBounds();
-      return r.onMousePressed(event, x - rbounds.x, y - rbounds.y);
-    } else {
-      return true;
-    }
-  }*/
 
   public RenderableSpot getLowestRenderableSpot(final int x, final int y) {
     final Renderable[] rarray = this.renderables.toArray(Renderable.EMPTY_ARRAY);
@@ -609,37 +590,6 @@ class RLine extends BaseRCollection {
       return br.getLowestRenderableSpot(x - rbounds.x, y - rbounds.y);
     } else {
       return new RenderableSpot(this, x, y);
-    }
-  }
-
-  public boolean onMouseReleased(final java.awt.event.MouseEvent event, final int x, final int y) {
-    final Renderable[] rarray = this.renderables.toArray(Renderable.EMPTY_ARRAY);
-    final BoundableRenderable r = MarkupUtilities.findRenderable(rarray, x, y, false);
-    if (r != null) {
-      final Rectangle rbounds = r.getVisualBounds();
-      final BoundableRenderable oldArmedRenderable = this.mousePressTarget;
-      if ((oldArmedRenderable != null) && (r != oldArmedRenderable)) {
-        oldArmedRenderable.onMouseDisarmed(event);
-        this.mousePressTarget = null;
-      }
-      return r.onMouseReleased(event, x - rbounds.x, y - rbounds.y);
-    } else {
-      final BoundableRenderable oldArmedRenderable = this.mousePressTarget;
-      if (oldArmedRenderable != null) {
-        oldArmedRenderable.onMouseDisarmed(event);
-        this.mousePressTarget = null;
-      }
-      return true;
-    }
-  }
-
-  public boolean onMouseDisarmed(final java.awt.event.MouseEvent event) {
-    final BoundableRenderable target = this.mousePressTarget;
-    if (target != null) {
-      this.mousePressTarget = null;
-      return target.onMouseDisarmed(event);
-    } else {
-      return true;
     }
   }
 

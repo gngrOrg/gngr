@@ -40,6 +40,10 @@ public class PositionedRenderable implements Renderable {
   private final boolean isFixed;
   private final boolean isDelegated;
 
+  boolean isDelegated() {
+    return this.isDelegated;
+  }
+
   public PositionedRenderable(final @NonNull BoundableRenderable renderable, final boolean verticalAlignable, final int ordinal,
       final boolean isFloat, final boolean isFixed, final boolean isDelegated) {
     super();

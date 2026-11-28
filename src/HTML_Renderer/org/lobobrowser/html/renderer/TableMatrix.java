@@ -25,7 +25,6 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.Rectangle;
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -1692,18 +1691,8 @@ final class TableMatrix {
     }
 
     @Override
-    public boolean onMouseReleased(MouseEvent event, int x, int y) {
-      return false;
-    }
-
-    @Override
-    public boolean onMouseDisarmed(MouseEvent event) {
-      return false;
-    }
-
-    @Override
-    public boolean onDoubleClick(MouseEvent event, int x, int y) {
-      return false;
+    public RenderableSpot hitTest(final int x, final int y) {
+      return new RenderableSpot(this, x, y);
     }
 
     @Override
@@ -1875,120 +1864,34 @@ final class TableMatrix {
     return null;
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see
-   * org.xamjwg.html.renderer.BoundableRenderable#onMouseClick(java.awt.event
-   * .MouseEvent, int, int)
-   */
-  public boolean onMouseClick(final MouseEvent event, final int x, final int y) {
-    for (@NonNull RAbstractCell cell : this.ALL_CELLS) {
-      final Rectangle bounds = cell.getVisualBounds();
-      if (bounds.contains(x, y)) {
-        if (!cell.onMouseClick(event, x - bounds.x, y - bounds.y)) {
-          return false;
+  public RenderableSpot hitTest(final int x, final int y) {
+    final ArrayList<@NonNull RAbstractCell> cells = this.ALL_CELLS;
+    for (int i = cells.size() - 1; i >= 0; i--) {
+      final RAbstractCell cell = cells.get(i);
+      if ((!cell.isDelegated()) && cell.contains(x, y)) {
+        final RenderableSpot spot = cell.hitTest(x - cell.getVisualX(), y - cell.getVisualY());
+        if (spot != null) {
+          return spot;
         }
-        break;
       }
     }
-    return true;
-  }
-
-  public boolean onDoubleClick(final MouseEvent event, final int x, final int y) {
-    for (@NonNull RAbstractCell cell : this.ALL_CELLS) {
-      final Rectangle bounds = cell.getVisualBounds();
-      if (bounds.contains(x, y)) {
-        if (!cell.onDoubleClick(event, x - bounds.x, y - bounds.y)) {
-          return false;
+    final ArrayList<RowGroupSizeInfo> rgs = this.rowGroupSizes;
+    if (rgs != null) {
+      for (int i = rgs.size() - 1; i >= 0; i--) {
+        final RTableRowGroup rGroup = rgs.get(i).r;
+        if (rGroup.contains(x, y)) {
+          final RenderableSpot spot = rGroup.hitTest(x - rGroup.getVisualX(), y - rGroup.getVisualY());
+          if (spot != null) {
+            return spot;
+          }
         }
-        break;
       }
     }
-    return true;
+    return null;
   }
 
-  private BoundableRenderable armedRenderable;
   private int maxRowGroupLeft;
   private int maxRowGroupRight;
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see
-   * org.xamjwg.html.renderer.BoundableRenderable#onMouseDisarmed(java.awt.event
-   * .MouseEvent)
-   */
-  public boolean onMouseDisarmed(final MouseEvent event) {
-    final BoundableRenderable ar = this.armedRenderable;
-    if (ar != null) {
-      this.armedRenderable = null;
-      return ar.onMouseDisarmed(event);
-    } else {
-      return true;
-    }
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see
-   * org.xamjwg.html.renderer.BoundableRenderable#onMousePressed(java.awt.event
-   * .MouseEvent, int, int)
-   */
-  public boolean onMousePressed(final MouseEvent event, final int x, final int y) {
-    final ArrayList<RAbstractCell> allCells = this.ALL_CELLS;
-    final int numCells = allCells.size();
-    for (int i = 0; i < numCells; i++) {
-      final RAbstractCell cell = allCells.get(i);
-      final Rectangle bounds = cell.getVisualBounds();
-      if (bounds.contains(x, y)) {
-        if (!cell.onMousePressed(event, x - bounds.x, y - bounds.y)) {
-          this.armedRenderable = cell;
-          return false;
-        }
-        break;
-      }
-    }
-    return true;
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see
-   * org.xamjwg.html.renderer.BoundableRenderable#onMouseReleased(java.awt.event
-   * .MouseEvent, int, int)
-   */
-  public boolean onMouseReleased(final MouseEvent event, final int x, final int y) {
-    final ArrayList<RAbstractCell> allCells = this.ALL_CELLS;
-    final int numCells = allCells.size();
-    boolean found = false;
-    for (int i = 0; i < numCells; i++) {
-      final RAbstractCell cell = allCells.get(i);
-      final Rectangle bounds = cell.getVisualBounds();
-      if (bounds.contains(x, y)) {
-        found = true;
-        final BoundableRenderable oldArmedRenderable = this.armedRenderable;
-        if ((oldArmedRenderable != null) && (cell != oldArmedRenderable)) {
-          oldArmedRenderable.onMouseDisarmed(event);
-          this.armedRenderable = null;
-        }
-        if (!cell.onMouseReleased(event, x - bounds.x, y - bounds.y)) {
-          return false;
-        }
-        break;
-      }
-    }
-    if (!found) {
-      final BoundableRenderable oldArmedRenderable = this.armedRenderable;
-      if (oldArmedRenderable != null) {
-        oldArmedRenderable.onMouseDisarmed(event);
-        this.armedRenderable = null;
-      }
-    }
-    return true;
-  }
 
   Iterator<@NonNull RAbstractCell> getCells() {
     return this.ALL_CELLS.iterator();

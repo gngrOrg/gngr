@@ -4,7 +4,6 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.MouseEvent;
 import java.util.Iterator;
 
 import org.eclipse.jdt.annotation.NonNull;
@@ -139,40 +138,11 @@ public class TranslatedRenderable extends BaseBoundableRenderable implements RCo
     translatedChild.repaint();
   }
 
-  public boolean onMousePressed(final MouseEvent event, final int x, final int y) {
-    return translatedChild.onMousePressed(event, x, y);
-  }
-
-  public boolean onMouseReleased(final MouseEvent event, final int x, final int y) {
-    return translatedChild.onMouseReleased(event, x, y);
-  }
-
-  public boolean onMouseDisarmed(final MouseEvent event) {
-    return translatedChild.onMouseDisarmed(event);
-  }
-
-  public boolean onMouseClick(final MouseEvent event, final int x, final int y) {
-    return translatedChild.onMouseClick(event, x, y);
-  }
-
-  public boolean onMiddleClick(final MouseEvent event, final int x, final int y) {
-    return translatedChild.onMiddleClick(event, x, y);
-  }
-
-  public boolean onDoubleClick(final MouseEvent event, final int x, final int y) {
-    return translatedChild.onDoubleClick(event, x, y);
-  }
-
-  public boolean onRightClick(final MouseEvent event, final int x, final int y) {
-    return translatedChild.onRightClick(event, x, y);
-  }
-
-  public void onMouseMoved(final MouseEvent event, final int x, final int y, final boolean triggerEvent, final ModelNode limit) {
-    translatedChild.onMouseMoved(event, x, y, triggerEvent, limit);
-  }
-
-  public void onMouseOut(final MouseEvent event, final int x, final int y, final ModelNode limit) {
-    translatedChild.onMouseOut(event, x, y, limit);
+  @Override
+  public RenderableSpot hitTest(final int x, final int y) {
+    // Parent already subtracted PositionedRenderable visual bounds origin,
+    // so (x, y) is already in translatedChild's local coordinate space.
+    return translatedChild.hitTest(x, y);
   }
 
   public boolean isContainedByNode() {

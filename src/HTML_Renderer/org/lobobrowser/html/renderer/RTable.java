@@ -29,7 +29,6 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.Rectangle;
-import java.awt.event.MouseEvent;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -196,116 +195,52 @@ class RTable extends BaseBlockyRenderable {
     return new RenderableSpot(this, x, y);
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see
-   * org.xamjwg.html.renderer.BoundableRenderable#onMouseClick(java.awt.event
-   * .MouseEvent, int, int)
-   */
-  public boolean onMouseClick(final MouseEvent event, final int x, final int y) {
-    final Collection<PositionedRenderable> prs = this.positionedRenderables;
-    if (prs != null) {
-      final Iterator<PositionedRenderable> i = prs.iterator();
-      while (i.hasNext()) {
-        final PositionedRenderable pr = i.next();
-        final BoundableRenderable r = pr.renderable;
-        final Rectangle bounds = r.getVisualBounds();
-        if (bounds.contains(x, y)) {
-          final int childX = x - r.getVisualX();
-          final int childY = y - r.getVisualY();
-          if (!r.onMouseClick(event, childX, childY)) {
-            return false;
+  @Override
+  public RenderableSpot hitTest(final int x, final int y) {
+    final SortedSet<PositionedRenderable> prs = this.positionedRenderables;
+    final int size = prs == null ? 0 : prs.size();
+    final PositionedRenderable[] prArray = size == 0 ? null : prs.toArray(PositionedRenderable.EMPTY_ARRAY);
+    int index = size - 1;
+
+    if (prArray != null) {
+      for (; index >= 0; index--) {
+        final PositionedRenderable pr = prArray[index];
+        if (pr.renderable.getZIndex() < 0) {
+          break;
+        }
+        if (!pr.isDelegated()) {
+          final Rectangle vb = pr.getVisualBounds();
+          if (vb.contains(x, y)) {
+            final RenderableSpot spot = pr.renderable.hitTest(x - vb.x, y - vb.y);
+            if (spot != null) {
+              return spot;
+            }
           }
         }
       }
     }
-    return this.tableMatrix.onMouseClick(event, x, y);
-  }
 
-  public boolean onDoubleClick(final MouseEvent event, final int x, final int y) {
-    final Collection<PositionedRenderable> prs = this.positionedRenderables;
-    if (prs != null) {
-      final Iterator<PositionedRenderable> i = prs.iterator();
-      while (i.hasNext()) {
-        final PositionedRenderable pr = i.next();
-        final BoundableRenderable r = pr.renderable;
-        final Rectangle bounds = r.getVisualBounds();
-        if (bounds.contains(x, y)) {
-          final int childX = x - r.getVisualX();
-          final int childY = y - r.getVisualY();
-          if (!r.onDoubleClick(event, childX, childY)) {
-            return false;
+    final RenderableSpot matrixSpot = this.tableMatrix.hitTest(x, y);
+    if (matrixSpot != null) {
+      return matrixSpot;
+    }
+
+    if (prArray != null) {
+      for (; index >= 0; index--) {
+        final PositionedRenderable pr = prArray[index];
+        if (!pr.isDelegated()) {
+          final Rectangle vb = pr.getVisualBounds();
+          if (vb.contains(x, y)) {
+            final RenderableSpot spot = pr.renderable.hitTest(x - vb.x, y - vb.y);
+            if (spot != null) {
+              return spot;
+            }
           }
         }
       }
     }
-    return this.tableMatrix.onDoubleClick(event, x, y);
-  }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see
-   * org.xamjwg.html.renderer.BoundableRenderable#onMouseDisarmed(java.awt.event
-   * .MouseEvent)
-   */
-  public boolean onMouseDisarmed(final MouseEvent event) {
-    return this.tableMatrix.onMouseDisarmed(event);
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see
-   * org.xamjwg.html.renderer.BoundableRenderable#onMousePressed(java.awt.event
-   * .MouseEvent, int, int)
-   */
-  public boolean onMousePressed(final MouseEvent event, final int x, final int y) {
-    final Collection<PositionedRenderable> prs = this.positionedRenderables;
-    if (prs != null) {
-      final Iterator<PositionedRenderable> i = prs.iterator();
-      while (i.hasNext()) {
-        final PositionedRenderable pr = i.next();
-        final BoundableRenderable r = pr.renderable;
-        final Rectangle bounds = r.getVisualBounds();
-        if (bounds.contains(x, y)) {
-          final int childX = x - r.getVisualX();
-          final int childY = y - r.getVisualY();
-          if (!r.onMousePressed(event, childX, childY)) {
-            return false;
-          }
-        }
-      }
-    }
-    return this.tableMatrix.onMousePressed(event, x, y);
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see
-   * org.xamjwg.html.renderer.BoundableRenderable#onMouseReleased(java.awt.event
-   * .MouseEvent, int, int)
-   */
-  public boolean onMouseReleased(final MouseEvent event, final int x, final int y) {
-    final Collection<PositionedRenderable> prs = this.positionedRenderables;
-    if (prs != null) {
-      final Iterator<PositionedRenderable> i = prs.iterator();
-      while (i.hasNext()) {
-        final PositionedRenderable pr = i.next();
-        final BoundableRenderable r = pr.renderable;
-        final Rectangle bounds = r.getVisualBounds();
-        if (bounds.contains(x, y)) {
-          final int childX = x - r.getVisualX();
-          final int childY = y - r.getVisualY();
-          if (!r.onMouseReleased(event, childX, childY)) {
-            return false;
-          }
-        }
-      }
-    }
-    return this.tableMatrix.onMouseReleased(event, x, y);
+    return new RenderableSpot(this, x, y);
   }
 
   /*

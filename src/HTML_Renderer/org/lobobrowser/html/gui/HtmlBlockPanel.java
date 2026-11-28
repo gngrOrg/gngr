@@ -73,6 +73,7 @@ import org.lobobrowser.html.domimpl.UINode;
 import org.lobobrowser.html.renderer.BoundableRenderable;
 import org.lobobrowser.html.renderer.DelayedPair;
 import org.lobobrowser.html.renderer.FrameContext;
+import org.lobobrowser.html.renderer.HtmlController;
 import org.lobobrowser.html.renderer.NodeRenderer;
 import org.lobobrowser.html.renderer.PositionedRenderable;
 import org.lobobrowser.html.renderer.RBlock;
@@ -441,6 +442,8 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
   public void setRootNode(final NodeImpl node) {
     scrollCompleted = false;
     layoutCompleted = new CompletableFuture<>();
+    this.mousePressNode = null;
+    this.hoveredNode = null;
     if (node != null) {
       final RBlock block = new RBlock(node, 0, this.ucontext, this.rcontext, this.frameContext, this);
       block.setDefaultOverflowX(this.defaultOverflowX);
@@ -480,25 +483,49 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
     return block == null ? null : (NodeImpl) block.getModelNode();
   }
 
+  private RenderableSpot hitTest(final int x, final int y) {
+    final RBlock block = this.rblock;
+    if ((block == null) || !block.contains(x, y)) {
+      return null;
+    }
+    return block.hitTest(x - block.getVisualX(), y - block.getVisualY());
+  }
+
+  private static ModelNode findCommonAncestor(final ModelNode node1, final ModelNode node2) {
+    if ((node1 == null) || (node2 == null)) {
+      return null;
+    }
+    for (ModelNode n1 = node1; n1 != null; n1 = n1.getParentModelNode()) {
+      for (ModelNode n2 = node2; n2 != null; n2 = n2.getParentModelNode()) {
+        if (n1 == n2) {
+          return n1;
+        }
+      }
+    }
+    return null;
+  }
+
   private void onMouseClick(final MouseEvent event) {
     // Rely on AWT mouse-click only for double-clicks
-    final RBlock block = this.rblock;
-    if (block != null) {
-      final int clickCount = event.getClickCount();
-      if (SwingUtilities.isLeftMouseButton(event) && (clickCount > 1)) {
-        // TODO: Double-click must be revised. It generates
-        // a single click via mouse release.
-        final Point point = event.getPoint();
-        block.onDoubleClick(event, point.x, point.y);
-      } else if (SwingUtilities.isMiddleMouseButton(event) && (clickCount == 1)) {
-        block.onMiddleClick(event, event.getX(), event.getY());
-      } else if (SwingUtilities.isRightMouseButton(event) && (clickCount == 1)) {
-        block.onRightClick(event, event.getX(), event.getY());
-      }
+    final RenderableSpot hit = this.hitTest(event.getX(), event.getY());
+    if (hit == null) {
+      return;
+    }
+    final ModelNode targetNode = hit.renderable.getModelNode();
+    final int clickCount = event.getClickCount();
+    if (SwingUtilities.isLeftMouseButton(event) && (clickCount > 1)) {
+      // TODO: Double-click must be revised. It generates
+      // a single click via mouse release.
+      HtmlController.getInstance().onDoubleClick(targetNode, event, hit.x, hit.y);
+    } else if (SwingUtilities.isMiddleMouseButton(event) && (clickCount == 1)) {
+      HtmlController.getInstance().onMiddleClick(targetNode, event, hit.x, hit.y);
+    } else if (SwingUtilities.isRightMouseButton(event) && (clickCount == 1)) {
+      HtmlController.getInstance().onContextMenu(targetNode, event, hit.x, hit.y);
     }
   }
 
-  private BoundableRenderable mousePressTarget;
+  private ModelNode mousePressNode;
+  private ModelNode hoveredNode;
   private Map<?, ?> desktopHints = null;
 
   private void onMousePressed(final MouseEvent event) {
@@ -506,87 +533,66 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
     final RBlock block = this.rblock;
     if (block != null) {
       final Point point = event.getPoint();
-      this.mousePressTarget = block;
       final int rx = point.x;
       final int ry = point.y;
-      block.onMousePressed(event, rx, ry);
+      final RenderableSpot hit = this.hitTest(rx, ry);
+      if (hit != null) {
+        final ModelNode targetNode = hit.renderable.getModelNode();
+        this.mousePressNode = targetNode;
+        HtmlController.getInstance().onMouseDown(targetNode, event, hit.x, hit.y);
+      } else {
+        this.mousePressNode = null;
+      }
       final RenderableSpot rp = block.getLowestRenderableSpot(rx, ry);
       if (rp != null) {
         this.frameContext.resetSelection(rp);
       } else {
         this.frameContext.resetSelection(null);
       }
+    } else {
+      this.mousePressNode = null;
     }
   }
 
   private void onMouseReleased(final MouseEvent event) {
-    final RBlock block = this.rblock;
-    if (block != null) {
-      final Point point = event.getPoint();
-      final int rx = point.x;
-      final int ry = point.y;
+    final Point point = event.getPoint();
+    final int rx = point.x;
+    final int ry = point.y;
+    final RenderableSpot hit = this.hitTest(rx, ry);
+    final ModelNode targetNode = hit == null ? null : hit.renderable.getModelNode();
+    if (hit != null) {
       if (SwingUtilities.isLeftMouseButton(event)) {
         // TODO: This will be raised twice on a double-click.
         if (event.isControlDown()) {
-          block.onMiddleClick(event, rx, ry);
+          HtmlController.getInstance().onMiddleClick(targetNode, event, hit.x, hit.y);
         } else {
-          block.onMouseClick(event, rx, ry);
+          HtmlController.getInstance().onMouseClick(targetNode, event, hit.x, hit.y);
         }
       } else if (SwingUtilities.isRightMouseButton(event)) {
-        block.onRightClick(event, rx, ry);
+        HtmlController.getInstance().onContextMenu(targetNode, event, hit.x, hit.y);
       }
-      block.onMouseReleased(event, rx, ry);
-      final BoundableRenderable oldTarget = this.mousePressTarget;
-      if (oldTarget != null) {
-        this.mousePressTarget = null;
-        if (oldTarget != block) {
-          oldTarget.onMouseDisarmed(event);
-        }
+      HtmlController.getInstance().onMouseUp(targetNode, event, hit.x, hit.y);
+    }
+    final ModelNode oldPressNode = this.mousePressNode;
+    if (oldPressNode != null) {
+      this.mousePressNode = null;
+      if (oldPressNode != targetNode) {
+        HtmlController.getInstance().onMouseDisarmed(oldPressNode, event);
       }
-    } else {
-      this.mousePressTarget = null;
     }
   }
 
   private void onMouseExited(final MouseEvent event) {
-    final BoundableRenderable oldTarget = this.mousePressTarget;
-    if (oldTarget != null) {
-      this.mousePressTarget = null;
-      oldTarget.onMouseDisarmed(event);
+    final ModelNode oldPressNode = this.mousePressNode;
+    if (oldPressNode != null) {
+      this.mousePressNode = null;
+      HtmlController.getInstance().onMouseDisarmed(oldPressNode, event);
     }
-  }
-
-  private Renderable getInnerMostRenderable(final int x, final int y) {
-    final RBlock block = this.rblock;
-    BoundableRenderable r = block.getRenderable(x - block.getVisualX(), y - block.getVisualY());
-
-    int xi = x, yi = y;
-    BoundableRenderable inner = null;
-    BoundableRenderable prevR = null;
-    do {
-      if (r instanceof RCollection) {
-        RCollection rc = (RCollection) r;
-
-        if (prevR != null) {
-          final Point oi = prevR.getOriginRelativeTo(rc);
-          xi -= oi.x;
-          yi -= oi.y;
-        }
-
-        // xi -= rc.getVisualX();
-        // yi -= rc.getVisualY();
-
-        inner = rc.getRenderable(xi, yi);
-        if (inner != null) {
-          prevR = r;
-          r = inner;
-        }
-      } else {
-        inner = null;
-      }
-    } while (inner != null);
-
-    return r;
+    final ModelNode oldHoverNode = this.hoveredNode;
+    if (oldHoverNode != null) {
+      this.hoveredNode = null;
+      HtmlController.getInstance().onMouseOut(oldHoverNode, event, event.getX(), event.getY(), null);
+    }
   }
 
   private RBlock getContainingBlock(final Renderable r) {
@@ -610,7 +616,8 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
       case MouseWheelEvent.WHEEL_UNIT_SCROLL:
         final int factor = mwe.isShiftDown() ? 2 : 1;
         final int units = mwe.getWheelRotation() * mwe.getScrollAmount() * factor;
-        final Renderable innerMostRenderable = getInnerMostRenderable(mwe.getX(), mwe.getY());
+        final RenderableSpot hit = this.hitTest(mwe.getX(), mwe.getY());
+        final Renderable innerMostRenderable = hit == null ? null : hit.renderable;
         boolean consumed = false;
         RBlock innerBlock = getContainingBlock(innerMostRenderable);
         do {
@@ -637,10 +644,19 @@ public class HtmlBlockPanel extends JComponent implements NodeRenderer, Renderab
   }
 
   private void onMouseMoved(final MouseEvent event) {
-    final RBlock block = this.rblock;
-    if (block != null) {
-      final Point point = event.getPoint();
-      block.onMouseMoved(event, point.x, point.y, false, null);
+    final Point point = event.getPoint();
+    final RenderableSpot hit = this.hitTest(point.x, point.y);
+    final ModelNode oldNode = this.hoveredNode;
+    final ModelNode newNode = hit == null ? null : hit.renderable.getModelNode();
+    if (oldNode != newNode) {
+      final ModelNode commonAncestor = findCommonAncestor(oldNode, newNode);
+      this.hoveredNode = newNode;
+      if ((oldNode != null) && (oldNode != commonAncestor)) {
+        HtmlController.getInstance().onMouseOut(oldNode, event, point.x, point.y, commonAncestor);
+      }
+      if ((newNode != null) && (newNode != commonAncestor)) {
+        HtmlController.getInstance().onMouseOver(hit.renderable, newNode, event, hit.x, hit.y, commonAncestor);
+      }
     }
   }
 

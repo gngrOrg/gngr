@@ -24,7 +24,6 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.MouseEvent;
 
 import org.lobobrowser.html.domimpl.ModelNode;
 
@@ -106,25 +105,13 @@ public interface BoundableRenderable extends Renderable {
   public void repaint();
 
   /**
-   * Returns false if the event is consumed. True to propagate further.
+   * Finds the deepest matching renderable at coordinates {@code (x, y)} in this
+   * renderable's local coordinate space (after subtracting its visual origin).
+   *
+   * @return The hit renderable and its local coordinates, or {@code null} if no
+   *         hit applies.
    */
-  public boolean onMousePressed(MouseEvent event, int x, int y);
-
-  public boolean onMouseReleased(MouseEvent event, int x, int y);
-
-  public boolean onMouseDisarmed(MouseEvent event);
-
-  public boolean onMouseClick(MouseEvent event, int x, int y);
-
-  public boolean onDoubleClick(MouseEvent event, int x, int y);
-
-  public boolean onMiddleClick(MouseEvent event, int x, int y);
-
-  public boolean onRightClick(MouseEvent event, int x, int y);
-
-  public void onMouseMoved(MouseEvent event, int x, int y, boolean triggerEvent, ModelNode limit);
-
-  public void onMouseOut(MouseEvent event, int x, int y, ModelNode limit);
+  public RenderableSpot hitTest(int x, int y);
 
   /**
    * Returns true if the renderable is fully contained by its modelNode, but

@@ -26,7 +26,6 @@ package org.lobobrowser.html.renderer;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
-import java.awt.event.MouseEvent;
 
 import org.lobobrowser.html.domimpl.ModelNode;
 import org.lobobrowser.html.style.RenderState;
@@ -273,66 +272,12 @@ class RWord extends BaseBoundableRenderable {
     }
   }
 
-  public boolean onMouseClick(final java.awt.event.MouseEvent event, final int x, final int y) {
-    final ModelNode me = this.modelNode;
-    if (me != null) {
-      return HtmlController.getInstance().onMouseClick(me, event, x, y);
-    } else {
-      return true;
-    }
-  }
-
-  public boolean onDoubleClick(final java.awt.event.MouseEvent event, final int x, final int y) {
-    final ModelNode me = this.modelNode;
-    if (me != null) {
-      return HtmlController.getInstance().onDoubleClick(me, event, x, y);
-    } else {
-      return true;
-    }
-  }
-
-  public boolean onMousePressed(final java.awt.event.MouseEvent event, final int x, final int y) {
-    final ModelNode me = this.modelNode;
-    if (me != null) {
-      return HtmlController.getInstance().onMouseDown(me, event, x, y);
-    } else {
-      return true;
-    }
-  }
-
-  public boolean onMouseReleased(final java.awt.event.MouseEvent event, final int x, final int y) {
-    final ModelNode me = this.modelNode;
-    if (me != null) {
-      return HtmlController.getInstance().onMouseUp(me, event, x, y);
-    } else {
-      return true;
-    }
-  }
-
-  public boolean onMouseDisarmed(final java.awt.event.MouseEvent event) {
-    final ModelNode me = this.modelNode;
-    if (me != null) {
-      return HtmlController.getInstance().onMouseDisarmed(me, event);
-    } else {
-      return true;
-    }
-  }
-
   public RenderableSpot getLowestRenderableSpot(final int x, final int y) {
     return new RenderableSpot(this, x, y);
   }
 
   public boolean isContainedByNode() {
     return true;
-  }
-
-  public boolean onRightClick(final MouseEvent event, final int x, final int y) {
-    final ModelNode me = this.modelNode;
-    if (me != null) {
-      return HtmlController.getInstance().onContextMenu(me, event, x, y);
-    } else {
-      return true;
-    }
   }
 
   @Override
