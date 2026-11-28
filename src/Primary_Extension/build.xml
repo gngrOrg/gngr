@@ -11,8 +11,7 @@
     <property name="Platform_Core.location" value="../Platform_Core"/>
     <property name="HTML_Renderer.location" value="../HTML_Renderer"/>
     <property name="debuglevel" value="source,lines,vars"/>
-    <property name="target" value="1.8"/>
-    <property name="source" value="1.8"/>
+    <property name="release" value="11"/>
     <path id="Common.classpath">
         <pathelement location="${Common.location}/bin"/>
         <pathelement location="${XAMJ_Build.location}/org.eclipse.jdt.annotation_2.0.100.v20150311-1658.jar"/>
@@ -28,10 +27,10 @@
         <path refid="Common.classpath"/>
         <pathelement location="${Platform_Core.location}/lib/jooq-3.4.2.jar"/>
         <pathelement location="${Platform_Core.location}/lib/public-suffix-list_0.1_28Jun.jar"/>
-        <pathelement location="${Platform_Core.location}/lib/okhttp-2.7.2.jar"/>
-        <pathelement location="${Platform_Core.location}/lib/okhttp-urlconnection-2.7.2.jar"/>
-        <pathelement location="${Platform_Core.location}/lib/okio-1.6.0.jar"/>
-        <pathelement location="${Platform_Core.location}/lib/h2-1.4.188.jar"/>
+        <pathelement location="${Platform_Core.location}/lib/okhttp-3.13.1.jar"/>
+        <pathelement location="${Platform_Core.location}/lib/okhttp-urlconnection-3.13.1.jar"/>
+        <pathelement location="${Platform_Core.location}/lib/okio-1.17.3.jar"/>
+        <pathelement location="${Platform_Core.location}/lib/h2-1.4.196.jar"/>
         <pathelement location="${XAMJ_Build.location}/org.eclipse.jdt.annotation_2.0.100.v20150311-1658.jar"/>
     </path>
     <path id="HTML_Renderer.classpath">
@@ -42,8 +41,10 @@
         <path refid="Platform_Public_API.classpath"/>
         <path refid="Platform_Core.classpath"/>
         <pathelement location="${XAMJ_Build.location}/ext/jstyleDomBridge.jar"/>
-        <pathelement location="${XAMJ_Build.location}/ext/jstyleparser-1.21-SNAPSHOT.jar"/>
-        <pathelement location="${XAMJ_Build.location}/ext/unbescape-1.1.0.RELEASE.jar"/>
+        <pathelement location="${XAMJ_Build.location}/ext/jstyleparser-4.0.1.jar"/>
+        <pathelement location="${XAMJ_Build.location}/ext/unbescape-1.1.5.RELEASE.jar"/>
+        <pathelement location="${XAMJ_Build.location}/ext/antlr4-runtime-4.13.2.jar"/>
+        <pathelement location="${XAMJ_Build.location}/ext/slf4j-api-1.7.25.jar"/>
         <pathelement location="${XAMJ_Build.location}/org.eclipse.jdt.annotation_2.0.100.v20150311-1658.jar"/>
     </path>
     <path id="Primary_Extension.classpath">
@@ -83,7 +84,7 @@
     </target>
     <target depends="init" name="build-project">
         <echo message="${ant.project.name}: ${ant.file}"/>
-        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" source="${source}" target="${target}">
+        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" release="${release}" encoding="UTF8">
             <src path="."/>
             <classpath refid="Primary_Extension.classpath"/>
         </javac>

@@ -11,8 +11,7 @@
     <property name="Common.location" value="../Common"/>
     <property name="Platform_Public_API.location" value="../Platform_Public_API"/>
     <property name="debuglevel" value="source,lines,vars"/>
-    <property name="target" value="1.8"/>
-    <property name="source" value="1.8"/>
+    <property name="release" value="11"/>
     <path id="Platform_Public_API.classpath">
         <pathelement location="${Platform_Public_API.location}/bin"/>
         <pathelement location="${XAMJ_Build.location}/org.eclipse.jdt.annotation_2.0.100.v20150311-1658.jar"/>
@@ -59,7 +58,7 @@
     </target>
     <target depends="init" name="build-project">
         <echo message="${ant.project.name}: ${ant.file}"/>
-        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" source="${source}" target="${target}">
+        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" release="${release}" encoding="UTF8">
             <src path="."/>
             <exclude name="lib/*"/>
             <classpath refid="Platform_Core.classpath"/>

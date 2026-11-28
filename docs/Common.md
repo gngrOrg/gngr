@@ -2,7 +2,7 @@
 
 Scope: src/Common/ (53 Java files, ~5.6k LOC; shared foundational utility library for concurrency, caches, events, URLs, strings, DOM/HTML helpers, AWT/Swing rendering/layouts, classloading, stream/network I/O, and RFC 2397 data: URL protocol).
 Prefix shorthand: o.l.u. = org.lobobrowser.util..
-Build dependencies: JDK 1.8 (java.*, javax.swing.*, org.w3c.dom.*) + org.eclipse.jdt.annotation (@NonNull/@Nullable). **Zero internal module dependencies.**
+Build dependencies: JDK 11 (java.*, javax.swing.*, org.w3c.dom.*) + org.eclipse.jdt.annotation (@NonNull/@Nullable). **Zero internal module dependencies.**
 
 ## 1. Package & Resource Map
 

@@ -9,8 +9,9 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/Platform_Core"/>
 	<classpathentry kind="lib" path="/XAMJ_Build/ext/jstyleDomBridge.jar"/>
 	<classpathentry kind="lib" path="/XAMJ_Build/org.eclipse.jdt.annotation_2.0.100.v20150311-1658.jar"/>
-	<classpathentry kind="lib" path="/XAMJ_Build/ext/antlr4-4.5.3.jar"/>
-	<classpathentry kind="lib" path="/XAMJ_Build/ext/jstyleparser-3.3-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="/XAMJ_Build/ext/antlr4-runtime-4.13.2.jar"/>
+	<classpathentry kind="lib" path="/XAMJ_Build/ext/jstyleparser-4.0.1.jar"/>
+	<classpathentry kind="lib" path="/XAMJ_Build/ext/slf4j-api-1.7.25.jar"/>
 	<classpathentry kind="lib" path="/XAMJ_Build/ext/unbescape-1.1.5.RELEASE.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

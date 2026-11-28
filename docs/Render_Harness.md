@@ -4,7 +4,7 @@ Scope: src/Render_Harness/ (5 Java files, ~1.9k LOC; standalone offscreen Grinde
 Prefix shorthand: o.l. = org.lobobrowser., o.l.h. = org.lobobrowser.harness..
 Entrypoint & launch: o.l.h.RenderHarnessMain, invoked via ant -f src/build.xml run-harness (or ant -f src/Render_Harness/build.xml run); default target of misc/runTest.sh and misc/runHarnessTest.sh.
 Dependencies:
-- Direct imports: HTML_Renderer (HtmlPanel, HtmlBlockPanel, HtmlRendererContext, BrowserFrame, FormInput, HtmlObject, HTMLDocumentImpl, DocumentBuilderImpl, InputSourceImpl), Platform_Public_API (UserAgentContext, NetworkRequest, NetworkRequestEvent, NetworkRequestListener, ImageResponse), Common (org.lobobrowser.protocol.data.Handler), JDK 1.8 (java.awt.*, javax.swing.*, javax.imageio.ImageIO, java.net.*, org.w3c.dom.*), org.eclipse.jdt.annotation (@NonNull).
+- Direct imports: HTML_Renderer (HtmlPanel, HtmlBlockPanel, HtmlRendererContext, BrowserFrame, FormInput, HtmlObject, HTMLDocumentImpl, DocumentBuilderImpl, InputSourceImpl), Platform_Public_API (UserAgentContext, NetworkRequest, NetworkRequestEvent, NetworkRequestListener, ImageResponse), Common (org.lobobrowser.protocol.data.Handler), JDK 11 (java.awt.*, javax.swing.*, javax.imageio.ImageIO, java.net.*, org.w3c.dom.*), org.eclipse.jdt.annotation (@NonNull).
 - Transitive build/runtime classpath (build.xml): Common, Platform_Core + Platform_Core/lib/*, and all 8 JARs in XAMJ_Build/ (needed by HTML_Renderer at runtime; Render_Harness itself imports nothing from Platform_Core or Primary_Extension).
 
 ## 1. File & Resource Map

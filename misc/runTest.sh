@@ -16,6 +16,7 @@ fc-cache -f
 
 cd $INIT_DIR
 
+GRINDER_JAVA="${GRINDER_JAVA:-java}"
 GRINDER_KEY="$$$(rnd)"
 TEST_DIR="$HOME/grinderTest"
 PROFILE_DIR="$TEST_DIR/testProfile"
@@ -55,6 +56,6 @@ ln -s -f grinderBaselines/nightly-unstable ./
 
 python3 -m http.server 8000 &> /dev/null &
 
-java -jar ${GRINDER_JAR} prepare
-java -jar ${GRINDER_JAR} compare gngr $GRINDER_KEY --baseLine=$TEST_DIR/grinderBaselines/gngr --profileDir="$PROFILE_DIR" --uploadImg=y
-java -jar ${GRINDER_JAR} checkBase data $TEST_DIR/grinderBaselines/gngr
+"$GRINDER_JAVA" -jar ${GRINDER_JAR} prepare
+"$GRINDER_JAVA" -jar ${GRINDER_JAR} compare gngr $GRINDER_KEY --baseLine=$TEST_DIR/grinderBaselines/gngr --profileDir="$PROFILE_DIR" --uploadImg=y
+"$GRINDER_JAVA" -jar ${GRINDER_JAR} checkBase data $TEST_DIR/grinderBaselines/gngr

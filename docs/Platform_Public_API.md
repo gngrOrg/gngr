@@ -2,7 +2,7 @@
 
 Scope: src/Platform_Public_API/ (48 Java files, ~4.0k LOC; zero-dependency public contract layer between Platform_Core, extensions/clientlets, HTML_Renderer, and Render_Harness).
 Prefix shorthand: o.l. = org.lobobrowser..
-Build dependencies: JDK 1.8 (org.w3c.dom.Document, java.awt.*, javax.swing.JMenu) + org.eclipse.jdt.annotation (@NonNull/@Nullable). **Zero internal module dependencies** (does not depend on Common, Platform_Core, HTML_Renderer, or Primary_Extension).
+Build dependencies: JDK 11 (org.w3c.dom.Document, java.awt.*, javax.swing.JMenu) + org.eclipse.jdt.annotation (@NonNull/@Nullable). **Zero internal module dependencies** (does not depend on Common, Platform_Core, HTML_Renderer, or Primary_Extension).
 License note: README.txt states FreeBSD-equivalent license for platform APIs, though newer files carry LGPL (ImageResponse.java) or GPL (NavigationEvent.java) headers.
 
 ## 1. Package & Resource Map

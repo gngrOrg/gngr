@@ -11,9 +11,9 @@ Legacy role: Retains disabled Ant/IzPack installer scripts (build.xml.disabled, 
 | org.eclipse.jdt.annotation_2.0.100.v20150311-1658.jar | 17 KB | Eclipse JDT @NonNull / @Nullable annotations | **All 6 Java modules** (Common, Platform_Public_API, Platform_Core, HTML_Renderer, Primary_Extension, Render_Harness) |
 | ext/js.jar | 1.2 MB | Mozilla Rhino JavaScript engine | HTML_Renderer (compile/runtime), Primary_Extension (SimpleDocument imports Scriptable), Render_Harness (runtime), Platform_Core (-Dext.dirs) |
 | ext/jstyleparser-4.0.1.jar | 711 KB | jStyleParser CSS parser & cascade engine (cz.vutbr.web.css.*) | HTML_Renderer, Render_Harness, Platform_Core (-Dext.dirs) |
-| ext/antlr4-runtime-4.13.2.jar | 319 KB | ANTLR 4 runtime (required by jStyleParser 4.x) | Runtime for HTML_Renderer via Platform_Core (-Dext.dirs) and Render_Harness (build.xml) |
+| ext/antlr4-runtime-4.13.2.jar | 319 KB | ANTLR 4 runtime (required by jStyleParser 4.x) | HTML_Renderer, Render_Harness, Platform_Core (-Dext.dirs) |
 | ext/unbescape-1.1.5.RELEASE.jar | 162 KB | Unbescape HTML/CSS/JS unescaping (used by jStyleParser / HTML_Renderer) | HTML_Renderer, Render_Harness, Platform_Core (-Dext.dirs) |
-| ext/slf4j-api-1.7.25.jar | 41 KB | SLF4J API facade (used by jStyleParser) | Runtime for HTML_Renderer via Platform_Core (-Dext.dirs) and Render_Harness (build.xml) |
+| ext/slf4j-api-1.7.25.jar | 41 KB | SLF4J API facade (used by jStyleParser) | HTML_Renderer, Render_Harness, Platform_Core (-Dext.dirs) |
 | ext/jstyleDomBridge.jar | 18 KB | co.uproot.css.domimpl.* (JStyleSheetWrapper, StyleSheetBridge) | HTML_Renderer, Render_Harness, Platform_Core (-Dext.dirs) |
 | ext/sac.jar | 15 KB | W3C SAC (Simple API for CSS) interfaces | HTML_Renderer, Render_Harness, Platform_Core (-Dext.dirs) |
 
@@ -53,14 +53,9 @@ Runtime (Render_Harness — Render_Harness/build.xml run):
 1. **Multi-file sync required when upgrading any JAR in XAMJ_Build/:**
    - Update src/HTML_Renderer/build.xml + .classpath, src/Primary_Extension/build.xml + .classpath, src/Render_Harness/build.xml + .classpath (and all 6 modules if updating org.eclipse.jdt.annotation_*.jar).
    - Update src/Platform_Core/org/lobobrowser/security/LocalSecurityPolicy.java (getPermissions()): hardcodes exact filename matches for slf4j-api-1.7.25.jar (line 375), jstyleparser-4.0.1.jar (line 378), sac.jar (line 433), and js.jar (line 435). A version bump without updating LocalSecurityPolicy silently strips permissions under a SecurityManager.
-2. **Existing classpath drift across module build files:**
-   - src/Primary_Extension/build.xml lines 45–46 reference **non-existent** jstyleparser-1.21-SNAPSHOT.jar and unbescape-1.1.0.RELEASE.jar (and omit antlr4-runtime and slf4j-api); compilation succeeds only because Primary_Extension does not directly import those packages.
-   - src/HTML_Renderer/build.xml omits antlr4-runtime-4.13.2.jar and slf4j-api-1.7.25.jar (not needed at compile time; supplied at runtime by -Dext.dirs=../XAMJ_Build/ext in browser mode).
-   - src/HTML_Renderer/.classpath still references **non-existent** antlr4-4.5.3.jar and jstyleparser-3.3-SNAPSHOT.jar and omits slf4j-api-1.7.25.jar.
-   - src/Render_Harness/build.xml and .classpath are the only configs referencing all 8 current JAR filenames.
-3. **ext/ is auto-loaded at browser runtime:** Any .jar placed in src/XAMJ_Build/ext/ is automatically scanned by ExtensionManager via -Dext.dirs=../XAMJ_Build/ext and added to librariesCL (or loaded as a NavigatorExtension if it contains gngr-extension.properties). Do not leave backup or duplicate version JARs in ext/.
-4. **Permissions for unlisted ext/ JARs:** antlr4-runtime-4.13.2.jar, unbescape-1.1.5.RELEASE.jar, and jstyleDomBridge.jar have no dedicated branch in LocalSecurityPolicy.getPermissions(), so they receive no extra permissions under a SecurityManager.
-5. **Do not rename build.xml.disabled to build.xml:** Root src/build.xml globs */build.xml and would attempt to run the broken legacy Lobo script.
+2. **ext/ is auto-loaded at browser runtime:** Any .jar placed in src/XAMJ_Build/ext/ is automatically scanned by ExtensionManager via -Dext.dirs=../XAMJ_Build/ext and added to librariesCL (or loaded as a NavigatorExtension if it contains gngr-extension.properties). Do not leave backup or duplicate version JARs in ext/.
+3. **Permissions for unlisted ext/ JARs:** antlr4-runtime-4.13.2.jar, unbescape-1.1.5.RELEASE.jar, and jstyleDomBridge.jar have no dedicated branch in LocalSecurityPolicy.getPermissions(), so they receive no extra permissions under a SecurityManager.
+4. **Do not rename build.xml.disabled to build.xml:** Root src/build.xml globs */build.xml and would attempt to run the broken legacy Lobo script.
 
 ## 5. Task-to-File Quick Index
 

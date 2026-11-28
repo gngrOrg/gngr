@@ -7,8 +7,7 @@
     <property name="Platform_Core.location" value="../Platform_Core"/>
     <property name="HTML_Renderer.location" value="../HTML_Renderer"/>
     <property name="debuglevel" value="source,lines,vars"/>
-    <property name="target" value="1.8"/>
-    <property name="source" value="1.8"/>
+    <property name="release" value="11"/>
 
     <path id="Common.classpath">
         <pathelement location="${Common.location}/bin"/>
@@ -76,7 +75,7 @@
 
     <target depends="init" name="build-project">
         <echo message="${ant.project.name}: ${ant.file}"/>
-        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" source="${source}" target="${target}" encoding="UTF8">
+        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" release="${release}" encoding="UTF8">
             <src path="."/>
             <classpath refid="Render_Harness.classpath"/>
         </javac>

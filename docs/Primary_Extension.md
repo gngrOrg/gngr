@@ -5,7 +5,7 @@ Prefix shorthand: o.l. = org.lobobrowser., o.l.p. = org.lobobrowser.primary..
 Extension manifest (gngr-extension.properties): extension.class=org.lobobrowser.primary.ext.ExtensionImpl, extension.priority=10 (highest/exclusive primary priority; discovered by Platform_Core's ExtensionManager via ext.files / ext.dirs / /flat-extensions).
 Build dependencies:
 - Internal modules: Platform_Public_API, Common, Platform_Core (GeneralSettings, ConnectionSettings, StorageManager, RequestEngine, AbstractRequestHandler, ClientletRequestHandler, ClientletRequestImpl, SilentUserAgentContextImpl, UserAgentImpl, DomainValidation, PlatformInit, OS, ConsoleModel, DefaultWindowFactory, NavigatorWindowImpl), HTML_Renderer (HtmlPanel, HTMLDocumentImpl, HtmlRendererContext, BrowserFrame, DocumentBuilderImpl, Window, JavaScript, DOM impls).
-- External/JDK: JDK 1.8 (java.awt.*, javax.swing.*, org.w3c.dom.*), Rhino (org.mozilla.javascript.Scriptable in SimpleDocument), org.eclipse.jdt.annotation.
+- External/JDK: JDK 11 (java.awt.*, javax.swing.*, org.w3c.dom.*), Rhino (org.mozilla.javascript.Scriptable in SimpleDocument), org.eclipse.jdt.annotation.
 - **No other module has a compile-time dependency on Primary_Extension.**
 
 ## 1. Package & Resource Map
