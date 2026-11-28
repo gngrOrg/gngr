@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.lobobrowser.html.FormInput;
+import org.lobobrowser.js.HideFromJS;
 import org.mozilla.javascript.Function;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.html.HTMLCollection;
@@ -161,7 +162,7 @@ public class HTMLSelectElementImpl extends HTMLBaseInputElement implements HTMLS
     ic.setSelectedIndex(this.deferredSelectedIndex);
   }
 
-  private Function onchange;
+  private volatile Function onchange;
 
   public Function getOnchange() {
     return this.getEventFunction(this.onchange, "onchange");
@@ -169,5 +170,23 @@ public class HTMLSelectElementImpl extends HTMLBaseInputElement implements HTMLS
 
   public void setOnchange(final Function value) {
     this.onchange = value;
+  }
+
+  @Override
+  @HideFromJS
+  public boolean hasInlineEventHandler(final String eventType) {
+    if ("change".equalsIgnoreCase(eventType)) {
+      return this.hasEventFunction(this.onchange, "onchange");
+    }
+    return super.hasInlineEventHandler(eventType);
+  }
+
+  @Override
+  @HideFromJS
+  public Function getInlineEventHandler(final String eventType) {
+    if ("change".equalsIgnoreCase(eventType)) {
+      return this.getOnchange();
+    }
+    return super.getInlineEventHandler(eventType);
   }
 }

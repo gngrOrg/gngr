@@ -40,6 +40,7 @@ import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.logging.Level;
@@ -228,8 +229,10 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
   }
 
   private abstract static class JSTask implements Comparable<JSTask> {
+    private static final AtomicLong SEQUENCE = new AtomicLong(0);
     protected final int priority;
     protected final long creationTime;
+    private final long sequenceNumber;
     protected final String description;
     private final AccessControlContext context;
 
@@ -239,20 +242,18 @@ public class Window extends AbstractScriptableDelegate implements AbstractView, 
       this.description = description;
       this.context = AccessController.getContext();
       this.creationTime = System.nanoTime();
+      this.sequenceNumber = SEQUENCE.getAndIncrement();
     }
 
     // TODO: Add a way to stop a task. It should return false if the task can't be stopped in which case a thread kill will be performed by the task scheduler.
 
     // TODO: Sorting by priority
     public int compareTo(final JSTask o) {
-      final long diffCreation = (o.creationTime - creationTime);
-      if (diffCreation < 0) {
-        return 1;
-      } else if (diffCreation == 0) {
-        return 0;
-      } else {
-        return -1;
+      final int timeCmp = Long.compare(this.creationTime, o.creationTime);
+      if (timeCmp != 0) {
+        return timeCmp;
       }
+      return Long.compare(this.sequenceNumber, o.sequenceNumber);
     }
 
     public boolean shouldExecute() {

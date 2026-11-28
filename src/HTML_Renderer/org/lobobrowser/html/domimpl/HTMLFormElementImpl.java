@@ -32,7 +32,11 @@ import org.lobobrowser.html.HtmlRendererContext;
 import org.lobobrowser.html.js.Executor;
 import org.lobobrowser.html.js.Window;
 import org.lobobrowser.html.js.Window.JSSupplierTask;
+import org.lobobrowser.ua.UserAgentContext;
+import org.lobobrowser.ua.UserAgentContext.Request;
+import org.lobobrowser.ua.UserAgentContext.RequestKind;
 import org.mozilla.javascript.Function;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.html.HTMLCollection;
@@ -156,7 +160,7 @@ public class HTMLFormElementImpl extends HTMLAbstractUIElement implements HTMLFo
     this.submit(null);
   }
 
-  private Function onsubmit;
+  private volatile Function onsubmit;
 
   public void setOnsubmit(final Function value) {
     this.onsubmit = value;
@@ -175,15 +179,25 @@ public class HTMLFormElementImpl extends HTMLAbstractUIElement implements HTMLFo
    *          submit button parameter.
    */
   public final void submit(final FormInput[] extraFormInputs) {
-    final Function onsubmit = this.getOnsubmit();
-    if (onsubmit != null) {
+    final UserAgentContext uac = this.getUserAgentContext();
+    final boolean jsPermitted = uac != null && uac.isScriptingEnabled()
+        && uac.isRequestPermitted(new Request(this.getDocumentURL(), RequestKind.JavaScript));
+    final Document expectedDoc = this.document;
+    if (jsPermitted && this.hasEventFunction(this.onsubmit, "onsubmit") && (expectedDoc instanceof HTMLDocumentImpl)) {
       // TODO: onsubmit event object?
       // dispatchEvent(new Event("submit", this));
-      final Window window = ((HTMLDocumentImpl) document).getWindow();
-      window.addJSTask(new JSSupplierTask<>(0, () -> {
-        return Executor.executeFunction(this, onsubmit, null, window.getContextFactory());
+      final Window window = ((HTMLDocumentImpl) expectedDoc).getWindow();
+      window.addJSTaskUnchecked(new JSSupplierTask<>(0, () -> {
+        if (window.getDocumentNode() != expectedDoc) {
+          return Boolean.FALSE;
+        }
+        final Function fn = this.getOnsubmit();
+        if (fn == null) {
+          return Boolean.TRUE;
+        }
+        return Boolean.valueOf(Executor.executeFunction(this, fn, null, window.getContextFactory()));
       }, (result) -> {
-        if (result) {
+        if (Boolean.TRUE.equals(result) && (window.getDocumentNode() == expectedDoc)) {
           submitFormImpl(extraFormInputs);
         }
       }));

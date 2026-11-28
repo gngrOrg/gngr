@@ -3,11 +3,13 @@ package org.lobobrowser.html.domimpl;
 import java.security.CodeSource;
 import java.security.cert.Certificate;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
 
 import org.lobobrowser.html.js.Executor;
 import org.lobobrowser.html.js.Window;
+import org.lobobrowser.js.HideFromJS;
 import org.lobobrowser.js.JavaScript;
 import org.lobobrowser.ua.UserAgentContext;
 import org.mozilla.javascript.Context;
@@ -20,7 +22,7 @@ import org.w3c.dom.Document;
  * Implements common functionality of most elements.
  */
 public class HTMLAbstractUIElement extends HTMLElementImpl {
-  private Function onfocus, onblur, onclick, ondblclick, onmousedown, onmouseup, onmouseover, onmousemove, onmouseout, onkeypress,
+  private volatile Function onfocus, onblur, onclick, ondblclick, onmousedown, onmouseup, onmouseover, onmousemove, onmouseout, onkeypress,
       onkeydown, onkeyup, oncontextmenu;
 
   public HTMLAbstractUIElement(final String name) {
@@ -146,6 +148,106 @@ public class HTMLAbstractUIElement extends HTMLElementImpl {
   }
 
   private Map<String, Function> functionByAttribute = null;
+
+  /**
+   * Checks whether an inline handler is set via JS property or non-empty HTML attribute
+   * without entering Rhino or compiling the attribute code. Safe to call on the EDT.
+   */
+  @HideFromJS
+  protected boolean hasEventFunction(final Function varValue, final String attributeName) {
+    if (varValue != null) {
+      return true;
+    }
+    final UserAgentContext uac = this.getUserAgentContext();
+    if (uac == null || !uac.isScriptingEnabled()) {
+      return false;
+    }
+    final String normalAttributeName = normalizeAttributeName(attributeName);
+    synchronized (this) {
+      final Map<String, Function> fba = this.functionByAttribute;
+      if (fba != null && fba.containsKey(normalAttributeName)) {
+        return fba.get(normalAttributeName) != null;
+      }
+    }
+    final String attributeValue = this.getAttribute(attributeName);
+    return (attributeValue != null) && (attributeValue.length() != 0);
+  }
+
+  @Override
+  @HideFromJS
+  public boolean hasInlineEventHandler(final String eventType) {
+    if (eventType == null) {
+      return false;
+    }
+    switch (eventType.toLowerCase(Locale.ROOT)) {
+    case "click":
+      return this.hasEventFunction(this.onclick, "onclick");
+    case "dblclick":
+      return this.hasEventFunction(this.ondblclick, "ondblclick");
+    case "mousedown":
+      return this.hasEventFunction(this.onmousedown, "onmousedown");
+    case "mouseup":
+      return this.hasEventFunction(this.onmouseup, "onmouseup");
+    case "mouseover":
+      return this.hasEventFunction(this.onmouseover, "onmouseover");
+    case "mousemove":
+      return this.hasEventFunction(this.onmousemove, "onmousemove");
+    case "mouseout":
+      return this.hasEventFunction(this.onmouseout, "onmouseout");
+    case "contextmenu":
+      return this.hasEventFunction(this.oncontextmenu, "oncontextmenu");
+    case "focus":
+      return this.hasEventFunction(this.onfocus, "onfocus");
+    case "blur":
+      return this.hasEventFunction(this.onblur, "onblur");
+    case "keypress":
+      return this.hasEventFunction(this.onkeypress, "onkeypress");
+    case "keydown":
+      return this.hasEventFunction(this.onkeydown, "onkeydown");
+    case "keyup":
+      return this.hasEventFunction(this.onkeyup, "onkeyup");
+    default:
+      return super.hasInlineEventHandler(eventType);
+    }
+  }
+
+  @Override
+  @HideFromJS
+  public Function getInlineEventHandler(final String eventType) {
+    if (eventType == null) {
+      return null;
+    }
+    switch (eventType.toLowerCase(Locale.ROOT)) {
+    case "click":
+      return this.getOnclick();
+    case "dblclick":
+      return this.getOndblclick();
+    case "mousedown":
+      return this.getOnmousedown();
+    case "mouseup":
+      return this.getOnmouseup();
+    case "mouseover":
+      return this.getOnmouseover();
+    case "mousemove":
+      return this.getOnmousemove();
+    case "mouseout":
+      return this.getOnmouseout();
+    case "contextmenu":
+      return this.getOncontextmenu();
+    case "focus":
+      return this.getOnfocus();
+    case "blur":
+      return this.getOnblur();
+    case "keypress":
+      return this.getOnkeypress();
+    case "keydown":
+      return this.getOnkeydown();
+    case "keyup":
+      return this.getOnkeyup();
+    default:
+      return super.getInlineEventHandler(eventType);
+    }
+  }
 
   protected Function getEventFunction(final Function varValue, final String attributeName) {
     if (varValue != null) {

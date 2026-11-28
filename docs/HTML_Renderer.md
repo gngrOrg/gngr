@@ -145,7 +145,7 @@ Renderable
 - **Positioning (DelayedPair):** position: absolute|fixed|relative elements bubble up as DelayedPairs via RenderableContainer.addDelayedPair() to their containingBlock (RBlock or RTable), which positions them in positionDelayed()/importDelayedPair(). Relative elements wrap in TranslatedRenderable and mark the original isDelegated() so it paints only in its z-ordered slot.
 - **Tables (RTable + TableMatrix):** TableMatrix builds RowGroup/Row/VirtualCell grid (handling colspan/rowspan and anonymous cells RAnonTableCell), measures column/row sizes, positions RTableCells, and paints backgrounds/borders.
 - **Swing Widgets (UIControl):** RUIControl bridges UIControl (BaseControl → ImgControl, HrControl, BaseInputControl → InputText/Password/Button/Checkbox/Radio/File/Image/Select/TextAreaControl; BrowserFrameUIControl; UIControlWrapper). Components register up to HtmlBlockPanel via addComponent() and are synced via updateGUIComponents() (avoids focus loss on relayout).
-- **Input (HtmlController):** singleton invoked by renderables on mouse/key events; runs inline JS on* handlers via Executor, dispatches DOM Event, calls HtmlRendererContext hooks, triggers link navigation (HTMLLinkElementImpl.navigate()) and form submit/reset, and toggles setMouseOver() for CSS :hover.
+- **Input (HtmlController):** singleton invoked by renderables on mouse/key events; updates immediate EDT UI state (`setMouseOver()` for CSS `:hover`, cursor, link press `overlayColor`) and delegates DOM events (inline `on*`, `addEventListener`, and post-dispatch default actions such as `HtmlRendererContext` hooks, `HTMLLinkElementImpl.navigate()`, and form submit/reset) to `EventTargetManager`.
 
 ### 3.6 Swing GUI Bridge (o.l.h.gui)
 - HtmlPanel (JComponent, FrameContext, DefferedLayoutSupport):
@@ -170,10 +170,10 @@ Renderable
   - JavaScript.init() installs a throwing global ContextFactory so all execution must use a Window's ContextFactory.
 - **Browser Runtime (o.l.h.js):**
   - Window: weakly cached per HtmlRendererContext (CONTEXT_WINDOWS). setDocument() runs onunload, calls clearState() (stops doc jobs, winds up JSScheduler, resets EventTargetManager, cancels timers, clears windowScope), initializes scope (initSafeStandardObjects, console, XMLHttpRequest, Path2D, Event, URL, URLSearchParams, localStorage/sessionStorage dummy Storage, element constructors Image/Script/IFrame/Option/Select/HTMLDivElement/Comment/Text), and starts JSScheduler.
-  - Window.JSScheduler: dedicated thread draining a PriorityBlockingQueue<ScheduledTask> (checks UserAgentContext.isRequestPermitted(..., JavaScript) and runs under captured AccessControlContext). Timers (setTimeout/setInterval) use Swing javax.swing.Timer whose ActionListener enqueues onto JSScheduler.
+  - Window.JSScheduler: dedicated thread draining a PriorityBlockingQueue<ScheduledTask> ordered by `creationTime` with a monotonic sequence tie-breaker for strict FIFO ordering (checks UserAgentContext.isRequestPermitted(..., JavaScript) and runs under captured AccessControlContext). Timers (setTimeout/setInterval) use Swing javax.swing.Timer whose ActionListener enqueues onto JSScheduler.
   - Window.MyContextFactory: Rhino VERSION_1_8, interpreter mode (optimizationLevel = -1), V8 extensions enabled, ClassShutter blocking java.* (except java.lang.Object and java.lang.*Exception), instruction observer every 100k ops throwing WindowClosingError on unload.
   - Executor: enters Window's ContextFactory, attaches PolicySecurityController (enforces non-null CodeSource per script), seals Context, invokes JS functions with event bound.
-  - EventTargetManager: stores per-NodeImpl (IdentityHashMap) EventListener and Rhino Function lists; dispatchEvent() builds target→ancestors propagation path and enqueues a JSEventTask on Window.JSScheduler that scans listeners per node along the path (AT_TARGET + BUBBLING_PHASE), sets `Event.currentTarget`, and honors `stopPropagation()` and `stopImmediatePropagation()` (capture phase & Window in path are TODO).
+  - EventTargetManager: stores per-NodeImpl (IdentityHashMap) synchronized EventListener and Rhino Function lists; `dispatchEvent(node, evt, stopNode, defaultAction)` builds the target→ancestors propagation path and takes a fast path on the caller thread when no Java/JS/inline handlers apply (or JS is blocked), otherwise enqueues a `JSEventTask` on `Window.JSScheduler` (guarded against stale documents) that runs inline `on<type>` handlers (compiling lazily off-EDT; `return false` calls `preventDefault()`), `EventListener`s, and Rhino `Function` listeners per node along the path (`AT_TARGET` + `BUBBLING_PHASE`), sets `Event.currentTarget`, honors `stopPropagation()` and `stopImmediatePropagation()`, and invokes `defaultAction` afterwards iff `!evt.getDefaultPrevented()` (with Swing-bound actions like `onContextMenu` and `resetForm` marshaled to the EDT; capture phase & Window in path are TODO).
   - XMLHttpRequest: wraps UserAgentContext.createHttpRequest() (NetworkRequest), dispatches onreadystatechange onto JSScheduler.
 
 ## 4. Concurrency, Invariants & Known Quirks
@@ -182,7 +182,7 @@ Renderable
   - *Parser thread* (host/clientlet): runs HtmlParser.parse(), mutates DOM, queues jobs.
   - *Job thread* (spawned in HTMLDocumentImpl.finishModifications()): fetches blocking CSS, external scripts, images, iframes.
   - *JSScheduler thread* (1 per Window): executes <script>, event listeners, timers, XHR callbacks sequentially.
-  - *Swing EDT*: all HtmlPanel/HtmlBlockPanel notification handling, layout (doLayout), painting, UINode reads/writes, and HtmlController mouse dispatch (note: HtmlController invokes inline on* handlers directly on EDT).
+  - *Swing EDT*: all HtmlPanel/HtmlBlockPanel notification handling, layout (doLayout), painting, UINode reads/writes, and HtmlController UI state (`:hover`, cursor, link overlay, `rcontext.onContextMenu`, `resetForm`); inline `on*` compilation & execution run on `JSScheduler`.
 - **Lock ordering:** Always acquire NodeImpl.treeLock (the owning HTMLDocumentImpl) **before** element monitor synchronized (this) (see HTMLElementImpl.getNodeData()). Never invoke DocumentNotificationListener callbacks while holding locks.
 - **Gotchas:**
   1. RBlock layout caching is currently disabled (value = null in RBlock.doLayout), whereas RTable caches LayoutKey→LayoutValue.
@@ -191,8 +191,7 @@ Renderable
   4. HTMLLinkElementImpl is shared by <link> and <a> (ElementFactory).
   5. Window instances are reused across documents in the same HtmlRendererContext (reset via clearState()).
   6. HtmlBlockPanel.doLayout() is a no-op while doc.layoutBlocked is true (until finishModifications() and all layoutBlocker jobs finish).
-  7. HtmlController.onMouseClick() invokes HTMLLinkElementImpl.navigate() before target.dispatchEvent(jsEvent) (and dispatchEvent() is async on JSScheduler), so event.preventDefault() cannot cancel navigation on normal <a href="..."> links; only href="javascript:..." and href="#..." (where navigate() returns false) continue to delegated DOM click listeners.
-  8. HTMLDocumentImpl sets `this.document = this`, so `document.getOwnerDocument()` returns `this` rather than `null` (non-standard W3C DOM, relied on by `NodeImpl.addEventListener()` and `Executor.executeFunction()` when dispatching events on `document`).
+  7. HTMLDocumentImpl sets `this.document = this`, so `document.getOwnerDocument()` returns `this` rather than `null` (non-standard W3C DOM, relied on by `NodeImpl.addEventListener()` and `Executor.executeFunction()` when dispatching events on `document`).
 
 ## 5. Task-to-File Quick Index
 

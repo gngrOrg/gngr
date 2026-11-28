@@ -1501,10 +1501,35 @@ public abstract class NodeImpl extends AbstractScriptableDelegate implements Nod
     ((HTMLDocumentImpl) getOwnerDocument()).getEventTargetManager().removeEventListener(this, type, listener, useCapture);
   }
 
+  @HideFromJS
+  public boolean hasInlineEventHandler(final String eventType) {
+    return false;
+  }
+
+  @HideFromJS
+  public Function getInlineEventHandler(final String eventType) {
+    return null;
+  }
+
   public boolean dispatchEvent(final Event evt) {
     System.out.println("Dispatching event: " + evt);
-    // dispatchEventToHandlers(evt, onEventHandlers.get(evt.getType()));
-    ((HTMLDocumentImpl) getOwnerDocument()).getEventTargetManager().dispatchEvent(this, evt);
+    return dispatchEvent(evt, null, null);
+  }
+
+  @HideFromJS
+  public boolean dispatchEvent(final Event evt, final Runnable defaultAction) {
+    return dispatchEvent(evt, null, defaultAction);
+  }
+
+  @HideFromJS
+  public boolean dispatchEvent(final Event evt, final ModelNode stopNode, final Runnable defaultAction) {
+    final Document ownerDoc = getOwnerDocument();
+    if (ownerDoc instanceof HTMLDocumentImpl) {
+      return ((HTMLDocumentImpl) ownerDoc).getEventTargetManager().dispatchEvent(this, evt, stopNode, defaultAction);
+    }
+    if (defaultAction != null) {
+      defaultAction.run();
+    }
     return false;
   }
 
